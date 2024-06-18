@@ -1,0 +1,42 @@
+[
+    {
+        "title": "Matching",
+        "description": "Les offres qui correspondent à votre profil.",
+        "gif": "home-matching",
+        "color": "#6699E5",
+        "value": 12,
+        "urlLink": "/matching"
+    },
+    {
+        "title": "Mes recherches",
+        "description": "Les offres qui correspondent à votre recherche.",
+        "gif": "home-search",
+        "color": "#DCAA3E",
+        "value": 32,
+        "urlLink": "/matching"
+    },
+    {
+        "title": "Propositions",
+        "description": "Les offres proposées par les agences.",
+        "gif": "home-invite",
+        "color": "#72C2BA",
+        "value": 26,
+        "urlLink": "/matching"
+    },
+    {
+        "title": "Candidatures",
+        "description": "Les offres sur lesquels vous avez postulé.",
+        "gif": "home-application",
+        "color": "#CD5F6E",
+        "value": 5,
+        "urlLink": "/matching"
+    },
+    {
+        "title": "Mes documents",
+        "description": "Contrats, fiches de paie, relevés d'heures, attestations, etc...",
+        "gif": "home-documents",
+        "color": "#8157ED",
+        "value": 0,
+        "urlLink": "/matching"
+    }
+]

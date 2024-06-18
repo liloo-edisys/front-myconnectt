@@ -1,0 +1,175 @@
+.title_container_radius {
+  border-radius: 10px;
+}
+
+.padding-horizontal-20 {
+  padding: 0 20px;
+}
+
+.document_icon {
+  margin-right: 10px;
+}
+
+.required_asterix {
+  color: red;
+}
+
+.h-30 {
+  height: 30px;
+}
+
+.flex-space-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-space-between-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.experience-title-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.experience-button-container {
+  display: flex;
+}
+
+.experience-button-container-bottom {
+  display: none;
+}
+
+.edit-button {
+  margin-right: 5px;
+}
+
+.job_title_experience {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 10px;
+}
+
+.action-button {
+  height: 30px;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loadcv_button {
+  width: 200px;
+}
+
+@media (max-width: 786px) {
+  .document_icon {
+    display: none;
+  }
+}
+
+/*@media (max-width: 425px) {
+  .padding-horizontal-20 {
+    padding: 0 10px;
+  }
+  .flex-space-between-button {
+    display: block;
+  }
+  .btn-responsive-edit {
+    width: 100%;
+  }
+  .btn-responsive {
+    width: 93%;
+  }
+}*/
+
+.experiences-scroll {
+  height: 370px;
+  overflow-y: scroll;
+}
+
+@media (max-width: 1440px) and (min-width: 1025px) {
+  .experience-button-container {
+    display: none;
+  }
+
+  .experience-button-container-bottom {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .experiences-scroll {
+    height: 450px;
+  }
+}
+
+@media (max-width: 768px) {
+  .experiences-scroll {
+    height: 350px;
+  }
+}
+
+@media (max-width: 425px) {
+  .experiences-scroll {
+    height: 330px;
+  }
+  .padding-horizontal-20 {
+    padding: 0 10px;
+  }
+  .flex-space-between-button {
+    display: block;
+  }
+  .btn-responsive-edit {
+    width: 100%;
+  }
+  .btn-responsive {
+    width: 93%;
+  }
+  .card-header {
+    padding: 10px;
+  }
+  .card.card-custom > .card-body {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 375px) {
+  .experience-button-container {
+    display: none;
+  }
+
+  .experience-button-container-bottom {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .experiences-scroll {
+    height: 450px;
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .flex-space-between-button {
+    display: block;
+  }
+  .btn-responsive-edit {
+    width: 100%;
+  }
+  .btn-responsive {
+    width: 95%;
+  }
+}
+
+@media (max-width: 375px) {
+  .btn-responsive {
+    width: 90%;
+  }
+}

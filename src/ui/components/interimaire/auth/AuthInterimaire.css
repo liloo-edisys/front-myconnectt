@@ -1,0 +1,55 @@
+.border-top-interimaire {
+  border-top: 5px solid #cc2936 !important;
+  box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 10%) !important;
+}
+
+.border-top-client {
+  border-top: 5px solid #8950fc !important;
+  box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 10%) !important;
+}
+
+.border-top-backoffice {
+  border-top: 5px solid #2e63a7 !important;
+  box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 10%) !important;
+}
+
+.background-interimaire {
+  background-image: url("/media/bg/fond-wordpress.jpg");
+}
+
+.separator-interimaire {
+  border: 1px solid #cc2936;
+}
+
+.separator-client {
+  border: 1px solid #8950fc;
+}
+
+.separator-backoffice {
+  border: 1px solid #2e63a7;
+}
+
+.display-mobile {
+  display: none;
+}
+
+@media (max-width: 786px) {
+  .display-mobile {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+  .mobile-link {
+    text-decoration: underline !important;
+  }
+}
+
+.logo_size {
+  height: 131px;
+}
+@media (max-width: 375px) {
+  .logo_size {
+    height: 80px;
+    width: 308px;
+  }
+}

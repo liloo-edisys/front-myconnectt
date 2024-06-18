@@ -1,0 +1,46 @@
+.title_container_radius {
+  border-radius: 10px;
+}
+
+.document_icon {
+  margin-right: 10px;
+}
+
+.required_asterix {
+  color: red;
+}
+
+.h-30 {
+  height: 30px;
+}
+
+.flex-space-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.padding-button-container {
+  padding: 20px;
+}
+
+.margin-button {
+  padding: 10px;
+  margin: 0 20px;
+}
+
+@media (max-width: 786px) {
+  .document_icon {
+    display: none;
+  }
+}
+
+@media (max-width: 425px) {
+  .padding-button-container {
+    padding: 0;
+  }
+  .margin-button {
+    padding: 5px;
+    margin: 0;
+  }
+}

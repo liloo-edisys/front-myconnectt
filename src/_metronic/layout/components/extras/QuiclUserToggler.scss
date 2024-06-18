@@ -1,0 +1,47 @@
+.desktop-menu {
+display: flex;
+}
+
+.mobile-menu {
+display: none;
+}
+
+.user-image-mobile {
+    display: flex;
+    margin-bottom: 10px;
+    justify-content: center;
+}
+
+.user-phone-mobile {
+    text-align:center;
+    color:white;
+    font-weight: bold;
+}
+
+.disconnect-button-mobile {
+    display: block;
+    text-align:center;
+}
+
+.disconnect_button_text {
+    color: #2f63a7;
+    width: 80%;
+}
+
+.notification-background {
+    background-color: #fff !important;
+}
+
+.header-mobile-row {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+@media (max-width: 786px) {
+    .desktop-menu {
+        display: none;
+    }        
+    .mobile-menu {
+        display: block;
+    }
+}

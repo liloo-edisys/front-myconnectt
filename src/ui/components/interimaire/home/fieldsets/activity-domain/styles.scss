@@ -1,0 +1,45 @@
+.title_container_radius {
+  border-radius: 10px;
+}
+
+.document_icon {
+  margin-right: 10px;
+}
+
+.required_asterix {
+  color: red;
+}
+
+.h-30 {
+  height: 30px;
+}
+
+.flex-space-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.padding-activity-title {
+  padding: 5rem;
+}
+
+.padding-activity-distance {
+  padding: 0 5rem;
+}
+
+@media (max-width: 786px) {
+  .document_icon {
+    display: none;
+  }
+}
+
+@media (max-width: 425px) {
+  .padding-activity-title {
+    padding: 5rem 5px;
+  }
+
+  .padding-activity-distance {
+    padding: 0;
+  }
+}

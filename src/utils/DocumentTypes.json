@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Document quelconque",
+    "id": 7
+  },
+  {
+    "name": "Carte d'identité",
+    "id": 8
+  },
+  {
+    "name": "Carte de séjour",
+    "id": 9
+  },
+  {
+    "name": "Carte vitale",
+    "id": 10
+  },
+  {
+    "name": "Justificatif de domicile",
+    "id": 11
+  },
+  {
+    "name": "RIB",
+    "id": 12
+  },
+  {
+    "name": "Habilitations",
+    "id": 13
+  }
+]

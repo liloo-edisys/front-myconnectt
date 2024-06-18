@@ -1,0 +1,11 @@
+.fc-header-toolbar
+  > .fc-toolbar-chunk:nth-child(2)
+  > .fc-myCustomButton-button {
+  font-size: 2em;
+  font-weight: bold;
+  background-color: white;
+  color: #2d3e50;
+  border: 0;
+  cursor: default;
+  padding: 0;
+}

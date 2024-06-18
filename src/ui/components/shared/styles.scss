@@ -1,0 +1,25 @@
+.notification-count {
+  position: absolute;
+  background-color: #3699ff;
+  top: 23px;
+  left: 25px;
+  border-radius: 10px;
+  font-size: 11px;
+  color: white;
+  min-width: 26px;
+  padding: 5px;
+}
+
+.notifications_modal .modal-dialog {
+  width: 95%;
+  height: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .notification-count {
+    left: 8px;
+  }
+}

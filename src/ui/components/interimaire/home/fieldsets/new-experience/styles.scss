@@ -1,0 +1,7 @@
+.date-input-content {
+  border-radius: 0 5px 5px 0;
+}
+
+.disbale_switch input:empty ~ span:after {
+  background-color: grey !important;
+}

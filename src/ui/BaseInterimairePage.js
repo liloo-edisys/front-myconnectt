@@ -1,0 +1,87 @@
+import React, { Suspense } from "react";
+
+import DashboardPage from "components/interimaire/dashboard/DashboardInterimairePage";
+import { Redirect, Switch } from "react-router-dom";
+
+import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout";
+
+import UnderConstruction from "./components/shared/UnderConstruction";
+import InterimaireMatchingContainer from "./containers/InterimaireMatchingContainer";
+import InterimaireMissionsContainer from "./containers/InterimaireMissionsContainer";
+import InterimairePropositionsContainer from "./containers/InterimairePropositionsContainer";
+import InterimaireApplicationsContainer from "./containers/InterimaireApplicationsContainer";
+import InterimaireFavoritesContainer from "./containers/InterimaireFavoritesContainer";
+import ProfileWizzard from "./components/interimaire/profile/profileForms/ProfileWizzard";
+import { shallowEqual, useSelector } from "react-redux";
+import Chat from "./components/interimaire/signalr/Chat";
+import Contracts from "./components/interimaire/missions/contracts";
+
+import EmailContactModal from "./components/client/Email/EmailContactModal";
+import Documents from "./components/interimaire/missions/documents";
+import HoursStatement from "./components/interimaire/hours-statement/HoursStatement";
+
+export default function BaseInterimairePage(props) {
+  let { user } = useSelector(
+    ({ auth, user }) => ({
+      user: user.user
+    }),
+    shallowEqual
+  );
+
+  return (
+    <Suspense fallback={<LayoutSplashScreen />}>
+      <Switch>
+        {
+          /* Redirect from root URL to /dashboard. */
+          <Redirect exact from="/" to="/int-dashboard" />
+        }
+
+        <ContentRoute
+          path="/int-profile-edit"
+          component={props => <ProfileWizzard userDetails={user} {...props} />}
+        />
+        {/*<ContentRoute path="/int-dashboard" component={DashboardPage} />*/}
+        <ContentRoute path="/int-dashboard" component={DashboardPage} />
+        {/*<ContentRoute path="/int-dashboard" component={Home} />*/}
+        <ContentRoute path="/search" component={InterimaireMissionsContainer} />
+        <ContentRoute
+          path="/favorites"
+          component={InterimaireFavoritesContainer}
+        />
+        <ContentRoute
+          path="/applications"
+          component={InterimaireApplicationsContainer}
+        />
+        <ContentRoute
+          path="/matching"
+          component={InterimaireMatchingContainer}
+        />
+        <ContentRoute
+          path="/propositions"
+          component={InterimairePropositionsContainer}
+        />
+        <ContentRoute path="/contracts" component={Contracts} />
+        <ContentRoute path="/documents" component={Documents} />
+        <ContentRoute path="/rhs" component={UnderConstruction} />
+        <ContentRoute path="/bulletins" component={UnderConstruction} />
+        <ContentRoute path="/certificates" component={UnderConstruction} />
+        <ContentRoute path="/chat" component={Chat} />
+        <ContentRoute path="/cra" component={HoursStatement} />
+
+        <ContentRoute path={`/contact`}>
+          {({ history, match }) => (
+            <EmailContactModal
+              show={match != null}
+              history={history}
+              onHide={() => {
+                history.goBack();
+              }}
+            />
+          )}
+        </ContentRoute>
+
+        <Redirect to="error/int-error-v1" />
+      </Switch>
+    </Suspense>
+  );
+}

@@ -1,0 +1,45 @@
+label.star-checkbox {
+  /* Presentation */
+  font-size: 45px;
+}
+
+/* Required Styling */
+
+label.star-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.custom-checkbox {
+  margin-left: 1em;
+  position: relative;
+  cursor: pointer;
+}
+
+.star-list-checkbox {
+  top: -0.35em;
+}
+
+.custom-checkbox .flaticon {
+  color: gray;
+  position: absolute;
+  left: -1.45em;
+  font-size: 0.65em;
+}
+
+.custom-checkbox .flaticon-star {
+  opacity: 0.5;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.custom-checkbox:hover .flaticon-star {
+  opacity: 0.8;
+}
+
+.custom-checkbox input[type="checkbox"]:checked ~ .flaticon-star {
+  opacity: 1;
+  color: gold;
+}
+
+.heart-icon-color {
+  color: gold;
+}

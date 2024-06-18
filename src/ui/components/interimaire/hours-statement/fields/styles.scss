@@ -1,0 +1,36 @@
+.applicant_hours_statement_body {
+  margin: 1.25rem !important;
+}
+
+.applicant_hours_array_responsive {
+  display: none;
+}
+.hours_statement_legend_responsive {
+  display: none;
+}
+
+@media (max-width: 425px) {
+  .applicant_hours_statement_body {
+    margin-top: 1.25rem !important;
+    margin-bottom: 1.25rem !important;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
+  .applicant_hours_array {
+    display: none;
+  }
+  .applicant_hours_array_responsive {
+    display: flex;
+  }
+
+  .hours_statement_legend {
+    display: none;
+  }
+  .hours_statement_legend_responsive {
+    display: block;
+  }
+  .hours_statement_remunerations_responsive {
+    text-align: center;
+    font-size: 10px;
+  }
+}
