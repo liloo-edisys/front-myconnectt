@@ -1,0 +1,37 @@
+# Utilise l'image officielle Node.js version 16.20.2
+FROM node:16.20.2 AS build
+
+# Définit le répertoire de travail dans le conteneur
+WORKDIR /app
+
+# Copie le fichier package.json et package-lock.json (si disponible)
+COPY package*.json ./
+
+# Installe les dépendances en utilisant npm avec --legacy-peer-deps
+RUN npm install --legacy-peer-deps
+
+# Copie le reste des fichiers de l'application dans le conteneur
+COPY . .
+
+# Exécute la commande de build
+RUN npm run build:preprod
+
+
+# Utilise l'image officielle Node.js version 16.20.2
+FROM node:16.20.2
+
+
+COPY --from=build /app/preprod preprod
+
+# Définit le dossier exposé
+EXPOSE 3000
+
+ENV REACT_APP_ENV=PREPROD
+ENV IS_PRODUCTION=true
+ENV SKIP_PREFLIGHT_CHECK=true
+ENV REACT_APP_WEBAPI_URL=https://myconnectt-apiback-preprod.azurewebsites.net/
+ENV REACT_APP_TENANT_ID=1
+ENV REACT_APP_URL=https://localhost:3000/
+
+# Commande par défaut pour exécuter l'application
+CMD ["npx", "serve", "-s", "preprod"]
