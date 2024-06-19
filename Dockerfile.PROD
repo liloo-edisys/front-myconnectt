@@ -14,14 +14,14 @@ RUN npm install --legacy-peer-deps
 COPY . .
 
 # Exécute la commande de build
-RUN npm run build:preprod
+RUN npm run build
 
 
 # Utilise l'image officielle Node.js version 16.20.2
 FROM node:16.20.2
 
 
-COPY --from=build /app/preprod preprod
+COPY --from=build /app/prod prod
 
 # Définit le dossier exposé
 EXPOSE 3000
@@ -34,4 +34,4 @@ ENV REACT_APP_TENANT_ID=1
 ENV REACT_APP_URL=https://localhost:3000/
 
 # Commande par défaut pour exécuter l'application
-CMD ["npx", "serve", "-s", "preprod"]
+CMD ["npx", "serve", "-s", "prod"]
