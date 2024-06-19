@@ -26,10 +26,10 @@ COPY --from=build /app/preprod preprod
 # Définit le dossier exposé
 EXPOSE 3000
 
-ENV REACT_APP_ENV=PREPROD
+ENV REACT_APP_ENV=PROD
 ENV IS_PRODUCTION=true
 ENV SKIP_PREFLIGHT_CHECK=true
-ENV REACT_APP_WEBAPI_URL=https://myconnectt-apiback-preprod.azurewebsites.net/
+ENV REACT_APP_WEBAPI_URL=https://myconnectt-apiback-prod.azurewebsites.net/
 ENV REACT_APP_TENANT_ID=1
 ENV REACT_APP_URL=https://localhost:3000/
 
