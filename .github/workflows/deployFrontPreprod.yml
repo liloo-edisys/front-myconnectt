@@ -30,13 +30,13 @@ jobs:
 
     - name: Build and push Docker image
       run: |
-        IMAGE_TAG=front-pprod-${{ github.sha }}
-        docker build -f Dockerfile.PREPROD -t registryapiback.azurecr.io/myconnecttwebapi:$IMAGE_TAG .
-        docker push registryapiback.azurecr.io/myconnecttwebapi:$IMAGE_TAG
+        IMAGE_TAG=pprod-${{ github.sha }}
+        docker build -f Dockerfile.PREPROD -t registryapiback.azurecr.io/myconnecttwebfront:$IMAGE_TAG .
+        docker push registryapiback.azurecr.io/myconnecttwebfront:$IMAGE_TAG
 
     - name: Azure Web App Deploy
       uses: azure/webapps-deploy@v2
       with:
         app-name: myconnectt-front-pprod
         publish-profile: ${{ secrets.AZURE_FRONT_WEBAPP_PUBLISH_PROFILE }}
-        images: registryapiback.azurecr.io/myconnecttwebapi:$IMAGE_TAG
+        images: registryapiback.azurecr.io/myconnecttwebfront:$IMAGE_TAG
