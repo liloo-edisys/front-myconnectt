@@ -29,12 +29,12 @@ jobs:
 
     - name: Build and push Docker Image
       run: |
-        docker build -f Dockerfile.PROD -t registryapiback.azurecr.io/myconnecttfront:${{ github.sha }} .
-        docker push registryapiback.azurecr.io/myconnecttfront:${{ github.sha }}
+        docker build -f Dockerfile.PROD -t registryapiback.azurecr.io/myconnecttwebfront:${{ github.sha }} .
+        docker push registryapiback.azurecr.io/myconnecttwebfront:${{ github.sha }}
       
     - name: Deploy App
       uses: azure/webapps-deploy@v2
       with:
         app-name: 'myconnectt-front'
         publish-profile: ${{ secrets.AZURE_FRONT_PROD_WEBAPP_PUBLISH_PROFILE }}
-        images: 'registryapiback.azurecr.io/myconnecttfront:${{ github.sha }}'
+        images: 'registryapiback.azurecr.io/myconnecttwebfront:${{ github.sha }}'
