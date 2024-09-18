@@ -11,12 +11,12 @@ import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout";
 import EmailContactModal from "./components/client/Email/EmailContactModal";
 import MissionWizardForm from "./components/client/missions/missionForms/MissionWizzard";
 import MissionPage from "./components/client/missions/MissionPage/MissionPage";
-import CompaniesContainer from "./containers/CompaniesContainer";
-import MissionsContainer from "./containers/MissionsContainer";
-import MissionTemplatesContainer from "./containers/MissionTemplatesContainer";
-import AccountInterimairesContainer from "./containers/AccountInterimairesContainer";
-import ContactsContainer from "./containers/ContactsContainer";
-import ProfileContainer from "./containers/ProfileContainer";
+import CompaniesContainer from "../business/containers/CompaniesContainer";
+import MissionsContainer from "../business/containers/MissionsContainer";
+import MissionTemplatesContainer from "../business/containers/MissionTemplatesContainer";
+import AccountInterimairesContainer from "../business/containers/AccountInterimairesContainer";
+import ContactsContainer from "../business/containers/ContactsContainer";
+import ProfileContainer from "../business/containers/ProfileContainer";
 import UnderConstruction from "./components/shared/UnderConstruction";
 import CommercialAgreement from "./components/client/commercial-agreement";
 import ContractsClient from "./components/client/missions/contracts-client";
@@ -29,7 +29,7 @@ import Reciepts from "./components/client/missions/reciepts/Reciepts";
 export default function BasePage(props) {
   const dispatch = useDispatch();
   const { user, mission } = useSelector(
-    state => ({
+    state => ({ 
       user: state.auth.user,
       mission: state.missionsReducerData.mission
     }),

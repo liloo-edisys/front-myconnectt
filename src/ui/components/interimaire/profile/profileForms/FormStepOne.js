@@ -20,7 +20,7 @@ import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { useDropzone } from "react-dropzone";
 import { cancelEdit } from "../../../../../business/actions/interimaire/InterimairesActions";
 import { getInterimaire, parseResume } from "api/interimaire/InterimairesApi";
-import IframeGoogleDocs from "../../../../../utils/GoogleHacks";
+import IframeGoogleDocs from "../../../../../utils/googleHacks";
 import { parseResume as parseResumeActions } from "actions/interimaire/InterimairesActions";
 
 import { updateApplicant } from "../../../../../business/actions/client/ApplicantsActions";

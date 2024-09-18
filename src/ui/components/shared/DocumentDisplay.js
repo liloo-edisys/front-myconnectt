@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import IframeGoogleDocs from "../../../utils/GoogleHacks";
+import IframeGoogleDocs from "../../../utils/googleHacks";
 
 function DocumentDisplay(props) {
   const [docType, setDocType] = useState(null);

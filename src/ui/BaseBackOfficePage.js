@@ -13,13 +13,13 @@ import Interimaires from "./components/backoffice/interimaires";
 import BackOfficeDashboardPage from "./components/backoffice/dashboard/BackOfficeDashboardPage";
 import BackOfficeDashboardPageNew from "./components/backoffice/dashboard/BackOfficeDashboardPageNew";
 import Contracts from "./components/backoffice/contracts";
-import NewApplicant from "./components/backoffice/new-applicant/";
-import CustomersContainer from "./containers/CustomersContainer";
+import NewApplicant from "./components/backoffice/new-applicant";
+import CustomersContainer from "../business/containers/CustomersContainer";
 import MissionsPage from "./components/backoffice/missions/missionlist/MissionsPage";
 import NewMission from "./components/backoffice/new-mission";
 import MailTemplatesPage from "./components/backoffice/mailtemplates/MailTemplatesPage";
 import CommercialAgreementsPage from "./components/backoffice/commercialagreements/CommercialAgreementsPage";
-import { CustomerOrderPage } from "./components/backoffice/customer-order/";
+import { CustomerOrderPage } from "./components/backoffice/customer-order";
 import FinalStep from "./components/backoffice/new-mission/fields/mission-creator/missionForms/FinalStep";
 import UsersCard from "./components/backoffice/users";
 import HoursStatement from "./components/backoffice/hours-statement/HoursStatement";
@@ -32,7 +32,7 @@ import { Jobtitles } from "./components/backoffice/jobtitle";
 import Messenger from "./components/backoffice/messenger/Messenger";
 import Declinaisons from "./components/backoffice/declinaisons/Declinaisons";
 import Setting from "./components/backoffice/setting";
-import ContactsContainer from "./containers/ContactsContainerBackoffice";
+import ContactsContainer from "../business/containers/ContactsContainerBackoffice";
 import Statistiques from "./components/backoffice/statistiques/statistiques";
 
 export default function BaseBackOfficePage(props) {

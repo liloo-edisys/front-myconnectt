@@ -19,7 +19,7 @@ import useLocalStorage from "../../../../shared/PersistState";
 import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
 import { parseResume as parseResumeActions } from "actions/interimaire/InterimairesActions";
 import { parseResume } from "api/interimaire/InterimairesApi";
-import IframeGoogleDocs from "../../../../../../utils/GoogleHacks";
+import IframeGoogleDocs from "../../../../../../utils/googleHacks";
 import { NewExperience } from "../new-experience";
 import Data from "../../experiences.json";
 import Moment from "moment";

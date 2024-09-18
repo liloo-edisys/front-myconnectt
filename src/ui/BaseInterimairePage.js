@@ -6,11 +6,11 @@ import { Redirect, Switch } from "react-router-dom";
 import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout";
 
 import UnderConstruction from "./components/shared/UnderConstruction";
-import InterimaireMatchingContainer from "./containers/InterimaireMatchingContainer";
-import InterimaireMissionsContainer from "./containers/InterimaireMissionsContainer";
-import InterimairePropositionsContainer from "./containers/InterimairePropositionsContainer";
-import InterimaireApplicationsContainer from "./containers/InterimaireApplicationsContainer";
-import InterimaireFavoritesContainer from "./containers/InterimaireFavoritesContainer";
+import InterimaireMatchingContainer from "../business/containers/InterimaireMatchingContainer";
+import InterimaireMissionsContainer from "../business/containers/InterimaireMissionsContainer";
+import InterimairePropositionsContainer from "../business/containers/InterimairePropositionsContainer";
+import InterimaireApplicationsContainer from "../business/containers/InterimaireApplicationsContainer";
+import InterimaireFavoritesContainer from "../business/containers/InterimaireFavoritesContainer";
 import ProfileWizzard from "./components/interimaire/profile/profileForms/ProfileWizzard";
 import { shallowEqual, useSelector } from "react-redux";
 import Chat from "./components/interimaire/signalr/Chat";

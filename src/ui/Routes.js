@@ -22,9 +22,9 @@ import RegisterConfirm from "../ui/components/client/auth/RegisterConfirm";
 import ResetPassword from "../ui/components/client/auth/ResetPassword";
 import { getNationalitiesList } from "../business/actions/interimaire/InterimairesActions";
 
-import BasePage from "./BasePage";
-import BaseInterimairePage from "./BaseInterimairePage";
-import BaseBackOfficePage from "./BaseBackOfficePage";
+import BasePage from "./basePage";
+import BaseInterimairePage from "./baseInterimairePage";
+import BaseBackOfficePage from "./baseBackOfficePage";
 import DocumentDisplay from "./components/shared/DocumentDisplay";
 
 export function Routes() {

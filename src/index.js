@@ -26,7 +26,7 @@ import {
   MetronicSplashScreenProvider,
   MetronicSubheaderProvider
 } from "./_metronic/layout";
-import App from "./ui/App";
+import App from "./ui/app";
 
 /**
  * Base URL of the website.
