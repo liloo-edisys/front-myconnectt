@@ -29,7 +29,7 @@ import Reciepts from "./components/client/missions/reciepts/Reciepts";
 export default function BasePage(props) {
   const dispatch = useDispatch();
   const { user, mission } = useSelector(
-    state => ({ 
+    state => ({
       user: state.auth.user,
       mission: state.missionsReducerData.mission
     }),

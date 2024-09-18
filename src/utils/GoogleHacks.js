@@ -33,7 +33,7 @@ export default class IframeGoogleDocs extends Component {
       this.prevRef = this.url.current;
     }
   }
- 
+
   render() {
     if (this.props.loading === true) {
       return this.updateIframeSrc;

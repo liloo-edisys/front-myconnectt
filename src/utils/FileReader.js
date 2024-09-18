@@ -24,5 +24,5 @@ class CustomFileReader extends Component {
     );
   }
 }
- 
+
 export default CustomFileReader;
