@@ -2,15 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import BootstrapTable from "react-bootstrap-table-next";
 import { FormattedMessage, useIntl } from "react-intl";
-import { useHistory } from "react-router-dom";
 import * as actionTypes from "constants/constants";
 import { getCommercialAgreements } from "../../../../business/actions/backoffice/commercialAgreementsActions";
 import paginationFactory, {
   PaginationListStandalone,
   PaginationProvider
 } from "react-bootstrap-table2-paginator";
-import { CommercialAgreementEditDialog } from "./commercialAgreementsModals/CommercialAgreementEditDialog";
-import { CommercialAgreementDeleteDialog } from "./commercialAgreementsModals/CommercialAgreementDeleteDialog";
+import { CommercialAgreementEditDialog } from "./commercialAgreementsModals/commercialAgreementEditDialog.jsx";
+import { CommercialAgreementDeleteDialog } from "./commercialAgreementsModals/commercialAgreementDeleteDialog.jsx";
 import {
   getAccountGroups,
   getJobTitles,

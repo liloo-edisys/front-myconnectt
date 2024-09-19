@@ -1,10 +1,9 @@
 import React from "react";
 
 import { connect } from "react-redux";
-import { Route } from "react-router-dom";
 
-import { CommercialAgreementsUIProvider } from "./CommercialAgreementsUIContext";
-import CommercialAgreementsCard from "./CommercialAgreementsCard";
+import { CommercialAgreementsUIProvider } from "./commercialAgreementsUIContext.jsx";
+import CommercialAgreementsCard from "./commercialAgreementsCard.jsx";
 
 class CommercialAgreementsPage extends React.Component {
   constructor(props) {

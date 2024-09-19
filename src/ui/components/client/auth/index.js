@@ -1,2 +1,2 @@
-export { AuthPage } from "./AuthPage";
-export { default as Logout } from "./Logout";
+export { AuthPage } from "./authPage.jsx";
+export { default as Logout } from "./logout.jsx";

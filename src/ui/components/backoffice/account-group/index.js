@@ -1,3 +1,3 @@
-import AccountsGroup from "./AccountsGroup";
+import AccountsGroup from "./accountsGroup.jsx";
 
 export { AccountsGroup };

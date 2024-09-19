@@ -2,17 +2,17 @@
 import React from "react";
 
 import { FormattedMessage } from "react-intl";
-import { Link, Switch, Redirect } from "react-router-dom";
+import { Switch, Redirect } from "react-router-dom";
 
-import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
-import { ContentRoute } from "../../../../_metronic/layout";
+import { toAbsoluteUrl } from "../../../../_metronic/_helpers/index.js";
+import { ContentRoute } from "../../../../_metronic/layout/index.js";
 
-import ForgotPassword from "./ForgotPassword";
-import Login from "./Login";
-import RegisterConfirm from "./RegisterConfirm";
-import Registration from "./Registration";
+import ForgotPassword from "./forgotPassword.jsx";
+import Login from "./login.jsx";
+import RegisterConfirm from "./registerConfirm.jsx";
+import Registration from "./registration.jsx";
 import "../../../../_metronic/_assets/sass/pages/login/classic/login-5.scss";
-import ResetPassword from "./ResetPassword";
+import ResetPassword from "./resetPassword.jsx";
 
 export function AuthPage() {
   const today = new Date().getFullYear();

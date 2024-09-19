@@ -16,7 +16,7 @@ export const REGISTER_INTERIMAIRE_URL =
 export const CHECK_INTERIMAIRE_SMS_CODE =
   process.env.REACT_APP_WEBAPI_URL + "api/applicant/ConfirmSms";
 export const REQUEST_PASSWORD_URL =
-  process.env.REACT_APP_WEBAPI_URL + "api/User/ForgotPassword";
+  process.env.REACT_APP_WEBAPI_URL + "api/User/forgotPassword";
 export const RESET_PASSWORD_URL =
   process.env.REACT_APP_WEBAPI_URL + "api/User/UpdatePassword";
 export const REGISTER_CONFIRM_URL =

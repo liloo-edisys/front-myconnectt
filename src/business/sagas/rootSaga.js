@@ -1,23 +1,23 @@
 import { all, call, fork, spawn } from "redux-saga/effects";
-import AuthSaga from "./shared/AuthSagas";
+import AuthSaga from "./shared/authSagas";
 
-import CompaniesSagas from "./client/CompaniesSagas";
-import ContactsSagas from "./client/ContactsSagas";
-import DashboardSagas from "./client/DashboardSagas";
-import DashboardInterimaireSagas from "./interimaire/DashboardSagas";
-import EmailSagas from "./client/EmailSagas";
-import UserSagas from "./client/UserSagas";
-import VacanciesSagas from "./client/VacanciesSagas";
-import ListsSagas from "./shared/ListsSagas";
-import MissionsSagas from "./client/MissionsSagas";
-import ApplicantsSagas from "./client/ApplicantsSagas";
-import InterimairesSagas from "./interimaire/InterimairesSagas";
-import RecruiterSagas from "./backoffice/RecruiterSagas";
-import BackOfficeDashboardSagas from "./backoffice/BackOfficeDashboardSagas";
-import AccountsSagas from "./backoffice/AccountsSagas";
-import MailTemplatesSagas from "./backoffice/MailTemplatesSagas";
-import CommercialAgreementsSagas from "./backoffice/CommercialAgreementsSagas";
-import ApplicantsBackofficeSagas from "./backoffice/ApplicantsSagas";
+import CompaniesSagas from "./client/companiesSagas";
+import ContactsSagas from "./client/contactsSagas";
+import DashboardSagas from "./client/dashboardSagas";
+import DashboardInterimaireSagas from "./interimaire/dashboardSagas";
+import EmailSagas from "./client/emailSagas";
+import UserSagas from "./client/userSagas";
+import VacanciesSagas from "./client/vacanciesSagas";
+import ListsSagas from "./shared/listsSagas";
+import MissionsSagas from "./client/missionsSagas";
+import ApplicantsSagas from "./client/applicantsSagas";
+import InterimairesSagas from "./interimaire/interimairesSagas";
+import RecruiterSagas from "./backoffice/recruiterSagas";
+import BackOfficeDashboardSagas from "./backoffice/backOfficeDashboardSagas";
+import AccountsSagas from "./backoffice/accountsSagas";
+import MailTemplatesSagas from "./backoffice/mailTemplatesSagas";
+import CommercialAgreementsSagas from "./backoffice/commercialAgreementsSagas";
+import ApplicantsBackofficeSagas from "./backoffice/applicantsSagas";
 
 export function* startWatchers() {
   yield all([

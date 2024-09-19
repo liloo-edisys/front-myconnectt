@@ -1,17 +1,13 @@
 import React, { useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-import { connect } from "react-redux";
-import { NavLink } from "react-router-dom";
 
 import {
   Card,
   CardHeader,
-  CardBody,
-  CardHeaderToolbar
-} from "../../../../_metronic/_partials/controls";
+  CardBody} from "../../../../_metronic/_partials/controls";
 
-import CommercialAgreementsTable from "./CommercialAgreementsTable";
-import { CommercialAgreementCreateDialog } from "./commercialAgreementsModals/CommercialAgreementCreateDialog";
+import CommercialAgreementsTable from "./commercialAgreementsTable.jsx";
+import { CommercialAgreementCreateDialog } from "./commercialAgreementsModals/commercialAgreementCreateDialog.jsx";
 
 function CommercialAgreementsCard(props) {
   const [

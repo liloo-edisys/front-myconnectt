@@ -8,8 +8,8 @@ import paginationFactory, {
   PaginationProvider
 } from "react-bootstrap-table2-paginator";
 import { ContentRoute } from "../../../../_metronic/layout";
-import AccountGroupForm from "./AccountGroupForm";
-import { AccountGroupDeleteModal } from "./AccountGroupDeleteModal";
+import AccountGroupForm from "./accountGroupForm.jsx";
+import { AccountGroupDeleteModal } from "./accountGroupDeleteModal.jsx";
 import { NavLink, useHistory } from "react-router-dom";
 
 function AccountsGroupTable(props) {

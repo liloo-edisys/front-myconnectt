@@ -13,13 +13,13 @@ import { Redirect, Switch, Route } from "react-router-dom";
 
 import { Layout } from "../_metronic/layout";
 import { Logout, AuthPage } from "../ui/components/client/auth";
-import { AuthBackOffice } from "../ui/components/backoffice/auth/AuthBackOffice";
-import LogoutBackOffice from "../ui/components/backoffice/auth/Logout";
+import { AuthBackOffice } from "../ui/components/backoffice/auth/authBackOffice.jsx";
+import LogoutBackOffice from "../ui/components/backoffice/auth/logout.jsx";
 import { AuthInterimaire } from "../ui/components/interimaire/auth/AuthInterimaire";
 import LogoutInterimaire from "../ui/components/interimaire/auth/LogoutInterimaire";
 import RegisterConfirmInterimaire from "../ui/components/interimaire/auth/RegisterConfirmInterimaire";
-import RegisterConfirm from "../ui/components/client/auth/RegisterConfirm";
-import ResetPassword from "../ui/components/client/auth/ResetPassword";
+import RegisterConfirm from "../ui/components/client/auth/registerConfirm.jsx";
+import ResetPassword from "./components/client/auth/resetPassword.jsx";
 import { getNationalitiesList } from "../business/actions/interimaire/interimairesActions";
 
 import BasePage from "./basePage";

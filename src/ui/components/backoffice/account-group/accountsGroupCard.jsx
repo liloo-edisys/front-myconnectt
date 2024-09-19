@@ -1,7 +1,6 @@
 import React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-import { connect } from "react-redux";
-import { NavLink, useHistory } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import {
   Card,
@@ -9,7 +8,7 @@ import {
   CardBody
 } from "../../../../_metronic/_partials/controls";
 
-import AccountsGroupTable from "./AccountsGroupTable";
+import AccountsGroupTable from "./accountsGroupTable.jsx";
 
 function AccountsGroupCard(props) {
   const intl = useIntl();

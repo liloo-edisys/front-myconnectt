@@ -1,6 +1,5 @@
 import React from "react";
-import { useIntl } from "react-intl";
-import AccountsGroupCard from "./AccountsGroupCard";
+import AccountsGroupCard from "./accountsGroupCard.jsx";
 
 function AccountsGroup(props) {
   return <AccountsGroupCard />;

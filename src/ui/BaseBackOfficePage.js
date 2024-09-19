@@ -18,7 +18,7 @@ import CustomersContainer from "../business/containers/customersContainer";
 import MissionsPage from "./components/backoffice/missions/missionlist/MissionsPage";
 import NewMission from "./components/backoffice/new-mission";
 import MailTemplatesPage from "./components/backoffice/mailtemplates/MailTemplatesPage";
-import CommercialAgreementsPage from "./components/backoffice/commercialagreements/CommercialAgreementsPage";
+import CommercialAgreementsPage from "./components/backoffice/commercialagreements/commercialAgreementsPage.jsx";
 import { CustomerOrderPage } from "./components/backoffice/customer-order";
 import FinalStep from "./components/backoffice/new-mission/fields/mission-creator/missionForms/FinalStep";
 import UsersCard from "./components/backoffice/users";

@@ -6,16 +6,16 @@ import { Switch, Redirect } from "react-router-dom";
 import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
 import { ContentRoute } from "../../../../_metronic/layout";
 
-import Login from "./Login";
-import ForgotPassword from "./ForgotPassword";
-import ResetPassword from "./ResetPassword";
+import Login from "./login.jsx";
+import ForgotPassword from "./forgotPassword.jsx";
+import ResetPassword from "./resetPassword.jsx";
 import "../../../../_metronic/_assets/sass/pages/login/classic/login-5.scss";
 
 export function AuthBackOffice() {
   const today = new Date().getFullYear();
   return (
     <>
-      <div className="d-flex flex-column flex-root">
+      <div className="d-flex flex-column flex-root"> 
         <div
           className="login login-5 login-signin-on d-flex flex-row-fluid"
           id="kt_login"
