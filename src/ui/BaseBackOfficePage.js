@@ -14,7 +14,7 @@ import BackOfficeDashboardPage from "./components/backoffice/dashboard/BackOffic
 import BackOfficeDashboardPageNew from "./components/backoffice/dashboard/BackOfficeDashboardPageNew";
 import Contracts from "./components/backoffice/contracts";
 import NewApplicant from "./components/backoffice/new-applicant";
-import CustomersContainer from "../business/containers/CustomersContainer";
+import CustomersContainer from "../business/containers/customersContainer";
 import MissionsPage from "./components/backoffice/missions/missionlist/MissionsPage";
 import NewMission from "./components/backoffice/new-mission";
 import MailTemplatesPage from "./components/backoffice/mailtemplates/MailTemplatesPage";
@@ -32,7 +32,7 @@ import { Jobtitles } from "./components/backoffice/jobtitle";
 import Messenger from "./components/backoffice/messenger/Messenger";
 import Declinaisons from "./components/backoffice/declinaisons/Declinaisons";
 import Setting from "./components/backoffice/setting";
-import ContactsContainer from "../business/containers/ContactsContainerBackoffice";
+import ContactsContainer from "../business/containers/contactsContainerBackoffice";
 import Statistiques from "./components/backoffice/statistiques/statistiques";
 
 export default function BaseBackOfficePage(props) {
