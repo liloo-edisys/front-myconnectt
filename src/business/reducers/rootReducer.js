@@ -1,26 +1,26 @@
 import * as actionTypes from "constants/constants";
 
 import { reducer as toastrReducer } from "react-redux-toastr";
-import { clientAuthReducer } from "reducers/share/AuthReducers";
+import { clientAuthReducer } from "reducers/share/authReducers";
 import { combineReducers } from "redux";
-import { clientApplicantsReducer } from "./client/ApplicantsReducers";
+import { clientApplicantsReducer } from "./client/applicantsReducers";
 
-import { clientCompaniesReducer } from "./client/CompaniesReducers";
-import { clientContactsReducer } from "./client/ContactsReducers";
-import { clientDashboardReducer } from "./client/DashboardReducers";
-import { interimaireDashboardReducer } from "./interimaire/DashboardReducers";
-import { backOfficeDashboardReducer } from "./backoffice/DashboardReducers";
-import { accountsReducer } from "./backoffice/AccountsReducers";
-import { clientMissionReducer } from "./client/MissionsReducers";
-import { clientUserReducer } from "./client/UserReducers";
-import { clientVacanciesReducer } from "./client/VacanciesReducers";
-import { errorReducers } from "./share/ErrorsReducer";
-import { listsReducer } from "./share/ListsReducers";
-import { InterimairesReducer } from "./interimaire/InterimairesReducers";
-import { recruiterReducer } from "./backoffice/RecruiterReducers";
-import { mailTemplatesdReducer } from "./backoffice/MailTemplatesReducers";
-import { commercialAgreementsdReducer } from "./backoffice/CommercialAgreementsReducers";
-import { missionsBackOfficeReducer } from "./backoffice/MissionsReducers";
+import { clientCompaniesReducer } from "./client/companiesReducers";
+import { clientContactsReducer } from "./client/contactsReducers";
+import { clientDashboardReducer } from "./client/dashboardReducers";
+import { interimaireDashboardReducer } from "./interimaire/dashboardReducers";
+import { backOfficeDashboardReducer } from "./backoffice/dashboardReducers";
+import { accountsReducer } from "./backoffice/accountsReducers";
+import { clientMissionReducer } from "./client/missionsReducers";
+import { clientUserReducer } from "./client/userReducers";
+import { clientVacanciesReducer } from "./client/vacanciesReducers";
+import { errorReducers } from "./share/errorsReducer";
+import { listsReducer } from "./share/listsReducers";
+import { InterimairesReducer } from "./interimaire/interimairesReducers";
+import { recruiterReducer } from "./backoffice/recruiterReducers";
+import { mailTemplatesdReducer } from "./backoffice/mailTemplatesReducers";
+import { commercialAgreementsdReducer } from "./backoffice/commercialAgreementsReducers";
+import { missionsBackOfficeReducer } from "./backoffice/missionsReducers";
 
 const appReducer = combineReducers({
   auth: clientAuthReducer,
