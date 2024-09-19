@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import BootstrapTable from "react-bootstrap-table-next";
 
@@ -8,23 +8,14 @@ import { Col, Row } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import { Fade } from "react-reveal";
 
-import { useInterimaireApplicationsUIContext } from "./InterimaireApplicationsUIContext";
-import ActionsColumnFormatter from "../../column-formatters/MissionsActionsColumnFormatter";
-import DateColumnFormatter from "../../column-formatters/MissionsDateColumnFormatter";
-import ApplicationsColumnFormatter from "../../column-formatters/MissionsMatchingColumnFormatter";
-import SalaryColumnFormatter from "../../column-formatters/MissionsSalaryColumnFormatter";
-import CityColumnFormatter from "../../column-formatters/MissionsCityColumnFormatter";
-import { resetMissionIndicator } from "actions/client/MissionsActions";
+import { resetMissionIndicator } from "actions/client/missionsActions";
 
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider,
-  SizePerPageDropdownStandalone
-} from "react-bootstrap-table2-paginator";
+  PaginationProvider} from "react-bootstrap-table2-paginator";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { searchMission } from "../../../../../business/actions/client/MissionsActions";
+import { searchMission } from "../../../../../business/actions/client/missionsActions";
 
-import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 const tenantID = +process.env.REACT_APP_TENANT_ID;
 
 const baseDate = new Date();

@@ -1,6 +1,6 @@
 import * as actionTypes from "constants/constants";
 
-import { getBackOfficeDashboardDatas as getBackOfficeDashboardDatasActions } from "actions/backoffice/DashboardActions";
+import { getBackOfficeDashboardDatas as getBackOfficeDashboardDatasActions } from "actions/backoffice/dashboardActions";
 import { getBackOfficeDashboardDatas as getBackOfficeDashboardDatasApi } from "api/backoffice/DashboardApi";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 

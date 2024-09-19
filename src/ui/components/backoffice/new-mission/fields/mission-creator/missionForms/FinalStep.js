@@ -6,7 +6,7 @@ import {
   validateMission,
   resetMission,
   getHabilitationsList
-} from "actions/client/MissionsActions";
+} from "actions/client/missionsActions";
 import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
 import BootstrapTable from "react-bootstrap-table-next";
@@ -23,13 +23,13 @@ import {
   getJobSkills,
   getJobTags,
   getMissionEquipment
-} from "actions/shared/ListsActions";
+} from "actions/shared/listsActions";
 import isNullOrEmpty from "../../../../../../../utils/isNullOrEmpty";
 import { getMission } from "api/client/MissionsApi";
 import {
   deleteCurrentDuplicate,
   deleteCurrentTemplate
-} from "actions/client/MissionsActions";
+} from "actions/client/missionsActions";
 import { deleteFromStorage } from "../../../../../shared/DeleteFromStorage";
 import SimulatorModal from "./SimulatorModal";
 import axios from "axios";

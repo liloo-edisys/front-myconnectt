@@ -25,19 +25,18 @@ import paginationFactory, {
   SizePerPageDropdownStandalone
 } from "react-bootstrap-table2-paginator";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { searchMission } from "../../../../../business/actions/client/MissionsActions";
-import { resetMissionIndicator } from "actions/client/MissionsActions";
+import { searchMission } from "../../../../../business/actions/client/missionsActions";
+import { resetMissionIndicator } from "actions/client/missionsActions";
 import { getMission } from "api/client/MissionsApi";
 
-import { getJobTitles } from "actions/shared/ListsActions";
+import { getJobTitles } from "actions/shared/listsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import MissionsStatusColumnFormatter from "../column-formatters/MissionsStatusColumnFormatter";
 import {
   deleteCurrentDuplicate,
   deleteCurrentTemplate
-} from "../../../../../business/actions/client/MissionsActions";
+} from "../../../../../business/actions/client/missionsActions";
 import Avatar from "react-avatar";
-import ReactTooltip from "react-tooltip";
 
 const tenantID = +process.env.REACT_APP_TENANT_ID;
 const baseDate = new Date();

@@ -8,7 +8,7 @@ import { useSelector, useDispatch } from "react-redux";
 //import { toastr } from "react-redux-toastr";
 import DocumentSelector from "./document-selector";
 import IdentityInformations from "./identity-informations";
-import { getNationalitiesList } from "../../../../../../../business/actions/interimaire/InterimairesActions";
+import { getNationalitiesList } from "../../../../../../../business/actions/interimaire/interimairesActions";
 
 function DocumentsModal(props) {
   const { activeModal, hideModal, isDeleted } = props;

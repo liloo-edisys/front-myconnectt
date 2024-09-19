@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Row, Col } from "react-bootstrap";
-import { Formik, Form, Field } from "formik";
+import { Modal, Row, Col } from "react-bootstrap";
+import { Formik, Form } from "formik";
 import { FormattedMessage, useIntl } from "react-intl";
 import Dropzone from "react-dropzone";
 import * as Yup from "yup";
@@ -8,9 +8,8 @@ import axios from "axios";
 import { toastr } from "react-redux-toastr";
 import { useSelector, useDispatch } from "react-redux";
 import {
-  updateInterimaireIdentity,
   removeOneDocument
-} from "../../../../../../../../business/actions/interimaire/InterimairesActions";
+} from "../../../../../../../../business/actions/interimaire/interimairesActions";
 
 function HabilitationSelector(props) {
   const intl = useIntl();

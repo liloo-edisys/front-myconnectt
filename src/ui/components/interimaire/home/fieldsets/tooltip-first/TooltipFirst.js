@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { goToNextStep } from "../../../../../../business/actions/interimaire/InterimairesActions";
+import { goToNextStep } from "../../../../../../business/actions/interimaire/interimairesActions";
 import "./styles.scss";
 import WelcomeGif from "./welcome.gif";
 

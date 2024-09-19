@@ -2,7 +2,7 @@ import React from "react";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import { useDispatch } from "react-redux";
-import { deleteApplication } from "../../../../../business/actions/client/ApplicantsActions";
+import { deleteApplication } from "../../../../../business/actions/client/applicantsActions";
 
 export const TENANTID = process.env.REACT_APP_TENANT_ID;
 

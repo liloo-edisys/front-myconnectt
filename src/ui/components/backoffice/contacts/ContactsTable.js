@@ -9,14 +9,9 @@ import paginationFactory, {
 import { FormattedMessage, useIntl } from "react-intl";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import {
-  NoRecordsFoundMessage,
-  PleaseWaitMessage
-} from "../../../../_metronic/_helpers";
-import { getCompanies } from "../../../../business/actions/client/CompaniesActions";
+import { getCompanies } from "../../../../business/actions/client/companiesActions";
 
 // import CompanyCreateModal from "./companiesModals/CompanyCreateModal";
-import ActionsColumnFormatter from "./columnFormatters/ActionsColumnFormatter";
 import { useContactsUIContext } from "./ContactsUIContext";
 import InviteContactModal from "./Modals/InviteContactModal";
 function ContactsTable({

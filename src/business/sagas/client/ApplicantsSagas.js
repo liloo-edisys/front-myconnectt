@@ -12,8 +12,8 @@ import {
   declineByApplicant as declineByApplicantActions,
   getApplicantById as getApplicantByIdActions,
   deleteApplication as deleteApplicationActions
-} from "actions/client/ApplicantsActions";
-import { getInterimaire as getInterimaireActions } from "actions/interimaire/InterimairesActions";
+} from "actions/client/applicantsActions";
+import { getInterimaire as getInterimaireActions } from "actions/interimaire/interimairesActions";
 import {
   countMatching as countMatchingApi,
   getMatching as getMatchingApi,
@@ -27,9 +27,9 @@ import {
   getApplicantById as getApplicantByIdApi,
   deleteApplication as deleteApplicationApi
 } from "api/client/ApplicantsApi";
-import { getUser as getUserActions } from "actions/client/UserActions";
+import { getUser as getUserActions } from "actions/client/userActions";
 import { getUser as getUserApi } from "api/client/UserApi";
-import { searchMission as searchMissionActions } from "actions/client/MissionsActions";
+import { searchMission as searchMissionActions } from "actions/client/missionsActions";
 import { searchMission as searchMissionApi } from "api/client/MissionsApi";
 import { getInterimaire as getInterimaireApi } from "api/interimaire/InterimairesApi";
 import { all, call, put, takeLatest } from "redux-saga/effects";

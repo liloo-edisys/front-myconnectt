@@ -1,12 +1,10 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Col, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { Fade } from "react-reveal";
 import SVG from "react-inlinesvg";
-import RightMenu from "../../right-menu.json";
 import { toAbsoluteUrl } from "../../../../../../_metronic/_helpers";
-import { goToNextStep } from "../../../../../../business/actions/interimaire/InterimairesActions";
-import axios from "axios";
+import { goToNextStep } from "../../../../../../business/actions/interimaire/interimairesActions";
 
 function AnnoncesMenuHover(props) {
   const dispatch = useDispatch();

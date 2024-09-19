@@ -1,6 +1,6 @@
 import RootPage from "components/client/templates/list/RootPage";
 import { connect } from "react-redux";
-import { getTemplate as getTemplateAction } from "actions/client/MissionsActions";
+import { getTemplate as getTemplateAction } from "actions/client/missionsActions";
 
 const mapDispatchToProps = dispatch => ({
   getTemplate: id => {

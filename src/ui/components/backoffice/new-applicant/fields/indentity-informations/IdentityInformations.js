@@ -1,27 +1,19 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import ReactDOM from "react-dom";
+import React, { useEffect, useState } from "react";
 
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import _ from "lodash";
-import { Input } from "metronic/_partials/controls";
-import { FormattedMessage, injectIntl, useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { useFormikContext } from "formik";
-import useLocalStorage from "../../../../shared/PersistState";
-import MissionWizzardHeader from "../../MissionWizzardHeader";
 import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
 import moment from "moment";
-import { getTitlesTypes } from "../../../../../../business/actions/shared/ListsActions";
-import { updateApplicant } from "actions/client/ApplicantsActions";
+import { getTitlesTypes } from "../../../../../../business/actions/shared/listsActions";
 import Avatar from "react-avatar";
 import { DatePickerField } from "metronic/_partials/controls";
-import { DeleteProfileDialog } from "../../profileModals/DeleteProfileDialog";
-import fr from "date-fns/locale/fr";
 import { toastr } from "react-redux-toastr";
-import { Route, useParams, useHistory } from "react-router-dom";
-import { getSelectedApplicantById } from "../../../../../../business/actions/backoffice/ApplicantActions";
-import { getNationalitiesList } from "../../../../../../business/actions/interimaire/InterimairesActions";
+import { useParams, useHistory } from "react-router-dom";
+import { getSelectedApplicantById } from "../../../../../../business/actions/backoffice/applicantActions";
+import { getNationalitiesList } from "../../../../../../business/actions/interimaire/interimairesActions";
 import axios from "axios";
 
 import PlacesAutocomplete, {

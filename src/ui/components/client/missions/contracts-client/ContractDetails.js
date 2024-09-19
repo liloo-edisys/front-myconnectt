@@ -5,7 +5,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { useHistory, useParams, Link } from "react-router-dom";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import axios from "axios";
-import { getCompanies } from "../../../../../business/actions/client/CompaniesActions";
+import { getCompanies } from "../../../../../business/actions/client/companiesActions";
 import { ListGroup } from "react-bootstrap";
 
 function ContractDetails(props) {

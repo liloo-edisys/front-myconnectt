@@ -1,16 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Fade } from "react-reveal";
 import { useIntl } from "react-intl";
-import SVG from "react-inlinesvg";
-import { getExtensions } from "../../../../business/actions/backoffice/MissionsActions";
-import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardHeaderToolbar
-} from "../../../../_metronic/_partials/controls";
 import ExtensionsCard from "./ExtensionsCard";
 
 function Extensions(props) {

@@ -10,7 +10,7 @@ import fr from "date-fns/locale/fr";
 import { useHistory } from "react-router-dom";
 import { colorsPalette } from "./colorsPalette";
 import { FormattedMessage, useIntl } from "react-intl";
-import { getJobTitles } from "actions/shared/ListsActions";
+import { getJobTitles } from "actions/shared/listsActions";
 import isNullOrEmpty from "../../../../utils/isNullOrEmpty";
 import { CSVLink } from "react-csv";
 import { monthsArray } from "./monthsArray";
@@ -20,9 +20,7 @@ import "./styles.scss";
 import {
   Card,
   CardHeader,
-  CardBody,
-  CardHeaderToolbar
-} from "../../../../_metronic/_partials/controls";
+  CardBody} from "../../../../_metronic/_partials/controls";
 
 function Calendar(props) {
   const history = useHistory();

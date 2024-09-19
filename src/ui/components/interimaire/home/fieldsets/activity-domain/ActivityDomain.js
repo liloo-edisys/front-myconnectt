@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SVG from "react-inlinesvg";
 import { Formik, Form } from "formik";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import InputRange from "react-input-range";
 import Select from "react-select";
 import * as Yup from "yup";
@@ -10,8 +10,7 @@ import { Zoom } from "react-reveal";
 import { toAbsoluteUrl } from "../../../../../../_metronic/_helpers";
 import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
 import "./styles.scss";
-import useLocalStorage from "../../../../shared/PersistState";
-import { goToNextStep } from "../../../../../../business/actions/interimaire/InterimairesActions";
+import { goToNextStep } from "../../../../../../business/actions/interimaire/interimairesActions";
 import axios from "axios";
 
 function ActivityDomain(props) {

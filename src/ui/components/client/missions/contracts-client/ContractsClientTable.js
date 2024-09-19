@@ -6,13 +6,11 @@ import { FormattedMessage, useIntl } from "react-intl";
 import DatePicker from "react-datepicker";
 import fr from "date-fns/locale/fr";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import { getBackOfficeContractList } from "../../../../../business/actions/backoffice/RecruiterActions";
+import { getBackOfficeContractList } from "../../../../../business/actions/backoffice/recruiterActions";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider,
-  SizePerPageDropdownStandalone
-} from "react-bootstrap-table2-paginator";
-import { getJobTitles } from "actions/shared/ListsActions";
+  PaginationProvider} from "react-bootstrap-table2-paginator";
+import { getJobTitles } from "actions/shared/listsActions";
 import moment from "moment";
 import ContractClientExpensionModal from "./ContractClientExpensionModal";
 import ContractClientRenewalModal from "./ContractClientRenewalModal";

@@ -4,10 +4,10 @@ import { getCommercialAgreements as getCommercialAgreementsApi } from "../../api
 import { updateCommercialAgreement as updateCommercialAgreementApi } from "../../api/backoffice/CommercialAgreementsApi";
 import { createCommercialAgreement as createCommercialAgreementApi } from "../../api/backoffice/CommercialAgreementsApi";
 import { deleteCommercialAgreement as deleteCommercialAgreementApi } from "../../api/backoffice/CommercialAgreementsApi";
-import { getCommercialAgreements as getCommercialAgreementsActions } from "../../actions/backoffice/CommercialAgreementsActions";
-import { updateCommercialAgreement as updateCommercialAgreementActions } from "../../actions/backoffice/CommercialAgreementsActions";
-import { createCommercialAgreement as createCommercialAgreementActions } from "../../actions/backoffice/CommercialAgreementsActions";
-import { deleteCommercialAgreement as deleteCommercialAgreementActions } from "../../actions/backoffice/CommercialAgreementsActions";
+import { getCommercialAgreements as getCommercialAgreementsActions } from "../../actions/backoffice/commercialAgreementsActions";
+import { updateCommercialAgreement as updateCommercialAgreementActions } from "../../actions/backoffice/commercialAgreementsActions";
+import { createCommercialAgreement as createCommercialAgreementActions } from "../../actions/backoffice/commercialAgreementsActions";
+import { deleteCommercialAgreement as deleteCommercialAgreementActions } from "../../actions/backoffice/commercialAgreementsActions";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 import { toastr } from "react-redux-toastr";
 

@@ -6,11 +6,9 @@
 // Data validation is based on Yup
 // Please, be familiar with article first:
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import { Field } from "formik";
 import _ from "lodash";
-import { Input } from "metronic/_partials/controls";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 
@@ -18,12 +16,11 @@ import useLocalStorage from "../../../shared/PersistState";
 import MissionWizzardHeader from "./MissionWizzardHeader";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { useDropzone } from "react-dropzone";
-import { cancelEdit } from "../../../../../business/actions/interimaire/InterimairesActions";
-import { getInterimaire, parseResume } from "api/interimaire/InterimairesApi";
+import { cancelEdit } from "../../../../../business/actions/interimaire/interimairesActions";
+import { parseResume } from "api/interimaire/InterimairesApi";
 import IframeGoogleDocs from "../../../../../utils/googleHacks";
-import { parseResume as parseResumeActions } from "actions/interimaire/InterimairesActions";
+import { parseResume as parseResumeActions } from "actions/interimaire/interimairesActions";
 
-import { updateApplicant } from "../../../../../business/actions/client/ApplicantsActions";
 function FormStepOne(props, formik) {
   const dispatch = useDispatch();
   const { intl } = props;
@@ -36,7 +33,7 @@ function FormStepOne(props, formik) {
       parsed: state.interimairesReducerData.parsedInterimaire,
       isLoading: state.interimairesReducerData.loading
     }),
-    shallowEqual
+    shallowEqual 
   );
   const [url, setUrl] = useState(null);
 

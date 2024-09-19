@@ -8,9 +8,7 @@ import React, { useCallback, useEffect } from "react";
 
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import { getMissionRemuneration } from "../../../../../../../business/actions/shared/ListsActions";
-import { getMissionSalaries } from "actions/client/MissionsActions";
+import { getMissionRemuneration } from "../../../../../../../business/actions/shared/listsActions";
 import _, { debounce, isNull } from "lodash";
 import { useFormikContext } from "formik";
 import useLocalStorage from "../../../../../shared/PersistState";
@@ -18,7 +16,7 @@ import { toastr } from "react-redux-toastr";
 import MissionWizzardHeader from "./MissionWizzardHeader";
 import { VictoryBar, VictoryTooltip } from "victory";
 import FlyOut from "./CustomToolTip";
-import { countMatching } from "actions/client/ApplicantsActions";
+import { countMatching } from "actions/client/applicantsActions";
 import isNullOrEmpty from "../../../../../../../utils/isNullOrEmpty";
 
 function FormStepTwo(props) {

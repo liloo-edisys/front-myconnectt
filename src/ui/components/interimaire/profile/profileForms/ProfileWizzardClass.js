@@ -19,7 +19,7 @@ import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import {
   getContractType,
   getJobTitles
-} from "../../../../../business/actions/shared/ListsActions";
+} from "../../../../../business/actions/shared/listsActions";
 //import { Home } from "../../home";
 
 class ProfileWizzardClass extends Component {

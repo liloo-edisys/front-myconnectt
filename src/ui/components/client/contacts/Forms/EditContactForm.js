@@ -1,6 +1,6 @@
 import React from "react";
 
-import { updateContact } from "actions/client/ContactsActions";
+import { updateContact } from "actions/client/contactsActions";
 import { Formik, Form, Field } from "formik";
 import { Input, LoadingDialog } from "metronic/_partials/controls";
 import { Modal } from "react-bootstrap";

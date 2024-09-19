@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-import { login } from "actions/shared/AuthActions";
 import { Fade } from "react-reveal";
 import { useFormik } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
@@ -11,7 +10,7 @@ import * as Yup from "yup";
 import {
   checkSmsCode,
   getUserWithMobile
-} from "../../../../business/actions/interimaire/InterimairesActions";
+} from "../../../../business/actions/interimaire/interimairesActions";
 
 /*
   INTL (i18n) docs:

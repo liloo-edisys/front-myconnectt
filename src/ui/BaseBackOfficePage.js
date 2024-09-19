@@ -3,7 +3,7 @@ import React, { Suspense, useEffect } from "react";
 // import DashboardPage from "components/backoffice/dashboard/DashboardPage";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Redirect, Route, Switch } from "react-router-dom";
-import { getRecruiter } from "actions/backoffice/RecruiterActions";
+import { getRecruiter } from "actions/backoffice/recruiterActions";
 
 import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout";
 

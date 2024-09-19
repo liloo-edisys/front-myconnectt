@@ -4,7 +4,7 @@
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
 import React, { useEffect } from "react";
 
-import { updateCompany } from "actions/client/CompaniesActions";
+import { updateCompany } from "actions/client/companiesActions";
 import { Formik, Form, Field } from "formik";
 import { Input, Select } from "metronic/_partials/controls";
 import { Modal } from "react-bootstrap";
@@ -15,8 +15,8 @@ import {
   getInvoicesTypes,
   getPaymentChoices,
   getAPE
-} from "../../../../../business/actions/shared/ListsActions";
-import { checkFields } from "actions/client/CompaniesActions";
+} from "../../../../../business/actions/shared/listsActions";
+import { checkFields } from "actions/client/companiesActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 
 function WorksitePreviewForm({ onHide, intl, history }) {

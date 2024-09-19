@@ -20,12 +20,12 @@ import {
   CardHeaderToolbar
 } from "../../../../_metronic/_partials/controls";
 import { fakeData, weekList, statusList } from "./fakeDatas";
-import { getJobTitles } from "actions/shared/ListsActions";
+import { getJobTitles } from "actions/shared/listsActions";
 import HoursStatementForm from "./fields/HoursStatementForm";
 import { DisplayDialog } from "../../client/interimaires/modals/DisplayDialog";
 import ContractDetails from "../../client/missions/contracts-client/ContractDetails";
 import ClientDetails from "../../interimaire/missions/contracts/ClientDetails";
-import { getCompanies } from "../../../../business/actions/client/CompaniesActions";
+import { getCompanies } from "../../../../business/actions/client/companiesActions";
 import ComplaintsList from "./fields/ComplaintsList";
 import MissionEndingForm from "./fields/MissionEndingForm";
 

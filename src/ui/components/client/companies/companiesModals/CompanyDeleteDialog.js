@@ -1,6 +1,6 @@
 import React from "react";
 
-import { deleteCompany } from "actions/client/CompaniesActions";
+import { deleteCompany } from "actions/client/companiesActions";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import { useDispatch } from "react-redux";

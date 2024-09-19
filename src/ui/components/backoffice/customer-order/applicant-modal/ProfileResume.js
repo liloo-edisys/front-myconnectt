@@ -7,22 +7,15 @@
 // Data validation is based on Yup
 // Please, be familiar with article first:
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Field } from "formik";
 import _ from "lodash";
-import { Input } from "metronic/_partials/controls";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import Select from "react-select";
-import CreatableSelect from "react-select/creatable";
-import { countMatching } from "actions/client/ApplicantsActions";
-import { useFormikContext } from "formik";
 import useLocalStorage from "../../../shared/PersistState";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import moment from "moment";
-import { Button, Collapse } from "react-bootstrap";
+import { Collapse } from "react-bootstrap";
 import SVG from "react-inlinesvg";
 import BootstrapTable from "react-bootstrap-table-next";
 import {
@@ -36,30 +29,20 @@ import {
   getJobSkills,
   getJobTags,
   getMissionEquipment
-} from "actions/shared/ListsActions";
-import { getHabilitationsList } from "../../../../../business/actions/client/MissionsActions";
-import { updateApplicant } from "actions/client/ApplicantsActions";
+} from "actions/shared/listsActions";
+import { getHabilitationsList } from "../../../../../business/actions/client/missionsActions";
 import { toAbsoluteUrl } from "metronic/_helpers";
 import DocTypes from "../../../../../utils/DocumentTypes.json";
-import MissionsDateColumnFormatter from "../../missions/column-formatters/MissionsDateColumnFormatter";
 import DateColumnFormatter from "../formatters/DateColumnFormatter";
 
 function ProfileResume(props, formik) {
   const dispatch = useDispatch();
   const { intl } = props;
-  const TENANTID = process.env.REACT_APP_TENANT_ID;
 
   const {
     parsed,
-    missionExperiences,
     missionEquipment,
     jobSkills,
-    jobTags,
-    missionsReasons,
-    languages,
-    driverLicenses,
-    educationLevels,
-    missionRemuneration,
     jobTitles
   } = useSelector(
     state => ({
@@ -107,10 +90,6 @@ function ProfileResume(props, formik) {
 
   const [currentRow, setCurrentRow] = useState([]);
 
-  const createOption = (label, value) => ({
-    label,
-    value
-  });
 
   useEffect(() => {}, []);
   const formatEquipment = () => {
@@ -155,91 +134,6 @@ function ProfileResume(props, formik) {
     return outStr;
   };
 
-  const renderReferences = () => {
-    return parsed.applicantReferences.map(ref => {
-      return (
-        <div className="row ml-5">
-          <div className=" col-lg-12 d-flex flex-row justify-content-between">
-            <div className="col-lg-2">
-              <p>{ref.contactName}</p>
-            </div>
-            <div className="col-lg-2">
-              {" "}
-              <p>{ref.contactEmail}</p>
-            </div>
-            <div className="col-lg-2">
-              <p>{ref.contactPhone}</p>
-            </div>
-            <div className="col-lg-2">
-              <p>{ref.companyName}</p>
-            </div>
-            <div className="col-lg-2">
-              <p>{ref.city}</p>
-            </div>
-            <div className="col-lg-2">
-              <p>{ref.jobTitle}</p>
-            </div>
-            <div className="col-lg-3">
-              <p>{ref.contractTypeID}</p>
-            </div>
-          </div>
-        </div>
-      );
-    });
-  };
-  const renderDocuments = () => {
-    return parsed.applicantDocuments.map(ref => {
-      if (ref.docType === "8" || ref.docType === "9") {
-        <div className="row">
-          <div className=" col-lg-12 d-flex flex-row justify-content-between">
-            <div className="col-lg-3">
-              <p>{ref.Filename}</p>
-            </div>
-            <div className="col-lg-3">
-              {" "}
-              <p>{ref.IssueDate}</p>
-            </div>
-            <div className="col-lg-3">
-              <p>{ref.ExpirationDate}</p>
-            </div>
-            <div className="col-lg-3">
-              <p>{ref.DocumentNumber}</p>
-            </div>
-          </div>
-        </div>;
-      }
-      if (ref.docType === "10") {
-        <div className="row">
-          <div className=" col-lg-12 d-flex flex-row justify-content-between">
-            <div className="col-lg-3">
-              <p>{ref.Filename}</p>
-            </div>
-            <div className="col-lg-3">
-              {" "}
-              <p>{ref.DocumentNumber}</p>
-            </div>
-            <div className="col-lg-3">
-              <p>{ref.birthDate}</p>
-            </div>
-            <div className="col-lg-3">
-              <p>{ref.birthLoaction}</p>
-            </div>
-            <div className="col-lg-3">
-              <p>{ref.birthDepartment}</p>
-            </div>
-          </div>
-        </div>;
-      } else {
-        <div className="row">
-          <div className=" col-lg-12 d-flex flex-row justify-content-between">
-            <div className="col-lg-3">
-              <p>{ref.Filename}</p>
-            </div>
-          </div>
-        </div>;
-      }
-    });
-  };
   let homeColumns = [
     {
       dataField: "filename",
@@ -254,7 +148,7 @@ function ProfileResume(props, formik) {
       style: {
         minWidth: "100px"
       },
-      formatter: (value, row) => (
+      formatter: () => (
         <a
           onClick={(row, rowIndex) => {
             setShowPreview(true);
@@ -274,38 +168,6 @@ function ProfileResume(props, formik) {
       }
     }
   ];
-  const renderXp = () => {
-    return parsed.applicantExperiences.map(ref => {
-      return (
-        <div className="row ml-5">
-          <div className=" col-lg-12 d-flex flex-row justify-content-between">
-            <div className="col-lg-4">
-              <p>{ref.jobTitle}</p>
-            </div>
-
-            <div className="col-lg-2">
-              <p>
-                {moment(ref.startDate)
-                  .locale("fr")
-                  .format("DD/MM/YYYY")}
-              </p>
-            </div>
-
-            <div className="col-lg-2">
-              <p>
-                {moment(ref.endDate)
-                  .locale("fr")
-                  .format("DD/MM/YYYY")}
-              </p>
-            </div>
-            <div className="col-lg-2">
-              <p>{ref.employerNameAndPlace}</p>
-            </div>
-          </div>
-        </div>
-      );
-    });
-  };
   const formatDocumentText = value => {
     let data = DocTypes.filter(l => l.id === parseInt(value));
     return data[0].name;
@@ -332,7 +194,7 @@ function ProfileResume(props, formik) {
       dataField: "documentType",
       text: intl.formatMessage({ id: "MODEL.DOCUMENT.TYPE" }),
       sort: true,
-      formatter: (value, row) => <span>{formatDocumentText(value)}</span>
+      formatter: (value) => <span>{formatDocumentText(value)}</span>
     },
     {
       dataField: "action",
@@ -363,43 +225,13 @@ function ProfileResume(props, formik) {
     }
   ];
 
-  const filterID = value => {
+  const filterID = () => {
     let data =
       parsed.applicantDocuments !== null &&
       parsed.applicantDocuments.filter(
         x => x.documentType === 8 || x.documentType === 9
       );
     return data && data;
-  };
-  const renderIDs = () => {
-    let ids =
-      parsed &&
-      parsed.applicantDocuments.filter(
-        doc => doc.documentType === 8 || doc.documentType === 9
-      );
-    return (
-      ids && (
-        <div className="row ml-5">
-          <BootstrapTable
-            remote
-            wrapperClasses="table-responsive"
-            bordered={false}
-            classes="table table-head-custom table-vertical-center overflow-hidden"
-            bootstrap4
-            keyField="manager"
-            data={!isNullOrEmpty(ids) ? filterID(ids) : []}
-            columns={idColumns}
-            noDataIndication={() => <NoDataIndication />}
-          />
-        </div>
-      )
-    );
-  };
-  const thumbsContainer = {
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginTop: 16
   };
 
   const thumb = {
@@ -425,72 +257,8 @@ function ProfileResume(props, formik) {
     width: "auto",
     height: "100%"
   };
-  const thumbs = file => {
-    return (
-      !isNullOrEmpty(file) && (
-        <div style={thumb} key={!isNullOrEmpty(file) && file.filename}>
-          <div style={thumbInner}>
-            {/* <img src={!isNullOrEmpty(files) && files.base64} style={img} alt="preview" /> */}
-            <embed
-              src={
-                !isNullOrEmpty(file) && "data:image/jpeg;base64," + file.base64
-              }
-              type={file.type}
-              style={img}
-              width="100%"
-              height="auto"
-            />
-          </div>
-        </div>
-      )
-    );
-  };
 
-  const renderHome = () => {
-    let home =
-      parsed &&
-      parsed.applicantDocuments.filter(doc => doc.documentType === 11);
-    return (
-      home && (
-        <div className="row ml-5">
-          <BootstrapTable
-            remote
-            wrapperClasses="table-responsive"
-            bordered={false}
-            classes="table table-head-custom table-vertical-center overflow-hidden"
-            bootstrap4
-            keyField="manager"
-            data={!isNullOrEmpty(home) ? home : []}
-            columns={homeColumns}
-            noDataIndication={() => <NoDataIndication />}
-          />
-        </div>
-      )
-    );
-  };
 
-  const renderBank = () => {
-    let bank =
-      parsed &&
-      parsed.applicantDocuments.filter(doc => doc.documentType === 12);
-    return (
-      bank && (
-        <div className="row ml-5">
-          <BootstrapTable
-            remote
-            wrapperClasses="table-responsive"
-            bordered={false}
-            classes="table table-head-custom table-vertical-center overflow-hidden"
-            bootstrap4
-            keyField="manager"
-            data={!isNullOrEmpty(bank) ? bank : []}
-            columns={homeColumns}
-            noDataIndication={() => <NoDataIndication />}
-          />
-        </div>
-      )
-    );
-  };
 
   const renderOthers = () => {
     let others =
@@ -511,39 +279,6 @@ function ProfileResume(props, formik) {
           />
         </div>
       )
-    );
-  };
-  const filterHealth = value => {
-    let data =
-      parsed.applicantDocuments !== null &&
-      parsed.applicantDocuments.filter(x => x.documentType === 10);
-    return data && data[0];
-  };
-  let formattedXp = () => {
-    let xp = parsed.applicantExperiences.map((val, ix) => {
-      val.keyField = ix;
-      return val;
-    });
-    return xp;
-  };
-  const renderHealth = () => {
-    let ids =
-      parsed &&
-      parsed.applicantDocuments.filter(doc => doc.documentType === 10);
-    return (
-      ids &&
-      ids.length &&
-      ids.map(doc => {
-        return (
-          <div className="row ml-5">
-            <div className=" col-lg-12 d-flex flex-row justify-content-between">
-              <div className="col-lg-3">
-                <p>{doc.filename}</p>
-              </div>
-            </div>
-          </div>
-        );
-      })
     );
   };
 
@@ -603,7 +338,7 @@ function ProfileResume(props, formik) {
       dataField: "contractTypeID",
       text: intl.formatMessage({ id: "MODEL.CONTRACT.TYPE" }),
       sort: true,
-      formatter: (value, row) => formatJobTitle(value)
+      formatter: (value) => formatJobTitle(value)
     }
   ];
   let xpColumns = [
@@ -611,7 +346,7 @@ function ProfileResume(props, formik) {
       dataField: "jobTitle",
       text: intl.formatMessage({ id: "TEXT.PAST.JOB" }),
       sort: true,
-      headerStyle: (colum, colIndex) => {
+      headerStyle: () => {
         return { width: "180px" };
       }
     },
@@ -640,7 +375,7 @@ function ProfileResume(props, formik) {
     {
       dataField: "isCurrentItem",
       text: intl.formatMessage({ id: "MODEL.ACCOUNT.CURRENT" }),
-      formatter: (row, value) => <span>{row === "true" ? "oui" : "non"} </span>,
+      formatter: (row) => <span>{row === "true" ? "oui" : "non"} </span>,
       sort: true
     },
     {
@@ -649,9 +384,6 @@ function ProfileResume(props, formik) {
       sort: true
     }
   ];
-  const onHidePreview = () => {
-    setShowPreview(false);
-  };
   return (
     <div className="card card-custom">
       <div className="card-body p-0">

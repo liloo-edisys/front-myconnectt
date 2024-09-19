@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Row, Col } from "react-bootstrap";
+import { Modal, Row, Col } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
-import { Formik, Form, Field } from "formik";
+import { Formik, Form } from "formik";
 import { FormattedMessage, useIntl } from "react-intl";
 import Dropzone from "react-dropzone";
 import * as Yup from "yup";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
-import { addNewDocument } from "../../../../../../business/actions/interimaire/InterimairesActions";
 
 function HabilitationModal(props) {
-  const dispatch = useDispatch();
   const { interimaire, updateInterimaireIdentityLoading } = useSelector(
     state => state.interimairesReducerData
   );
   const intl = useIntl();
-  const { activeModal, hideModal, isDeleted } = props;
+  const { hideModal, isDeleted } = props;
   const [formStep, setFormStep] = useState("selector");
   const [rectoBase64, setRectoBase64] = useState("");
   const [savedRectoImage, setSavedRectoImage] = useState({
@@ -101,7 +99,7 @@ function HabilitationModal(props) {
         initialValues={initialValuesRib}
         validationSchema={RibSchema}
         setFieldValue
-        onSubmit={(values, { setSubmitting }) => {
+        onSubmit={(values) => {
           let body = {
             documentType: 13,
             tenantid: +process.env.REACT_APP_TENANT_ID,
@@ -117,7 +115,7 @@ function HabilitationModal(props) {
             });
         }}
       >
-        {({ values, touched, errors, status, handleSubmit, setFieldValue }) => (
+        {({ values, touched, errors, handleSubmit, setFieldValue }) => (
           <Form
             id="kt_login_signin_form"
             className="form fv-plugins-bootstrap fv-plugins-framework animated animate__animated animate__backInUp"
@@ -126,7 +124,7 @@ function HabilitationModal(props) {
             <Modal.Body>
               <div>
                 <Row gutter={[50, 50]} style={{ marginTop: 30 }}>
-                  {savedImageArray.map((image, i) => (
+                  {savedImageArray.map((image) => (
                     <Col
                       lg={6}
                       style={{

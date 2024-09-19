@@ -8,7 +8,7 @@ import {
   deleteCompany as deleteCompanyActions,
   switchAccount as switchCompanyActions,
   checkFields as checkFieldsActions
-} from "actions/client/CompaniesActions";
+} from "actions/client/companiesActions";
 import {
   getCompaniesList,
   getCustomersList,

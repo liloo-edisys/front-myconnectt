@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect } from "react";
 
-import { getCompanies } from "actions/client/CompaniesActions";
-import { getContact } from "actions/client/ContactsActions";
+import { getCompanies } from "actions/client/companiesActions";
+import { getContact } from "actions/client/contactsActions";
 import DashboardPage from "components/client/dashboard/DashboardPage";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Redirect, Route, Switch } from "react-router-dom";

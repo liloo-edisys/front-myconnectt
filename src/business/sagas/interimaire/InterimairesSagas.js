@@ -7,7 +7,7 @@ import {
   parseResume as parseResumeActions,
   searchInterimaires as searchInterimairesActions,
   getInterimaireById as getInterimaireByIdActions
-} from "actions/interimaire/InterimairesActions";
+} from "actions/interimaire/interimairesActions";
 
 import {
   getInterimaire as getInterimaireApi,

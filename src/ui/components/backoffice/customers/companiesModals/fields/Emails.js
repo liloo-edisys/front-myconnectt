@@ -1,18 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
-import { Link } from "react-router-dom";
 import BootstrapTable from "react-bootstrap-table-next";
-import DatePicker from "react-datepicker";
-import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
 import { FormattedMessage, useIntl } from "react-intl";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider,
-  SizePerPageDropdownStandalone
-} from "react-bootstrap-table2-paginator";
-import fr from "date-fns/locale/fr";
-import moment from "moment";
-import { getSelectedApplicantEmails } from "../../../../../../business/actions/backoffice/ApplicantActions";
+  PaginationProvider} from "react-bootstrap-table2-paginator";
+import { getSelectedApplicantEmails } from "../../../../../../business/actions/backoffice/applicantActions";
 import EmailModal from "./EmailModal";
 import EmailContactModal from "./EmailSender/EmailContactModal";
 import { useParams } from "react-router-dom";

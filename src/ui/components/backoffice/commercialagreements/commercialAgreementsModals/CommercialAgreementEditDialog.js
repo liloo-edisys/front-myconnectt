@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { updateCommercialAgreement } from "../../../../../business/actions/backoffice/CommercialAgreementsActions";
+import { updateCommercialAgreement } from "../../../../../business/actions/backoffice/commercialAgreementsActions";
 import "./styles.scss";
 
 export function CommercialAgreementEditDialog({ onHide }) {

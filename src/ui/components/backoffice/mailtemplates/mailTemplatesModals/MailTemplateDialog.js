@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { updateMailTemplate } from "../../../../../business/actions/backoffice/MailTemplatesActions";
+import { updateMailTemplate } from "../../../../../business/actions/backoffice/mailTemplatesActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import JoditEditor from "jodit-react";
 import "./styles.scss";

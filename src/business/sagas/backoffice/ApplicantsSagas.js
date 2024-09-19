@@ -1,6 +1,6 @@
 import * as actionTypes from "constants/constants";
 
-import { deleteApplicant as deleteApplicantActions } from "actions/backoffice/ApplicantActions";
+import { deleteApplicant as deleteApplicantActions } from "actions/backoffice/applicantActions";
 import { deleteApplicant as deleteApplicantApi } from "api/backoffice/ApplicantsApi";
 import { toastr } from "react-redux-toastr";
 import { all, call, put, takeLatest } from "redux-saga/effects";

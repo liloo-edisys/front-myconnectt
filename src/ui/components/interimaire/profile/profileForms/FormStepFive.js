@@ -14,8 +14,8 @@ import {
   deleteIdDocument,
   clearStepFiveModal,
   getNationalitiesList
-} from "../../../../../business/actions/interimaire/InterimairesActions";
-import { getTitlesTypes } from "../../../../../business/actions/shared/ListsActions";
+} from "../../../../../business/actions/interimaire/interimairesActions";
+import { getTitlesTypes } from "../../../../../business/actions/shared/listsActions";
 import { DocumentsModal } from "../../home/fieldsets/indentity-documents/documents-modal";
 import VitalCardModal from "../../home/fieldsets/indentity-documents/vital-card-modal";
 import RibModal from "../../home/fieldsets/indentity-documents/rib-modal";

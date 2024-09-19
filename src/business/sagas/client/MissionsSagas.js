@@ -17,7 +17,7 @@ import {
   deleteMission as deleteMissionActions,
   searchMission as searchMissionActions,
   searchTemplates as searchTemplatesActions
-} from "actions/client/MissionsActions";
+} from "actions/client/missionsActions";
 import {
   createMission as createMissionApi,
   getAccountMissions as getAccountMissionsApi,

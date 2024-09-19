@@ -1,8 +1,8 @@
-import { getCompanies as getCustomersActions } from "actions/client/CompaniesActions";
+import { getCompanies as getCustomersActions } from "actions/client/companiesActions";
 import {
   getInvoicesTypes as getInvoicesTypesActions,
   getAccountGroups as getAccountGroupsActions
-} from "actions/shared/ListsActions";
+} from "actions/shared/listsActions";
 import CustomerPage from "components/backoffice/customers/CustomerPage";
 import { connect } from "react-redux";
 

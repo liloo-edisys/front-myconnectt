@@ -5,7 +5,7 @@ import React, { useEffect, useCallback, useState } from "react";
 import {
   createTemplate,
   getHabilitationsList
-} from "actions/client/MissionsActions";
+} from "actions/client/missionsActions";
 import { Formik, Form, Field } from "formik";
 import { Input } from "metronic/_partials/controls";
 import Select from "react-select";
@@ -26,13 +26,13 @@ import {
   getMissionReasons,
   getMissionEquipment,
   getDriverLicences
-} from "../../../../../business/actions/shared/ListsActions";
+} from "../../../../../business/actions/shared/listsActions";
 import {
   getJobSkills as getJobSkillsApi,
   getJobTags as getJobTagsApi
 } from "api/shared/ListsApi";
 import CreatableSelect from "react-select/creatable";
-import { getMissionRemuneration } from "../../../../../business/actions/shared/ListsActions";
+import { getMissionRemuneration } from "../../../../../business/actions/shared/listsActions";
 
 function CreateForm({ onHide, intl, history, formik }) {
   const TENANTID = process.env.REACT_APP_TENANT_ID;

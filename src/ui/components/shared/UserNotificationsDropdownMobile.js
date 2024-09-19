@@ -4,33 +4,24 @@ import React, { useEffect, useState, useMemo } from "react";
 
 import objectPath from "object-path";
 import {
-  Nav,
-  Tab,
   Dropdown,
   OverlayTrigger,
-  Tooltip,
-  Modal
-} from "react-bootstrap";
+  Tooltip} from "react-bootstrap";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import SVG from "react-inlinesvg";
 import PerfectScrollbar from "react-perfect-scrollbar";
-import axios from "axios";
 import { FormattedMessage } from "react-intl";
 
 import { toAbsoluteUrl } from "../../../_metronic/_helpers";
 import { DropdownTopbarItemToggler } from "../../../_metronic/_partials/dropdowns";
 import { useHtmlClassService } from "../../../_metronic/layout/_core/MetronicLayout";
-import { SET_CURRENT_NOTIF } from "../../../constants/constants";
 import "./styles.scss";
 import {
-  getNotifications,
-  setNotifRead
-} from "../../../business/actions/shared/NotificationsActions";
-import { Block } from "@material-ui/icons";
+  getNotifications} from "../../../business/actions/shared/notificationsActions";
 import { UserNotificationPopup } from "./UserNotificationPopup";
-import { setSignalRInterimaire } from "../../../business/actions/interimaire/InterimairesActions";
-import { setSignalRClient } from "../../../business/actions/client/UserActions";
-import { setSignalRBackoffice } from "../../../business/actions/backoffice/UserActions";
+import { setSignalRInterimaire } from "../../../business/actions/interimaire/interimairesActions";
+import { setSignalRClient } from "../../../business/actions/client/userActions";
+import { setSignalRBackoffice } from "../../../business/actions/backoffice/userActions";
 import { Link } from "react-router-dom";
 
 const perfectScrollbarOptions = {

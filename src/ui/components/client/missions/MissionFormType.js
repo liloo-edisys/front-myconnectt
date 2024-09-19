@@ -11,12 +11,12 @@ import {
   setCurrentDuplicate,
   getMission as getMissionAction,
   getTemplate as getTemplateAction
-} from "actions/client/MissionsActions";
+} from "actions/client/missionsActions";
 import { deleteFromStorage } from "../../shared/DeleteFromStorage";
 import {
   deleteCurrentDuplicate,
   deleteCurrentTemplate
-} from "../../../../business/actions/client/MissionsActions";
+} from "../../../../business/actions/client/missionsActions";
 import isNullOrEmpty from "../../../../utils/isNullOrEmpty";
 
 const MissionFormType = ({ intl, isChecked, history, CompanyEditModal }) => {

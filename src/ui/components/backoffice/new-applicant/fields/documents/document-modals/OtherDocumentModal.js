@@ -14,7 +14,7 @@ import { toastr } from "react-redux-toastr";
 import {
   addSelectedApplicantNewDocument,
   removeOneSelectedApplicantDocument
-} from "../../../../../../../business/actions/backoffice/ApplicantActions";
+} from "../../../../../../../business/actions/backoffice/applicantActions";
 
 function OtherDocumentModal(props) {
   const dispatch = useDispatch();
@@ -27,7 +27,7 @@ function OtherDocumentModal(props) {
     shallowEqual
   );
   const intl = useIntl();
-  const { activeModal, hideModal, isDeleted } = props;
+  const { hideModal, isDeleted } = props;
   const [formStep, setFormStep] = useState("selector");
   const [rectoBase64, setRectoBase64] = useState("");
   const [savedRectoImage, setSavedRectoImage] = useState({
@@ -131,14 +131,14 @@ function OtherDocumentModal(props) {
         initialValues={initialValuesRib}
         validationSchema={RibSchema}
         setFieldValue
-        onSubmit={(values, { setSubmitting, setFieldValue }) => {
+        onSubmit={(values, { setFieldValue }) => {
           addSelectedApplicantNewDocument(values.imageArray, dispatch);
           setImageArray([]);
           setFieldValue("imageArray", []);
           //addNewDocument(values.imageArray, dispatch);
         }}
       >
-        {({ values, touched, errors, status, handleSubmit, setFieldValue }) => (
+        {({ values, touched, errors, handleSubmit, setFieldValue }) => (
           <Form
             id="kt_login_signin_form"
             className="form fv-plugins-bootstrap fv-plugins-framework animated animate__animated animate__backInUp"
@@ -147,7 +147,7 @@ function OtherDocumentModal(props) {
             <Modal.Body>
               <div>
                 <Row gutter={[50, 50]} style={{ marginTop: 30 }}>
-                  {savedImageArray.map((image, i) => (
+                  {savedImageArray.map((image) => (
                     <Col
                       lg={6}
                       style={{

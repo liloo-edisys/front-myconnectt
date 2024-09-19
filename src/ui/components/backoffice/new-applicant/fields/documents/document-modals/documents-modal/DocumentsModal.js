@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useIntl } from "react-intl";
-//import Dropzone from "react-dropzone";
-//import { Formik, Form, Field } from "formik";
 import { useSelector, shallowEqual, useDispatch } from "react-redux";
-//import axios from "axios";
-//import * as Yup from "yup";
-//import { toastr } from "react-redux-toastr";
 import DocumentSelector from "./document-selector";
 import IdentityInformations from "./identity-informations";
-import { getNationalitiesList } from "../../../../../../../../business/actions/interimaire/InterimairesActions";
+import { getNationalitiesList } from "../../../../../../../../business/actions/interimaire/interimairesActions";
 
 function DocumentsModal(props) {
   const dispatch = useDispatch();

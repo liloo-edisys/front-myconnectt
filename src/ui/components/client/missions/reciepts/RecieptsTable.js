@@ -8,7 +8,7 @@ import paginationFactory, {
 import DatePicker from "react-datepicker";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { FormattedMessage, useIntl } from "react-intl";
-import { getDocumentList } from ".././../../../../business/actions/interimaire/InterimairesActions";
+import { getDocumentList } from ".././../../../../business/actions/interimaire/interimairesActions";
 import fr from "date-fns/locale/fr";
 import moment from "moment";
 import { Col, Row } from "react-bootstrap";

@@ -4,7 +4,7 @@ import {
   login as loginActions,
   registerAccount as registerAccountActions,
   registerInterimaire as registerInterimaireActions
-} from "actions/shared/AuthActions";
+} from "actions/shared/authActions";
 
 import {
   login as loginApi,

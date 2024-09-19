@@ -6,9 +6,7 @@ import { useIntl, FormattedMessage } from "react-intl";
 import DatePicker from "react-datepicker";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider,
-  SizePerPageDropdownStandalone
-} from "react-bootstrap-table2-paginator";
+  PaginationProvider} from "react-bootstrap-table2-paginator";
 import isNullOrEmpty from "../../../../utils/isNullOrEmpty";
 import fr from "date-fns/locale/fr";
 
@@ -16,12 +14,11 @@ import {
   NoRecordsFoundMessage,
   PleaseWaitMessage
 } from "../../../../_metronic/_helpers";
-import { clearLatestClientEdited } from "../../../../business/actions/backoffice/AccountsActions";
+import { clearLatestClientEdited } from "../../../../business/actions/backoffice/accountsActions";
 import CompanyCreateModal from "./companiesModals/CompanyCreateModal";
 import { useCustomersUIContext } from "./CustomersUIContext";
 import ActionsColumnFormatter from "./customers-table/column-formatters/ActionsColumnFormatter";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
-import { useLocation } from "react-router-dom";
 import axios from "axios";
 
 function CustomersTable(props) {

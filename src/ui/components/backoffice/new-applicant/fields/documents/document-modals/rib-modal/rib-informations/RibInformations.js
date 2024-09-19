@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Row, Col } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Formik, Form, Field } from "formik";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import * as Yup from "yup";
 //import { updateInterimaireIdentity } from "../../../../../../../../business/actions/interimaire/InterimairesActions";
-import { updateSelectedApplicantIdentity } from "../../../../../../../../../business/actions/backoffice/ApplicantActions";
-import { checkValidIban, smellsLikeIban } from "./Checkers";
+import { updateSelectedApplicantIdentity } from "../../../../../../../../../business/actions/backoffice/applicantActions";
+import { smellsLikeIban } from "./Checkers";
 
 function RibInformations(props) {
   const intl = useIntl();
   const dispatch = useDispatch();
   const {
-    activeModal,
     hideModal,
     formStep,
     RibData,
@@ -97,7 +96,7 @@ function RibInformations(props) {
         initialValues={initialValuesIdentityData}
         validationSchema={IdentityDataSchema}
         setFieldValue
-        onSubmit={(values, { setSubmitting }) => {
+        onSubmit={(values) => {
           let isValidIban = smellsLikeIban(iban);
           let isValidBic = bic.match(/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/);
           if (!isValidIban || !isValidBic) {
@@ -141,7 +140,7 @@ function RibInformations(props) {
           }
         }}
       >
-        {({ values, touched, errors, status, handleSubmit, setFieldValue }) => (
+        {({ touched, errors, handleSubmit }) => (
           <Form
             id="kt_login_signin_form"
             className="form fv-plugins-bootstrap fv-plugins-framework animated animate__animated animate__backInUp"

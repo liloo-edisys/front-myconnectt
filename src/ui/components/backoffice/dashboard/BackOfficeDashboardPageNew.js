@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 
-import { getBackOfficeDashboardDatas } from "actions/backoffice/DashboardActions";
+import { getBackOfficeDashboardDatas } from "actions/backoffice/dashboardActions";
 import { Pagination } from "react-bootstrap";
 import SVG from "react-inlinesvg";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { connect, shallowEqual, useDispatch, useSelector } from "react-redux";
-import { setSignalRBackoffice } from "actions/backoffice/UserActions";
+import { setSignalRBackoffice } from "actions/backoffice/userActions";
 import { Link } from "react-router-dom";
 import Avatar from "react-avatar";
 import { Route } from "react-router-dom";

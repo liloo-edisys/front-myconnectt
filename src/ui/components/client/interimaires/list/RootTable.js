@@ -14,7 +14,7 @@ import paginationFactory, {
   SizePerPageDropdownStandalone
 } from "react-bootstrap-table2-paginator";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { searchInterimaires } from "../../../../../business/actions/interimaire/InterimairesActions";
+import { searchInterimaires } from "../../../../../business/actions/interimaire/interimairesActions";
 
 const tenantID = +process.env.REACT_APP_TENANT_ID;
 

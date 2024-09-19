@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, shallowEqual, useDispatch } from "react-redux";
-import { getJobSkills } from "actions/shared/ListsActions";
 import { FormattedMessage, useIntl } from "react-intl";
 import BootstrapTable from "react-bootstrap-table-next";
 import axios from "axios";

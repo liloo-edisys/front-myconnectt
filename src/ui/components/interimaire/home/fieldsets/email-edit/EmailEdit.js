@@ -7,7 +7,7 @@ import { Zoom } from "react-reveal";
 import { toAbsoluteUrl } from "../../../../../../_metronic/_helpers";
 import "./styles.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { goToNextStep } from "../../../../../../business/actions/interimaire/InterimairesActions";
+import { goToNextStep } from "../../../../../../business/actions/interimaire/interimairesActions";
 import PlacesAutocomplete, {
   geocodeByAddress,
   getLatLng,

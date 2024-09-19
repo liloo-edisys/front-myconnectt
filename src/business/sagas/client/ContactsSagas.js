@@ -7,7 +7,7 @@ import {
   updateContact as updateContactActions,
   deleteContact as deleteContactActions,
   deleteMyContact as deleteMyContactActions
-} from "actions/client/ContactsActions";
+} from "actions/client/contactsActions";
 import {
   getContact as getContactApi,
   inviteContact as inviteContactApi,

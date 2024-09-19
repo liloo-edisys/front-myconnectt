@@ -2,13 +2,11 @@
 /* eslint-disable no-script-url,jsx-a11y/anchor-is-valid */
 import React, { useState, useMemo, useEffect } from "react";
 
-import { switchAccount } from "actions/client/CompaniesActions";
+import { switchAccount } from "actions/client/companiesActions";
 import { DropdownTopbarItemToggler } from "metronic/_partials/dropdowns";
 import objectPath from "object-path";
 import { Dropdown, OverlayTrigger, Tooltip } from "react-bootstrap";
-import SVG from "react-inlinesvg";
 import { injectIntl } from "react-intl";
-import PerfectScrollbar from "react-perfect-scrollbar";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import _ from "lodash";
 import { useHtmlClassService } from "../../../_metronic/layout";

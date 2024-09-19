@@ -9,7 +9,7 @@ import axios from "axios";
 import moment from "moment";
 import _, { debounce, isNull } from "lodash";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import { getMissionRemuneration } from "../../../../../business/actions/shared/ListsActions";
+import { getMissionRemuneration } from "../../../../../business/actions/shared/listsActions";
 import { joursFeriesFix, joursFeriesFlexible } from "./joursFeries";
 
 function HoursStatementForm(props) {

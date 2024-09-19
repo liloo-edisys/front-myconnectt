@@ -1,6 +1,6 @@
 import React from "react";
 
-import { deleteMission } from "actions/client/MissionsActions";
+import { deleteMission } from "actions/client/missionsActions";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import { useDispatch } from "react-redux";

@@ -6,44 +6,25 @@
 // Data validation is based on Yup
 // Please, be familiar with article first:
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Field } from "formik";
 import { Row, Col } from "react-bootstrap";
 import { useDropzone } from "react-dropzone";
-import { Zoom } from "react-reveal";
 import _ from "lodash";
-import { Input } from "metronic/_partials/controls";
 import { FormattedMessage, injectIntl } from "react-intl";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
-import Select from "react-select";
-import CreatableSelect from "react-select/creatable";
-import { countMatching } from "actions/client/ApplicantsActions";
-import { useFormikContext } from "formik";
-import useLocalStorage from "../../../../shared/PersistState";
-import MissionWizzardHeader from "../../MissionWizzardHeader";
-import moment from "moment";
-import BootstrapTable from "react-bootstrap-table-next";
-import DateColumnFormatter from "./DateColumnFormatter";
-import ActionsColumnFormatter from "./ActionsColumnFormatter";
-import { updateApplicant } from "actions/client/ApplicantsActions";
-import { parseResume as parseResumeActions } from "actions/interimaire/InterimairesActions";
-import { parseResume } from "api/interimaire/InterimairesApi";
-import { getMissionEquipment } from "../../../../../../business/actions/shared/ListsActions";
-import { getHabilitationsList } from "actions/client/MissionsActions";
+import { shallowEqual, useDispatch, useSelector } from "react-redux"; 
+import { useHistory } from "react-router-dom";
+import { updateApplicant } from "actions/client/applicantsActions";
+import { getMissionEquipment } from "../../../../../../business/actions/shared/listsActions";
+import { getHabilitationsList } from "actions/client/missionsActions";
 import uuid from "react-uuid";
 import {
   NewExperience,
-  DeleteExperienceModal,
-  ProfileExperiencesModal
-} from "./experience-actions";
+  DeleteExperienceModal} from "./experience-actions";
 import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
 import axios from "axios";
-import { updateSelectedApplicant } from "../../../../../../business/actions/backoffice/ApplicantActions";
+import { updateSelectedApplicant } from "../../../../../../business/actions/backoffice/applicantActions";
 import { toastr } from "react-redux-toastr";
-import { getApplicantById } from "actions/client/ApplicantsActions";
-import { getSelectedApplicantById } from "../../../../../../business/actions/backoffice/ApplicantActions";
 
 function Experiences(props, formik) {
   const dispatch = useDispatch();

@@ -2,15 +2,15 @@ import React, { useEffect, useRef } from "react";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { getMatching } from "actions/client/ApplicantsActions";
+import { getMatching } from "actions/client/applicantsActions";
 import MatchingTable from "../missionlist/MatchingTable";
-import { getMission } from "actions/client/MissionsActions";
+import { getMission } from "actions/client/missionsActions";
 import {
   declineMatching,
   approveByCustomer
-} from "../../../../../business/actions/client/ApplicantsActions";
+} from "../../../../../business/actions/client/applicantsActions";
 import { MissionResumeDialog } from "./MissionResumeDialog";
-import { searchMission } from "../../../../../business/actions/client/MissionsActions";
+import { searchMission } from "../../../../../business/actions/client/missionsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 const TENANTID = process.env.REACT_APP_TENANT_ID;
 

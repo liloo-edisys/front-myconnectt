@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { FormattedMessage, useIntl } from "react-intl";
-import { getJobTitles } from "actions/shared/ListsActions";
+import { getJobTitles } from "actions/shared/listsActions";
 import DatePicker from "react-datepicker";
 import fr from "date-fns/locale/fr";
 import axios from "axios";

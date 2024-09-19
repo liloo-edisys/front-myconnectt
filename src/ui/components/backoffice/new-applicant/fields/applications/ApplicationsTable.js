@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
-import { Link } from "react-router-dom";
 import BootstrapTable from "react-bootstrap-table-next";
 import DatePicker from "react-datepicker";
 import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
 import { FormattedMessage, useIntl } from "react-intl";
-import { getBackOfficeContractList } from "../../../../../../business/actions/backoffice/RecruiterActions";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider,
-  SizePerPageDropdownStandalone
-} from "react-bootstrap-table2-paginator";
+  PaginationProvider} from "react-bootstrap-table2-paginator";
 import fr from "date-fns/locale/fr";
 import moment from "moment";
-import { searchSelectedApplicantMissions } from "../../../../../../business/actions/backoffice/ApplicantActions";
+import { searchSelectedApplicantMissions } from "../../../../../../business/actions/backoffice/applicantActions";
 
 function ApplicationsTable(props) {
   const dispatch = useDispatch();

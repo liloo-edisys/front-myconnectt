@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 
-import { registerInterimaire } from "api/shared/AuthApi";
 import { Fade } from "react-reveal";
 import { Formik, Form, Field } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import * as Yup from "yup";
-import { checkSmsCode } from "../../../../business/actions/interimaire/InterimairesActions";
+import { checkSmsCode } from "../../../../business/actions/interimaire/interimairesActions";
 
 function RegisterConfirmSms(props) {
   const dispatch = useDispatch();

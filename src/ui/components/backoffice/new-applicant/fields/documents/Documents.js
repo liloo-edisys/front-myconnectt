@@ -1,24 +1,14 @@
 import React, { useState, useEffect } from "react";
-import SVG from "react-inlinesvg";
-import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import MissionWizzardHeader from "../../MissionWizzardHeader";
-import LoadingOverlay from "react-loading-overlay";
 import { FormattedMessage, useIntl } from "react-intl";
-import { Zoom } from "react-reveal";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { toAbsoluteUrl } from "../../../../../../_metronic/_helpers";
 import "./styles.scss";
 import {
-  goToNextStep,
-  deleteIdDocument,
   getNationalitiesList
-} from "../../../../../../business/actions/interimaire/InterimairesActions";
+} from "../../../../../../business/actions/interimaire/interimairesActions";
 import {
-  deleteSelectedApplicantDocumentt,
-  clearSelectedApplicantStepFiveModal
-} from "../../../../../../business/actions/backoffice/ApplicantActions";
-import { getTitlesTypes } from "../../../../../../business/actions/shared/ListsActions";
+  deleteSelectedApplicantDocumentt} from "../../../../../../business/actions/backoffice/applicantActions";
+import { getTitlesTypes } from "../../../../../../business/actions/shared/listsActions";
 //import { DocumentsModal } from "../../home/fieldsets/indentity-documents/documents-modal";
 //import VitalCardModal from "../../home/fieldsets/indentity-documents/vital-card-modal";
 //import RibModal from "../../home/fieldsets/indentity-documents/rib-modal";

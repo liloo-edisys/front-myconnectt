@@ -20,7 +20,7 @@ import {
   getMissionEquipment as getMissionEquipmentActions,
   getAPE as getAPEActions,
   getContractType as getContractTypeActions
-} from "actions/shared/ListsActions";
+} from "actions/shared/listsActions";
 import {
   getTitlesTypes as getTitlesTypesApi,
   getInvoicesTypes as getInvoicesTypesApi,

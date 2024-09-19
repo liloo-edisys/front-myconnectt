@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Row, Col } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Formik, Form, Field } from "formik";
 import { useSelector, useDispatch } from "react-redux";
 import * as Yup from "yup";
-import { updateInterimaireIdentity } from "../../../../../../../../business/actions/interimaire/InterimairesActions";
-import { checkValidIban, smellsLikeIban } from "./Checkers";
+import { updateInterimaireIdentity } from "../../../../../../../../business/actions/interimaire/interimairesActions";
+import { smellsLikeIban } from "./Checkers";
 
 function RibInformations(props) {
   const intl = useIntl();

@@ -1,16 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Fade } from "react-reveal";
 import { useIntl } from "react-intl";
-import SVG from "react-inlinesvg";
-import { getBackOfficeContractList } from "../../../../business/actions/backoffice/RecruiterActions";
-import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardHeaderToolbar
-} from "../../../../_metronic/_partials/controls";
+import { getBackOfficeContractList } from "../../../../business/actions/backoffice/recruiterActions";
 import InterimairesCard from "./InterimairesCard";
 
 function Interimaires(props) {

@@ -1,4 +1,4 @@
-import { getMission as getMissionAction } from "actions/client/MissionsActions";
+import { getMission as getMissionAction } from "actions/client/missionsActions";
 
 import InterimaireMissionsPage from "components/interimaire/missions/search/InterimaireMissionsPage";
 import { connect } from "react-redux";

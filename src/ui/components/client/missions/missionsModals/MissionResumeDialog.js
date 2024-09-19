@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import IframeGoogleDocs from "../../../../../utils/googleHacks";
-import { getFormattedCV } from "actions/client/ApplicantsActions";
+import { getFormattedCV } from "actions/client/applicantsActions";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 
 export function MissionResumeDialog({ show, onHide, history, resumeRow }) {

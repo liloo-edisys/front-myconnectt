@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Row, Col } from "react-bootstrap";
+import { Modal, Row, Col } from "react-bootstrap";
 import { DatePickerField } from "metronic/_partials/controls";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { Formik, Form, Field } from "formik";
 import { FormattedMessage, useIntl } from "react-intl";
 import * as Yup from "yup";
-import axios from "axios";
-import { toastr } from "react-redux-toastr";
 import moment from "moment";
-import { getNationalitiesList } from "../../../../../../../../../business/actions/interimaire/InterimairesActions";
-import { updateSelectedApplicantIdentity } from "../../../../../../../../../business/actions/backoffice/ApplicantActions";
+import { getNationalitiesList } from "../../../../../../../../../business/actions/interimaire/interimairesActions";
+import { updateSelectedApplicantIdentity } from "../../../../../../../../../business/actions/backoffice/applicantActions";
 
 function IdentityInformations(props) {
   const intl = useIntl();

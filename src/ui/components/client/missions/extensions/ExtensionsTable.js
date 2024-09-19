@@ -4,7 +4,7 @@ import { Modal } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import BootstrapTable from "react-bootstrap-table-next";
 import { FormattedMessage, useIntl } from "react-intl";
-import { getExtensions } from "../../../../../business/actions/client/MissionsActions";
+import { getExtensions } from "../../../../../business/actions/client/missionsActions";
 import paginationFactory, {
   PaginationListStandalone,
   PaginationProvider,

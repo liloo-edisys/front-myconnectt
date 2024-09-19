@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { login } from "actions/shared/AuthActions";
+import { login } from "actions/shared/authActions";
 import { confirmInvite } from "api/client/ContactsApi";
 import { useFormik } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
@@ -8,7 +8,7 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import * as Yup from "yup";
 
-import { getUserByToken } from "../../../../business/actions/client/UserActions";
+import { getUserByToken } from "../../../../business/actions/client/userActions";
 
 const token = window.location.href.substring(
   window.location.href.lastIndexOf("/") + 1

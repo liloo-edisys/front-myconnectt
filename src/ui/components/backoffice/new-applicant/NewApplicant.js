@@ -6,26 +6,15 @@
 // Data validation is based on Yup
 // Please, be familiar with article first:
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import ReactDOM from "react-dom";
+import React, { useEffect, useState } from "react";
 
 import _ from "lodash";
-import { Input } from "metronic/_partials/controls";
-import { FormattedMessage, injectIntl } from "react-intl";
+import { injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { useFormikContext } from "formik";
-import useLocalStorage from "../../shared/PersistState";
 import MissionWizzardHeader from "./MissionWizzardHeader";
-import isNullOrEmpty from "../../../../utils/isNullOrEmpty";
-import moment from "moment";
-import { getTitlesTypes } from "../../../../business/actions/shared/ListsActions";
-import { updateApplicant } from "actions/client/ApplicantsActions";
-import Avatar from "react-avatar";
-import ReactDatePicker from "react-datepicker";
+import { getTitlesTypes } from "../../../../business/actions/shared/listsActions";
 import { DeleteProfileDialog } from "./profileModals/DeleteProfileDialog";
-import fr from "date-fns/locale/fr";
-import { toastr } from "react-redux-toastr";
-import { Route, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import IdentityInformations from "./fields/indentity-informations";
 import Experiences from "./fields/experiences";
 import Documents from "./fields/documents";
@@ -36,13 +25,8 @@ import EmailsCard from "./fields/emails/EmailsCard";
 import {
   getSelectedApplicantById,
   clearSelectedApplicant
-} from "../../../../business/actions/backoffice/ApplicantActions";
+} from "../../../../business/actions/backoffice/applicantActions";
 
-import PlacesAutocomplete, {
-  geocodeByAddress,
-  getLatLng,
-  geocodeByPlaceId
-} from "react-places-autocomplete";
 
 function NewApplicant(props) {
   const dispatch = useDispatch();

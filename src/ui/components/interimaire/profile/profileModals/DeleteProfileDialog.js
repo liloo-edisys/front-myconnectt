@@ -1,6 +1,6 @@
 import React from "react";
 
-import { deleteInterimaire } from "actions/interimaire/InterimairesActions";
+import { deleteInterimaire } from "actions/interimaire/interimairesActions";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import { useDispatch } from "react-redux";

@@ -1,11 +1,10 @@
 import React from "react";
 import {
-  deleteNotification,
   setNotifRead
-} from "../../../business/actions/shared/NotificationsActions";
+} from "../../../business/actions/shared/notificationsActions";
 import "./styles.scss";
 
-import { Modal, Button } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 
 export function UserNotificationPopup(props) {
   const { notif, userDetails, dispatch, closePopup } = props;

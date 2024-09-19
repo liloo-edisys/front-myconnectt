@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 
-import { declineByApplicant } from "actions/client/ApplicantsActions";
+import { declineByApplicant } from "actions/client/applicantsActions";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import axios from "axios";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { getMission } from "../../../../../business/actions/client/MissionsActions";
+import { getMission } from "../../../../../business/actions/client/missionsActions";
 
 export function MissionDeclineDialog({ show, onHide, history, row }) {
   const dispatch = useDispatch();

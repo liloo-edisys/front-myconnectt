@@ -3,7 +3,6 @@ import { Modal } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
 import BootstrapTable from "react-bootstrap-table-next";
 import axios from "axios";
-import { approveByApplicant } from "../../../../../business/actions/client/ApplicantsActions";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { toastr } from "react-redux-toastr";

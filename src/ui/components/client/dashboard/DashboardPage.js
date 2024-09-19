@@ -4,7 +4,7 @@ import {
   getDashboardDatas,
   goToNextStep,
   getUserStartGuide
-} from "actions/client/DashboardActions";
+} from "actions/client/dashboardActions";
 import { Pagination } from "react-bootstrap";
 import SVG from "react-inlinesvg";
 import { FormattedMessage, injectIntl } from "react-intl";
@@ -12,12 +12,12 @@ import { connect, shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Avatar from "react-avatar";
 import { Route } from "react-router-dom";
-import { checkFields } from "actions/client/CompaniesActions";
+import { checkFields } from "actions/client/companiesActions";
 import {
   getInvoicesTypes as getInvoicesTypesActions,
   getAccountGroups as getAccountGroupsActions,
   getPaymentChoices as getPaymentChoicesActions
-} from "actions/shared/ListsActions";
+} from "actions/shared/listsActions";
 import { MissionsUIProvider } from "./tables/MissionsUIContext";
 
 import { NavLink } from "react-router-dom";
@@ -28,7 +28,7 @@ import CompanyEditModal from "../companies/companiesModals/CompanyEditModal";
 import ContractsTable from "./tables/ContractsTable";
 import SearchsTable from "./tables/SearchTable";
 import { getMission } from "api/client/MissionsApi";
-import { getMission as getMissionAction } from "actions/client/MissionsActions";
+import { getMission as getMissionAction } from "actions/client/missionsActions";
 import MissionHeaderDropdown from "../../shared/MissionHeaderDropdown";
 import SimulatorModalEmpty from "../missions/missionForms/SimulatorModalEmpty";
 import "./styles.scss";

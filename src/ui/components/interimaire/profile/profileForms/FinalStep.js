@@ -17,7 +17,7 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
-import { countMatching } from "actions/client/ApplicantsActions";
+import { countMatching } from "actions/client/applicantsActions";
 import { useFormikContext } from "formik";
 import useLocalStorage from "../../../shared/PersistState";
 import MissionWizzardHeader from "./MissionWizzardHeader";
@@ -37,9 +37,8 @@ import {
   getJobSkills,
   getJobTags,
   getMissionEquipment
-} from "actions/shared/ListsActions";
-import { getHabilitationsList } from "actions/client/MissionsActions";
-import { updateApplicant } from "actions/client/ApplicantsActions";
+} from "actions/shared/listsActions";
+import { getHabilitationsList } from "actions/client/missionsActions";
 import DateColumnFormatter from "./DateColumnFormatter";
 import { toAbsoluteUrl } from "metronic/_helpers";
 import DocTypes from "../../../../../utils/DocumentTypes.json";

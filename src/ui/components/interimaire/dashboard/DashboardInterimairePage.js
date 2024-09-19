@@ -1,36 +1,25 @@
 import React, { useEffect } from "react";
 
-import { getDashboardDatas } from "actions/interimaire/DashboardActions";
-import SVG from "react-inlinesvg";
-import { FormattedMessage, injectIntl } from "react-intl";
+import { getDashboardDatas } from "actions/interimaire/dashboardActions";
+import { injectIntl } from "react-intl";
 import { connect, shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Link, Route } from "react-router-dom";
-import Avatar from "react-avatar";
-import { MixedWidgetProfile } from "../../../../_metronic/_partials/widgets";
+import { Route } from "react-router-dom";
 
-import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
-import { getInterimaire } from "actions/interimaire/InterimairesActions";
+import { getInterimaire } from "actions/interimaire/interimairesActions";
 
-import MissionsTable from "./tables/MissionsTable";
-import ApplicationsTable from "./tables/ApplicationsTable";
-import isNullOrEmpty from "../../../../utils/isNullOrEmpty";
-import { MissionsUIProvider } from "../../client/dashboard/tables/MissionsUIContext";
 import { InterimaireMatchingUIProvider } from "../missions/matching/InterimaireMatchingUIContext";
-import { getMission } from "../../../../business/actions/client/MissionsActions";
+import { getMission } from "../../../../business/actions/client/missionsActions";
 import { MissionDisplayDialog } from "../missions/modals/MissionDisplayDialog";
 import { MissionApproveDialog } from "../missions/modals/MissionApproveDialog";
 import { MatchingDeclineDialog } from "../missions/modals/MatchingDeclineDialog";
 import { MissionDeclineDialog } from "../missions/modals/MissionDeclineDialog";
 import { Home } from "../home";
 
-function DashboardInterimairePage({ intl, history }) {
+function DashboardInterimairePage({ history }) {
   const dispatch = useDispatch();
   const tenantID = +process.env.REACT_APP_TENANT_ID;
   const {
-    dashboard,
     interimaire,
-    missions,
-    applications,
     hasCancelled
   } = useSelector(
     state => ({

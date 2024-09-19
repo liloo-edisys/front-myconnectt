@@ -3,7 +3,7 @@ import React from "react";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import { useDispatch } from "react-redux";
-import { deleteApplicant } from "../../../../business/actions/backoffice/ApplicantActions";
+import { deleteApplicant } from "../../../../business/actions/backoffice/applicantActions";
 
 export function ApplicantDeleteModal({ show, onHide, getData, applicant }) {
   const dispatch = useDispatch();

@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 
-import { approveByApplicant } from "actions/client/ApplicantsActions";
+import { approveByApplicant } from "actions/client/applicantsActions";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { getMission } from "../../../../../business/actions/client/MissionsActions";
+import { getMission } from "../../../../../business/actions/client/missionsActions";
 //const TENANTID = process.env.REACT_APP_TENANT_ID;
 export function MissionApproveDialog({ show, onHide, history }) {
   const dispatch = useDispatch();

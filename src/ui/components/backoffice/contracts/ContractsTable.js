@@ -6,16 +6,14 @@ import DatePicker from "react-datepicker";
 import isNullOrEmpty from "../../../../utils/isNullOrEmpty";
 import fr from "date-fns/locale/fr";
 import { FormattedMessage, useIntl } from "react-intl";
-import { getBackOfficeContractList } from "../../../../business/actions/backoffice/RecruiterActions";
+import { getBackOfficeContractList } from "../../../../business/actions/backoffice/recruiterActions";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider,
-  SizePerPageDropdownStandalone
-} from "react-bootstrap-table2-paginator";
-import { getAccounts } from "actions/backoffice/AccountsActions";
+  PaginationProvider} from "react-bootstrap-table2-paginator";
+import { getAccounts } from "actions/backoffice/accountsActions";
 import moment from "moment";
-import { getCompanies } from "actions/client/CompaniesActions";
-import { getJobTitles } from "actions/shared/ListsActions";
+import { getCompanies } from "actions/client/companiesActions";
+import { getJobTitles } from "actions/shared/listsActions";
 import ContractDetails from "./ContractDetails";
 import { Modal } from "react-bootstrap";
 import axios from "axios";

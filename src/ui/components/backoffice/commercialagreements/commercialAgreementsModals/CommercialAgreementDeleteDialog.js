@@ -1,10 +1,9 @@
 import React from "react";
 
-import { updateCommercialAgreement } from "../../../../../business/actions/backoffice/CommercialAgreementsActions";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
-import { deleteCommercialAgreement } from "../../../../../business/actions/backoffice/CommercialAgreementsActions";
+import { deleteCommercialAgreement } from "../../../../../business/actions/backoffice/commercialAgreementsActions";
 
 export function CommercialAgreementDeleteDialog({
   show,

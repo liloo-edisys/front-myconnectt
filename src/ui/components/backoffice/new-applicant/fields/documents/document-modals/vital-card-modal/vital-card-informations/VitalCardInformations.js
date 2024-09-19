@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Button, Row, Col } from "react-bootstrap";
+import { Modal, Row, Col } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Formik, Form, Field } from "formik";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
@@ -7,7 +7,7 @@ import axios from "axios";
 import { toastr } from "react-redux-toastr";
 import * as Yup from "yup";
 //import { updateInterimaireIdentity } from "../../../../../../../../business/actions/interimaire/InterimairesActions";
-import { updateSelectedApplicantIdentity } from "../../../../../../../../../business/actions/backoffice/ApplicantActions";
+import { updateSelectedApplicantIdentity } from "../../../../../../../../../business/actions/backoffice/applicantActions";
 
 function VitalCardInformations(props) {
   const intl = useIntl();

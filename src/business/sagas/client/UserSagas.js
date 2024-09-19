@@ -3,7 +3,7 @@ import * as actionTypes from "constants/constants";
 import {
   getUser as getUserActions,
   getUserByToken as getUserByTokenActions
-} from "actions/client/UserActions";
+} from "actions/client/userActions";
 import {
   getUser as getUserApi,
   getUserByToken as getUserByTokenApi

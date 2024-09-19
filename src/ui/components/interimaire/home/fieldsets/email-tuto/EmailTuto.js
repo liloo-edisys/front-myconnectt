@@ -6,7 +6,7 @@ import * as Yup from "yup";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Zoom } from "react-reveal";
 import { toAbsoluteUrl } from "../../../../../../_metronic/_helpers";
-import { goToNextStep } from "../../../../../../business/actions/interimaire/InterimairesActions";
+import { goToNextStep } from "../../../../../../business/actions/interimaire/interimairesActions";
 import "./styles.scss";
 
 function EmailTuto(props) {

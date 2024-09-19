@@ -6,9 +6,9 @@ import { useHistory, useLocation } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
 import { ApplicantDeleteModal } from "./ApplicantDeleteModal.js";
 import { SourcingScopTalentModal } from "./SourcingScopTalentModal.js";
-import { getJobTitles } from "actions/shared/ListsActions";
+import { getJobTitles } from "actions/shared/listsActions";
 import moment from "moment";
-import { getInterimairesList } from "actions/backoffice/AccountsActions";
+import { getInterimairesList } from "actions/backoffice/accountsActions";
 import paginationFactory, {
   PaginationListStandalone,
   PaginationProvider

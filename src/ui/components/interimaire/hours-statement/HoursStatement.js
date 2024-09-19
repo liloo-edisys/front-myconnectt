@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { NavLink, useHistory, Route, Link } from "react-router-dom";
+import { NavLink, useHistory, Route } from "react-router-dom";
 import { Col, Row } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useSelector, useDispatch } from "react-redux";
@@ -11,19 +11,14 @@ import BootstrapTable from "react-bootstrap-table-next";
 import HoursStatementComplaint from "./fields/HoursStatementComplaint";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider,
-  SizePerPageDropdownStandalone
-} from "react-bootstrap-table2-paginator";
+  PaginationProvider} from "react-bootstrap-table2-paginator";
 import isNullOrEmpty from "../../../../utils/isNullOrEmpty";
 import {
   Card,
   CardHeader,
-  CardBody,
-  CardHeaderToolbar
-} from "../../../../_metronic/_partials/controls";
-import { getCompanies } from "actions/client/CompaniesActions";
-import { fakeData, weekList, statusList } from "./fakeDatas";
-import { getJobTitles } from "actions/shared/ListsActions";
+  CardBody} from "../../../../_metronic/_partials/controls";
+import { getCompanies } from "actions/client/companiesActions";
+import { getJobTitles } from "actions/shared/listsActions";
 import HoursStatementForm from "./fields/HoursStatementForm";
 import ComplaintsList from "./fields/ComplaintsList";
 

@@ -1,7 +1,7 @@
 import * as actionTypes from "constants/constants";
 
-import { getAccounts as getAccountsActions } from "actions/backoffice/AccountsActions";
-import { sendToAnael as sendToAnaelActions } from "actions/backoffice/AccountsActions";
+import { getAccounts as getAccountsActions } from "actions/backoffice/accountsActions";
+import { sendToAnael as sendToAnaelActions } from "actions/backoffice/accountsActions";
 import { getAccounts as getAccountsApi } from "api/backoffice/AccountsApi";
 import { sendToAnael as sendToAnaelApi } from "api/backoffice/AccountsApi";
 import { toastr } from "react-redux-toastr";

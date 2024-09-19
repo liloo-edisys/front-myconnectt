@@ -6,39 +6,26 @@
 // Data validation is based on Yup
 // Please, be familiar with article first:
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toastr } from "react-redux-toastr";
 
-import { Field } from "formik";
 import { Row, Col } from "react-bootstrap";
 import { useDropzone } from "react-dropzone";
-import { Zoom } from "react-reveal";
 import _ from "lodash";
-import { Input } from "metronic/_partials/controls";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import Select from "react-select";
-import CreatableSelect from "react-select/creatable";
-import { countMatching } from "actions/client/ApplicantsActions";
 import { useFormikContext } from "formik";
 import useLocalStorage from "../../../shared/PersistState";
 import MissionWizzardHeader from "./MissionWizzardHeader";
-import moment from "moment";
-import BootstrapTable from "react-bootstrap-table-next";
-import DateColumnFormatter from "./DateColumnFormatter";
-import { ProfileExperiencesModal } from "../profileModals/ProfileExperiencesModal";
-import ActionsColumnFormatter from "./ActionsColumnFormatter";
 import { DeleteExperienceModal } from "../profileModals/DeleteExperienceModal";
-import { updateApplicant } from "actions/client/ApplicantsActions";
-import { parseResume as parseResumeActions } from "actions/interimaire/InterimairesActions";
+import { updateApplicant } from "actions/client/applicantsActions";
+import { parseResume as parseResumeActions } from "actions/interimaire/interimairesActions";
 import { parseResume } from "api/interimaire/InterimairesApi";
-import { getMissionEquipment } from "../../../../../business/actions/shared/ListsActions";
-import { getHabilitationsList } from "actions/client/MissionsActions";
+import { getMissionEquipment } from "../../../../../business/actions/shared/listsActions";
+import { getHabilitationsList } from "actions/client/missionsActions";
 import uuid from "react-uuid";
 import NewExperience from "../../home/fieldsets/new-experience/NewExperience";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import { validateMission } from "../../../../../business/actions/client/MissionsActions";
 
 function FormStepThree(props, formik) {
   const dispatch = useDispatch();

@@ -7,7 +7,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { toastr } from "react-redux-toastr";
 import moment from "moment";
 import axios from "axios";
-import { validateMission } from "actions/client/MissionsActions";
+import { validateMission } from "actions/client/missionsActions";
 
 function SimulatorModal(props) {
   const dispatch = useDispatch();

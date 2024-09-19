@@ -3,11 +3,11 @@ import {
   getUserMissions as getUserMissionsAction,
   getMission as getMissionAction,
   resetMission
-} from "actions/client/MissionsActions";
+} from "actions/client/missionsActions";
 
 import MissionsPage from "components/client/missions/missionlist/MissionsPage";
 import { connect } from "react-redux";
-import { clearFormattedCV } from "../../business/actions/client/ApplicantsActions";
+import { clearFormattedCV } from "../../business/actions/client/applicantsActions";
 
 const tenantID = +process.env.REACT_APP_TENANT_ID;
 

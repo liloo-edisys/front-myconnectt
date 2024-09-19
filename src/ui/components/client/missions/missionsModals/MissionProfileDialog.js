@@ -1,26 +1,23 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect, useRef, useState } from "react";
-import { Modal, Row, Col } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { getMatching } from "actions/client/ApplicantsActions";
-import { getMission } from "actions/client/MissionsActions";
+import { getMatching } from "actions/client/applicantsActions";
+import { getMission } from "actions/client/missionsActions";
 import Avatar from "react-avatar";
 import moment from "moment";
-import SVG from "react-inlinesvg";
-import { toAbsoluteUrl } from "metronic/_helpers";
 import ApplicationsStatusColumnFormatter from "components/client/missions/column-formatters/ApplicationsStatusColumnFormatter.js";
-import ProfileResume from "../missionForms/ProfileResume";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import { getJobTitles } from "../../../../../business/actions/shared/ListsActions";
-import { getJobSkills } from "../../../../../business/actions/shared/ListsActions";
+import { getJobTitles } from "../../../../../business/actions/shared/listsActions";
+import { getJobSkills } from "../../../../../business/actions/shared/listsActions";
 import axios from "axios";
 import {
   declineMatching,
   approveByCustomer,
   getApplicantById,
   getFormattedCV
-} from "actions/client/ApplicantsActions";
+} from "actions/client/applicantsActions";
 import "./styles.scss";
 
 export function MissionProfileDialog({

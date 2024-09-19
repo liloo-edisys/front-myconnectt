@@ -6,12 +6,10 @@
 // Data validation is based on Yup
 // Please, be familiar with article first:
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import ReactDOM from "react-dom";
+import React, { useEffect, useState } from "react";
 
 import { Field } from "formik";
 import _ from "lodash";
-import { Input } from "metronic/_partials/controls";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useFormikContext } from "formik";
@@ -19,15 +17,14 @@ import useLocalStorage from "../../../shared/PersistState";
 import MissionWizzardHeader from "./MissionWizzardHeader";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import moment from "moment";
-import { getTitlesTypes } from "../../../../../business/actions/shared/ListsActions";
-import { updateApplicant } from "actions/client/ApplicantsActions";
+import { getTitlesTypes } from "../../../../../business/actions/shared/listsActions";
+import { updateApplicant } from "actions/client/applicantsActions";
 import Avatar from "react-avatar";
 import ReactDatePicker from "react-datepicker";
 import { DeleteProfileDialog } from "../profileModals/DeleteProfileDialog";
 import fr from "date-fns/locale/fr";
 import { toastr } from "react-redux-toastr";
-import { Route } from "react-router-dom";
-import { getNationalitiesList } from "../../../../../business/actions/interimaire/InterimairesActions";
+import { getNationalitiesList } from "../../../../../business/actions/interimaire/interimairesActions";
 
 import PlacesAutocomplete, {
   geocodeByAddress,

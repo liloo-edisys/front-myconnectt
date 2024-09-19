@@ -1,21 +1,18 @@
 import React, { useEffect, useState } from "react";
 import Avatar from "react-avatar";
-import { Modal, Row, Col } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import {
   approveByCustomer,
   declineMatching,
   getMatching
-} from "../../../../../business/actions/client/ApplicantsActions";
+} from "../../../../../business/actions/client/applicantsActions";
 import {
   getJobSkills,
   getJobTitles
-} from "../../../../../business/actions/shared/ListsActions";
+} from "../../../../../business/actions/shared/listsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import ProfileResume from "./ProfileResume";
-import SVG from "react-inlinesvg";
-import { toAbsoluteUrl } from "metronic/_helpers";
 import moment from "moment";
 import axios from "axios";
 import "./styles.scss";

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 
-import { sendEmail } from "actions/client/EmailActions";
+import { sendEmail } from "actions/client/emailActions";
 import JoditEditor from "jodit-react";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { useDispatch } from "react-redux";

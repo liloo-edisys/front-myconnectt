@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { getBackOfficeDashboardDatas } from "actions/backoffice/DashboardActions";
+import { getBackOfficeDashboardDatas } from "actions/backoffice/dashboardActions";
 import { Pagination } from "react-bootstrap";
 import SVG from "react-inlinesvg";
 import { FormattedMessage, injectIntl } from "react-intl";

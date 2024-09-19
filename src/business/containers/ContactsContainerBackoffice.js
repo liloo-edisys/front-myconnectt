@@ -1,4 +1,4 @@
-import { getContactsList as getContactsListActions } from "actions/client/ContactsActions";
+import { getContactsList as getContactsListActions } from "actions/client/contactsActions";
 import ContactsPage from "components/backoffice/contacts/ContactsPage";
 import { connect } from "react-redux";
 

@@ -25,20 +25,19 @@ import paginationFactory, {
   SizePerPageDropdownStandalone
 } from "react-bootstrap-table2-paginator";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { searchMission } from "../../../../../business/actions/client/MissionsActions";
-import { resetMissionIndicator } from "actions/client/MissionsActions";
+import { searchMission } from "../../../../../business/actions/client/missionsActions";
+import { resetMissionIndicator } from "actions/client/missionsActions";
 import { getMission } from "api/client/MissionsApi";
 
-import { getJobTitles } from "actions/shared/ListsActions";
+import { getJobTitles } from "actions/shared/listsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import { getCompanies } from "actions/client/CompaniesActions";
+import { getCompanies } from "actions/client/companiesActions";
 import MissionsStatusColumnFormatter from "../column-formatters/MissionsStatusColumnFormatter";
 import {
   deleteCurrentDuplicate,
   deleteCurrentTemplate
-} from "../../../../../business/actions/client/MissionsActions";
+} from "../../../../../business/actions/client/missionsActions";
 import Avatar from "react-avatar";
-import ReactTooltip from "react-tooltip";
 import {
   setSetelectedStartDate,
   setSetelectedEndDate,
@@ -46,7 +45,7 @@ import {
   setDefaultStatus,
   setPageSize,
   setPageNumber
-} from "../../../../../business/actions/backoffice/MissionsActions.js";
+} from "../../../../../business/actions/backoffice/missionsActions.js";
 
 const tenantID = +process.env.REACT_APP_TENANT_ID;
 const baseDate = new Date();

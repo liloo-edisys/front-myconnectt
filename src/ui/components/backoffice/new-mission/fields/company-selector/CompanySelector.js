@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Select from "react-select";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { getCompanies } from "actions/client/CompaniesActions";
-import { searchMission } from "../../../../../../business/actions/client/MissionsActions";
+import { getCompanies } from "actions/client/companiesActions";
+import { searchMission } from "../../../../../../business/actions/client/missionsActions";
 import axios from "axios";
 import { FormattedMessage } from "react-intl";
 

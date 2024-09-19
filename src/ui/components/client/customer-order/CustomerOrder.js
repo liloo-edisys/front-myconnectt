@@ -9,7 +9,6 @@ import * as Yup from "yup";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
 import { ApplicantListModal } from "./applicant-list-modal";
-import { approveByCustomer } from "actions/client/ApplicantsActions";
 import { useDispatch } from "react-redux";
 
 function CustomerOrder(props) {

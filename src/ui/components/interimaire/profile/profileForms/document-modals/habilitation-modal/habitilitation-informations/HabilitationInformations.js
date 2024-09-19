@@ -7,8 +7,8 @@ import CreatableSelect from "react-select/creatable";
 import { DatePickerField } from "metronic/_partials/controls";
 import moment from "moment";
 import * as Yup from "yup";
-import { updateInterimaireIdentity } from "../../../../../../../../business/actions/interimaire/InterimairesActions";
-import { getHabilitationsList } from "actions/client/MissionsActions";
+import { updateInterimaireIdentity } from "../../../../../../../../business/actions/interimaire/interimairesActions";
+import { getHabilitationsList } from "actions/client/missionsActions";
 
 function HabilitationInformations(props) {
   const intl = useIntl();

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { login } from "actions/shared/AuthActions";
+import { login } from "actions/shared/authActions";
 import { useFormik } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { connect, useDispatch, useSelector, shallowEqual } from "react-redux";

@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { Modal } from "react-bootstrap";
-import { Form, Field } from "formik";
-import { Input, Select } from "metronic/_partials/controls";
+import { Input } from "metronic/_partials/controls";
 import { FormattedMessage } from "react-intl";
-import { toastr } from "react-redux-toastr";
 import moment from "moment";
 import axios from "axios";
-import { validateMission } from "actions/client/MissionsActions";
-import { getJobTitles } from "actions/shared/ListsActions";
+import { getJobTitles } from "actions/shared/listsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 
 function SimulatorModalEmpty(props) {

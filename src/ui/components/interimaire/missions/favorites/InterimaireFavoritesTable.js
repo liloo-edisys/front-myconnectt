@@ -17,20 +17,17 @@ import fr from "date-fns/locale/fr";
 import moment from "moment";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider,
-  SizePerPageDropdownStandalone
-} from "react-bootstrap-table2-paginator";
+  PaginationProvider} from "react-bootstrap-table2-paginator";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import {
   searchMission,
   addFavorite,
   removeFavorite
-} from "../../../../../business/actions/client/MissionsActions";
-import { resetMissionIndicator } from "actions/client/MissionsActions";
+} from "../../../../../business/actions/client/missionsActions";
+import { resetMissionIndicator } from "actions/client/missionsActions";
 
-import { getJobTitles } from "actions/shared/ListsActions";
+import { getJobTitles } from "actions/shared/listsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import { parseResume } from "../../../../../business/api/interimaire/InterimairesApi";
 import "../style.css";
 
 const tenantID = +process.env.REACT_APP_TENANT_ID;

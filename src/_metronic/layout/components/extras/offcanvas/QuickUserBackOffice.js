@@ -1,7 +1,7 @@
 /* eslint-disable no-script-url,jsx-a11y/anchor-is-valid,no-undef */
 import React, { useEffect } from 'react'
 
-import { getUser } from "actions/backoffice/UserActions";
+import { getUser } from "actions/backoffice/userActions";
 import Avatar from 'react-avatar'
 import SVG from 'react-inlinesvg'
 import { FormattedMessage, injectIntl } from 'react-intl'

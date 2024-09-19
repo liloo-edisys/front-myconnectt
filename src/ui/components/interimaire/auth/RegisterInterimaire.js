@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-import { registerInterimaire } from "api/shared/AuthApi";
 import { Fade } from "react-reveal";
 import { Formik, Form, Field } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
@@ -8,9 +7,8 @@ import { connect, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import * as Yup from "yup";
 import {
-  getInterimaire,
   getUserWithMobile
-} from "../../../../business/actions/interimaire/InterimairesActions";
+} from "../../../../business/actions/interimaire/interimairesActions";
 
 function RegisterInterimaire(props) {
   const dispatch = useDispatch();

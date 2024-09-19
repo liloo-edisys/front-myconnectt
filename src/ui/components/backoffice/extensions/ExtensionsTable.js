@@ -2,18 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import BootstrapTable from "react-bootstrap-table-next";
 import { FormattedMessage, useIntl } from "react-intl";
-import { useHistory } from "react-router-dom";
 import {
   getExtensions,
   putExtension
-} from "../../../../business/actions/backoffice/MissionsActions";
+} from "../../../../business/actions/backoffice/missionsActions";
 import paginationFactory, {
   PaginationListStandalone,
   PaginationProvider
 } from "react-bootstrap-table2-paginator";
 import ProcessModal from "./extensionsModals/ProcessModal";
 import { ExtensionProfileDialog } from "./extensionsModals/ExtensionProfileDialog";
-import { getApplicantById } from "actions/client/ApplicantsActions";
+import { getApplicantById } from "actions/client/applicantsActions";
 import ClientModal from "./extensionsModals/ClientModal";
 
 function ExtensionsTable(props) {

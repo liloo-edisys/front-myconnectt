@@ -10,8 +10,8 @@ import "./styles.scss";
 import {
   goToNextStep,
   deleteIdDocument
-} from "../../../../../../business/actions/interimaire/InterimairesActions";
-import { getTitlesTypes } from "../../../../../../business/actions/shared/ListsActions";
+} from "../../../../../../business/actions/interimaire/interimairesActions";
+import { getTitlesTypes } from "../../../../../../business/actions/shared/listsActions";
 import { DocumentsModal } from "./documents-modal";
 import VitalCardModal from "./vital-card-modal";
 import RibModal from "./rib-modal";

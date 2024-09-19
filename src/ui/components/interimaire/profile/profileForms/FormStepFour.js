@@ -6,33 +6,20 @@
 // Data validation is based on Yup
 // Please, be familiar with article first:
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Field } from "formik";
 import _ from "lodash";
-import { Input } from "metronic/_partials/controls";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Select from "react-select";
-import CreatableSelect from "react-select/creatable";
-import { countMatching } from "actions/client/ApplicantsActions";
-import { useFormikContext } from "formik";
 import useLocalStorage from "../../../shared/PersistState";
-import MissionWizzardHeader from "./MissionWizzardHeader";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import moment from "moment";
-import { Button, Collapse } from "react-bootstrap";
-import SVG from "react-inlinesvg";
-import BootstrapTable from "react-bootstrap-table-next";
 
-import { toAbsoluteUrl } from "metronic/_helpers";
-import { getMissionEquipment } from "../../../../../business/actions/shared/ListsActions";
-import { ProfileReferencesModal } from "../profileModals/ProfileReferencesModal";
+import { getMissionEquipment } from "../../../../../business/actions/shared/listsActions";
 import ActionsColumnFormatter from "./ActionsColumnFormatter";
-import { DeleteRefsModal } from "../profileModals/DeleteRefsModal";
-import { updateApplicant } from "actions/client/ApplicantsActions";
-import { getContractType } from "actions/shared/ListsActions";
+import { updateApplicant } from "actions/client/applicantsActions";
+import { getContractType } from "actions/shared/listsActions";
 function FormStepFour(props, formik) {
   const dispatch = useDispatch();
   const { interimaireId } = useParams();

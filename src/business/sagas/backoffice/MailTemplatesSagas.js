@@ -3,9 +3,9 @@ import * as actionTypes from "constants/constants";
 import { getMailTemplates as getMailTemplatesApi } from "../../api/backoffice/MailTemplatesApi";
 import { updateMailTemplate as updateMailTemplateApi } from "../../api/backoffice/MailTemplatesApi";
 import { getMailTemplateCategories as getMailTemplateCategoriesApi } from "../../api/backoffice/MailTemplatesApi";
-import { getMailTemplates as getMailTemplatesActions } from "../../actions/backoffice/MailTemplatesActions";
-import { updateMailTemplate as updateMailTemplateActions } from "../../actions/backoffice/MailTemplatesActions";
-import { getMailTemplateCategories as getMailTemplateCategoriesActions } from "../../actions/backoffice/MailTemplatesActions";
+import { getMailTemplates as getMailTemplatesActions } from "../../actions/backoffice/mailTemplatesActions";
+import { updateMailTemplate as updateMailTemplateActions } from "../../actions/backoffice/mailTemplatesActions";
+import { getMailTemplateCategories as getMailTemplateCategoriesActions } from "../../actions/backoffice/mailTemplatesActions";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 import { toastr } from "react-redux-toastr";
 

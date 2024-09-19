@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Row, Col } from "react-bootstrap";
+import { Modal, Row, Col } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
-import { Formik, Form, Field } from "formik";
+import { Formik, Form } from "formik";
 import { useSelector, useDispatch } from "react-redux";
 import CreatableSelect from "react-select/creatable";
 import { DatePickerField } from "metronic/_partials/controls";
 import moment from "moment";
 import * as Yup from "yup";
 //import { updateInterimaireIdentity } from "../../../../../../../../business/actions/interimaire/InterimairesActions";
-import { updateSelectedApplicantIdentity } from "../../../../../../../../../business/actions/backoffice/ApplicantActions";
-import { getHabilitationsList } from "actions/client/MissionsActions";
+import { updateSelectedApplicantIdentity } from "../../../../../../../../../business/actions/backoffice/applicantActions";
+import { getHabilitationsList } from "actions/client/missionsActions";
 
 function HabilitationInformations(props) {
   const intl = useIntl();

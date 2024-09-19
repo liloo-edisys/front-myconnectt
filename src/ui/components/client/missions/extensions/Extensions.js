@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Fade } from "react-reveal";
 import { useIntl } from "react-intl";
 import SVG from "react-inlinesvg";
-import { getExtensions } from "../../../../../business/actions/client/MissionsActions";
+import { getExtensions } from "../../../../../business/actions/client/missionsActions";
 import { toAbsoluteUrl } from "../../../../../_metronic/_helpers";
 import {
   Card,

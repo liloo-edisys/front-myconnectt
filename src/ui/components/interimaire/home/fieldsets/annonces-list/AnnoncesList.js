@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import SVG from "react-inlinesvg";
 import { Col, Row } from "react-bootstrap";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
-import { getDashboardDatas } from "actions/interimaire/DashboardActions";
+import { getDashboardDatas } from "actions/interimaire/dashboardActions";
 import { Fade } from "react-reveal";
-import { FormattedMessage, useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 import { toAbsoluteUrl } from "../../../../../../_metronic/_helpers";
 import { Link, useHistory } from "react-router-dom";
 import "./styles.scss";
@@ -13,10 +13,9 @@ import {
   searchMission,
   addFavorite,
   removeFavorite
-} from "../../../../../../business/actions/client/MissionsActions";
+} from "../../../../../../business/actions/client/missionsActions";
 //import axios from "axios";
-import { MissionApproveDialog } from "../../../missions/modals/MissionApproveDialog";
-import { setContractsCount } from "../../../../../../business/actions/interimaire/InterimairesActions";
+import { setContractsCount } from "../../../../../../business/actions/interimaire/interimairesActions";
 
 function AnnoncesList(props) {
   const dispatch = useDispatch();

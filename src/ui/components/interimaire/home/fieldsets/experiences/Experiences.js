@@ -13,15 +13,14 @@ import "./styles.scss";
 import {
   goToNextStep,
   removeExperience
-} from "../../../../../../business/actions/interimaire/InterimairesActions";
+} from "../../../../../../business/actions/interimaire/interimairesActions";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import useLocalStorage from "../../../../shared/PersistState";
 import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
-import { parseResume as parseResumeActions } from "actions/interimaire/InterimairesActions";
+import { parseResume as parseResumeActions } from "actions/interimaire/interimairesActions";
 import { parseResume } from "api/interimaire/InterimairesApi";
 import IframeGoogleDocs from "../../../../../../utils/googleHacks";
 import { NewExperience } from "../new-experience";
-import Data from "../../experiences.json";
 import Moment from "moment";
 
 function Experiences(props) {

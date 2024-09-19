@@ -5,7 +5,7 @@ import BootstrapTable from "react-bootstrap-table-next";
 import DatePicker from "react-datepicker";
 import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
 import { FormattedMessage, useIntl } from "react-intl";
-import { getBackOfficeContractList } from "../../../../../../business/actions/backoffice/RecruiterActions";
+import { getBackOfficeContractList } from "../../../../../../business/actions/backoffice/recruiterActions";
 import paginationFactory, {
   PaginationListStandalone,
   PaginationProvider,

@@ -16,7 +16,7 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
-import { countMatching } from "actions/client/ApplicantsActions";
+import { countMatching } from "actions/client/applicantsActions";
 import { useFormikContext } from "formik";
 import { DatePickerField } from "metronic/_partials/controls";
 import MissionWizzardHeader from "./MissionWizzardHeader";
@@ -33,7 +33,7 @@ import {
   getJobTags,
   getJobSkills,
   getMissionExperiences
-} from "../../../../../../../business/actions/shared/ListsActions";
+} from "../../../../../../../business/actions/shared/listsActions";
 import {
   getJobSkills as getJobSkillsApi,
   getJobTags as getJobTagsApi
@@ -44,7 +44,7 @@ import {
   resetMissionIndicator,
   resetMission,
   getHabilitationsList
-} from "../../../../../../../business/actions/client/MissionsActions";
+} from "../../../../../../../business/actions/client/missionsActions";
 import { deleteFromStorage } from "../../../../../shared/DeleteFromStorage";
 import axios from "axios";
 import { useHistory, useParams } from "react-router-dom";

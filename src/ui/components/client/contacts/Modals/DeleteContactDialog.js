@@ -1,6 +1,6 @@
 import React from "react";
 
-import { deleteContact } from "actions/client/ContactsActions";
+import { deleteContact } from "actions/client/contactsActions";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import { useDispatch } from "react-redux";

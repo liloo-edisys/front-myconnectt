@@ -11,7 +11,7 @@ import moment from "moment";
 import {
   updateInterimaireIdentity,
   getNationalitiesList
-} from "../../../../../../../../business/actions/interimaire/InterimairesActions";
+} from "../../../../../../../../business/actions/interimaire/interimairesActions";
 function IdentityInformations(props) {
   const intl = useIntl();
   const dispatch = useDispatch();

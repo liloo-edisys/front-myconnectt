@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import { logout } from "actions/shared/AuthActions";
+import { logout } from "actions/shared/authActions";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
 

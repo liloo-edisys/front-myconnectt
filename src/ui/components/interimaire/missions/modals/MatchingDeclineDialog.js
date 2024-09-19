@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 
-import { declineMatching } from "actions/client/ApplicantsActions";
+import { declineMatching } from "actions/client/applicantsActions";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { getMission } from "../../../../../business/actions/client/MissionsActions";
+import { getMission } from "../../../../../business/actions/client/missionsActions";
 
 export function MatchingDeclineDialog({ show, onHide, history, row }) {
   const dispatch = useDispatch();

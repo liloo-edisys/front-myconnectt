@@ -4,7 +4,7 @@
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
 import React, { useEffect, useState } from "react";
 
-import { updateCompany } from "actions/client/CompaniesActions";
+import { updateCompany } from "actions/client/companiesActions";
 import { Formik, Form, Field } from "formik";
 import { Input, Select } from "metronic/_partials/controls";
 import { Modal } from "react-bootstrap";
@@ -17,7 +17,7 @@ import {
   getInvoicesTypes,
   getPaymentChoices,
   getAPE
-} from "../../../../../business/actions/shared/ListsActions";
+} from "../../../../../business/actions/shared/listsActions";
 import LocationSearchInput from "./location-search-input";
 import { useParams } from "react-router-dom";
 import axios from "axios";

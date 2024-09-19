@@ -3,7 +3,7 @@ import { Modal } from "react-bootstrap";
 import { Formik, Form, Field } from "formik";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useSelector, shallowEqual, useDispatch } from "react-redux";
-import { inviteContact } from "actions/client/ContactsActions";
+import { inviteContact } from "actions/client/contactsActions";
 import { Input } from "metronic/_partials/controls";
 import BootstrapTable from "react-bootstrap-table-next";
 import { headerSortingClasses, sortCaret } from "metronic/_helpers";

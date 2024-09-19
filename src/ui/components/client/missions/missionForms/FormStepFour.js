@@ -16,21 +16,21 @@ import {
   createMission,
   updateMission,
   getHabilitationsList
-} from "actions/client/MissionsActions";
+} from "actions/client/missionsActions";
 import { Input } from "metronic/_partials/controls";
 import useLocalStorage from "../../../shared/PersistState";
 import MissionWizzardHeader from "./MissionWizzardHeader";
 import { Redirect } from "react-router";
-import { countMatching } from "actions/client/ApplicantsActions";
+import { countMatching } from "actions/client/applicantsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import {} from "actions/client/MissionsActions";
+import {} from "actions/client/missionsActions";
 import moment from "moment";
 import TimePicker from "rc-time-picker";
 import {
   getDriverLicences,
   getMissionEquipment,
   getMissionReasons
-} from "../../../../../business/actions/shared/ListsActions";
+} from "../../../../../business/actions/shared/listsActions";
 import { toastr } from "react-redux-toastr";
 
 function FormStepFour(props) {

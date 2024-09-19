@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
   Modal,
-  Button,
   Row,
   Col,
   OverlayTrigger,
@@ -12,11 +11,9 @@ import { FormattedMessage, useIntl } from "react-intl";
 import Select from "react-select";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
-import { DatePickerFieldExperience } from "metronic/_partials/controls";
 import DatePicker from "react-datepicker";
 import moment from "moment";
-import { addExperience } from "../../../../../../business/actions/interimaire/InterimairesActions";
+import { addExperience } from "../../../../../../business/actions/interimaire/interimairesActions";
 import axios from "axios";
 
 import "./styles.scss";

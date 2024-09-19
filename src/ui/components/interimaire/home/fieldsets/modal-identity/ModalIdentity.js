@@ -3,7 +3,7 @@ import { Modal } from "react-bootstrap";
 import Select from "react-select";
 import { useDispatch } from "react-redux";
 import { FormattedMessage, useIntl } from "react-intl";
-import { goToNextStep } from "../../../../../../business/actions/interimaire/InterimairesActions";
+import { goToNextStep } from "../../../../../../business/actions/interimaire/interimairesActions";
 import "./styles.scss";
 
 const jobTitles = [

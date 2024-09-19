@@ -2,12 +2,12 @@ import {
   getCompanies as getCompaniesActions,
   createCompany as createCompanyActions,
   updateCompany as updateCompanyActions
-} from "actions/client/CompaniesActions";
+} from "actions/client/companiesActions";
 import {
   getInvoicesTypes as getInvoicesTypesActions,
   getAccountGroups as getAccountGroupsActions,
   getPaymentChoices as getPaymentChoicesActions
-} from "actions/shared/ListsActions";
+} from "actions/shared/listsActions";
 import CompanyPage from "components/client/companies/CompanyPage";
 import { connect } from "react-redux";
 

@@ -8,7 +8,7 @@ import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { registerLocale } from "react-datepicker";
 import fr from "date-fns/locale/fr";
-import { getJobTitles } from "actions/shared/ListsActions";
+import { getJobTitles } from "actions/shared/listsActions";
 registerLocale("fr", fr);
 const TENANTID = +process.env.REACT_APP_TENANT_ID;
 const newID = 0;

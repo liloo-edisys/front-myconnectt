@@ -4,7 +4,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { Formik, Form, Field } from "formik";
 import { useSelector, useDispatch } from "react-redux";
 import * as Yup from "yup";
-import { updateInterimaireIdentity } from "../../../../../../../../business/actions/interimaire/InterimairesActions";
+import { updateInterimaireIdentity } from "../../../../../../../../business/actions/interimaire/interimairesActions";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
 

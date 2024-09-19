@@ -7,7 +7,7 @@ import * as actionTypes from "constants/constants";
 import {
   getMailTemplates,
   getMailTemplateCategories
-} from "../../../../business/actions/backoffice/MailTemplatesActions";
+} from "../../../../business/actions/backoffice/mailTemplatesActions";
 import paginationFactory, {
   PaginationListStandalone,
   PaginationProvider

@@ -6,37 +6,25 @@
 // Data validation is based on Yup
 // Please, be familiar with article first:
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { getMissionEquipment } from "../../../../../../business/actions/shared/ListsActions";
+import React, { useEffect, useState } from "react";
+import { getMissionEquipment } from "../../../../../../business/actions/shared/listsActions";
 
-import { Field } from "formik";
 import _ from "lodash";
-import { Input } from "metronic/_partials/controls";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
-import { countMatching } from "actions/client/ApplicantsActions";
-import { useFormikContext } from "formik";
-import MissionWizzardHeader from "../../MissionWizzardHeader";
 import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
-import moment from "moment";
-import { getJobSkills, createJobSkills } from "actions/shared/ListsActions";
-import SVG from "react-inlinesvg";
-import { toAbsoluteUrl } from "metronic/_helpers";
-import { updateApplicant } from "actions/client/ApplicantsActions";
+import { getJobSkills, createJobSkills } from "actions/shared/listsActions";
+import { updateApplicant } from "actions/client/applicantsActions";
 import postalCode from "../../../../../../utils/postalCodes.json";
-import AsyncSelect from "react-select/async";
 import InputRange from "react-input-range";
 import {
-  getJobSkills as getJobSkillsApi,
-  getJobTags as getJobTagsApi
-} from "api/shared/ListsApi";
+  getJobSkills as getJobSkillsApi} from "api/shared/ListsApi";
 import FormStepFour from "../../../../interimaire/profile/profileForms/FormStepFour";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
-import { getSelectedApplicantById } from "../../../../../../business/actions/backoffice/ApplicantActions";
+import { getSelectedApplicantById } from "../../../../../../business/actions/backoffice/applicantActions";
 // import "react-input-range/lib/css/index.css"
 function Matching(props, formik) {
   const dispatch = useDispatch();

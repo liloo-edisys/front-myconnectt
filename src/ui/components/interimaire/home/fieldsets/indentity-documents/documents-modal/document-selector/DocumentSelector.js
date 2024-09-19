@@ -7,7 +7,7 @@ import Dropzone from "react-dropzone";
 import * as Yup from "yup";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
-import { getNationalitiesList } from "../../../../../../../../business/actions/interimaire/InterimairesActions";
+import { getNationalitiesList } from "../../../../../../../../business/actions/interimaire/interimairesActions";
 
 function DocumentSelector(props) {
   const intl = useIntl();

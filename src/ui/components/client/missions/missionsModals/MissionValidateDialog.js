@@ -1,6 +1,6 @@
 import React from "react";
 
-import { approveByCustomer } from "actions/client/ApplicantsActions";
+import { approveByCustomer } from "actions/client/applicantsActions";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import { useDispatch } from "react-redux";

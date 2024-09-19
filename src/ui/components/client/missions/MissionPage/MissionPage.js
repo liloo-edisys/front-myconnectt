@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-import { checkFields } from "actions/client/CompaniesActions";
+import { checkFields } from "actions/client/companiesActions";
 
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastr } from "react-redux-toastr";
@@ -23,9 +23,9 @@ import {
   getDriverLicences,
   getMissionEquipment,
   getMissionReasons
-} from "../../../../../business/actions/shared/ListsActions";
-import { getHabilitationsList } from "actions/client/MissionsActions";
-import { resetMatching } from "../../../../../business/actions/client/ApplicantsActions";
+} from "../../../../../business/actions/shared/listsActions";
+import { getHabilitationsList } from "actions/client/missionsActions";
+import { resetMatching } from "../../../../../business/actions/client/applicantsActions";
 const MissionPage = ({ history }) => {
   const dispatch = useDispatch();
   const intl = useIntl();

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, Route, useHistory } from "react-router-dom";
 import SVG from "react-inlinesvg";
-import { Formik, Form, Field } from "formik";
 import BootstrapTable from "react-bootstrap-table-next";
 import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -11,8 +10,7 @@ import { toastr } from "react-redux-toastr";
 import { ApplicantListModal } from "./applicant-list-modal";
 import CompanyEditModal from "../customers/companiesModals/CompanyEditModal";
 import WorksiteEditModal from "../customers/companiesModals/WorksiteEditModal";
-import { updateCompany } from "actions/client/CompaniesActions";
-import { approveByCustomer } from "actions/client/ApplicantsActions";
+import { updateCompany } from "actions/client/companiesActions";
 import { useDispatch } from "react-redux";
 
 function CustomerOrder(props) {

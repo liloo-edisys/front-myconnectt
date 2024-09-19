@@ -20,7 +20,7 @@ import LogoutInterimaire from "../ui/components/interimaire/auth/LogoutInterimai
 import RegisterConfirmInterimaire from "../ui/components/interimaire/auth/RegisterConfirmInterimaire";
 import RegisterConfirm from "../ui/components/client/auth/RegisterConfirm";
 import ResetPassword from "../ui/components/client/auth/ResetPassword";
-import { getNationalitiesList } from "../business/actions/interimaire/InterimairesActions";
+import { getNationalitiesList } from "../business/actions/interimaire/interimairesActions";
 
 import BasePage from "./basePage";
 import BaseInterimairePage from "./baseInterimairePage";

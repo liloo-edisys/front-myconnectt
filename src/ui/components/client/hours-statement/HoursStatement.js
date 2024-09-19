@@ -20,7 +20,7 @@ import {
   CardHeaderToolbar
 } from "../../../../_metronic/_partials/controls";
 import { fakeData, weekList, statusList } from "./fakeDatas";
-import { getTRJobTitles } from "actions/shared/ListsActions";
+import { getTRJobTitles } from "actions/shared/listsActions";
 import HoursStatementForm from "./fields/HoursStatementForm";
 import { DisplayDialog } from "../interimaires/modals/DisplayDialog";
 import ContractDetails from "../missions/contracts-client/ContractDetails";

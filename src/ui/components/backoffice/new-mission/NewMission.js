@@ -5,7 +5,7 @@ import { FormattedMessage } from "react-intl";
 import { CompanySelector, TemplateSelector, MissionCreator } from "./fields";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { getCompanies } from "actions/client/CompaniesActions";
+import { getCompanies } from "actions/client/companiesActions";
 import axios from "axios";
 import moment from "moment";
 

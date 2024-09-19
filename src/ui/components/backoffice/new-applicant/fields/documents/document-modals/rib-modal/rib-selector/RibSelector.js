@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Row, Col } from "react-bootstrap";
+import { Modal, Row, Col } from "react-bootstrap";
 import { Formik, Form, Field } from "formik";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
@@ -7,8 +7,8 @@ import Dropzone from "react-dropzone";
 import * as Yup from "yup";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
-import { checkValidIban, smellsLikeIban } from "../rib-informations/Checkers";
-import { updateSelectedApplicantIdentity } from "../../../../../../../../../business/actions/backoffice/ApplicantActions";
+import { smellsLikeIban } from "../rib-informations/Checkers";
+import { updateSelectedApplicantIdentity } from "../../../../../../../../../business/actions/backoffice/applicantActions";
 
 function RibSelector(props) {
   const intl = useIntl();

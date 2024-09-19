@@ -10,7 +10,7 @@ import { toastr } from "react-redux-toastr";
 import {
   removeOneDocument,
   addNewDocument
-} from "../../../../../../business/actions/interimaire/InterimairesActions";
+} from "../../../../../../business/actions/interimaire/interimairesActions";
 
 function OtherDocumentModal(props) {
   const dispatch = useDispatch();

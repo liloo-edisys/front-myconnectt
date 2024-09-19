@@ -12,7 +12,6 @@ import {
   EmailEdit,
   EmailTuto,
   Experiences,
-  IdentityDocuments,
   //ModalIdentity,
   TooltipFirst,
   TooltipSecond
@@ -21,7 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getUserStartGuide,
   goToNextStep
-} from "../../../../business/actions/interimaire/InterimairesActions";
+} from "../../../../business/actions/interimaire/interimairesActions";
 
 function Home(props) {
   const dispatch = useDispatch();

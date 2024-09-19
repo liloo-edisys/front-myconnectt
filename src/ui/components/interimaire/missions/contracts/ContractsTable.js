@@ -5,12 +5,10 @@ import BootstrapTable from "react-bootstrap-table-next";
 import DatePicker from "react-datepicker";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { FormattedMessage, useIntl } from "react-intl";
-import { getContractList } from ".././../../../../business/actions/interimaire/InterimairesActions";
+import { getContractList } from ".././../../../../business/actions/interimaire/interimairesActions";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider,
-  SizePerPageDropdownStandalone
-} from "react-bootstrap-table2-paginator";
+  PaginationProvider} from "react-bootstrap-table2-paginator";
 import fr from "date-fns/locale/fr";
 import moment from "moment";
 import ClientDetails from "./ClientDetails";

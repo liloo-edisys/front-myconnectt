@@ -13,13 +13,13 @@ import {
   getDriverLicences,
   getMissionReasons,
   getJobSkills
-} from "actions/shared/ListsActions";
+} from "actions/shared/listsActions";
 import {
   getHabilitationsList,
   getMission,
   addFavorite,
   removeFavorite
-} from "actions/client/MissionsActions";
+} from "actions/client/missionsActions";
 
 import "./styles.scss";
 import "../style.css";

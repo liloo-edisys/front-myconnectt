@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from "react";
-import DateTime from "luxon/src/datetime.js";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useParams, useHistory } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { toastr } from "react-redux-toastr";
 import axios from "axios";
-import moment from "moment";
-import _, { debounce, isNull } from "lodash";
+import _, { isNull } from "lodash";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import { getMissionRemuneration } from "../../../../../business/actions/shared/ListsActions";
+import { getMissionRemuneration } from "../../../../../business/actions/shared/listsActions";
 import { joursFeriesFix, joursFeriesFlexible } from "./joursFeries";
-import { setHours } from "date-fns";
 
 function HoursStatementForm(props) {
   const { id } = useParams();
@@ -19,7 +16,7 @@ function HoursStatementForm(props) {
   const dispatch = useDispatch();
   const history = useHistory();
   const intl = useIntl();
-  const { missionRemuneration, user } = useSelector(state => ({
+  const { missionRemuneration } = useSelector(state => ({
     missionRemuneration: state.lists.missionRemuneration,
     user: state.auth.user
   }));
@@ -146,7 +143,7 @@ function HoursStatementForm(props) {
         const SENDTOANAEL_TIME_RECORDS_URL = `${process.env.REACT_APP_WEBAPI_URL}api/TimeRecord/SendToAnael/${id}`;
         axios
           .get(SENDTOANAEL_TIME_RECORDS_URL)
-          .then(res => {
+          .then(() => {
             getData();
             getRH();
             toastr.success(
@@ -154,14 +151,14 @@ function HoursStatementForm(props) {
               "Le relevé d'heures a bien été envoyé à Anael."
             );
           })
-          .catch(err => {
+          .catch(() => {
             toastr.error(
               "Erreur",
               "Une erreur s'est produite l'envoi du relevé d'heures à Anael."
             );
           });
       })
-      .catch(err => {
+      .catch(() => {
         toastr.error(
           "Erreur",
           "Une erreur s'est produite lors de la mis à jour du relevé d'heures."
@@ -301,7 +298,7 @@ function HoursStatementForm(props) {
         };
         axios
           .put(GET_TIME_RECORDS_URL, body)
-          .then(res => {
+          .then(() => {
             if (state === "update") {
               toastr.success(
                 "Succès",
@@ -311,7 +308,7 @@ function HoursStatementForm(props) {
               history.push(`/cra/close-mission/${timeRecords.id}`);
             }
           })
-          .catch(err => {
+          .catch(() => {
             toastr.error(
               "Erreur",
               "Une erreur s'est produite lors de la mis à jour du relevé d'heures."
@@ -324,17 +321,6 @@ function HoursStatementForm(props) {
         intl.formatMessage({ id: "ERROR.HOURS.STATEMENT.14" })
       );
     }
-  };
-  const addRemunerationElement = value => {
-    setRemunerationElements(value);
-    let newRemuneration = remunerations;
-    newRemuneration.push({
-      missionRemunerationID: null,
-      label: "",
-      base: 1,
-      amount: null
-    });
-    setRemunerations(newRemuneration);
   };
 
   const renderRemunerationElements = () => {
@@ -586,7 +572,7 @@ function HoursStatementForm(props) {
         )}
         <div className="row" style={{ borderBottom: "1px solid lightgrey" }}>
           <div style={{ width: "12.5%" }} />
-          {daysOfWeek.map((day, i) => (
+          {daysOfWeek.map((day) => (
             <div style={{ width: "12.5%", textAlign: "center" }}>
               <div
                 className="py-2"
@@ -818,7 +804,7 @@ function HoursStatementForm(props) {
 
         <div className="mt-10">
           {timeRecords &&
-            timeRecords.missionRemunerationItems.map((item, i) => (
+            timeRecords.missionRemunerationItems.map((item) => (
               <div className="col-lg-8 p-0 d-flex flex-row justify-content-between">
                 <label className="col-lg-5  ">
                   <FormattedMessage id="MODEL.DESIGNATION" />

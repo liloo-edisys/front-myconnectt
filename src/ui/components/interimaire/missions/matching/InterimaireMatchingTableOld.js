@@ -6,12 +6,12 @@ import BootstrapTable from "react-bootstrap-table-next";
 import { useIntl, FormattedMessage } from "react-intl";
 
 import { useMissionsUIContext } from "./InterimaireMatchingUIContext";
-import ActionsColumnFormatter from "../../column-formatters/MissionsActionsColumnFormatter";
+import ActionsColumnFormatter from "../../column-formatters/missionsActionsColumnFormatter";
 import DateColumnFormatter from "../../column-formatters/MissionsDateColumnFormatter";
 import MatchingColumnFormatter from "../../column-formatters/MissionsMatchingColumnFormatter";
 import SalaryColumnFormatter from "../../column-formatters/MissionsSalaryColumnFormatter";
 import CityColumnFormatter from "../../column-formatters/MissionsCityColumnFormatter";
-import { resetMissionIndicator } from "actions/client/MissionsActions";
+import { resetMissionIndicator } from "actions/client/missionsActions";
 
 import paginationFactory, {
   PaginationListStandalone,
@@ -19,7 +19,7 @@ import paginationFactory, {
   SizePerPageDropdownStandalone
 } from "react-bootstrap-table2-paginator";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { searchMission } from "../../../../../business/actions/client/MissionsActions";
+import { searchMission } from "../../../../../business/actions/client/missionsActions";
 
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 const tenantID = +process.env.REACT_APP_TENANT_ID;

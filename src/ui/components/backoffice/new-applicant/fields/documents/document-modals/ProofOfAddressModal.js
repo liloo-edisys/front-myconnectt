@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Row, Col } from "react-bootstrap";
+import { Modal, Row, Col } from "react-bootstrap";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
-import { Formik, Form, Field } from "formik";
+import { Formik, Form } from "formik";
 import { FormattedMessage, useIntl } from "react-intl";
 import Dropzone from "react-dropzone";
 import * as Yup from "yup";
-import axios from "axios";
 import { toastr } from "react-redux-toastr";
 /*import {
   removeOneDocument,
@@ -14,7 +13,7 @@ import { toastr } from "react-redux-toastr";
 import {
   addSelectedApplicantNewDocument,
   removeOneSelectedApplicantDocument
-} from "../../../../../../../business/actions/backoffice/ApplicantActions";
+} from "../../../../../../../business/actions/backoffice/applicantActions";
 
 function ProofOfAddressModal(props) {
   const dispatch = useDispatch();

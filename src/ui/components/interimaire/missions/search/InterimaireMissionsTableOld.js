@@ -8,7 +8,7 @@ import { useIntl } from "react-intl";
 import { FormattedMessage } from "react-intl";
 
 import { useInterimaireMissionsUIContext as useMissionsUIContext } from "./InterimaireMissionsUIContext";
-import ActionsColumnFormatter from "../../column-formatters/MissionsActionsColumnFormatter";
+import ActionsColumnFormatter from "../../column-formatters/missionsActionsColumnFormatter";
 import DateColumnFormatter from "../../column-formatters/MissionsDateColumnFormatter";
 import SalaryColumnFormatter from "../../column-formatters/MissionsSalaryColumnFormatter";
 import _ from "lodash";
@@ -22,10 +22,10 @@ import paginationFactory, {
   SizePerPageDropdownStandalone
 } from "react-bootstrap-table2-paginator";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { searchMission } from "../../../../../business/actions/client/MissionsActions";
-import { resetMissionIndicator } from "actions/client/MissionsActions";
+import { searchMission } from "../../../../../business/actions/client/missionsActions";
+import { resetMissionIndicator } from "actions/client/missionsActions";
 
-import { getJobTitles } from "actions/shared/ListsActions";
+import { getJobTitles } from "actions/shared/listsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 
 const tenantID = +process.env.REACT_APP_TENANT_ID;

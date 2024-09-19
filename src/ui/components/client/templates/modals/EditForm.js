@@ -5,7 +5,7 @@ import React, { useEffect, useCallback, useState } from "react";
 import {
   getHabilitationsList,
   updateTemplate
-} from "actions/client/MissionsActions";
+} from "actions/client/missionsActions";
 import { Formik, Form, Field } from "formik";
 import { Input } from "metronic/_partials/controls";
 import Select from "react-select";
@@ -26,13 +26,13 @@ import {
   getMissionReasons,
   getMissionEquipment,
   getDriverLicences
-} from "../../../../../business/actions/shared/ListsActions";
+} from "../../../../../business/actions/shared/listsActions";
 import {
   getJobSkills as getJobSkillsApi,
   getJobTags as getJobTagsApi
 } from "api/shared/ListsApi";
 import CreatableSelect from "react-select/creatable";
-import { getMissionRemuneration } from "../../../../../business/actions/shared/ListsActions";
+import { getMissionRemuneration } from "../../../../../business/actions/shared/listsActions";
 import { isNull } from "lodash";
 
 function EditForm({ onHide, intl, history, formik }) {

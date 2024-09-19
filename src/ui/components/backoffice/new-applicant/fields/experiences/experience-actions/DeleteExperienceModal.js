@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
-import { removeSelectedApplicantExperience } from "../../../../../../../business/actions/backoffice/ApplicantActions";
+import { removeSelectedApplicantExperience } from "../../../../../../../business/actions/backoffice/applicantActions";
 import { useDispatch } from "react-redux";
 
 const DeleteExperienceModal = ({ show, onHide, deleteExperience, row }) => {

@@ -8,8 +8,8 @@ import * as Yup from "yup";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
 import { DatePickerField } from "metronic/_partials/controls";
-import { updateSelectedApplicantIdentity } from "../../../../../../../../../business/actions/backoffice/ApplicantActions";
-import { getNationalitiesList } from "../../../../../../../../../business/actions/interimaire/InterimairesActions";
+import { updateSelectedApplicantIdentity } from "../../../../../../../../../business/actions/backoffice/applicantActions";
+import { getNationalitiesList } from "../../../../../../../../../business/actions/interimaire/interimairesActions";
 import moment from "moment";
 
 function DocumentSelector(props) {
