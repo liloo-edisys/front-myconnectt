@@ -12,7 +12,7 @@ import { getDocumentList } from ".././../../../../business/actions/interimaire/i
 import fr from "date-fns/locale/fr";
 import moment from "moment";
 import { Col, Row } from "react-bootstrap";
-import { getRecieptList } from "../../../../../business/api/client/MissionsApi";
+import { getRecieptList } from "../../../../../business/api/client/missionsApi";
 
 function DocumentsTable(props) {
   const dispatch = useDispatch();

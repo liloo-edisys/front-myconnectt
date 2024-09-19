@@ -7,7 +7,7 @@ import {
 import {
   INTERIMAIRE_DOCUMENTS_LIST_URL,
   USER_RECIEPTS_LIST_URL
-} from "../interimaire/InterimairesApi";
+} from "../interimaire/interimairesApi";
 
 export const VACANCY_URL = process.env.REACT_APP_WEBAPI_URL + "api/Vacancy";
 export const HABILITATION_URL =

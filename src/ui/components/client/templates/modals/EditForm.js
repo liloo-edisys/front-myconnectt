@@ -30,7 +30,7 @@ import {
 import {
   getJobSkills as getJobSkillsApi,
   getJobTags as getJobTagsApi
-} from "api/shared/ListsApi";
+} from "api/shared/listsApi";
 import CreatableSelect from "react-select/creatable";
 import { getMissionRemuneration } from "../../../../../business/actions/shared/listsActions";
 import { isNull } from "lodash";

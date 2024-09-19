@@ -7,7 +7,7 @@ import {
 import {
   getUser as getUserApi,
   getUserByToken as getUserByTokenApi
-} from "api/client/UserApi";
+} from "api/client/userApi";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 
 export function* getUser() {

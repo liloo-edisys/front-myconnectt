@@ -1,7 +1,7 @@
 import * as actionTypes from "constants/constants";
 
 import { sendEmail as sendEmailActions } from "actions/client/emailActions";
-import { sendEmail as sendEmailApi } from "api/client/EmailApi";
+import { sendEmail as sendEmailApi } from "api/client/emailApi";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 import { toastr } from "react-redux-toastr";
 

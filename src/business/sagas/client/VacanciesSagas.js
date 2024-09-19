@@ -1,7 +1,7 @@
 import * as actionTypes from "constants/constants";
 
 import { getUserVacancies as getUserVacanciesActions } from "actions/client/vacanciesActions";
-import { getUserVacancies as getUserVacanciesApi } from "api/client/VacanciesApi";
+import { getUserVacancies as getUserVacanciesApi } from "api/client/vacanciesApi";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 
 export function* getUserVacancies({ payload: { data } }) {

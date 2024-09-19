@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import { updateContact } from "actions/client/contactsActions";
-import { requestPassword } from "api/shared/AuthApi";
+import { requestPassword } from "api/shared/authApi";
 import { Formik, Form, Field } from "formik";
 import { Input, Select } from "metronic/_partials/controls";
 import { FormattedMessage, injectIntl } from "react-intl";

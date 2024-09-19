@@ -26,12 +26,12 @@ import {
   declineByApplicant as declineByApplicantApi,
   getApplicantById as getApplicantByIdApi,
   deleteApplication as deleteApplicationApi
-} from "api/client/ApplicantsApi";
+} from "api/client/applicantsApi";
 import { getUser as getUserActions } from "actions/client/userActions";
-import { getUser as getUserApi } from "api/client/UserApi";
+import { getUser as getUserApi } from "api/client/userApi";
 import { searchMission as searchMissionActions } from "actions/client/missionsActions";
-import { searchMission as searchMissionApi } from "api/client/MissionsApi";
-import { getInterimaire as getInterimaireApi } from "api/interimaire/InterimairesApi";
+import { searchMission as searchMissionApi } from "api/client/missionsApi";
+import { getInterimaire as getInterimaireApi } from "api/interimaire/interimairesApi";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 import { toastr } from "react-redux-toastr";
 

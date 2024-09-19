@@ -9,7 +9,7 @@ import {
 import {
   INTERIMAIRES_LIST_URL,
   ACCOUNT_URL
-} from "../../api/backoffice/AccountsApi";
+} from "../../api/backoffice/accountsApi";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
 export const TENANTID = +process.env.REACT_APP_TENANT_ID;

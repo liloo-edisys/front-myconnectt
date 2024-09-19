@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { login } from "actions/shared/authActions";
-import { confirmSubscription } from "api/interimaire/InterimairesApi";
+import { confirmSubscription } from "api/interimaire/interimairesApi";
 import { useFormik } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";

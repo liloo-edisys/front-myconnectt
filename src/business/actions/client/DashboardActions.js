@@ -1,5 +1,5 @@
 import * as actionTypes from "constants/constants";
-import { USER_START_GUIDE_URL } from "../../api/shared/AuthApi";
+import { USER_START_GUIDE_URL } from "../../api/shared/authApi";
 import axios from "axios";
 
 export const TENANTID = +process.env.REACT_APP_TENANT_ID;

@@ -3,7 +3,7 @@ import {
   HABILITATION_URL,
   EXTENSIONS_URL,
   VACANCY_URL
-} from "../../api/client/MissionsApi";
+} from "../../api/client/missionsApi";
 import {
   GET_HABILITATION_REQUEST,
   GET_HABILITATION_SUCCESS,

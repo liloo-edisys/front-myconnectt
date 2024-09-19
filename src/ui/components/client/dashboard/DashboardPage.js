@@ -27,7 +27,7 @@ import CompanyEditModal from "../companies/companiesModals/CompanyEditModal";
 
 import ContractsTable from "./tables/ContractsTable";
 import SearchsTable from "./tables/SearchTable";
-import { getMission } from "api/client/MissionsApi";
+import { getMission } from "api/client/missionsApi";
 import { getMission as getMissionAction } from "actions/client/missionsActions";
 import MissionHeaderDropdown from "../../shared/MissionHeaderDropdown";
 import SimulatorModalEmpty from "../missions/missionForms/SimulatorModalEmpty";

@@ -10,7 +10,7 @@ import {
   login as loginApi,
   registerAccount as registerAccountApi,
   registerInterimaire as registerInterimaireApi
-} from "api/shared/AuthApi";
+} from "api/shared/authApi";
 
 import { all, call, put, takeLatest } from "redux-saga/effects";
 

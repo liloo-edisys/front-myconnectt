@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { requestPassword } from "api/shared/AuthApi";
+import { requestPassword } from "api/shared/authApi";
 import { useFormik } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { connect } from "react-redux";

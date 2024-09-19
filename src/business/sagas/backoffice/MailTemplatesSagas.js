@@ -1,8 +1,8 @@
 import * as actionTypes from "constants/constants";
 
-import { getMailTemplates as getMailTemplatesApi } from "../../api/backoffice/MailTemplatesApi";
-import { updateMailTemplate as updateMailTemplateApi } from "../../api/backoffice/MailTemplatesApi";
-import { getMailTemplateCategories as getMailTemplateCategoriesApi } from "../../api/backoffice/MailTemplatesApi";
+import { getMailTemplates as getMailTemplatesApi } from "../../api/backoffice/mailTemplatesApi";
+import { updateMailTemplate as updateMailTemplateApi } from "../../api/backoffice/mailTemplatesApi";
+import { getMailTemplateCategories as getMailTemplateCategoriesApi } from "../../api/backoffice/mailTemplatesApi";
 import { getMailTemplates as getMailTemplatesActions } from "../../actions/backoffice/mailTemplatesActions";
 import { updateMailTemplate as updateMailTemplateActions } from "../../actions/backoffice/mailTemplatesActions";
 import { getMailTemplateCategories as getMailTemplateCategoriesActions } from "../../actions/backoffice/mailTemplatesActions";

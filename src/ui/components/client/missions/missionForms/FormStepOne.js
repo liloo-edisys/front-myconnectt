@@ -40,7 +40,7 @@ import {
 import {
   getJobSkills as getJobSkillsApi,
   getJobTags as getJobTagsApi
-} from "api/shared/ListsApi";
+} from "api/shared/listsApi";
 import { toastr } from "react-redux-toastr";
 import {
   getMission as getMissionAction,

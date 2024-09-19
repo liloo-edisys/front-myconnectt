@@ -20,7 +20,7 @@ import MissionWizzardHeader from "./MissionWizzardHeader";
 import { DeleteExperienceModal } from "../profileModals/DeleteExperienceModal";
 import { updateApplicant } from "actions/client/applicantsActions";
 import { parseResume as parseResumeActions } from "actions/interimaire/interimairesActions";
-import { parseResume } from "api/interimaire/InterimairesApi";
+import { parseResume } from "api/interimaire/interimairesApi";
 import { getMissionEquipment } from "../../../../../business/actions/shared/listsActions";
 import { getHabilitationsList } from "actions/client/missionsActions";
 import uuid from "react-uuid";

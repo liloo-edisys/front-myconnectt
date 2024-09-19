@@ -17,7 +17,7 @@ import {
   deleteCompany as deleteCompanyApi,
   switchAccount as switchCompanyApi,
   checkFields as checkFieldsApi
-} from "api/client/CompaniesApi";
+} from "api/client/companiesApi";
 import { toastr } from "react-redux-toastr";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 

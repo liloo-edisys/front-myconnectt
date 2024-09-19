@@ -1,7 +1,7 @@
 import * as actionTypes from "constants/constants";
 
 import { getDashboardDatas as getDashboardDatasActions } from "actions/client/dashboardActions";
-import { getDashboardDatas as getDashboardDatasApi } from "api/client/DashboardApi";
+import { getDashboardDatas as getDashboardDatasApi } from "api/client/dashboardApi";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 
 export function* getDashboard(datas) {

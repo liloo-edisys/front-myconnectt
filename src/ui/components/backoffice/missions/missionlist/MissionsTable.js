@@ -27,7 +27,7 @@ import paginationFactory, {
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { searchMission } from "../../../../../business/actions/client/missionsActions";
 import { resetMissionIndicator } from "actions/client/missionsActions";
-import { getMission } from "api/client/MissionsApi";
+import { getMission } from "api/client/missionsApi";
 
 import { getJobTitles } from "actions/shared/listsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";

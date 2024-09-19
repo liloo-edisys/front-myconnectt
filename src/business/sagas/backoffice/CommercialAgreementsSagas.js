@@ -1,9 +1,9 @@
 import * as actionTypes from "constants/constants";
 
-import { getCommercialAgreements as getCommercialAgreementsApi } from "../../api/backoffice/CommercialAgreementsApi";
-import { updateCommercialAgreement as updateCommercialAgreementApi } from "../../api/backoffice/CommercialAgreementsApi";
-import { createCommercialAgreement as createCommercialAgreementApi } from "../../api/backoffice/CommercialAgreementsApi";
-import { deleteCommercialAgreement as deleteCommercialAgreementApi } from "../../api/backoffice/CommercialAgreementsApi";
+import { getCommercialAgreements as getCommercialAgreementsApi } from "../../api/backoffice/commercialAgreementsApi";
+import { updateCommercialAgreement as updateCommercialAgreementApi } from "../../api/backoffice/commercialAgreementsApi";
+import { createCommercialAgreement as createCommercialAgreementApi } from "../../api/backoffice/commercialAgreementsApi";
+import { deleteCommercialAgreement as deleteCommercialAgreementApi } from "../../api/backoffice/commercialAgreementsApi";
 import { getCommercialAgreements as getCommercialAgreementsActions } from "../../actions/backoffice/commercialAgreementsActions";
 import { updateCommercialAgreement as updateCommercialAgreementActions } from "../../actions/backoffice/commercialAgreementsActions";
 import { createCommercialAgreement as createCommercialAgreementActions } from "../../actions/backoffice/commercialAgreementsActions";

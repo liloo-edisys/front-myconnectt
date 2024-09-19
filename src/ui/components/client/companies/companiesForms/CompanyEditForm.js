@@ -21,7 +21,7 @@ import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import LocationSearchInput from "./location-search-input";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-//import { parseResume } from "../../../../../business/api/interimaire/InterimairesApi";
+//import { parseResume } from "../../../../../business/api/interimaire/interimairesApi";
 function CompanyEditForm({ onHide, intl, history }) {
   const dispatch = useDispatch();
   const TENANTID = +process.env.REACT_APP_TENANT_ID;

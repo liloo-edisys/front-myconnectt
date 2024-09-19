@@ -1,7 +1,7 @@
 import * as actionTypes from "constants/constants";
 
 import { getRecruiter as getRecruiterActions } from "actions/backoffice/recruiterActions";
-import { getRecruiter as getRecruiterApi } from "api/backoffice/RecruiterApi";
+import { getRecruiter as getRecruiterApi } from "api/backoffice/recruiterApi";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 
 export function* getRecruiter() {

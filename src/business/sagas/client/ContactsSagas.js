@@ -14,7 +14,7 @@ import {
   getContactsList as getContactsListApi,
   updateContact as updateContactApi,
   deleteContact as deleteContactApi
-} from "api/client/ContactsApi";
+} from "api/client/contactsApi";
 import { toastr } from "react-redux-toastr";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 

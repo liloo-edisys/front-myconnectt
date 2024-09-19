@@ -34,7 +34,7 @@ import {
   deleteMission as deleteMissionApi,
   searchMission as searchMissionApi,
   searchTemplates as searchTemplatesApi
-} from "api/client/MissionsApi";
+} from "api/client/missionsApi";
 import { toastr } from "react-redux-toastr";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 

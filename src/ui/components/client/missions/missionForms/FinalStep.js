@@ -23,7 +23,7 @@ import {
   getMissionEquipment
 } from "actions/shared/listsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import { getMission } from "api/client/MissionsApi";
+import { getMission } from "api/client/missionsApi";
 import {
   deleteCurrentDuplicate,
   deleteCurrentTemplate

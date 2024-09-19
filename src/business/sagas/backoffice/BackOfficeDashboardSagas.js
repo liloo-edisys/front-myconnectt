@@ -1,7 +1,7 @@
 import * as actionTypes from "constants/constants";
 
 import { getBackOfficeDashboardDatas as getBackOfficeDashboardDatasActions } from "actions/backoffice/dashboardActions";
-import { getBackOfficeDashboardDatas as getBackOfficeDashboardDatasApi } from "api/backoffice/DashboardApi";
+import { getBackOfficeDashboardDatas as getBackOfficeDashboardDatasApi } from "api/backoffice/dashboardApi";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 
 export function* getBackOfficeDashboard(datas) {

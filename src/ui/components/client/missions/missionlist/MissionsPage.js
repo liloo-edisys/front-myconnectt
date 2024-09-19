@@ -11,7 +11,7 @@ import { MatchingDialog } from "../missionsModals/MissionMatchingDialog";
 import { MissionResumeDialog } from "../missionsModals/MissionResumeDialog";
 import { MissionDeclineDialog } from "../missionsModals/MissionDeclineDialog";
 import { MissionValidateDialog } from "../missionsModals/MissionValidateDialog";
-import { getMission } from "../../../../../business/api/client/MissionsApi";
+import { getMission } from "../../../../../business/api/client/missionsApi";
 import { getMission as getMissionAction } from "actions/client/missionsActions";
 import { MissionProfileDialog } from "../missionsModals/MissionProfileDialog";
 import { DeleteApplicationDialog } from "../missionsModals/DeleteApplicationDialog";

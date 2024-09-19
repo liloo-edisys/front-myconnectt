@@ -6,7 +6,7 @@ import {
   REGISTER_INTERIMAIRE_URL,
   USER_START_GUIDE_URL,
   COUNT_MATCHING_URL
-} from "../../api/shared/AuthApi";
+} from "../../api/shared/authApi";
 import {
   INTERIMAIRE_REGISTER_BY_MOBILE_ERROR,
   INTERIMAIRE_REGISTER_BY_MOBILE_SUCCESS
@@ -40,11 +40,11 @@ import {
   UPLOAD_DOCUMENT,
   DELETE_DOCUMENT,
   REMOVE_ONE_DOCUMENT
-} from "../../api/client/ApplicantsApi";
+} from "../../api/client/applicantsApi";
 import {
   INTERIMAIRE_CONTRACT_LIST_URL,
   INTERIMAIRE_DOCUMENTS_LIST_URL
-} from "../../api/interimaire/InterimairesApi";
+} from "../../api/interimaire/interimairesApi";
 import { HubConnectionBuilder } from "@microsoft/signalr";
 import moment from "moment";
 

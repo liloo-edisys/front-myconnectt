@@ -24,7 +24,7 @@ import {
   UPLOAD_DOCUMENT,
   DELETE_DOCUMENT,
   REMOVE_ONE_DOCUMENT
-} from "../../api/client/ApplicantsApi";
+} from "../../api/client/applicantsApi";
 
 import * as actionTypes from "constants/constants";
 

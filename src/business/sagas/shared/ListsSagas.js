@@ -41,7 +41,7 @@ import {
   getMissionEquipment as getMissionEquipmentApi,
   getAPE as getAPEApi,
   getContractType as getContractTypeApi
-} from "api/shared/ListsApi";
+} from "api/shared/listsApi";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 
 export function* getMissionEquipment() {

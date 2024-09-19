@@ -16,7 +16,7 @@ import {
   parseResume as parseResumeApi,
   searchInterimaires as searchInterimairesApi,
   getInterimaireById as getInterimaireByIdApi
-} from "api/interimaire/InterimairesApi";
+} from "api/interimaire/interimairesApi";
 import { toastr } from "react-redux-toastr";
 
 import { all, call, put, takeLatest } from "redux-saga/effects";

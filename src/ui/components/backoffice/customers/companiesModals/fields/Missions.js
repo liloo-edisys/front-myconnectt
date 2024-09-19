@@ -8,7 +8,7 @@ import paginationFactory, {
 import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
 import Avatar from "react-avatar";
 import axios from "axios";
-import { getMission } from "api/client/MissionsApi";
+import { getMission } from "api/client/missionsApi";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";

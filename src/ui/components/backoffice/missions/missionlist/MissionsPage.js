@@ -7,7 +7,7 @@ import { MissionsUIProvider } from "./MissionsUIContext";
 import MissionsCard from "./MissionsCard";
 import { deleteFromStorage } from "../../../shared/DeleteFromStorage";
 import { MissionDeleteDialog as DeleteDialog } from "../missionsModals/MissionDeleteDialog";
-import { getMission } from "../../../../../business/api/client/MissionsApi";
+import { getMission } from "../../../../../business/api/client/missionsApi";
 import { getMission as getMissionAction } from "actions/client/missionsActions";
 
 class MissionsPage extends React.Component {

@@ -17,7 +17,7 @@ import MissionWizzardHeader from "./MissionWizzardHeader";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { useDropzone } from "react-dropzone";
 import { cancelEdit } from "../../../../../business/actions/interimaire/interimairesActions";
-import { parseResume } from "api/interimaire/InterimairesApi";
+import { parseResume } from "api/interimaire/interimairesApi";
 import IframeGoogleDocs from "../../../../../utils/googleHacks";
 import { parseResume as parseResumeActions } from "actions/interimaire/interimairesActions";
 

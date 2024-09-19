@@ -1,5 +1,5 @@
 import * as actionTypes from "constants/constants";
-import { INTERIMAIRE_CONTRACT_LIST_URL } from "../../api/interimaire/InterimairesApi";
+import { INTERIMAIRE_CONTRACT_LIST_URL } from "../../api/interimaire/interimairesApi";
 import axios from "axios";
 
 export const getRecruiter = {
