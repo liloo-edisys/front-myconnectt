@@ -96,7 +96,7 @@ function RibInformations(props) {
         initialValues={initialValuesIdentityData}
         validationSchema={IdentityDataSchema}
         setFieldValue
-        onSubmit={(values) => {
+        onSubmit={values => {
           let isValidIban = smellsLikeIban(iban);
           let isValidBic = bic.match(/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/);
           if (!isValidIban || !isValidBic) {

@@ -147,7 +147,7 @@ function OtherDocumentModal(props) {
             <Modal.Body>
               <div>
                 <Row gutter={[50, 50]} style={{ marginTop: 30 }}>
-                  {savedImageArray.map((image) => (
+                  {savedImageArray.map(image => (
                     <Col
                       lg={6}
                       style={{

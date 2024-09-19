@@ -9,7 +9,8 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { getBackOfficeContractList } from "../../../../business/actions/backoffice/recruiterActions";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider} from "react-bootstrap-table2-paginator";
+  PaginationProvider
+} from "react-bootstrap-table2-paginator";
 import { getAccounts } from "actions/backoffice/accountsActions";
 import moment from "moment";
 import { getCompanies } from "actions/client/companiesActions";

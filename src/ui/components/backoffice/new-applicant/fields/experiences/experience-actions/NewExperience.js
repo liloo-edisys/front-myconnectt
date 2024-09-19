@@ -1,12 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import {
-  Modal,
-  Row,
-  Col,
-  OverlayTrigger,
-  Tooltip
-} from "react-bootstrap";
+import { Modal, Row, Col, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
 import Select from "react-select";
 import { Formik, Form, Field } from "formik";

@@ -6,7 +6,8 @@ import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
 import { FormattedMessage, useIntl } from "react-intl";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider} from "react-bootstrap-table2-paginator";
+  PaginationProvider
+} from "react-bootstrap-table2-paginator";
 import fr from "date-fns/locale/fr";
 import moment from "moment";
 import { searchSelectedApplicantMissions } from "../../../../../../business/actions/backoffice/applicantActions";

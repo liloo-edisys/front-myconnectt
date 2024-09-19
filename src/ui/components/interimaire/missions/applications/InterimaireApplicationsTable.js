@@ -12,7 +12,8 @@ import { resetMissionIndicator } from "actions/client/missionsActions";
 
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider} from "react-bootstrap-table2-paginator";
+  PaginationProvider
+} from "react-bootstrap-table2-paginator";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { searchMission } from "../../../../../business/actions/client/missionsActions";
 

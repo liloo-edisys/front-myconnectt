@@ -12,15 +12,13 @@ import { Row, Col } from "react-bootstrap";
 import { useDropzone } from "react-dropzone";
 import _ from "lodash";
 import { FormattedMessage, injectIntl } from "react-intl";
-import { shallowEqual, useDispatch, useSelector } from "react-redux"; 
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { updateApplicant } from "actions/client/applicantsActions";
 import { getMissionEquipment } from "../../../../../../business/actions/shared/listsActions";
 import { getHabilitationsList } from "actions/client/missionsActions";
 import uuid from "react-uuid";
-import {
-  NewExperience,
-  DeleteExperienceModal} from "./experience-actions";
+import { NewExperience, DeleteExperienceModal } from "./experience-actions";
 import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
 import axios from "axios";
 import { updateSelectedApplicant } from "../../../../../../business/actions/backoffice/applicantActions";

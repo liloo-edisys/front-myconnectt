@@ -18,10 +18,7 @@ import { Home } from "../home";
 function DashboardInterimairePage({ history }) {
   const dispatch = useDispatch();
   const tenantID = +process.env.REACT_APP_TENANT_ID;
-  const {
-    interimaire,
-    hasCancelled
-  } = useSelector(
+  const { interimaire, hasCancelled } = useSelector(
     state => ({
       dashboard: state.dashboardReducerData.dashboard,
       missions: state.dashboardReducerData.dashboard.matchings,

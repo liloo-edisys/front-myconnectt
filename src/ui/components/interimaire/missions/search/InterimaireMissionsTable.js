@@ -20,7 +20,8 @@ import fr from "date-fns/locale/fr";
 import moment from "moment";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider} from "react-bootstrap-table2-paginator";
+  PaginationProvider
+} from "react-bootstrap-table2-paginator";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import {
   searchMission,

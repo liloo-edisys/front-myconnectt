@@ -39,12 +39,7 @@ function ProfileResume(props, formik) {
   const dispatch = useDispatch();
   const { intl } = props;
 
-  const {
-    parsed,
-    missionEquipment,
-    jobSkills,
-    jobTitles
-  } = useSelector(
+  const { parsed, missionEquipment, jobSkills, jobTitles } = useSelector(
     state => ({
       parsed: state.applicants.currentCandidate,
       missionExperiences: state.lists.missionExperiences,
@@ -89,7 +84,6 @@ function ProfileResume(props, formik) {
   const [openOthers, setOpenOthers] = useState(false);
 
   const [currentRow, setCurrentRow] = useState([]);
-
 
   useEffect(() => {}, []);
   const formatEquipment = () => {
@@ -194,7 +188,7 @@ function ProfileResume(props, formik) {
       dataField: "documentType",
       text: intl.formatMessage({ id: "MODEL.DOCUMENT.TYPE" }),
       sort: true,
-      formatter: (value) => <span>{formatDocumentText(value)}</span>
+      formatter: value => <span>{formatDocumentText(value)}</span>
     },
     {
       dataField: "action",
@@ -257,8 +251,6 @@ function ProfileResume(props, formik) {
     width: "auto",
     height: "100%"
   };
-
-
 
   const renderOthers = () => {
     let others =
@@ -338,7 +330,7 @@ function ProfileResume(props, formik) {
       dataField: "contractTypeID",
       text: intl.formatMessage({ id: "MODEL.CONTRACT.TYPE" }),
       sort: true,
-      formatter: (value) => formatJobTitle(value)
+      formatter: value => formatJobTitle(value)
     }
   ];
   let xpColumns = [
@@ -375,7 +367,7 @@ function ProfileResume(props, formik) {
     {
       dataField: "isCurrentItem",
       text: intl.formatMessage({ id: "MODEL.ACCOUNT.CURRENT" }),
-      formatter: (row) => <span>{row === "true" ? "oui" : "non"} </span>,
+      formatter: row => <span>{row === "true" ? "oui" : "non"} </span>,
       sort: true
     },
     {

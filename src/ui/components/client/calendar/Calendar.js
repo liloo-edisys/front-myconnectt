@@ -20,7 +20,8 @@ import "./styles.scss";
 import {
   Card,
   CardHeader,
-  CardBody} from "../../../../_metronic/_partials/controls";
+  CardBody
+} from "../../../../_metronic/_partials/controls";
 
 function Calendar(props) {
   const history = useHistory();

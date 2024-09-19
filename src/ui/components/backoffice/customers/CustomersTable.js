@@ -6,7 +6,8 @@ import { useIntl, FormattedMessage } from "react-intl";
 import DatePicker from "react-datepicker";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider} from "react-bootstrap-table2-paginator";
+  PaginationProvider
+} from "react-bootstrap-table2-paginator";
 import isNullOrEmpty from "../../../../utils/isNullOrEmpty";
 import fr from "date-fns/locale/fr";
 

@@ -11,12 +11,14 @@ import BootstrapTable from "react-bootstrap-table-next";
 import HoursStatementComplaint from "./fields/HoursStatementComplaint";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider} from "react-bootstrap-table2-paginator";
+  PaginationProvider
+} from "react-bootstrap-table2-paginator";
 import isNullOrEmpty from "../../../../utils/isNullOrEmpty";
 import {
   Card,
   CardHeader,
-  CardBody} from "../../../../_metronic/_partials/controls";
+  CardBody
+} from "../../../../_metronic/_partials/controls";
 import { getCompanies } from "actions/client/companiesActions";
 import { getJobTitles } from "actions/shared/listsActions";
 import HoursStatementForm from "./fields/HoursStatementForm";

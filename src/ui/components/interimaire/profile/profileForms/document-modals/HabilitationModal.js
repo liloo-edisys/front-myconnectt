@@ -99,7 +99,7 @@ function HabilitationModal(props) {
         initialValues={initialValuesRib}
         validationSchema={RibSchema}
         setFieldValue
-        onSubmit={(values) => {
+        onSubmit={values => {
           let body = {
             documentType: 13,
             tenantid: +process.env.REACT_APP_TENANT_ID,
@@ -124,7 +124,7 @@ function HabilitationModal(props) {
             <Modal.Body>
               <div>
                 <Row gutter={[50, 50]} style={{ marginTop: 30 }}>
-                  {savedImageArray.map((image) => (
+                  {savedImageArray.map(image => (
                     <Col
                       lg={6}
                       style={{

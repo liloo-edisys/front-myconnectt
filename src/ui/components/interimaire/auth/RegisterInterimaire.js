@@ -6,9 +6,7 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import { connect, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import * as Yup from "yup";
-import {
-  getUserWithMobile
-} from "../../../../business/actions/interimaire/interimairesActions";
+import { getUserWithMobile } from "../../../../business/actions/interimaire/interimairesActions";
 
 function RegisterInterimaire(props) {
   const dispatch = useDispatch();

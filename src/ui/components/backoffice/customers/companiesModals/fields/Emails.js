@@ -4,7 +4,8 @@ import BootstrapTable from "react-bootstrap-table-next";
 import { FormattedMessage, useIntl } from "react-intl";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider} from "react-bootstrap-table2-paginator";
+  PaginationProvider
+} from "react-bootstrap-table2-paginator";
 import { getSelectedApplicantEmails } from "../../../../../../business/actions/backoffice/applicantActions";
 import EmailModal from "./EmailModal";
 import EmailContactModal from "./EmailSender/EmailContactModal";

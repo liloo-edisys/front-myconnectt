@@ -572,7 +572,7 @@ function HoursStatementForm(props) {
         )}
         <div className="row" style={{ borderBottom: "1px solid lightgrey" }}>
           <div style={{ width: "12.5%" }} />
-          {daysOfWeek.map((day) => (
+          {daysOfWeek.map(day => (
             <div style={{ width: "12.5%", textAlign: "center" }}>
               <div
                 className="py-2"
@@ -804,7 +804,7 @@ function HoursStatementForm(props) {
 
         <div className="mt-10">
           {timeRecords &&
-            timeRecords.missionRemunerationItems.map((item) => (
+            timeRecords.missionRemunerationItems.map(item => (
               <div className="col-lg-8 p-0 d-flex flex-row justify-content-between">
                 <label className="col-lg-5  ">
                   <FormattedMessage id="MODEL.DESIGNATION" />

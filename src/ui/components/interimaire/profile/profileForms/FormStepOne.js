@@ -33,7 +33,7 @@ function FormStepOne(props, formik) {
       parsed: state.interimairesReducerData.parsedInterimaire,
       isLoading: state.interimairesReducerData.loading
     }),
-    shallowEqual 
+    shallowEqual
   );
   const [url, setUrl] = useState(null);
 

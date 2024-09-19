@@ -3,11 +3,8 @@ import * as Yup from "yup";
 import { FormattedMessage, useIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import "./styles.scss";
-import {
-  getNationalitiesList
-} from "../../../../../../business/actions/interimaire/interimairesActions";
-import {
-  deleteSelectedApplicantDocumentt} from "../../../../../../business/actions/backoffice/applicantActions";
+import { getNationalitiesList } from "../../../../../../business/actions/interimaire/interimairesActions";
+import { deleteSelectedApplicantDocumentt } from "../../../../../../business/actions/backoffice/applicantActions";
 import { getTitlesTypes } from "../../../../../../business/actions/shared/listsActions";
 //import { DocumentsModal } from "../../home/fieldsets/indentity-documents/documents-modal";
 //import VitalCardModal from "../../home/fieldsets/indentity-documents/vital-card-modal";

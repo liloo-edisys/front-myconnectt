@@ -1,7 +1,5 @@
 import React from "react";
-import {
-  setNotifRead
-} from "../../../business/actions/shared/notificationsActions";
+import { setNotifRead } from "../../../business/actions/shared/notificationsActions";
 import "./styles.scss";
 
 import { Modal } from "react-bootstrap";

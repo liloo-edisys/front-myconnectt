@@ -27,7 +27,6 @@ import {
   clearSelectedApplicant
 } from "../../../../business/actions/backoffice/applicantActions";
 
-
 function NewApplicant(props) {
   const dispatch = useDispatch();
   const { interimaireId } = useParams();

@@ -19,8 +19,7 @@ import { getJobSkills, createJobSkills } from "actions/shared/listsActions";
 import { updateApplicant } from "actions/client/applicantsActions";
 import postalCode from "../../../../../../utils/postalCodes.json";
 import InputRange from "react-input-range";
-import {
-  getJobSkills as getJobSkillsApi} from "api/shared/ListsApi";
+import { getJobSkills as getJobSkillsApi } from "api/shared/ListsApi";
 import FormStepFour from "../../../../interimaire/profile/profileForms/FormStepFour";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";

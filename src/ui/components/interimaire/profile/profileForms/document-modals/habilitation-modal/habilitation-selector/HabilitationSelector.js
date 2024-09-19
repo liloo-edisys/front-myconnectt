@@ -7,9 +7,7 @@ import * as Yup from "yup";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  removeOneDocument
-} from "../../../../../../../../business/actions/interimaire/interimairesActions";
+import { removeOneDocument } from "../../../../../../../../business/actions/interimaire/interimairesActions";
 
 function HabilitationSelector(props) {
   const intl = useIntl();

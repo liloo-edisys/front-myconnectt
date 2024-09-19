@@ -9,7 +9,8 @@ import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { getBackOfficeContractList } from "../../../../../business/actions/backoffice/recruiterActions";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider} from "react-bootstrap-table2-paginator";
+  PaginationProvider
+} from "react-bootstrap-table2-paginator";
 import { getJobTitles } from "actions/shared/listsActions";
 import moment from "moment";
 import ContractClientExpensionModal from "./ContractClientExpensionModal";

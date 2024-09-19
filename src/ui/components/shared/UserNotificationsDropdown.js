@@ -3,10 +3,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 
 import objectPath from "object-path";
-import {
-  Dropdown,
-  OverlayTrigger,
-  Tooltip} from "react-bootstrap";
+import { Dropdown, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import SVG from "react-inlinesvg";
 import PerfectScrollbar from "react-perfect-scrollbar";
@@ -16,14 +13,12 @@ import { toAbsoluteUrl } from "../../../_metronic/_helpers";
 import { DropdownTopbarItemToggler } from "../../../_metronic/_partials/dropdowns";
 import { useHtmlClassService } from "../../../_metronic/layout/_core/MetronicLayout";
 import "./styles.scss";
-import {
-  getNotifications} from "../../../business/actions/shared/notificationsActions";
+import { getNotifications } from "../../../business/actions/shared/notificationsActions";
 import { UserNotificationPopup } from "./UserNotificationPopup";
 import { setSignalRInterimaire } from "../../../business/actions/interimaire/interimairesActions";
 import { setSignalRClient } from "../../../business/actions/client/userActions";
 import { setSignalRBackoffice } from "../../../business/actions/backoffice/userActions";
 import { Link } from "react-router-dom";
-
 
 export function UserNotificationsDropdown() {
   const dispatch = useDispatch();
@@ -42,13 +37,7 @@ export function UserNotificationsDropdown() {
     setSelectedNotif(null);
   };
 
-  const {
-    notifs,
-    unread,
-    userDetails,
-    authToken,
-    userType
-  } = useSelector(
+  const { notifs, unread, userDetails, authToken, userType } = useSelector(
     state => ({
       notifs: state.lists.notifs,
       unread: state.lists.unread,
