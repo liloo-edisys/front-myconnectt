@@ -1,5 +1,5 @@
 import { getContactsList as getContactsListActions } from "actions/client/contactsActions";
-import ContactsPage from "components/client/contacts/ContactsPage";
+import ContactsPage from "components/client/contacts/contactsPage.jsx";
 import { connect } from "react-redux";
 
 const mapStateToProps = state => ({

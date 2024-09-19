@@ -3,12 +3,12 @@ import React, { Component } from "react";
 import { Modal } from "react-bootstrap";
 import { useIntl } from "react-intl";
 
-import EditContactForm from "../Forms/EditContactForm";
+import InviteContactForm from "../Forms/inviteContactForm.jsx";
 
-export function EditContactHeader({ id }) {
+export function ContactInviteHeader() {
   const intl = useIntl(); // intl extracted from useIntl hook
 
-  let title = intl.formatMessage({ id: "MODEL.EDIT.CONTACT.TITLE" });
+  const title = intl.formatMessage({ id: "CONTACTS.INVITE.TITLE" });
 
   return (
     <>
@@ -19,25 +19,25 @@ export function EditContactHeader({ id }) {
   );
 }
 
-class EditContactModal extends Component {
+class ContactInviteModal extends Component {
   constructor(props) {
     super(props);
     this.state = {};
   }
   render() {
-    const { id, show, onHide, history } = this.props;
+    const { show, onHide } = this.props;
     return (
       <Modal
-        size="lg"
-        show={show}
+        size="md"
+        show={show === "new"}
         onHide={onHide}
-        aria-labelledby="example-modal-sizes-title-lg"
+        aria-labelledby="example-modal-sizes-title-md"
       >
-        <EditContactHeader id={id} />
-        <EditContactForm onHide={onHide} history={history} />
+        <ContactInviteHeader />
+        <InviteContactForm onHide={onHide} />
       </Modal>
     );
   }
 }
 
-export default EditContactModal;
+export default ContactInviteModal;

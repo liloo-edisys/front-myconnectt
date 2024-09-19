@@ -3,10 +3,10 @@ import React from "react";
 import { connect } from "react-redux";
 import { Route } from "react-router-dom";
 
-import ContactsCard from "./ContactsCard";
-import { ContactsUIProvider } from "./ContactsUIContext";
-import { ContactDeleteDialog } from "./Modals/DeleteContactDialog";
-import EditContactModal from "./Modals/EditContactModal";
+import ContactsCard from "./contactsCard.jsx";
+import { ContactsUIProvider } from "./contactsUIContext.jsx";
+import { ContactDeleteDialog } from "./Modals/deleteContactDialog.jsx";
+import EditContactModal from "./Modals/editContactModal.jsx";
 class ContactsPage extends React.Component {
   componentDidMount() {
     this.props.getContacts();

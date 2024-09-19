@@ -12,8 +12,8 @@ import axios from "axios";
 import { getCompanies } from "../../../../business/actions/client/companiesActions";
 
 // import CompanyCreateModal from "./companiesModals/CompanyCreateModal";
-import { useContactsUIContext } from "./ContactsUIContext";
-import InviteContactModal from "./Modals/InviteContactModal";
+import { useContactsUIContext } from "./contactsUIContext.jsx";
+import InviteContactModal from "./Modals/inviteContactModal.jsx";
 function ContactsTable({
   contacts,
   createCompany,

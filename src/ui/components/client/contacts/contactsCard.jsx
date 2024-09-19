@@ -10,7 +10,7 @@ import {
   CardHeaderToolbar
 } from "../../../../_metronic/_partials/controls";
 
-import ContactsTable from "./ContactsTable";
+import ContactsTable from "./contactsTable.jsx";
 
 class ContactsCard extends Component {
   constructor(props) {
