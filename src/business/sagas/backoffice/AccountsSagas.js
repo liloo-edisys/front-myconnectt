@@ -4,7 +4,6 @@ import { getAccounts as getAccountsActions } from "actions/backoffice/accountsAc
 import { sendToAnael as sendToAnaelActions } from "actions/backoffice/accountsActions";
 import { getAccounts as getAccountsApi } from "api/backoffice/accountsApi";
 import { sendToAnael as sendToAnaelApi } from "api/backoffice/accountsApi";
-import { toastr } from "react-redux-toastr";
 import { all, call, put, takeLatest } from "redux-saga/effects";
 
 export function* getAccounts() {

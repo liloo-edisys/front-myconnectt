@@ -7,7 +7,7 @@ import {
 
 import MissionsPage from "components/client/missions/missionlist/MissionsPage";
 import { connect } from "react-redux";
-import { clearFormattedCV } from "../../business/actions/client/applicantsActions";
+import { clearFormattedCV } from "../actions/client/applicantsActions";
 
 const tenantID = +process.env.REACT_APP_TENANT_ID;
 
@@ -15,6 +15,7 @@ const mapStateToProps = state => ({
   missions: state.missionsReducerData.missions.list,
   user: state.contacts.user
 });
+
 
 const mapDispatchToProps = dispatch => ({
   getAccountMissions: () => {

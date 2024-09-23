@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import IframeGoogleDocs from "../../../utils/googleHacks";
 
 function DocumentDisplay(props) {

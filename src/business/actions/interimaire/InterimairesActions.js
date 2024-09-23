@@ -6,7 +6,7 @@ import {
   REGISTER_INTERIMAIRE_URL,
   USER_START_GUIDE_URL,
   COUNT_MATCHING_URL
-} from "../../api/shared/authApi";
+} from "../../api/shared/authApi.js";
 import {
   INTERIMAIRE_REGISTER_BY_MOBILE_ERROR,
   INTERIMAIRE_REGISTER_BY_MOBILE_SUCCESS
@@ -34,17 +34,17 @@ import {
   CLEAR_STEP_FIVE_MODAL,
   SET_CONTRACTS_COUNT,
   GET_NATIONALITIES_LIST
-} from "../../types/interimaireTypes";
+} from "../../types/interimaireTypes.js";
 import {
   USER_URL,
   UPLOAD_DOCUMENT,
   DELETE_DOCUMENT,
   REMOVE_ONE_DOCUMENT
-} from "../../api/client/applicantsApi";
+} from "../../api/client/applicantsApi.js";
 import {
   INTERIMAIRE_CONTRACT_LIST_URL,
   INTERIMAIRE_DOCUMENTS_LIST_URL
-} from "../../api/interimaire/interimairesApi";
+} from "../../api/interimaire/interimairesApi.js";
 import { HubConnectionBuilder } from "@microsoft/signalr";
 import moment from "moment";
 
