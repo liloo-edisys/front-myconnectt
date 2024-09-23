@@ -61,8 +61,6 @@ export const companyExist = (company, setSelectedCompany) => {
     });
 };
 
-
-
 export const setLatestClientEdited = (mission, dispatch) => {
   dispatch({
     type: SET_LATEST_CLIENT_EDITED,

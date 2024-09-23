@@ -16,7 +16,6 @@ const mapStateToProps = state => ({
   user: state.contacts.user
 });
 
-
 const mapDispatchToProps = dispatch => ({
   getAccountMissions: () => {
     dispatch(getAccountMissionsAction.request({ tenantID: tenantID }));

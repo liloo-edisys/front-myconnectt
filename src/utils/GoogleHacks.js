@@ -55,4 +55,3 @@ export default class IframeGoogleDocs extends Component {
     );
   }
 }
-
