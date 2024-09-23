@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import _ from "lodash";
 import { injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import MissionWizzardHeader from "./MissionWizzardHeader";
+import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import { getTitlesTypes } from "../../../../business/actions/shared/listsActions";
 import { DeleteProfileDialog } from "./profileModals/DeleteProfileDialog";
 import { useParams } from "react-router-dom";
@@ -19,8 +19,8 @@ import IdentityInformations from "./fields/indentity-informations";
 import Experiences from "./fields/experiences";
 import Documents from "./fields/documents";
 import Matching from "./fields/matching";
-import ContractsCard from "./fields/contracts/ContractsCard";
-import ApplicationsCard from "./fields/applications/ApplicationsCard";
+import ContractsCard from "./fields/contracts/contractsCard.jsx";
+import ApplicationsCard from "./fields/applications/applicationsCard.jsx";
 import EmailsCard from "./fields/emails/EmailsCard";
 import {
   getSelectedApplicantById,

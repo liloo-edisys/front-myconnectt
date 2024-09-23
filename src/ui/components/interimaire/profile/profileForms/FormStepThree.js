@@ -16,7 +16,7 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useFormikContext } from "formik";
 import useLocalStorage from "../../../shared/PersistState";
-import MissionWizzardHeader from "./MissionWizzardHeader";
+import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import { DeleteExperienceModal } from "../profileModals/DeleteExperienceModal";
 import { updateApplicant } from "actions/client/applicantsActions";
 import { parseResume as parseResumeActions } from "actions/interimaire/interimairesActions";

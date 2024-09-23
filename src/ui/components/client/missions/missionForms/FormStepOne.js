@@ -20,7 +20,7 @@ import { countMatching } from "actions/client/applicantsActions";
 import { useFormikContext } from "formik";
 import { DatePickerField } from "metronic/_partials/controls";
 import useLocalStorage from "../../../shared/PersistState";
-import MissionWizzardHeader from "./MissionWizzardHeader";
+import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import moment from "moment";
 import { registerLocale } from "react-datepicker";

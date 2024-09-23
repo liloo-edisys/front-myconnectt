@@ -12,7 +12,7 @@ import {
 import "./styles.scss";
 
 //import MissionsTable from "./MissionsTable";
-import ApplicationsTable from "./ApplicationsTable";
+import ApplicationsTable from "./applicationsTable.jsx";
 
 function ApplicationsCard(props) {
   const intl = useIntl();

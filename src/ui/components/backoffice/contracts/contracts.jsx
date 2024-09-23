@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useIntl } from "react-intl";
-import ContractsCard from "./ContractsCard";
+import ContractsCard from "./contractsCard.jsx";
 
 function Contracts(props) {
   const { user } = useSelector(state => state.recruiterReducerData);

@@ -1,3 +1,4 @@
-import Contracts from "./Contracts";
+import Contracts from "./contracts.jsx";
 
 export default Contracts;
+

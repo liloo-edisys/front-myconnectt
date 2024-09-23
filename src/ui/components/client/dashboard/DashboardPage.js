@@ -25,7 +25,7 @@ import { NavLink } from "react-router-dom";
 import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
 import CompanyEditModal from "../companies/companiesModals/CompanyEditModal";
 
-import ContractsTable from "./tables/ContractsTable";
+import ContractsTable from "./tables/contractsTable.jsx";
 import SearchsTable from "./tables/SearchTable";
 import { getMission } from "api/client/missionsApi";
 import { getMission as getMissionAction } from "actions/client/missionsActions";

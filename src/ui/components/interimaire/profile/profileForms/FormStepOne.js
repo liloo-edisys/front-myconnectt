@@ -13,7 +13,7 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 
 import useLocalStorage from "../../../shared/PersistState";
-import MissionWizzardHeader from "./MissionWizzardHeader";
+import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { useDropzone } from "react-dropzone";
 import { cancelEdit } from "../../../../../business/actions/interimaire/interimairesActions";

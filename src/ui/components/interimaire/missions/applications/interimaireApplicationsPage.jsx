@@ -2,12 +2,12 @@ import React from "react";
 
 import { connect } from "react-redux";
 import { Route } from "react-router-dom";
-import { MissionDisplayDialog as DisplayDialog } from "../modals/MissionDisplayDialog";
-import { MissionDeclineDialog as DeclineDialog } from "../modals/MissionDeclineDialog";
-import { MissionApproveDialog as ApproveDialog } from "../modals/MissionApproveDialog";
+import { MissionDisplayDialog as DisplayDialog } from "../modals/MissionDisplayDialog.js";
+import { MissionDeclineDialog as DeclineDialog } from "../modals/MissionDeclineDialog.js";
+import { MissionApproveDialog as ApproveDialog } from "../modals/MissionApproveDialog.js";
 
-import { InterimaireApplicationsUIProvider } from "./InterimaireApplicationsUIContext";
-import InterimaireApplicationsCard from "./InterimaireApplicationsCard";
+import { InterimaireApplicationsUIProvider } from "./interimaireApplicationsUIContext.jsx";
+import InterimaireApplicationsCard from "./interimaireApplicationsCard.jsx";
 
 class InterimaireApplicationsPage extends React.Component {
   render() {

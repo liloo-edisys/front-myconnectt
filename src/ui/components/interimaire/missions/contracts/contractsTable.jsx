@@ -3,16 +3,16 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link, useHistory, Route } from "react-router-dom";
 import BootstrapTable from "react-bootstrap-table-next";
 import DatePicker from "react-datepicker";
-import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
+import isNullOrEmpty from "../../../../../utils/isNullOrEmpty.js";
 import { FormattedMessage, useIntl } from "react-intl";
-import { getContractList } from ".././../../../../business/actions/interimaire/interimairesActions";
+import { getContractList } from "../../../../../business/actions/interimaire/interimairesActions.js";
 import paginationFactory, {
   PaginationListStandalone,
   PaginationProvider
 } from "react-bootstrap-table2-paginator";
 import fr from "date-fns/locale/fr";
 import moment from "moment";
-import ClientDetails from "./ClientDetails";
+import ClientDetails from "./clientDetails.jsx";
 import { Col, Row } from "react-bootstrap";
 
 function ContractsTable(props) {
@@ -23,6 +23,7 @@ function ContractsTable(props) {
   const { contractList, interimaire } = useSelector(
     state => state.interimairesReducerData
   );
+  
   const [expanded, setExpanded] = useState([]);
   const [selectPassedContracts, setSelectPassedContracts] = useState(false);
   const [selectActiveContracts, setSelectActiveContracts] = useState(true);

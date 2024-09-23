@@ -11,7 +11,7 @@ import UnderConstruction from "./components/shared/UnderConstruction.js";
 import Extensions from "./components/backoffice/extensions/index.js";
 import Interimaires from "./components/backoffice/interimaires/index.js";
 import BackOfficeDashboardPage from "./components/backoffice/dashboard/BackOfficeDashboardPage.js";
-import BackOfficeDashboardPageNew from "./components/backoffice/dashboard/BackOfficeDashboardPageNew.js";
+import BackOfficeDashboardPageNew from "./components/backoffice/dashboard/backOfficeDashboardPageNew.jsx";
 import Contracts from "./components/backoffice/contracts/index.js";
 import NewApplicant from "./components/backoffice/new-applicant/index.js";
 import CustomersContainer from "../business/containers/customersContainer.js";

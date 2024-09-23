@@ -1,18 +1,15 @@
 import React from "react";
-import { FormattedMessage, useIntl } from "react-intl";
-import { connect } from "react-redux";
+import { useIntl } from "react-intl";
 import { NavLink } from "react-router-dom";
 
 import {
   Card,
   CardHeader,
-  CardBody,
-  CardHeaderToolbar
-} from "../../../../../../_metronic/_partials/controls";
+  CardBody} from "../../../../../../_metronic/_partials/controls";
 import "./styles.scss";
 
 //import MissionsTable from "./MissionsTable";
-import ContractsTable from "./ContractsTable";
+import ContractsTable from "./contractsTable.jsx";
 
 function ContractsCard(props) {
   const intl = useIntl();

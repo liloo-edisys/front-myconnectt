@@ -1,7 +1,7 @@
 import { getInterimaire } from "actions/interimaire/interimairesActions";
 import { getMission as getMissionAction } from "actions/client/missionsActions";
 
-import InterimaireApplicationsPage from "components/interimaire/missions/applications/InterimaireApplicationsPage";
+import InterimaireApplicationsPage from "components/interimaire/missions/applications/interimaireApplicationsPage.jsx";
 import { connect } from "react-redux";
 
 const mapStateToProps = state => ({

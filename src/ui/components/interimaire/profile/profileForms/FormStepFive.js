@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import SVG from "react-inlinesvg";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import MissionWizzardHeader from "./MissionWizzardHeader";
+import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import LoadingOverlay from "react-loading-overlay";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Zoom } from "react-reveal";

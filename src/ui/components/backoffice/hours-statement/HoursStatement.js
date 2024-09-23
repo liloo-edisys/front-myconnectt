@@ -24,7 +24,7 @@ import { getJobTitles } from "actions/shared/listsActions";
 import HoursStatementForm from "./fields/HoursStatementForm";
 import { DisplayDialog } from "../../client/interimaires/modals/DisplayDialog";
 import ContractDetails from "../../client/missions/contracts-client/ContractDetails";
-import ClientDetails from "../../interimaire/missions/contracts/ClientDetails";
+import ClientDetails from "../../interimaire/missions/contracts/clientDetails.jsx";
 import { getCompanies } from "../../../../business/actions/client/companiesActions";
 import ComplaintsList from "./fields/ComplaintsList";
 import MissionEndingForm from "./fields/MissionEndingForm";

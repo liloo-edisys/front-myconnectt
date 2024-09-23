@@ -13,7 +13,7 @@ import _, { debounce, isNull } from "lodash";
 import { useFormikContext } from "formik";
 import useLocalStorage from "../../../../../shared/PersistState";
 import { toastr } from "react-redux-toastr";
-import MissionWizzardHeader from "./MissionWizzardHeader";
+import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import { VictoryBar, VictoryTooltip } from "victory";
 import FlyOut from "./CustomToolTip";
 import { countMatching } from "actions/client/applicantsActions";

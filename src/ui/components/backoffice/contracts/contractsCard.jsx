@@ -10,7 +10,7 @@ import {
   CardHeaderToolbar
 } from "../../../../_metronic/_partials/controls";
 
-import ContractsTable from "./ContractsTable";
+import ContractsTable from "./contractsCard.jsx";
 
 function ContractsCard(props) {
   const intl = useIntl();

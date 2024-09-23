@@ -15,7 +15,7 @@ import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import { useFormikContext } from "formik";
 import useLocalStorage from "../../../shared/PersistState";
-import MissionWizzardHeader from "./MissionWizzardHeader";
+import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { getJobSkills, createJobSkills } from "actions/shared/listsActions";
 import { updateApplicant } from "actions/client/applicantsActions";

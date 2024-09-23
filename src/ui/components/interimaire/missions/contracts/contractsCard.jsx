@@ -11,7 +11,7 @@ import {
 } from "../../../../../_metronic/_partials/controls";
 
 //import MissionsTable from "./MissionsTable";
-import ContractsTable from "./ContractsTable";
+import ContractsTable from "./contractsCard.jsx";
 import "./styles.scss";
 
 function ContractsCard(props) {

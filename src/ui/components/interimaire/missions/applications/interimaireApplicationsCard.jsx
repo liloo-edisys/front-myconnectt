@@ -10,7 +10,7 @@ import {
   CardHeaderToolbar
 } from "../../../../../_metronic/_partials/controls";
 
-import ApplicationsTable from "./InterimaireApplicationsTable";
+import ApplicationsTable from "./interimaireApplicationsTable.jsx";
 
 class InterimaireApplicationsCard extends Component {
   constructor(props) {
@@ -20,6 +20,7 @@ class InterimaireApplicationsCard extends Component {
       refresh: 0
     };
   }
+
 
   handleClose = () => {
     this.setState({ show: null });

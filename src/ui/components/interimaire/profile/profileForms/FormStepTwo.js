@@ -14,7 +14,7 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useFormikContext } from "formik";
 import useLocalStorage from "../../../shared/PersistState";
-import MissionWizzardHeader from "./MissionWizzardHeader";
+import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import moment from "moment";
 import { getTitlesTypes } from "../../../../../business/actions/shared/listsActions";

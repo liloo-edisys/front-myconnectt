@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
 import Select from "react-select";
 import { useFormikContext } from "formik";
 import useLocalStorage from "../../../shared/PersistState";
-import MissionWizzardHeader from "./MissionWizzardHeader";
+import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { Collapse } from "react-bootstrap";
 import SVG from "react-inlinesvg";

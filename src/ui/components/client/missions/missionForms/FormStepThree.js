@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 import "rc-time-picker/assets/index.css";
 import useLocalStorage from "../../../shared/PersistState";
 import { toastr } from "react-redux-toastr";
-import MissionWizzardHeader from "./MissionWizzardHeader";
+import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import { shallowEqual, useSelector } from "react-redux";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import _ from "lodash";

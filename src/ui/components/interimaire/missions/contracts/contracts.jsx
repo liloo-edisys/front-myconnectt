@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useIntl } from "react-intl";
-import ContractsCard from "./ContractsCard";
+import ContractsCard from "./contractsCard.jsx";
 
 function Contracts(props) {
   const { interimaire } = useSelector(state => state.interimairesReducerData);

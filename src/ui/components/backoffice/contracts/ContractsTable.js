@@ -15,7 +15,7 @@ import { getAccounts } from "actions/backoffice/accountsActions";
 import moment from "moment";
 import { getCompanies } from "actions/client/companiesActions";
 import { getJobTitles } from "actions/shared/listsActions";
-import ContractDetails from "./ContractDetails";
+import ContractDetails from "./contractDetails.jsx";
 import { Modal } from "react-bootstrap";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
