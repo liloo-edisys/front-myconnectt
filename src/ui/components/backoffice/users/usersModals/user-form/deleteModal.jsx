@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, {  } from "react";
 import { toastr } from "react-redux-toastr";
-import { Modal, Button, Row, Col } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";

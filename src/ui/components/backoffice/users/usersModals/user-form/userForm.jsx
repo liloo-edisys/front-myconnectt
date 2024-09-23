@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Formik, Form, Field } from "formik";
 import { toastr } from "react-redux-toastr";
-import { Modal, Button, Row, Col } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Input, Select } from "metronic/_partials/controls";
 import { useParams } from "react-router-dom";
 import * as Yup from "yup";
-import { userSelectorTypes } from "./userTypeList";
+import { userSelectorTypes } from "./userTypeList.jsx";
 import axios from "axios";
 
 function UserForm({ onHide, getData }) {

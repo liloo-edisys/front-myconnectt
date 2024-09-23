@@ -5,7 +5,6 @@ import BootstrapTable from "react-bootstrap-table-next";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useHistory } from "react-router-dom";
 import * as actionTypes from "constants/constants";
-import { Input, Select } from "metronic/_partials/controls";
 import {
   getMailTemplates,
   getMailTemplateCategories
@@ -15,9 +14,9 @@ import paginationFactory, {
   PaginationProvider
 } from "react-bootstrap-table2-paginator";
 import axios from "axios";
-import UserForm from "./usersModals/user-form/UserForm";
-import DeleteModal from "./usersModals/user-form/DeleteModal";
-import { userTypes } from "./usersModals/user-form/userTypeList";
+import UserForm from "./usersModals/user-form/userForm.jsx";
+import DeleteModal from "./usersModals/user-form/deleteModal.jsx";
+import { userTypes } from "./usersModals/user-form/userTypeList.jsx"; 
 
 function UsersTable(props) {
   const dispatch = useDispatch();

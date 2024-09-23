@@ -1,16 +1,13 @@
 import React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-import { connect } from "react-redux";
 import { NavLink, useHistory } from "react-router-dom";
 
 import {
   Card,
   CardHeader,
-  CardBody,
-  CardHeaderToolbar
-} from "../../../../_metronic/_partials/controls";
+  CardBody} from "../../../../_metronic/_partials/controls";
 
-import UsersTable from "./UsersTable";
+import UsersTable from "./usersTable.jsx";
 
 function UsersCard(props) {
   const intl = useIntl();
