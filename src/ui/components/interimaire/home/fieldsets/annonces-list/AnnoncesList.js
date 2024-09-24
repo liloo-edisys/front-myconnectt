@@ -8,7 +8,7 @@ import { FormattedMessage } from "react-intl";
 import { toAbsoluteUrl } from "../../../../../../_metronic/_helpers";
 import { Link, useHistory } from "react-router-dom";
 import "./styles.scss";
-import { MissionDisplayDialog } from "../../../missions/modals/MissionDisplayDialog";
+import { MissionDisplayDialog } from "../../../missions/modals/missionDisplayDialog.jsx";
 import {
   searchMission,
   addFavorite,

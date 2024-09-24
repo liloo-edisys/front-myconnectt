@@ -3,11 +3,11 @@ import React from "react";
 import { connect } from "react-redux";
 import { Route } from "react-router-dom";
 
-import { InterimaireFavoritesUIProvider as FavoritesUIProvider } from "./InterimaireFavoritesUIContext";
-import FavoritesCard from "./InterimaireFavoritesCard";
-import { MissionDisplayDialog as DisplayDialog } from "../modals/MissionDisplayDialog";
-import { MissionApproveDialog as ApproveDialog } from "../modals/MissionApproveDialog";
-import { MissionDeclineDialog as DeclineDialog } from "../modals/MissionDeclineDialog";
+import { InterimaireFavoritesUIProvider as FavoritesUIProvider } from "./interimaireFavoritesUIContext.jsx";
+import FavoritesCard from "./interimaireFavoritesCard.jsx";
+import { MissionDisplayDialog as DisplayDialog } from "../modals/missionDisplayDialog.jsx";
+import { MissionApproveDialog as ApproveDialog } from "../modals/missionApproveDialog.jsx";
+import { MissionDeclineDialog as DeclineDialog } from "../modals/missionDeclineDialog.jsx";
 
 class InterimaireFavoritesPage extends React.Component {
   render() {

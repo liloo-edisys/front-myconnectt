@@ -3,18 +3,18 @@ import React from "react";
 import { connect } from "react-redux";
 import { Route } from "react-router-dom";
 
-import { MissionDeleteDialog as DeleteDialog } from "../missionsModals/MissionDeleteDialog";
+import { MissionDeleteDialog as DeleteDialog } from "../missionsModals/missionDeleteDialog.jsx";
 import { MissionsUIProvider } from "./MissionsUIContext";
 import MissionsCard from "./MissionsCard";
 import { deleteFromStorage } from "../../../shared/DeleteFromStorage";
-import { MatchingDialog } from "../missionsModals/MissionMatchingDialog";
-import { MissionResumeDialog } from "../missionsModals/MissionResumeDialog";
-import { MissionDeclineDialog } from "../missionsModals/MissionDeclineDialog";
-import { MissionValidateDialog } from "../missionsModals/MissionValidateDialog";
+import { MatchingDialog } from "../missionsModals/missionMatchingDialog.jsx";
+import { MissionResumeDialog } from "../missionsModals/missionResumeDialog.jsx";
+import { MissionDeclineDialog } from "../missionsModals/missionDeclineDialog.jsx";
+import { MissionValidateDialog } from "../missionsModals/missionValidateDialog.jsx";
 import { getMission } from "../../../../../business/api/client/missionsApi";
 import { getMission as getMissionAction } from "actions/client/missionsActions";
-import { MissionProfileDialog } from "../missionsModals/MissionProfileDialog";
-import { DeleteApplicationDialog } from "../missionsModals/DeleteApplicationDialog";
+import { MissionProfileDialog } from "../missionsModals/missionProfileDialog.jsx";
+import { DeleteApplicationDialog } from "../missionsModals/deleteApplicationDialog.jsx";
 
 class MissionsPage extends React.Component {
   constructor(props) {

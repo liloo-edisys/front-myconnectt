@@ -11,7 +11,7 @@ import {
 } from "../../../../../_metronic/_partials/controls";
 
 //import MissionsTable from "./MissionsTable";
-import DocumentsTable from "./DocumentsTable";
+import DocumentsTable from "./documentsTable.jsx";
 
 function DocumentsCard(props) {
   const intl = useIntl();

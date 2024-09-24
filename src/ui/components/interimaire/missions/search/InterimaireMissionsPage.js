@@ -5,9 +5,9 @@ import { Route } from "react-router-dom";
 
 import { InterimaireMissionsUIProvider as MissionsUIProvider } from "./InterimaireMissionsUIContext";
 import MissionsCard from "./InterimaireMissionsCard";
-import { MissionDisplayDialog as DisplayDialog } from "../modals/MissionDisplayDialog";
-import { MissionApproveDialog as ApproveDialog } from "../modals/MissionApproveDialog";
-import { MissionDeclineDialog as DeclineDialog } from "../modals/MissionDeclineDialog";
+import { MissionDisplayDialog as DisplayDialog } from "../modals/missionDisplayDialog.jsx";
+import { MissionApproveDialog as ApproveDialog } from "../modals/missionApproveDialog.jsx";
+import { MissionDeclineDialog as DeclineDialog } from "../modals/missionDeclineDialog.jsx";
 
 class InterimaireMissionsPage extends React.Component {
   render() {

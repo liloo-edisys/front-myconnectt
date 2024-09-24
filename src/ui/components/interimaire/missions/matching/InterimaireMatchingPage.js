@@ -2,12 +2,12 @@ import React from "react";
 
 import { connect } from "react-redux";
 import { Route } from "react-router-dom";
-import { MissionDisplayDialog as DisplayDialog } from "../modals/MissionDisplayDialog";
-import { MatchingDeclineDialog as DeclineDialog } from "../modals/MatchingDeclineDialog";
-import { MissionApproveDialog as ApproveDialog } from "../modals/MissionApproveDialog";
+import { MissionDisplayDialog as DisplayDialog } from "../modals/missionDisplayDialog.jsx";
+import { MatchingDeclineDialog as DeclineDialog } from "../modals/matchingDeclineDialog.jsx";
+import { MissionApproveDialog as ApproveDialog } from "../modals/missionApproveDialog.jsx";
 
-import { InterimaireMatchingUIProvider } from "./InterimaireMatchingUIContext";
-import InterimaireMatchingCard from "./InterimaireMatchingCard";
+import { InterimaireMatchingUIProvider } from "./InterimaireMatchingUIContext.js";
+import InterimaireMatchingCard from "./InterimaireMatchingCard.js";
 
 class InterimaireMatchingPage extends React.Component {
   render() {

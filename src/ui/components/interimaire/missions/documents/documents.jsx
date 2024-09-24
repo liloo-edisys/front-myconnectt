@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useIntl } from "react-intl";
-import DocumentsCard from "./DocumentsCard";
+import DocumentsCard from "./documentsCard.jsx";
 
 function Documents(props) {
   const { interimaire } = useSelector(state => state.interimairesReducerData);

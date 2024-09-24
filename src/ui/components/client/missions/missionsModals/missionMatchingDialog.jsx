@@ -9,7 +9,7 @@ import {
   declineMatching,
   approveByCustomer
 } from "../../../../../business/actions/client/applicantsActions";
-import { MissionResumeDialog } from "./MissionResumeDialog";
+import { MissionResumeDialog } from "./missionResumeDialog.jsx";
 import { searchMission } from "../../../../../business/actions/client/missionsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 const TENANTID = process.env.REACT_APP_TENANT_ID;

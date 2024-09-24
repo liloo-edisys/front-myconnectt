@@ -9,7 +9,7 @@ import { FormattedMessage } from "react-intl";
 import { Col, Row } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 
-import { useInterimaireFavoritesUIContext as useFavoritesUIContext } from "./InterimaireFavoritesUIContext";
+import { useInterimaireFavoritesUIContext as useFavoritesUIContext } from "./interimaireFavoritesUIContext.jsx";
 import _ from "lodash";
 import Select from "react-select";
 import DatePicker from "react-datepicker";

@@ -9,10 +9,10 @@ import { getInterimaire } from "actions/interimaire/interimairesActions";
 
 import { InterimaireMatchingUIProvider } from "../missions/matching/InterimaireMatchingUIContext";
 import { getMission } from "../../../../business/actions/client/missionsActions";
-import { MissionDisplayDialog } from "../missions/modals/MissionDisplayDialog";
-import { MissionApproveDialog } from "../missions/modals/MissionApproveDialog";
-import { MatchingDeclineDialog } from "../missions/modals/MatchingDeclineDialog";
-import { MissionDeclineDialog } from "../missions/modals/MissionDeclineDialog";
+import { MissionDisplayDialog } from "../missions/modals/missionDisplayDialog.jsx";
+import { MissionApproveDialog } from "../missions/modals/missionApproveDialog.jsx";
+import { MatchingDeclineDialog } from "../missions/modals/matchingDeclineDialog.jsx";
+import { MissionDeclineDialog } from "../missions/modals/missionDeclineDialog.jsx";
 import { Home } from "../home";
 
 function DashboardInterimairePage({ history }) {

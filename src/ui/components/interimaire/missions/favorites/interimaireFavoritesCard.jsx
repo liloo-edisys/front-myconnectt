@@ -10,7 +10,7 @@ import {
   CardHeaderToolbar
 } from "../../../../../_metronic/_partials/controls";
 
-import MissionsTable from "./InterimaireFavoritesTable";
+import MissionsTable from "./interimaireFavoritesTable.jsx";
 
 class InterimaireFavoritesCard extends Component {
   constructor(props) {

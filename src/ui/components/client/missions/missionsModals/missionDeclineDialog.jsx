@@ -13,6 +13,7 @@ export function MissionDeclineDialog({ show, onHide, history }) {
   const pageSize = localStorage.getItem("pageSize");
   const accountID = localStorage.getItem("accountID");
   const userID = localStorage.getItem("userId");
+  
 
   const handleDecline = () => {
     dispatch(

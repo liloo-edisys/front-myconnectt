@@ -2,9 +2,9 @@ import React from "react";
 
 import { connect } from "react-redux";
 import { Route } from "react-router-dom";
-import { MissionDisplayDialog as DisplayDialog } from "../modals/MissionDisplayDialog.js";
-import { MissionDeclineDialog as DeclineDialog } from "../modals/MissionDeclineDialog.js";
-import { MissionApproveDialog as ApproveDialog } from "../modals/MissionApproveDialog.js";
+import { MissionDisplayDialog as DisplayDialog } from "../modals/missionDisplayDialog.jsx";
+import { MissionDeclineDialog as DeclineDialog } from "../modals/missionDeclineDialog.jsx";
+import { MissionApproveDialog as ApproveDialog } from "../modals/missionApproveDialog.jsx";
 
 import { InterimaireApplicationsUIProvider } from "./interimaireApplicationsUIContext.jsx";
 import InterimaireApplicationsCard from "./interimaireApplicationsCard.jsx";

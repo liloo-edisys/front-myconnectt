@@ -1,6 +1,6 @@
 import { getMission as getMissionAction } from "actions/client/missionsActions";
 
-import InterimaireFavoritesPage from "components/interimaire/missions/favorites/InterimaireFavoritesPage";
+import InterimaireFavoritesPage from "components/interimaire/missions/favorites/interimaireFavoritesPage.jsx";
 import { connect } from "react-redux";
 
 const mapStateToProps = state => ({

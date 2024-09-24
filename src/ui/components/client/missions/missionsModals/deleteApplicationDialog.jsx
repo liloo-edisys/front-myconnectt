@@ -14,6 +14,9 @@ export function DeleteApplicationDialog({ show, onHide, history }) {
   const accountID = localStorage.getItem("accountID");
   const userID = localStorage.getItem("userId");
 
+
+
+  
   const handleDelete = () => {
     dispatch(
       deleteApplication.request(

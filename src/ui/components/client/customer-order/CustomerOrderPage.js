@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useParams, Route, useHistory } from "react-router-dom";
 import { MissionsUIProvider } from "../missions/missionlist/MissionsUIContext";
-import { DeleteApplicationDialog } from "../missions/missionsModals/DeleteApplicationDialog";
-import { MissionDeclineDialog } from "../missions/missionsModals/MissionDeclineDialog";
-import { MatchingDialog } from "../missions/missionsModals/MissionMatchingDialog";
-import { MissionValidateDialog } from "../missions/missionsModals/MissionValidateDialog";
+import { DeleteApplicationDialog } from "../missions/missionsModals/deleteApplicationDialog.jsx";
+import { MissionDeclineDialog } from "../missions/missionsModals/missionDeclineDialog.jsx";
+import { MatchingDialog } from "../missions/missionsModals/missionMatchingDialog.jsx";
+import { MissionValidateDialog } from "../missions/missionsModals/missionValidateDialog.jsx";
 import { ApplicantListModal } from "./applicant-list-modal";
 import { DisplayDialog } from "./applicant-modal/DisplayDialog";
 import CustomerOrder from "./CustomerOrder";
