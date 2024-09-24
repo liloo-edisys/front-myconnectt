@@ -7,7 +7,7 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import BootstrapTable from "react-bootstrap-table-next";
 import Moment from "moment";
-//import ActionsColumnFormatter from "./ActionsColumnFormatter";
+
 
 import { toAbsoluteUrl } from "../../../../../_metronic/_helpers";
 

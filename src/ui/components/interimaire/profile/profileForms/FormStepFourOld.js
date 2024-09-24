@@ -24,15 +24,16 @@ import BootstrapTable from "react-bootstrap-table-next";
 import { toAbsoluteUrl } from "metronic/_helpers";
 import { getMissionEquipment } from "../../../../../business/actions/shared/listsActions";
 import { ProfileReferencesModal } from "../profileModals/ProfileReferencesModal";
-import ActionsColumnFormatter from "./ActionsColumnFormatter";
+import ActionsColumnFormatter from "./actionsColumnFormatter.jsx";
 import { DeleteRefsModal } from "../profileModals/DeleteRefsModal";
 import { updateApplicant } from "actions/client/applicantsActions";
 import { getContractType } from "actions/shared/listsActions";
 function FormStepFour(props, formik) {
   const dispatch = useDispatch();
   const { intl } = props;
-  const TENANTID = +process.env.REACT_APP_TENANT_ID;
 
+
+  
   const { missionEquipment, parsed, contractTypes } = useSelector(
     state => ({
       missionEquipment: state.lists.missionEquipment,

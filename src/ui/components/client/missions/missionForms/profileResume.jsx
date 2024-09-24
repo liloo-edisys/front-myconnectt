@@ -19,9 +19,9 @@ import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import { countMatching } from "actions/client/applicantsActions";
 import { useFormikContext } from "formik";
-import useLocalStorage from "../../../shared/PersistState";
+import useLocalStorage from "../../../shared/PersistState.js";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
-import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
+import isNullOrEmpty from "../../../../../utils/isNullOrEmpty.js";
 import moment from "moment";
 import { Button, Collapse } from "react-bootstrap";
 import SVG from "react-inlinesvg";
@@ -42,24 +42,16 @@ import { getHabilitationsList } from "actions/client/missionsActions";
 import { updateApplicant } from "actions/client/applicantsActions";
 import { toAbsoluteUrl } from "metronic/_helpers";
 import DocTypes from "../../../../../utils/DocumentTypes.json";
-import MissionsDateColumnFormatter from "../column-formatters/MissionsDateColumnFormatter";
+import MissionsDateColumnFormatter from "../column-formatters/MissionsDateColumnFormatter.js";
 
 function ProfileResume(props, formik) {
   const dispatch = useDispatch();
   const { intl } = props;
-  const TENANTID = process.env.REACT_APP_TENANT_ID;
 
   const {
     parsed,
-    missionExperiences,
     missionEquipment,
     jobSkills,
-    jobTags,
-    missionsReasons,
-    languages,
-    driverLicenses,
-    educationLevels,
-    missionRemuneration,
     jobTitles
   } = useSelector(
     state => ({
@@ -93,153 +85,17 @@ function ProfileResume(props, formik) {
     getHabilitationsList(dispatch);
   }, [dispatch]);
   const [experience, setExperience] = useLocalStorage("experience", null);
-  const [personal, setPersonal] = useState(true);
-  const [complement, setComplement] = useState(false);
-  const [xp, setXp] = useState(true);
   const [docs, setDocs] = useState(false);
   const [matching, setMatching] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
-  const [openId, setOpenId] = useState(true);
-  const [openHealth, setOpenHealth] = useState(true);
-  const [openHome, setOpenHome] = useState(false);
-  const [openBank, setOpenBank] = useState(false);
-  const [openOthers, setOpenOthers] = useState(false);
 
   const [currentRow, setCurrentRow] = useState([]);
 
-  const createOption = (label, value) => ({
-    label,
-    value
-  });
 
   useEffect(() => {}, []);
-  const formatEquipment = () => {
-    let equipements = [];
-    var outStr = "";
 
-    if (!isNullOrEmpty(parsed) && parsed.missionArrayEquipments) {
-      parsed.missionArrayEquipments.map(skill => {
-        let label = missionEquipment.filter(jobSkill => jobSkill.id === skill);
-        return equipements.push(label.length && label[0].name);
-      });
-    }
-    outStr = equipements.join(" - ");
-    return outStr;
-  };
 
-  const formatWantedJobs = () => {
-    let jobs = [];
-    var outStr = "";
 
-    if (!isNullOrEmpty(parsed) && parsed.missionArrayDesiredJobTitles) {
-      parsed.missionArrayDesiredJobTitles.map(skill => {
-        let label = jobTitles.filter(jobSkill => jobSkill.id === skill);
-        return jobs.push(label.length && label[0].name);
-      });
-    }
-    outStr = jobs.join(" - ");
-    return outStr;
-  };
-
-  const formatSkills = () => {
-    let jobs = [];
-    var outStr = "";
-
-    if (!isNullOrEmpty(parsed) && parsed.applicantArraySkills) {
-      parsed.applicantArraySkills.map(skill => {
-        let label = jobSkills.filter(jobSkill => jobSkill.id === skill);
-        return jobs.push(label.length && label[0].name);
-      });
-    }
-    outStr = jobs.join(" - ");
-    return outStr;
-  };
-
-  const renderReferences = () => {
-    return parsed.applicantReferences.map(ref => {
-      return (
-        <div className="row ml-5">
-          <div className=" col-lg-12 d-flex flex-row justify-content-between">
-            <div className="col-lg-2">
-              <p>{ref.contactName}</p>
-            </div>
-            <div className="col-lg-2">
-              {" "}
-              <p>{ref.contactEmail}</p>
-            </div>
-            <div className="col-lg-2">
-              <p>{ref.contactPhone}</p>
-            </div>
-            <div className="col-lg-2">
-              <p>{ref.companyName}</p>
-            </div>
-            <div className="col-lg-2">
-              <p>{ref.city}</p>
-            </div>
-            <div className="col-lg-2">
-              <p>{ref.jobTitle}</p>
-            </div>
-            <div className="col-lg-3">
-              <p>{ref.contractTypeID}</p>
-            </div>
-          </div>
-        </div>
-      );
-    });
-  };
-  const renderDocuments = () => {
-    return parsed.applicantDocuments.map(ref => {
-      if (ref.docType === "8" || ref.docType === "9") {
-        <div className="row">
-          <div className=" col-lg-12 d-flex flex-row justify-content-between">
-            <div className="col-lg-3">
-              <p>{ref.Filename}</p>
-            </div>
-            <div className="col-lg-3">
-              {" "}
-              <p>{ref.IssueDate}</p>
-            </div>
-            <div className="col-lg-3">
-              <p>{ref.ExpirationDate}</p>
-            </div>
-            <div className="col-lg-3">
-              <p>{ref.DocumentNumber}</p>
-            </div>
-          </div>
-        </div>;
-      }
-      if (ref.docType === "10") {
-        <div className="row">
-          <div className=" col-lg-12 d-flex flex-row justify-content-between">
-            <div className="col-lg-3">
-              <p>{ref.Filename}</p>
-            </div>
-            <div className="col-lg-3">
-              {" "}
-              <p>{ref.DocumentNumber}</p>
-            </div>
-            <div className="col-lg-3">
-              <p>{ref.birthDate}</p>
-            </div>
-            <div className="col-lg-3">
-              <p>{ref.birthLoaction}</p>
-            </div>
-            <div className="col-lg-3">
-              <p>{ref.birthDepartment}</p>
-            </div>
-          </div>
-        </div>;
-      } else {
-        <div className="row">
-          <div className=" col-lg-12 d-flex flex-row justify-content-between">
-            <div className="col-lg-3">
-              <p>{ref.Filename}</p>
-            </div>
-          </div>
-        </div>;
-      }
-    });
-  };
   let homeColumns = [
     {
       dataField: "filename",
@@ -254,7 +110,7 @@ function ProfileResume(props, formik) {
       style: {
         minWidth: "100px"
       },
-      formatter: (value, row) => (
+      formatter: () => (
         <a
           onClick={(row, rowIndex) => {
             setShowPreview(true);
@@ -274,38 +130,6 @@ function ProfileResume(props, formik) {
       }
     }
   ];
-  const renderXp = () => {
-    return parsed.applicantExperiences.map(ref => {
-      return (
-        <div className="row ml-5">
-          <div className=" col-lg-12 d-flex flex-row justify-content-between">
-            <div className="col-lg-4">
-              <p>{ref.jobTitle}</p>
-            </div>
-
-            <div className="col-lg-2">
-              <p>
-                {moment(ref.startDate)
-                  .locale("fr")
-                  .format("DD/MM/YYYY")}
-              </p>
-            </div>
-
-            <div className="col-lg-2">
-              <p>
-                {moment(ref.endDate)
-                  .locale("fr")
-                  .format("DD/MM/YYYY")}
-              </p>
-            </div>
-            <div className="col-lg-2">
-              <p>{ref.employerNameAndPlace}</p>
-            </div>
-          </div>
-        </div>
-      );
-    });
-  };
   const formatDocumentText = value => {
     let data = DocTypes.filter(l => l.id === parseInt(value));
     return data[0].name;
@@ -332,7 +156,7 @@ function ProfileResume(props, formik) {
       dataField: "documentType",
       text: intl.formatMessage({ id: "MODEL.DOCUMENT.TYPE" }),
       sort: true,
-      formatter: (value, row) => <span>{formatDocumentText(value)}</span>
+      formatter: (value) => <span>{formatDocumentText(value)}</span>
     },
     {
       dataField: "action",
@@ -363,43 +187,13 @@ function ProfileResume(props, formik) {
     }
   ];
 
-  const filterID = value => {
+  const filterID = () => {
     let data =
       parsed.applicantDocuments !== null &&
       parsed.applicantDocuments.filter(
         x => x.documentType === 8 || x.documentType === 9
       );
     return data && data;
-  };
-  const renderIDs = () => {
-    let ids =
-      parsed &&
-      parsed.applicantDocuments.filter(
-        doc => doc.documentType === 8 || doc.documentType === 9
-      );
-    return (
-      ids && (
-        <div className="row ml-5">
-          <BootstrapTable
-            remote
-            wrapperClasses="table-responsive"
-            bordered={false}
-            classes="table table-head-custom table-vertical-center overflow-hidden"
-            bootstrap4
-            keyField="manager"
-            data={!isNullOrEmpty(ids) ? filterID(ids) : []}
-            columns={idColumns}
-            noDataIndication={() => <NoDataIndication />}
-          />
-        </div>
-      )
-    );
-  };
-  const thumbsContainer = {
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginTop: 16
   };
 
   const thumb = {
@@ -425,72 +219,8 @@ function ProfileResume(props, formik) {
     width: "auto",
     height: "100%"
   };
-  const thumbs = file => {
-    return (
-      !isNullOrEmpty(file) && (
-        <div style={thumb} key={!isNullOrEmpty(file) && file.filename}>
-          <div style={thumbInner}>
-            {/* <img src={!isNullOrEmpty(files) && files.base64} style={img} alt="preview" /> */}
-            <embed
-              src={
-                !isNullOrEmpty(file) && "data:image/jpeg;base64," + file.base64
-              }
-              type={file.type}
-              style={img}
-              width="100%"
-              height="auto"
-            />
-          </div>
-        </div>
-      )
-    );
-  };
 
-  const renderHome = () => {
-    let home =
-      parsed &&
-      parsed.applicantDocuments.filter(doc => doc.documentType === 11);
-    return (
-      home && (
-        <div className="row ml-5">
-          <BootstrapTable
-            remote
-            wrapperClasses="table-responsive"
-            bordered={false}
-            classes="table table-head-custom table-vertical-center overflow-hidden"
-            bootstrap4
-            keyField="manager"
-            data={!isNullOrEmpty(home) ? home : []}
-            columns={homeColumns}
-            noDataIndication={() => <NoDataIndication />}
-          />
-        </div>
-      )
-    );
-  };
 
-  const renderBank = () => {
-    let bank =
-      parsed &&
-      parsed.applicantDocuments.filter(doc => doc.documentType === 12);
-    return (
-      bank && (
-        <div className="row ml-5">
-          <BootstrapTable
-            remote
-            wrapperClasses="table-responsive"
-            bordered={false}
-            classes="table table-head-custom table-vertical-center overflow-hidden"
-            bootstrap4
-            keyField="manager"
-            data={!isNullOrEmpty(bank) ? bank : []}
-            columns={homeColumns}
-            noDataIndication={() => <NoDataIndication />}
-          />
-        </div>
-      )
-    );
-  };
 
   const renderOthers = () => {
     let others =
@@ -511,39 +241,6 @@ function ProfileResume(props, formik) {
           />
         </div>
       )
-    );
-  };
-  const filterHealth = value => {
-    let data =
-      parsed.applicantDocuments !== null &&
-      parsed.applicantDocuments.filter(x => x.documentType === 10);
-    return data && data[0];
-  };
-  let formattedXp = () => {
-    let xp = parsed.applicantExperiences.map((val, ix) => {
-      val.keyField = ix;
-      return val;
-    });
-    return xp;
-  };
-  const renderHealth = () => {
-    let ids =
-      parsed &&
-      parsed.applicantDocuments.filter(doc => doc.documentType === 10);
-    return (
-      ids &&
-      ids.length &&
-      ids.map(doc => {
-        return (
-          <div className="row ml-5">
-            <div className=" col-lg-12 d-flex flex-row justify-content-between">
-              <div className="col-lg-3">
-                <p>{doc.filename}</p>
-              </div>
-            </div>
-          </div>
-        );
-      })
     );
   };
 

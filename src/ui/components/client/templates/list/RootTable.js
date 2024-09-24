@@ -8,7 +8,7 @@ import { useIntl } from "react-intl";
 import { FormattedMessage } from "react-intl";
 
 import { useUIContext } from "./RootUIContext";
-import ActionsColumnFormatter from "../formatters/ActionsColumnFormatter";
+import ActionsColumnFormatter from "../formatters/actionsColumnFormatter.jsx";
 import _ from "lodash";
 import Select from "react-select";
 import paginationFactory, {

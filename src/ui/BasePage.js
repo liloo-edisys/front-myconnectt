@@ -23,7 +23,7 @@ import ContractsClient from "./components/client/missions/contracts-client";
 import Extensions from "./components/client/missions/extensions";
 import { Calendar } from "./components/client/calendar";
 import { HoursStatement } from "./components/client/hours-statement";
-import CustomerOrderPage from "./components/client/customer-order/CustomerOrderPage";
+import CustomerOrderPage from "./components/client/customer-order/customerOrderPage.jsx";
 import Reciepts from "./components/client/missions/reciepts/Reciepts";
 
 export default function BasePage(props) {

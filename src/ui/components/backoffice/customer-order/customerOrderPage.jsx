@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams, Route, useHistory } from "react-router-dom";
-import { DisplayDialog } from "./applicant-modal/DisplayDialog";
-import CustomerOrder from "./CustomerOrder";
+import { DisplayDialog } from "./applicant-modal/displayDialog.jsx";
+import CustomerOrder from "./customerOrder.jsx";
 
 function CustomerOrderPage(props) {
   const { missionId } = useParams();

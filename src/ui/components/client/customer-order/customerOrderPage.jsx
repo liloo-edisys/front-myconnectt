@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useParams, Route, useHistory } from "react-router-dom";
-import { MissionsUIProvider } from "../missions/missionlist/MissionsUIContext";
+import { MissionsUIProvider } from "../missions/missionlist/MissionsUIContext.js";
 import { DeleteApplicationDialog } from "../missions/missionsModals/deleteApplicationDialog.jsx";
 import { MissionDeclineDialog } from "../missions/missionsModals/missionDeclineDialog.jsx";
 import { MatchingDialog } from "../missions/missionsModals/missionMatchingDialog.jsx";
 import { MissionValidateDialog } from "../missions/missionsModals/missionValidateDialog.jsx";
-import { ApplicantListModal } from "./applicant-list-modal";
-import { DisplayDialog } from "./applicant-modal/DisplayDialog";
-import CustomerOrder from "./CustomerOrder";
+import { ApplicantListModal } from "./applicant-list-modal/index.js";
+import { DisplayDialog } from "./applicant-modal/displayDialog.jsx";
+import CustomerOrder from "./customerOrder.jsx";
 
 function CustomerOrderPage(props) {
   const { missionId } = useParams();

@@ -18,7 +18,7 @@ import {
 import { clearLatestClientEdited } from "../../../../business/actions/backoffice/accountsActions";
 import CompanyCreateModal from "./companiesModals/CompanyCreateModal";
 import { useCustomersUIContext } from "./CustomersUIContext";
-import ActionsColumnFormatter from "./customers-table/column-formatters/ActionsColumnFormatter";
+import ActionsColumnFormatter from "./customers-table/column-formatters/actionsColumnFormatter.jsx";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 
@@ -53,12 +53,7 @@ function CustomersTable(props) {
   const intl = useIntl(); // intl extracted from useIntl hook
   const CUSTOMERS_URL =
     process.env.REACT_APP_WEBAPI_URL + "api/Account/SearchAccounts";
-  /*const formatWorksite = (id) => {
-    if (worksites.length) {
-      return worksites.filter((worksite) => worksite.parentID === id);
-    }
-    return [];
-  };*/
+    
   const { user, accountGroups, latestClientEdited } = useSelector(
     state => ({
       user: state.contacts.user,

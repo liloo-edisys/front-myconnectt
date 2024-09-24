@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import { toAbsoluteUrl } from "../../../../../_metronic/_helpers";
 import SVG from "react-inlinesvg";
 import { useMissionsUIContext } from "../../missions/matching/InterimaireMatchingUIContext";
-import ActionsColumnFormatter from "./ActionsColumnFormatter";
+import ActionsColumnFormatter from "./actionsColumnFormatter.jsx";
 
 function MissionsTable({ intl, dashboard, missions }) {
   function headerFormatter(column) {

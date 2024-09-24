@@ -7,7 +7,7 @@ import { connect } from "react-redux";
 import SVG from "react-inlinesvg";
 import { toAbsoluteUrl } from "../../../../../_metronic/_helpers";
 import { Link } from "react-router-dom";
-import ActionsColumnFormatter from "./ActionsColumnFormatter";
+import ActionsColumnFormatter from "./actionsColumnFormatter.jsx";
 import { useMissionsUIContext } from "./MissionsUIContext";
 
 function SearchsTable({ intl, dashboard, searchs }) {

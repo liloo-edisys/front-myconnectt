@@ -33,7 +33,7 @@ import {
 import { getHabilitationsList } from "../../../../../business/actions/client/missionsActions";
 import { toAbsoluteUrl } from "metronic/_helpers";
 import DocTypes from "../../../../../utils/DocumentTypes.json";
-import DateColumnFormatter from "../formatters/DateColumnFormatter";
+import DateColumnFormatter from "../formatters/dateColumnFormatter";
 
 function ProfileResume(props, formik) {
   const dispatch = useDispatch();

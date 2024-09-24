@@ -7,7 +7,7 @@ import BootstrapTable from "react-bootstrap-table-next";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { useUIContext } from "./RootUIContext";
-import ActionsColumnFormatter from "../formatters/ActionsColumnFormatter";
+import ActionsColumnFormatter from "../formatters/actionsColumnFormatter.jsx";
 import paginationFactory, {
   PaginationListStandalone,
   PaginationProvider,

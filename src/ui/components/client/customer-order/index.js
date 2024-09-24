@@ -1,3 +1,4 @@
-import CustomerOrderPage from "./CustomerOrderPage";
+import CustomerOrderPage from "./customerOrderPage.jsx";
 
 export { CustomerOrderPage };
+

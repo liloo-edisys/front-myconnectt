@@ -2,7 +2,7 @@ import React from "react";
 
 import { connect } from "react-redux";
 import { Route } from "react-router-dom";
-import { DisplayDialog } from "../modals/DisplayDialog";
+import { DisplayDialog } from "../modals/displayDialog.jsx";
 
 import { UIProvider } from "./RootUIContext";
 import RootCard from "./RootCard";

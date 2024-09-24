@@ -22,7 +22,7 @@ import {
 import { fakeData, weekList, statusList } from "./fakeDatas";
 import { getTRJobTitles } from "actions/shared/listsActions";
 import HoursStatementForm from "./fields/HoursStatementForm";
-import { DisplayDialog } from "../interimaires/modals/DisplayDialog";
+import { DisplayDialog } from "../interimaires/modals/displayDialog.jsx";
 import ContractDetails from "../missions/contracts-client/ContractDetails";
 import HoursStatementComplaint from "./fields/HoursStatementComplaint";
 import MissionEndingForm from "./fields/MissionEndingForm";

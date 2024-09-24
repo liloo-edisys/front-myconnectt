@@ -1,3 +1,3 @@
-import ApplicantListModal from "./ApplicantListModal";
+import ApplicantListModal from "./applicantListModal.jsx";
 
 export { ApplicantListModal };

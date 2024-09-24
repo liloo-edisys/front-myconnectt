@@ -17,7 +17,7 @@ import useLocalStorage from "../../../shared/PersistState";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 
 import { getMissionEquipment } from "../../../../../business/actions/shared/listsActions";
-import ActionsColumnFormatter from "./ActionsColumnFormatter";
+import ActionsColumnFormatter from "./actionsColumnFormatter.jsx";
 import { updateApplicant } from "actions/client/applicantsActions";
 import { getContractType } from "actions/shared/listsActions";
 function FormStepFour(props, formik) {

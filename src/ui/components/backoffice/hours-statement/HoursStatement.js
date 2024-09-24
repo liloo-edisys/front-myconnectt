@@ -22,7 +22,7 @@ import {
 import { fakeData, weekList, statusList } from "./fakeDatas";
 import { getJobTitles } from "actions/shared/listsActions";
 import HoursStatementForm from "./fields/HoursStatementForm";
-import { DisplayDialog } from "../../client/interimaires/modals/DisplayDialog";
+import { DisplayDialog } from "../../client/interimaires/modals/displayDialog.jsx";
 import ContractDetails from "../../client/missions/contracts-client/ContractDetails";
 import ClientDetails from "../../interimaire/missions/contracts/clientDetails.jsx";
 import { getCompanies } from "../../../../business/actions/client/companiesActions";

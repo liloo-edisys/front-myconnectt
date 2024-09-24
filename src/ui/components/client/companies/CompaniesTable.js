@@ -11,7 +11,7 @@ import {
 
 import CompanyCreateModal from "./companiesModals/CompanyCreateModal";
 import { useCompaniesUIContext } from "./CompaniesUIContext";
-import ActionsColumnFormatter from "./customers-table/column-formatters/ActionsColumnFormatter";
+import ActionsColumnFormatter from "./customers-table/column-formatters/actionsColumnFormatter.jsx";
 import { shallowEqual, useSelector } from "react-redux";
 
 function CompaniesTable({
