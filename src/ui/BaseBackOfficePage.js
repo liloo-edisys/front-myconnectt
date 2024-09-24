@@ -33,7 +33,7 @@ import Messenger from "./components/backoffice/messenger/Messenger.js";
 import Declinaisons from "./components/backoffice/declinaisons/Declinaisons.js";
 import Setting from "./components/backoffice/setting/index.js";
 import ContactsContainer from "../business/containers/contactsContainerBackoffice.js";
-import Statistiques from "./components/backoffice/statistiques/statistiques.js";
+import Statistiques from "./components/backoffice/statistiques/statistiques.jsx";
 
 export default function BaseBackOfficePage(props) {
   const dispatch = useDispatch();

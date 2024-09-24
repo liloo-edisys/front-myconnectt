@@ -1,3 +1,4 @@
-import Interimaires from "./Interimaires";
+import Interimaires from "./interimaires.jsx";
 
 export default Interimaires;
+

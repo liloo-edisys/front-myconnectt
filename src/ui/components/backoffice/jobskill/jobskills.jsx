@@ -1,6 +1,6 @@
 import React from "react";
 import { useIntl } from "react-intl";
-import JobskillsCard from "./JobskillsCard";
+import JobskillsCard from "./jobskillsCard.jsx";
 
 function Jobskills(props) {
   return <JobskillsCard />;

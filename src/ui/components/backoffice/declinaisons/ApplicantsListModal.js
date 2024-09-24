@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import BootstrapTable from "react-bootstrap-table-next";
@@ -27,6 +27,7 @@ export default function ApplicantsListModal(props) {
       )
     }
   ];
+
   const columnsClient = [
     {
       dataField: "name",

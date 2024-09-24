@@ -1,4 +1,4 @@
-import RootPage from "components/client/interimaires/list/RootPage";
+import RootPage from "components/client/interimaires/list/rootPage.jsx";
 import { connect } from "react-redux";
 import { getInterimaireById as getInterimaireAction } from "actions/interimaire/interimairesActions";
 import { getApplicantById } from "../actions/client/applicantsActions";

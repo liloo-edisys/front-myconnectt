@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 
-import { FormattedMessage, injectIntl } from "react-intl";
+import { injectIntl } from "react-intl";
 import { connect } from "react-redux";
-import { NavLink } from "react-router-dom";
 
 import {
   Card,
@@ -11,7 +10,7 @@ import {
   CardHeaderToolbar
 } from "../../../../../_metronic/_partials/controls";
 
-import RootTable from "./RootTable";
+import RootTable from "./rootTable.jsx";
 
 class RootCard extends Component {
   constructor(props) {
@@ -43,14 +42,9 @@ class RootCard extends Component {
     return (
       <Card>
         <CardHeader
-          title={intl.formatMessage({ id: "MISSIONS.TEMPLATES.LIST.TITLE" })}
+          title={intl.formatMessage({ id: "INTERIMAIRE.LIST.TITLE" })}
         >
           <CardHeaderToolbar>
-            <NavLink className="menu-link" to="/templates/create">
-              <span className="btn btn-primary btn-shadow font-weight-bold px-9 py-4 my-3 mx-4">
-                <FormattedMessage id="TEMPLATE.CREATE.BUTTON" />
-              </span>
-            </NavLink>
             <button
               onClick={() => this.handleUpdateChildren()}
               className="btn btn-icon btn-light-primary pulse pulse-primary mr-5"

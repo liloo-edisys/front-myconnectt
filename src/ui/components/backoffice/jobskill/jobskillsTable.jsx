@@ -8,11 +8,11 @@ import paginationFactory, {
   PaginationProvider
 } from "react-bootstrap-table2-paginator";
 import { ContentRoute } from "../../../../_metronic/layout";
-import JobtagForm from "./JobtagForm";
-import { JobtagDeleteModal } from "./JobtagDeleteModal";
+import JobskillForm from "./jobskillForm.jsx";
+import { JobskillDeleteModal } from "./jobskillDeleteModal.jsx";
 import { NavLink, useHistory } from "react-router-dom";
 
-function JobtagsTable(props) {
+function JobskillsTable(props) {
   const api = process.env.REACT_APP_WEBAPI_URL;
   const dispatch = useDispatch();
   const intl = useIntl();
@@ -34,7 +34,7 @@ function JobtagsTable(props) {
   const columns = [
     {
       dataField: "name",
-      text: intl.formatMessage({ id: "TEXT.JOBTAG.NAME" })
+      text: intl.formatMessage({ id: "TEXT.JOBSKILL.NAME" })
     },
     {
       dataField: "id",
@@ -43,13 +43,13 @@ function JobtagsTable(props) {
         <div>
           <NavLink
             className="btn btn-light-primary btn-sm mr-2"
-            to={`/jobtags/edit-jobtag/${value}`}
+            to={`/jobskills/edit-jobskill/${value}`}
           >
             Modifier
           </NavLink>
           <NavLink
             className="btn btn-light-danger btn-sm"
-            to={`/jobtags/delete-jobtag/${value}`}
+            to={`/jobskills/delete-jobskill/${value}`}
           >
             Supprimer
           </NavLink>
@@ -65,7 +65,8 @@ function JobtagsTable(props) {
   }, [user, selectedPageNumber]);
 
   const getData = () => {
-    const SEARCH_JOBTAGS_API = api + "api/JobTag/search";
+    //dispatch(getJobSkills.request());
+    const SEARCH_JOBSKILLS_API = api + "api/JobSkill/search";
     const body = {
       tenantID: user.tenantID,
       pageNumber: selectedPageNumber,
@@ -73,7 +74,7 @@ function JobtagsTable(props) {
       name: selectedName
     };
     axios
-      .post(SEARCH_JOBTAGS_API, body)
+      .post(SEARCH_JOBSKILLS_API, body)
       .then(res => {
         setJobskillsList(res.data.list);
         setTotalCount(res.data.totalcount);
@@ -123,7 +124,7 @@ function JobtagsTable(props) {
 
   const onSearchFilteredContracts = () => {
     setSelectedPageNumber(1);
-    const SEARCH_JOBTAGS_API = api + "api/JobTag/search";
+    const SEARCH_JOBSKILLS_API = api + "api/JobSkill/search";
     const body = {
       tenantID: user.tenantID,
       pageNumber: 1,
@@ -131,7 +132,7 @@ function JobtagsTable(props) {
       name: selectedName
     };
     axios
-      .post(SEARCH_JOBTAGS_API, body)
+      .post(SEARCH_JOBSKILLS_API, body)
       .then(res => {
         setJobskillsList(res.data.list);
         setTotalCount(res.data.totalcount);
@@ -188,7 +189,7 @@ function JobtagsTable(props) {
               <div className="d-flex flex-row align-items-center">
                 <p className="ml-5" style={{ margin: 0 }}>
                   <FormattedMessage
-                    id="MESSAGE.JOBTAG.TOTALCOUNT"
+                    id="MESSAGE.JOBSKILL.TOTALCOUNT"
                     values={{ totalCount }}
                   />
                 </p>
@@ -236,15 +237,21 @@ function JobtagsTable(props) {
           onTableChange={handleTableChange}
         />
       </div>
-      <ContentRoute path="/jobtags/new-jobtag">
-        <JobtagForm onHide={() => history.push("/jobtags")} getData={getData} />
+      <ContentRoute path="/jobskills/new-jobskill">
+        <JobskillForm
+          onHide={() => history.push("/jobskills")}
+          getData={getData}
+        />
       </ContentRoute>
-      <ContentRoute path="/jobtags/edit-jobtag/:id">
-        <JobtagForm onHide={() => history.push("/jobtags")} getData={getData} />
+      <ContentRoute path="/jobskills/edit-jobskill/:id">
+        <JobskillForm
+          onHide={() => history.push("/jobskills")}
+          getData={getData}
+        />
       </ContentRoute>
-      <ContentRoute path="/jobtags/delete-jobtag/:id">
-        <JobtagDeleteModal
-          onHide={() => history.push("/jobtags")}
+      <ContentRoute path="/jobskills/delete-jobskill/:id">
+        <JobskillDeleteModal
+          onHide={() => history.push("/jobskills")}
           getData={getData}
         />
       </ContentRoute>
@@ -252,4 +259,4 @@ function JobtagsTable(props) {
   );
 }
 
-export default JobtagsTable;
+export default JobskillsTable;

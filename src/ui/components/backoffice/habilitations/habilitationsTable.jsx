@@ -8,11 +8,11 @@ import paginationFactory, {
   PaginationProvider
 } from "react-bootstrap-table2-paginator";
 import { ContentRoute } from "../../../../_metronic/layout";
-import JobtitleForm from "./JobtitleForm";
-import { JobtitleDeleteModal } from "./JobtitleDeleteModal";
+import HabilitationForm from "./habilitationForm.jsx";
+import { HabilitationDeleteModal } from "./habilitationDeleteModal.jsx";
 import { NavLink, useHistory } from "react-router-dom";
 
-function JobtitlesTable(props) {
+function HabilitationsTable(props) {
   const api = process.env.REACT_APP_WEBAPI_URL;
   const dispatch = useDispatch();
   const intl = useIntl();
@@ -20,14 +20,8 @@ function JobtitlesTable(props) {
   const [selectedPageNumber, setSelectedPageNumber] = useState(1);
   const [selectedPageSize, setSelectedPageSize] = useState(10);
   const [selectedName, setSelectedName] = useState("");
-  const [jobtitlesList, setJobtitlesList] = useState([]);
+  const [jobskillsList, setJobskillsList] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [activityDomainsList, setActivityDomainsList] = useState([]);
-  const [
-    activityDomainsListIsLoaded,
-    setActivityDomainsListIsLoaded
-  ] = useState(false);
-  const [selectedActivityDomain, setSelectedActivityDomain] = useState(0);
 
   const { user, jobskills } = useSelector(
     state => ({
@@ -40,22 +34,7 @@ function JobtitlesTable(props) {
   const columns = [
     {
       dataField: "name",
-      text: intl.formatMessage({ id: "TEXT.JOBTITLE.NAME" })
-    },
-    {
-      dataField: "code",
-      text: intl.formatMessage({ id: "TEXT.JOBTITLE.CODE" })
-    },
-    {
-      dataField: "arrayActivityDomainIDs",
-      text: intl.formatMessage({ id: "ACTIVITY.DOMAINE.LIST" }),
-      formatter: value =>
-        value.map((activity, i) => (
-          <span key={i}>
-            {activityDomainsList.filter(item => item.id === activity)[0]?.name}{" "}
-            {i !== value.length - 1 && ", "}
-          </span>
-        ))
+      text: intl.formatMessage({ id: "TEXT.HABILITATION.NAME" })
     },
     {
       dataField: "id",
@@ -64,13 +43,13 @@ function JobtitlesTable(props) {
         <div>
           <NavLink
             className="btn btn-light-primary btn-sm mr-2"
-            to={`/jobtitles/edit-jobtitle/${value}`}
+            to={`/habilitations/edit-habilitation/${value}`}
           >
             Modifier
           </NavLink>
           <NavLink
             className="btn btn-light-danger btn-sm"
-            to={`/jobtitles/delete-jobtitle/${value}`}
+            to={`/habilitations/delete-habilitation/${value}`}
           >
             Supprimer
           </NavLink>
@@ -80,18 +59,14 @@ function JobtitlesTable(props) {
   ];
 
   useEffect(() => {
-    let URL = `${process.env.REACT_APP_WEBAPI_URL}api/ActivityDomain`;
-    axios.get(URL).then(res => {
-      setActivityDomainsList(res.data);
-      setActivityDomainsListIsLoaded(true);
-    });
-    if (user && activityDomainsListIsLoaded) {
+    if (user) {
       getData();
     }
-  }, [user, selectedPageNumber, activityDomainsListIsLoaded]);
+  }, [user, selectedPageNumber]);
 
   const getData = () => {
-    const SEARCH_JOBTITLES_API = api + "api/JobTitle/search";
+    //dispatch(getJobSkills.request());
+    const SEARCH_HABILITATIONS_API = api + "api/Habilitation/search";
     const body = {
       tenantID: user.tenantID,
       pageNumber: selectedPageNumber,
@@ -99,9 +74,9 @@ function JobtitlesTable(props) {
       name: selectedName
     };
     axios
-      .post(SEARCH_JOBTITLES_API, body)
+      .post(SEARCH_HABILITATIONS_API, body)
       .then(res => {
-        setJobtitlesList(res.data.list);
+        setJobskillsList(res.data.list);
         setTotalCount(res.data.totalcount);
       })
       .catch(err => console.log(err));
@@ -147,45 +122,19 @@ function JobtitlesTable(props) {
     );
   };
 
-  const renderQualifications = () => {
-    return (
-      <div className="col-lg-2">
-        <select
-          className="form-control form-control-lg p-2"
-          name="jobTitleID"
-          value={selectedActivityDomain}
-          onChange={e => setSelectedActivityDomain(e.target.value)}
-        >
-          <option selected value={0} style={{ color: "lightgrey" }}>
-            -- {intl.formatMessage({ id: "MATCHING.ACTIVITY.DOMAINS" })} --
-          </option>
-          {activityDomainsList.map(job => (
-            <option key={job.id} label={job.name} value={job.id}>
-              {job.name}
-            </option>
-          ))}
-        </select>
-        <small className="form-text text-muted">
-          <FormattedMessage id="MATCHING.ACTIVITY.DOMAINS" />
-        </small>
-      </div>
-    );
-  };
-
   const onSearchFilteredContracts = () => {
     setSelectedPageNumber(1);
-    const SEARCH_JOBTITLES_API = api + "api/JobTitle/search";
+    const SEARCH_HABILITATIONS_API = api + "api/Habilitation/search";
     const body = {
       tenantID: user.tenantID,
       pageNumber: 1,
       pageSize: selectedPageSize,
-      name: selectedName,
-      activityDomainID: parseInt(selectedActivityDomain)
+      name: selectedName
     };
     axios
-      .post(SEARCH_JOBTITLES_API, body)
+      .post(SEARCH_HABILITATIONS_API, body)
       .then(res => {
-        setJobtitlesList(res.data.list);
+        setJobskillsList(res.data.list);
         setTotalCount(res.data.totalcount);
       })
       .catch(err => console.log(err));
@@ -228,7 +177,7 @@ function JobtitlesTable(props) {
                 classes="table table-head-custom table-vertical-center overflow-hidden"
                 bootstrap4
                 keyField="id"
-                data={jobtitlesList}
+                data={jobskillsList}
                 columns={columns}
                 onTableChange={onTableChange}
                 {...paginationTableProps}
@@ -240,7 +189,7 @@ function JobtitlesTable(props) {
               <div className="d-flex flex-row align-items-center">
                 <p className="ml-5" style={{ margin: 0 }}>
                   <FormattedMessage
-                    id="MESSAGE.JOBTITLE.TOTALCOUNT"
+                    id="MESSAGE.HABILITATION.TOTALCOUNT"
                     values={{ totalCount }}
                   />
                 </p>
@@ -256,7 +205,6 @@ function JobtitlesTable(props) {
     <div>
       <div className="row mb-5 mx-5">
         {renderName()}
-        {renderQualifications()}
         <div className="col-lg-2">
           <button
             onClick={onSearchFilteredContracts}
@@ -269,45 +217,41 @@ function JobtitlesTable(props) {
           </button>
         </div>
       </div>
-      {activityDomainsListIsLoaded && (
-        <>
-          <BootstrapTable
-            remote
-            rowClasses={"dashed"}
-            wrapperClasses="table-responsive"
-            bordered={false}
-            classes="table table-head-custom table-vertical-center overflow-hidden"
-            bootstrap4
-            keyField="id"
-            data={jobtitlesList}
-            columns={columns}
-          />
-          <div style={{ marginTop: 30 }}>
-            <RemotePagination
-              data={jobtitlesList}
-              page={selectedPageNumber}
-              sizePerPage={selectedPageSize}
-              totalSize={totalCount}
-              onTableChange={handleTableChange}
-            />
-          </div>
-        </>
-      )}
-      <ContentRoute path="/jobtitles/new-jobtitle">
-        <JobtitleForm
-          onHide={() => history.push("/jobtitles")}
+      <BootstrapTable
+        remote
+        rowClasses={"dashed"}
+        wrapperClasses="table-responsive"
+        bordered={false}
+        classes="table table-head-custom table-vertical-center overflow-hidden"
+        bootstrap4
+        keyField="id"
+        data={jobskillsList}
+        columns={columns}
+      />
+      <div style={{ marginTop: 30 }}>
+        <RemotePagination
+          data={jobskillsList}
+          page={selectedPageNumber}
+          sizePerPage={selectedPageSize}
+          totalSize={totalCount}
+          onTableChange={handleTableChange}
+        />
+      </div>
+      <ContentRoute path="/habilitations/new-habilitation">
+        <HabilitationForm
+          onHide={() => history.push("/habilitations")}
           getData={getData}
         />
       </ContentRoute>
-      <ContentRoute path="/jobtitles/edit-jobtitle/:id">
-        <JobtitleForm
-          onHide={() => history.push("/jobtitles")}
+      <ContentRoute path="/habilitations/edit-habilitation/:id">
+        <HabilitationForm
+          onHide={() => history.push("/habilitations")}
           getData={getData}
         />
       </ContentRoute>
-      <ContentRoute path="/jobtitles/delete-jobtitle/:id">
-        <JobtitleDeleteModal
-          onHide={() => history.push("/jobtitles")}
+      <ContentRoute path="/habilitations/delete-habilitation/:id">
+        <HabilitationDeleteModal
+          onHide={() => history.push("/habilitations")}
           getData={getData}
         />
       </ContentRoute>
@@ -315,4 +259,4 @@ function JobtitlesTable(props) {
   );
 }
 
-export default JobtitlesTable;
+export default HabilitationsTable;

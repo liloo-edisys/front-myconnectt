@@ -1,3 +1,3 @@
-import Jobskills from "./Jobskills";
+import Jobskills from "./jobskills.jsx";
 
 export { Jobskills };

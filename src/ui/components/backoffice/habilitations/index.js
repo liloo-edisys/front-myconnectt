@@ -1,3 +1,3 @@
-import HabilitationList from "./HabilitationList";
+import HabilitationList from "./habilitationList.jsx";
 
 export { HabilitationList };

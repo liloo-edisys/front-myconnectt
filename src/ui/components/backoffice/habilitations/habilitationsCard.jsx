@@ -9,26 +9,26 @@ import {
   CardBody
 } from "../../../../_metronic/_partials/controls";
 
-import JobtagsTable from "./JobtagsTable";
+import HabilitationsTable from "./habilitationsTable.jsx";
 
-function JobtagsCard(props) {
+function HabilitationsCard(props) {
   const intl = useIntl();
   return (
     <Card>
-      <CardHeader title={intl.formatMessage({ id: "TEXT.JOBTAG.TITLE" })}>
+      <CardHeader title={intl.formatMessage({ id: "TEXT.HABILITATION.TITLE" })}>
         <NavLink
           className="btn btn-light-primary mt-5"
           style={{ height: 40 }}
-          to="/jobtags/new-jobtag"
+          to="/habilitations/new-habilitation"
         >
-          <FormattedMessage id="MODEL.CREATE.JOBTAG.TITLE" />
+          <FormattedMessage id="MODEL.CREATE.HABILITATION.TITLE" />
         </NavLink>
       </CardHeader>
       <CardBody>
-        <JobtagsTable />
+        <HabilitationsTable />
       </CardBody>
     </Card>
   );
 }
 
-export default JobtagsCard;
+export default HabilitationsCard;

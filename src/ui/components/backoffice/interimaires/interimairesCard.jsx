@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardBody
 } from "../../../../_metronic/_partials/controls";
-import InterimairesTable from "./InterimairesTable";
+import InterimairesTable from "./interimairesTable.jsx";
 
 function InterimairesCard(props) {
   const intl = useIntl();

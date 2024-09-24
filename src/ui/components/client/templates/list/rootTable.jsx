@@ -7,7 +7,7 @@ import BootstrapTable from "react-bootstrap-table-next";
 import { useIntl } from "react-intl";
 import { FormattedMessage } from "react-intl";
 
-import { useUIContext } from "./RootUIContext";
+import { useUIContext } from "./rootUIContext.jsx";
 import ActionsColumnFormatter from "../formatters/actionsColumnFormatter.jsx";
 import _ from "lodash";
 import Select from "react-select";

@@ -2,12 +2,12 @@ import React from "react";
 
 import { connect } from "react-redux";
 import { Route } from "react-router-dom";
-import { DeleteDialog } from "../modals/DeleteDialog";
-import EditDialog from "../modals/EditDialog";
+import { DeleteDialog } from "../modals/DeleteDialog.js";
+import EditDialog from "../modals/EditDialog.js";
 
-import { UIProvider } from "./RootUIContext";
-import RootCard from "./RootCard";
-import CreateDialog from "../modals/CreateDialog";
+import { UIProvider } from "./rootUIContext.jsx";
+import RootCard from "./rootCard.jsx";
+import CreateDialog from "../modals/CreateDialog.js";
 
 class RootPage extends React.Component {
   render() {

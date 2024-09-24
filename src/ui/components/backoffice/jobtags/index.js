@@ -1,3 +1,3 @@
-import Jobtags from "./Jobtags";
+import Jobtags from "./jobtags.jsx";
 
 export { Jobtags };

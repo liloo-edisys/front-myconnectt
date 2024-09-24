@@ -9,26 +9,26 @@ import {
   CardBody
 } from "../../../../_metronic/_partials/controls";
 
-import JobskillsTable from "./JobskillsTable";
+import JobtitlesTable from "./jobTitlesTable.jsx";
 
-function JobskillsCard(props) {
+function JobtitlesCard(props) {
   const intl = useIntl();
   return (
     <Card>
-      <CardHeader title={intl.formatMessage({ id: "TEXT.JOBSKILL.TITLE" })}>
+      <CardHeader title={intl.formatMessage({ id: "TEXT.JOBTITLE.TITLE" })}>
         <NavLink
           className="btn btn-light-primary mt-5"
           style={{ height: 40 }}
-          to="/jobskills/new-jobskill"
+          to="/jobtitles/new-jobtitle"
         >
-          <FormattedMessage id="MODEL.CREATE.JOBSKILL.TITLE" />
+          <FormattedMessage id="MODEL.CREATE.JOBTITLE.TITLE" />
         </NavLink>
       </CardHeader>
       <CardBody>
-        <JobskillsTable />
+        <JobtitlesTable />
       </CardBody>
     </Card>
   );
 }
 
-export default JobskillsCard;
+export default JobtitlesCard;

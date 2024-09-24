@@ -3,11 +3,8 @@ import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { call } from "redux-saga/effects";
 import { useSelector, shallowEqual } from "react-redux";
 import { toastr } from "react-redux-toastr";
-import { Formik, Form, Field } from "formik";
-import { Input } from "metronic/_partials/controls";
 
 function JobtagForm(props) {
   const { onHide, getData } = props;

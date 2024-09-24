@@ -4,8 +4,8 @@ import { connect } from "react-redux";
 import { Route } from "react-router-dom";
 import { DisplayDialog } from "../modals/displayDialog.jsx";
 
-import { UIProvider } from "./RootUIContext";
-import RootCard from "./RootCard";
+import { UIProvider } from "./rootUIContext.jsx";
+import RootCard from "./rootCard.jsx";
 
 class RootPage extends React.Component {
   constructor(props) {
@@ -24,6 +24,7 @@ class RootPage extends React.Component {
       }
     };
 
+    
     return (
       <UIProvider UIEvents={UIEvents} history={history}>
         <Route path={`/profiles/display/:id`}>

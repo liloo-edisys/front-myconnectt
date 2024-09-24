@@ -1,4 +1,4 @@
-import RootPage from "components/client/templates/list/RootPage";
+import RootPage from "components/client/templates/list/rootPage.jsx";
 import { connect } from "react-redux";
 import { getTemplate as getTemplateAction } from "actions/client/missionsActions";
 

@@ -1,6 +1,5 @@
 import React from "react";
-import { useIntl } from "react-intl";
-import JobtagsCard from "./JobtagsCard";
+import JobtagsCard from "./jobtagsCard.jsx";
 
 function Jobtags(props) {
   return <JobtagsCard />;

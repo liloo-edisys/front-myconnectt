@@ -1,3 +1,3 @@
-import Jobtitles from "./Jobtitles";
+import Jobtitles from "./jobTitles.jsx";
 
 export { Jobtitles };

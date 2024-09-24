@@ -1,7 +1,6 @@
 import React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-import { connect } from "react-redux";
-import { NavLink, useHistory } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import {
   Card,
@@ -9,26 +8,26 @@ import {
   CardBody
 } from "../../../../_metronic/_partials/controls";
 
-import JobtitlesTable from "./JobtitlesTable";
+import JobtagsTable from "./jobtagsTable.jsx";
 
-function JobtitlesCard(props) {
+function JobtagsCard(props) {
   const intl = useIntl();
   return (
     <Card>
-      <CardHeader title={intl.formatMessage({ id: "TEXT.JOBTITLE.TITLE" })}>
+      <CardHeader title={intl.formatMessage({ id: "TEXT.JOBTAG.TITLE" })}>
         <NavLink
           className="btn btn-light-primary mt-5"
           style={{ height: 40 }}
-          to="/jobtitles/new-jobtitle"
+          to="/jobtags/new-jobtag"
         >
-          <FormattedMessage id="MODEL.CREATE.JOBTITLE.TITLE" />
+          <FormattedMessage id="MODEL.CREATE.JOBTAG.TITLE" />
         </NavLink>
       </CardHeader>
       <CardBody>
-        <JobtitlesTable />
+        <JobtagsTable />
       </CardBody>
     </Card>
   );
 }
 
-export default JobtitlesCard;
+export default JobtagsCard;
