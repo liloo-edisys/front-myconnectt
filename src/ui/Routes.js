@@ -7,7 +7,7 @@
 
 import React, { useEffect } from "react";
 
-import { ErrorPage1 } from "components/errors/ErrorPage1";
+import { ErrorPage1 } from "components/errors/errorPage1.jsx";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import { Redirect, Switch, Route } from "react-router-dom";
 
