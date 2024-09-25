@@ -25,7 +25,7 @@ import { getNationalitiesList } from "../business/actions/interimaire/interimair
 import BasePage from "./basePage.js";
 import BaseInterimairePage from "./baseInterimairePage.js";
 import BaseBackOfficePage from "./baseBackOfficePage.js";
-import DocumentDisplay from "./components/shared/DocumentDisplay";
+import DocumentDisplay from "./components/shared/documentDisplay.jsx";
 
 export function Routes() {
   const { step } = useSelector(state => state.interimairesReducerData);

@@ -1,5 +1,4 @@
 import React from "react";
-
 import { deleteErrors } from "actions/shared/errorsActions";
 import { injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";

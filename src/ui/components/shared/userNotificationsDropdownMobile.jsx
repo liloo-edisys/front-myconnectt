@@ -9,19 +9,25 @@ import SVG from "react-inlinesvg";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import { FormattedMessage } from "react-intl";
 
-import { toAbsoluteUrl } from "../../../_metronic/_helpers";
-import { DropdownTopbarItemToggler } from "../../../_metronic/_partials/dropdowns";
-import { useHtmlClassService } from "../../../_metronic/layout/_core/MetronicLayout";
+import { toAbsoluteUrl } from "../../../_metronic/_helpers/index.js";
+import { DropdownTopbarItemToggler } from "../../../_metronic/_partials/dropdowns/index.js";
+import { useHtmlClassService } from "../../../_metronic/layout/_core/MetronicLayout.js";
 import "./styles.scss";
-import { getNotifications } from "../../../business/actions/shared/notificationsActions";
-import { UserNotificationPopup } from "./UserNotificationPopup";
-import { setSignalRInterimaire } from "../../../business/actions/interimaire/interimairesActions";
-import { setSignalRClient } from "../../../business/actions/client/userActions";
-import { setSignalRBackoffice } from "../../../business/actions/backoffice/userActions";
+import { getNotifications } from "../../../business/actions/shared/notificationsActions.js";
+import { UserNotificationPopup } from "./userNotificationPopup.jsx";
+import { setSignalRInterimaire } from "../../../business/actions/interimaire/interimairesActions.js";
+import { setSignalRClient } from "../../../business/actions/client/userActions.js";
+import { setSignalRBackoffice } from "../../../business/actions/backoffice/userActions.js";
 import { Link } from "react-router-dom";
 
-export function UserNotificationsDropdown() {
+const perfectScrollbarOptions = {
+  wheelSpeed: 2,
+  wheelPropagation: false
+};
+
+export function UserNotificationsDropdownMobile() {
   const dispatch = useDispatch();
+  const bgImage = toAbsoluteUrl("/media/bg/bg-1.jpg");
   const uiService = useHtmlClassService();
   const [selectedNotif, setSelectedNotif] = useState(null);
 
@@ -37,7 +43,15 @@ export function UserNotificationsDropdown() {
     setSelectedNotif(null);
   };
 
-  const { notifs, unread, userDetails, authToken, userType } = useSelector(
+  const {
+    notifs,
+    unread,
+    userDetails,
+    currentNotif,
+    showNotifModal,
+    authToken,
+    userType
+  } = useSelector(
     state => ({
       notifs: state.lists.notifs,
       unread: state.lists.unread,
@@ -62,38 +76,6 @@ export function UserNotificationsDropdown() {
     }
   }, [dispatch]);
 
-  const getRandomInt = max => {
-    return Math.floor(Math.random() * max);
-  };
-
-  const iconsArray = [
-    {
-      containerStyle: "symbol symbol-40 symbol-light-primary mr-5",
-      iconStyle: "svg-icon svg-icon-xl svg-icon-primary",
-      iconUrl: "/media/svg/icons/Home/Library.svg"
-    },
-    {
-      containerStyle: "symbol symbol-40 symbol-light-warning mr-5",
-      iconStyle: "svg-icon svg-icon-lg svg-icon-warning",
-      iconUrl: "/media/svg/icons/Communication/Write.svg"
-    },
-    {
-      containerStyle: "symbol symbol-40 symbol-light-success mr-5",
-      iconStyle: "svg-icon svg-icon-lg svg-icon-success",
-      iconUrl: "/media/svg/icons/Communication/Group-chat.svg"
-    },
-    {
-      containerStyle: "symbol symbol-40 symbol-light-danger mr-5",
-      iconStyle: "svg-icon svg-icon-lg svg-icon-danger",
-      iconUrl: "/media/svg/icons/General/Attachment2.svg"
-    },
-    {
-      containerStyle: "symbol symbol-40 symbol-light-info mr-5",
-      iconStyle: "svg-icon svg-icon-lg svg-icon-info",
-      iconUrl: "/media/svg/icons/Communication/Shield-user.svg"
-    }
-  ];
-
   return (
     <>
       {selectedNotif && (
@@ -107,7 +89,7 @@ export function UserNotificationsDropdown() {
       {layoutProps.offcanvas && (
         <div className="topbar-item">
           <div
-            className="btn btn-icon btn-lg mr-1 pulse pulse-primary"
+            className="btn btn-icon btn-lg pulse pulse-primary"
             id="kt_quick_notifications_toggle"
           >
             <span className="svg-icon svg-icon-xl svg-icon-primary">
@@ -126,48 +108,31 @@ export function UserNotificationsDropdown() {
           </div>
         </div>
       )}
-      <div className="topbar-item">
-        {userType === 0 && (
-          <div
-            className="btn btn-icon btn-lg mr-1 pulse pulse-primary"
-            id="kt_quick_notifications_toggle"
-          >
-            <Link
-              to="/favorites"
-              className="svg-icon svg-icon-xl svg-icon-primary"
-            >
-              <OverlayTrigger
-                placement="bottom"
-                overlay={
-                  <Tooltip id="user-notification-tooltip">
-                    <FormattedMessage id="USER.MENU.FAVORITE" />
-                  </Tooltip>
-                }
-              >
-                <SVG src={toAbsoluteUrl("media/svg/icons/General/Star.svg")} />
-              </OverlayTrigger>
-            </Link>
-          </div>
-        )}
+
+      {userType === 0 && (
         <div
-          className="btn btn-icon btn-lg mr-1 pulse pulse-primary"
+          className="btn btn-icon btn-lg pulse pulse-primary"
+          id="kt_quick_notifications_toggle"
+        >
+          <Link
+            to="/favorites"
+            className="svg-icon svg-icon-xl svg-icon-primary"
+          >
+            <SVG src={toAbsoluteUrl("media/svg/icons/General/Star.svg")} />
+          </Link>
+        </div>
+      )}
+      <div className="topbar-item">
+        <div
+          className="btn btn-icon btn-lg pulse pulse-primary"
           id="kt_quick_notifications_toggle"
         >
           <Link to="/contact" className="svg-icon svg-icon-xl svg-icon-primary">
-            <OverlayTrigger
-              placement="bottom"
-              overlay={
-                <Tooltip id="user-notification-tooltip">
-                  <FormattedMessage id="USER.MENU.MESSAGE" />
-                </Tooltip>
-              }
-            >
-              <SVG
-                src={toAbsoluteUrl(
-                  "/media/svg/icons/Communication/Sending mail.svg"
-                )}
-              />
-            </OverlayTrigger>
+            <SVG
+              src={toAbsoluteUrl(
+                "/media/svg/icons/Communication/Sending mail.svg"
+              )}
+            />
           </Link>
         </div>
       </div>
@@ -186,8 +151,9 @@ export function UserNotificationsDropdown() {
               }
             >
               <div
-                className="btn btn-icon btn-lg mr-1 pulse pulse-primary"
+                className="btn btn-icon btn-lg pulse pulse-primary mr-15"
                 id="kt_quick_notifications_toggle"
+                style={{ position: "relative" }}
               >
                 <span className="svg-icon svg-icon-xl svg-icon-primary">
                   <SVG
@@ -197,7 +163,15 @@ export function UserNotificationsDropdown() {
                   />
                 </span>
                 {unread > 0 && (
-                  <span className="notification-count">
+                  <span
+                    className="notification-count"
+                    style={{
+                      fontSize: 8,
+                      padding: 4,
+                      marginLeft: 15,
+                      minWidth: "auto"
+                    }}
+                  >
                     {unread > 9 ? "9+" : unread}
                   </span>
                 )}
@@ -218,12 +192,12 @@ export function UserNotificationsDropdown() {
                 style={{ backgroundColor: "#3061A3" }}
               >
                 <h4 className="d-flex flex-center rounded-top">
-                  <span className="text-white">
+                  <span className="text">
                     <FormattedMessage id="USER.MENU.NOTIFICATIONS" />
                   </span>
                 </h4>
               </div>
-              <div className="nav nav-bold nav-tabs nav-tabs-line nav-tabs-line-3x nav-tabs-line-transparent-white nav-tabs-line-active-border-success">
+              <div className="nav nav-bold nav-tabs nav-tabs-line nav-tabs-line-3x nav-tabs-line-transparent nav-tabs-line-active-border-success">
                 <PerfectScrollbar
                   options={{
                     wheelSpeed: 2,
@@ -258,54 +232,37 @@ export function UserNotificationsDropdown() {
                     </div>
                   )}
                   {notifs &&
-                    notifs.map(notif => {
-                      const index = getRandomInt(5);
-                      return (
-                        <div
-                          key={notif.id}
-                          style={{
-                            marginTop: "5px",
-                            justifyContent: "space-between"
-                          }}
-                          className="d-flex mb-5 px-5"
-                        >
-                          <div className={iconsArray[index].containerStyle}>
-                            <span className="symbol-label">
-                              <span className={iconsArray[index].iconStyle}>
-                                <SVG
-                                  src={toAbsoluteUrl(iconsArray[index].iconUrl)}
-                                />
-                              </span>
-                            </span>
-                          </div>
-                          <div className="d-flex flex-column font-weight-bold">
-                            <a
-                              onClick={() => {
-                                setSelectedNotif(notif);
-                              }}
-                              className="text-dark text-hover-primary mb-1 font-size-lg"
-                              style={{
-                                fontWeight: !notif.readed ? "bold" : "inherit"
-                              }}
-                              dangerouslySetInnerHTML={{ __html: notif.title }}
-                            ></a>
-                            <span
-                              className="text-muted"
-                              style={{
-                                display: "block",
-                                whiteSpace: "nowrap",
-                                width: "19em",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis"
-                              }}
-                              dangerouslySetInnerHTML={{
-                                __html: notif.message
-                              }}
-                            ></span>
-                          </div>
+                    notifs.map(notif => (
+                      <div
+                        key={notif.id}
+                        style={{ marginTop: "5px" }}
+                        className="d-flex align-items-center mb-6"
+                      >
+                        <div className="d-flex flex-column font-weight-bold">
+                          <a
+                            onClick={() => {
+                              setSelectedNotif(notif);
+                            }}
+                            className="text-dark text-hover-primary mb-1 font-size-lg"
+                            style={{
+                              fontWeight: !notif.readed ? "bold" : "inherit"
+                            }}
+                            dangerouslySetInnerHTML={{ __html: notif.title }}
+                          ></a>
+                          <span
+                            className="text-muted"
+                            style={{
+                              display: "block",
+                              whiteSpace: "nowrap",
+                              width: "19em",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis"
+                            }}
+                            dangerouslySetInnerHTML={{ __html: notif.message }}
+                          ></span>
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                 </PerfectScrollbar>
               </div>
             </form>

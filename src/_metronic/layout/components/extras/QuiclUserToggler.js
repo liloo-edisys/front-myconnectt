@@ -11,7 +11,7 @@ import { useHistory,useLocation, Link } from 'react-router-dom'
 
 import { persistor } from '../../../../business/store';
 import './QuiclUserToggler.scss';
-import { UserNotificationsDropdown } from "../../../../ui/components/shared/UserNotificationsDropdown";
+import { UserNotificationsDropdown } from "../../../../ui/components/shared/userNotificationsDropdown.jsx";
 import { Row, Col } from "react-bootstrap";
 
 export function QuickUserToggler() {

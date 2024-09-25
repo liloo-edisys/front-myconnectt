@@ -10,7 +10,7 @@ import { FormattedMessage } from "react-intl";
 
 import SmallLogo from '../../../../ui/images/logo-myconnectt-color-154x40.png';
 import "./HeaderMobileInterimaire.scss";
-import { UserNotificationsDropdownMobile } from '../../../../ui/components/shared/UserNotificationsDropdownMobile';
+import { UserNotificationsDropdownMobile } from '../../../../ui/components/shared/userNotificationsDropdownMobile.jsx';
 
 export function HeaderMobileInterimaire() {
   const uiService = useHtmlClassService();

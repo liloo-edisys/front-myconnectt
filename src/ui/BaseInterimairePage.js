@@ -5,7 +5,7 @@ import { Redirect, Switch } from "react-router-dom";
 
 import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout";
 
-import UnderConstruction from "./components/shared/UnderConstruction";
+import UnderConstruction from "./components/shared/underConstruction.jsx";
 import InterimaireMatchingContainer from "../business/containers/interimaireMatchingContainer";
 import InterimaireMissionsContainer from "../business/containers/interimaireMissionsContainer";
 import InterimairePropositionsContainer from "../business/containers/interimairePropositionsContainer";

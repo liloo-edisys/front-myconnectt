@@ -29,7 +29,7 @@ import ContractsTable from "./tables/contractsTable.jsx";
 import SearchsTable from "./tables/SearchTable";
 import { getMission } from "api/client/missionsApi";
 import { getMission as getMissionAction } from "actions/client/missionsActions";
-import MissionHeaderDropdown from "../../shared/MissionHeaderDropdown";
+import MissionHeaderDropdown from "../../shared/missionHeaderDropdown.jsx";
 import SimulatorModalEmpty from "../missions/missionForms/SimulatorModalEmpty";
 import "./styles.scss";
 

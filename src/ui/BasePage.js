@@ -17,7 +17,7 @@ import MissionTemplatesContainer from "../business/containers/missionTemplatesCo
 import AccountInterimairesContainer from "../business/containers/accountInterimairesContainer";
 import ContactsContainer from "../business/containers/contactsContainer";
 import ProfileContainer from "../business/containers/profileContainer";
-import UnderConstruction from "./components/shared/UnderConstruction";
+import UnderConstruction from "./components/shared/underConstruction.jsx";
 import CommercialAgreement from "./components/client/commercial-agreement";
 import ContractsClient from "./components/client/missions/contracts-client";
 import Extensions from "./components/client/missions/extensions";
