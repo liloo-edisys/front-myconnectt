@@ -1,3 +1,3 @@
-import RibSelector from "./RibSelector";
+import RibSelector from "./ribSelector.jsx";
 
 export default RibSelector;

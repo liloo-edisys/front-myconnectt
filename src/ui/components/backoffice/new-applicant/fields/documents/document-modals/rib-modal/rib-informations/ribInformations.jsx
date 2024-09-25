@@ -6,7 +6,7 @@ import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import * as Yup from "yup";
 //import { updateInterimaireIdentity } from "../../../../../../../../business/actions/interimaire/InterimairesActions";
 import { updateSelectedApplicantIdentity } from "../../../../../../../../../business/actions/backoffice/applicantActions";
-import { smellsLikeIban } from "./Checkers";
+import { smellsLikeIban } from "./checkers";
 
 function RibInformations(props) {
   const intl = useIntl();

@@ -1,3 +1,3 @@
-import RibModal from "./RibModal";
+import RibModal from "./ribModal.jsx";
 
 export default RibModal;

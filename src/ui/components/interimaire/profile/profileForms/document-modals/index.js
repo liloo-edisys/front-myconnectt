@@ -1,5 +1,6 @@
-import ProofOfAddressModal from "./ProofOfAddressModal";
-import HabilitationModal from "./habilitation-modal";
-import OtherDocumentModal from "./OtherDocumentModal";
+import ProofOfAddressModal from "./proofOfAddressModal.jsx";
+import HabilitationModal from "./habilitationModal.jsx";
+import OtherDocumentModal from "./otherDocumentModal.jsx";
+
 
 export { ProofOfAddressModal, HabilitationModal, OtherDocumentModal };

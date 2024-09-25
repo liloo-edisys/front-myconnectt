@@ -1,3 +1,3 @@
-import DocumentSelector from "./DocumentSelector";
+import DocumentSelector from "./documentSelector.jsx";
 
 export default DocumentSelector;

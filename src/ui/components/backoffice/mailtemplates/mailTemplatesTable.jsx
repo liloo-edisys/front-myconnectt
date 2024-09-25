@@ -7,12 +7,12 @@ import * as actionTypes from "constants/constants";
 import {
   getMailTemplates,
   getMailTemplateCategories
-} from "../../../../business/actions/backoffice/mailTemplatesActions";
+} from "../../../../business/actions/backoffice/mailTemplatesActions.js";
 import paginationFactory, {
   PaginationListStandalone,
   PaginationProvider
 } from "react-bootstrap-table2-paginator";
-import { MailTemplateDialog } from "./mailTemplatesModals/MailTemplateDialog";
+import { MailTemplateDialog } from "./mailTemplatesModals/mailTemplateDialog.jsx";
 
 function MailTemplatesTable(props) {
   const dispatch = useDispatch();

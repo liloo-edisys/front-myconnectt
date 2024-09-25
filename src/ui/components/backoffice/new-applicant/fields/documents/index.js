@@ -1,3 +1,3 @@
-import Documents from "./Documents";
+import Documents from "./documents.jsx";
 
 export default Documents;

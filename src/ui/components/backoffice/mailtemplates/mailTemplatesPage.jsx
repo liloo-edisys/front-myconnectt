@@ -1,11 +1,9 @@
 import React from "react";
 
 import { connect } from "react-redux";
-import { Route } from "react-router-dom";
 
-import { MailTemplatesUIProvider } from "./MailTemplatesUIContext";
-import MailTemplatesCard from "./MailTemplatesCard";
-import { MailTemplateDialog } from "./mailTemplatesModals/MailTemplateDialog";
+import { MailTemplatesUIProvider } from "./mailTemplatesUIContext.jsx";
+import MailTemplatesCard from "./mailTemplatesCard.jsx";
 
 class MailTemplatesPage extends React.Component {
   constructor(props) {

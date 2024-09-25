@@ -1,3 +1,3 @@
-import RibInformations from "./RibInformations";
+import RibInformations from "./ribInformations.jsx";
 
 export default RibInformations;

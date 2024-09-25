@@ -32,8 +32,6 @@ function FormStepFour(props, formik) {
   const dispatch = useDispatch();
   const { intl } = props;
 
-
-  
   const { missionEquipment, parsed, contractTypes } = useSelector(
     state => ({
       missionEquipment: state.lists.missionEquipment,

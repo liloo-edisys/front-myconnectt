@@ -1,3 +1,3 @@
-import VitalCardInformations from "./VitalCardInformations";
+import VitalCardInformations from "./vitalCardInformations.jsx";
 
 export default VitalCardInformations;

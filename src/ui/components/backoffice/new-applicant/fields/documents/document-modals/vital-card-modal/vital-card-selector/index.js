@@ -1,3 +1,3 @@
-import VitalCardSelector from "./VitalCardSelector";
+import VitalCardSelector from "./vitalCardSelector.jsx";
 
 export default VitalCardSelector;

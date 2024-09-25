@@ -8,7 +8,7 @@ import paginationFactory, {
   PaginationListStandalone,
   PaginationProvider
 } from "react-bootstrap-table2-paginator";
-import ApplicantsListModal from "./ApplicantsListModal";
+import ApplicantsListModal from "./applicantsListModal.jsx";
 import {
   Card,
   CardHeader,

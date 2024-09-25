@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { toastr } from "react-redux-toastr";
 import { useSelector, shallowEqual } from "react-redux";
-import RibSelector from "./rib-selector";
-import RibInformations from "./rib-informations";
+import RibSelector from "./rib-selector/ribSelector.jsx";
+import RibInformations from "./rib-informations/index.js";
 
 function RibModal(props) {
   const { interimaire, updateInterimaireIdentityLoading } = useSelector(

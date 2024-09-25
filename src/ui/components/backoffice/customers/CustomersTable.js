@@ -53,7 +53,7 @@ function CustomersTable(props) {
   const intl = useIntl(); // intl extracted from useIntl hook
   const CUSTOMERS_URL =
     process.env.REACT_APP_WEBAPI_URL + "api/Account/SearchAccounts";
-    
+
   const { user, accountGroups, latestClientEdited } = useSelector(
     state => ({
       user: state.contacts.user,

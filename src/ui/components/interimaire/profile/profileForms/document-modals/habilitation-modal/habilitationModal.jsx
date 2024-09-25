@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { toastr } from "react-redux-toastr";
 import { useSelector } from "react-redux";
 import HabilitationSelector from "./habilitation-selector";
 import HabilitationInformations from "./habitilitation-informations";

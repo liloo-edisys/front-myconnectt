@@ -10,7 +10,7 @@ import {
   CardHeaderToolbar
 } from "../../../../_metronic/_partials/controls";
 
-import MailTemplatesTable from "./MailTemplatesTable";
+import MailTemplatesTable from "./mailTemplatesTable.jsx";
 
 function MailTemplatesCard(props) {
   const history = useHistory();

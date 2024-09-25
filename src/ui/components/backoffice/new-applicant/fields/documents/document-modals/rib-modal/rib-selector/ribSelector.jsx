@@ -7,7 +7,7 @@ import Dropzone from "react-dropzone";
 import * as Yup from "yup";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
-import { smellsLikeIban } from "../rib-informations/Checkers";
+import { smellsLikeIban } from "../rib-informations/checkers";
 import { updateSelectedApplicantIdentity } from "../../../../../../../../../business/actions/backoffice/applicantActions";
 
 function RibSelector(props) {

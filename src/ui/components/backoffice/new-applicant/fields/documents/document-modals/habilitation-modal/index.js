@@ -1,3 +1,3 @@
-import HabilitationModal from "./HabilitationModal";
+import HabilitationModal from "./habilitationModal.jsx";
 
 export default HabilitationModal;

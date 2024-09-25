@@ -1,3 +1,3 @@
-import DocumentsModal from "./DocumentsModal";
+import DocumentsModal from "./documentsModal.jsx";
 
 export { DocumentsModal };

@@ -2,22 +2,20 @@ import React, { Suspense, useEffect } from "react";
 
 // import DashboardPage from "components/backoffice/dashboard/DashboardPage";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Redirect, Route, Switch } from "react-router-dom";
+import { Redirect, Switch } from "react-router-dom";
 import { getRecruiter } from "actions/backoffice/recruiterActions";
 
 import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout/index.js";
 
-import UnderConstruction from "./components/shared/UnderConstruction.js";
 import Extensions from "./components/backoffice/extensions/index.js";
 import Interimaires from "./components/backoffice/interimaires/index.js";
-import BackOfficeDashboardPage from "./components/backoffice/dashboard/BackOfficeDashboardPage.js";
 import BackOfficeDashboardPageNew from "./components/backoffice/dashboard/backOfficeDashboardPageNew.jsx";
 import Contracts from "./components/backoffice/contracts/index.js";
 import NewApplicant from "./components/backoffice/new-applicant/index.js";
 import CustomersContainer from "../business/containers/customersContainer.js";
 import MissionsPage from "./components/backoffice/missions/missionlist/MissionsPage.js";
 import NewMission from "./components/backoffice/new-mission/index.js";
-import MailTemplatesPage from "./components/backoffice/mailtemplates/MailTemplatesPage.js";
+import MailTemplatesPage from "./components/backoffice/mailtemplates/mailTemplatesPage.jsx";
 import CommercialAgreementsPage from "./components/backoffice/commercialagreements/commercialAgreementsPage.jsx";
 import { CustomerOrderPage } from "./components/backoffice/customer-order/index.js";
 import FinalStep from "./components/backoffice/new-mission/fields/mission-creator/missionForms/FinalStep.js";
@@ -29,8 +27,8 @@ import { HabilitationList } from "./components/backoffice/habilitations/index.js
 import { AccountsGroup } from "./components/backoffice/account-group/index.js";
 import { RemunerationElements } from "./components/backoffice/remuneration-elements/index.js";
 import { Jobtitles } from "./components/backoffice/jobtitle/index.js";
-import Messenger from "./components/backoffice/messenger/Messenger.js";
-import Declinaisons from "./components/backoffice/declinaisons/Declinaisons.js";
+import Messenger from "./components/backoffice/messenger/messenger.jsx";
+import Declinaisons from "./components/backoffice/declinaisons/declinaisons.jsx";
 import Setting from "./components/backoffice/setting/index.js";
 import ContactsContainer from "../business/containers/contactsContainerBackoffice.js";
 import Statistiques from "./components/backoffice/statistiques/statistiques.jsx";

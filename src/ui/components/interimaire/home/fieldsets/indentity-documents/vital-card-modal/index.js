@@ -1,3 +1,3 @@
-import VitalCardModal from "./VitalCardModal";
+import VitalCardModal from "./vitalCardModal.jsx";
 
 export default VitalCardModal;

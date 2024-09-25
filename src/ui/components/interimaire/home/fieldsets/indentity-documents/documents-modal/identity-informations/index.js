@@ -1,3 +1,3 @@
-import IdentityInformations from "./IdentityInformations";
+import IdentityInformations from "./identityInformations.jsx";
 
 export default IdentityInformations;

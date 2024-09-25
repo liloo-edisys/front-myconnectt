@@ -1,3 +1,3 @@
-import MailTemplates from "./MailTemplates";
+import MailTemplates from "./mailTemplates.jsx";
 
 export default MailTemplates;

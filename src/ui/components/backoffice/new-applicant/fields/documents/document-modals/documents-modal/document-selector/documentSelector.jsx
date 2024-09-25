@@ -28,7 +28,6 @@ function DocumentSelector(props) {
     activeModal,
     hideModal,
     formStep,
-    identityInfo,
     setFormStep,
     setIdentityInfo,
     documentType,
@@ -316,7 +315,7 @@ function DocumentSelector(props) {
             : IdentitySchema
         }
         setFieldValue
-        onSubmit={(values, { setSubmitting }) => {
+        onSubmit={(values) => {
           setLoading(true);
           if (!interimaire.idCardNumber) {
             let body = {};
@@ -429,7 +428,7 @@ function DocumentSelector(props) {
           }
         }}
       >
-        {({ values, touched, errors, status, handleSubmit, setFieldValue }) => (
+        {({ values, touched, errors, handleSubmit, setFieldValue }) => (
           <Form
             id="kt_login_signin_form"
             className="form fv-plugins-bootstrap fv-plugins-framework animated animate__animated animate__backInUp"
@@ -711,7 +710,7 @@ function DocumentSelector(props) {
                               </div>
                               <Field
                                 name="titleTypeID"
-                                render={({ field, form }) => (
+                                render={() => (
                                   <select
                                     className="form-control h-auto py-5 px-6"
                                     name="titleTypeID"
@@ -853,7 +852,7 @@ function DocumentSelector(props) {
                               </div>
                               <Field
                                 name="nationalityID"
-                                render={({ field, form }) => (
+                                render={() => (
                                   <select
                                     className="form-control h-auto py-5 px-6"
                                     name="nationalityID"
@@ -1212,7 +1211,7 @@ function DocumentSelector(props) {
                                 </div>
                                 <Field
                                   name="nationalityID"
-                                  render={({ field, form }) => (
+                                  render={() => (
                                     <select
                                       className="form-control h-auto py-5 px-6"
                                       name="nationalityID"
@@ -1304,7 +1303,7 @@ function DocumentSelector(props) {
                                 </div>
                                 <Field
                                   name="titleTypeID"
-                                  render={({ field, form }) => (
+                                  render={() => (
                                     <select
                                       className="form-control h-auto py-5 px-6"
                                       name="titleTypeID"
