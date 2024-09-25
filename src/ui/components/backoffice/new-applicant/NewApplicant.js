@@ -21,7 +21,7 @@ import Documents from "./fields/documents";
 import Matching from "./fields/matching";
 import ContractsCard from "./fields/contracts/contractsCard.jsx";
 import ApplicationsCard from "./fields/applications/applicationsCard.jsx";
-import EmailsCard from "./fields/emails/EmailsCard";
+import EmailsCard from "./fields/emails/emailsCard.jsx";
 import {
   getSelectedApplicantById,
   clearSelectedApplicant

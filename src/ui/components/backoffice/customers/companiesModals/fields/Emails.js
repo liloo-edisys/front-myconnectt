@@ -7,7 +7,7 @@ import paginationFactory, {
   PaginationProvider
 } from "react-bootstrap-table2-paginator";
 import { getSelectedApplicantEmails } from "../../../../../../business/actions/backoffice/applicantActions";
-import EmailModal from "./EmailModal";
+import EmailModal from "./emailModal.jsx";
 import EmailContactModal from "./EmailSender/EmailContactModal";
 import { useParams } from "react-router-dom";
 

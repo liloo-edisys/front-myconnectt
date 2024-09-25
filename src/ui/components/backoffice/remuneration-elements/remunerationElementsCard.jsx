@@ -9,7 +9,7 @@ import {
   CardBody
 } from "../../../../_metronic/_partials/controls";
 
-import RemunerationElementsTable from "./RemunerationElementsTable";
+import RemunerationElementsTable from "./remunerationElementsTable.jsx";
 
 function RemunerationElementsCard(props) {
   const intl = useIntl();

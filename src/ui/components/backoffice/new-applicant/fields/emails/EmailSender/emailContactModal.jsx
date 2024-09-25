@@ -5,7 +5,7 @@ import { Modal } from "react-bootstrap";
 import { useIntl } from "react-intl";
 import { shallowEqual, useSelector } from "react-redux";
 
-import EmailContactForm from "./EmailContactForm";
+import EmailContactForm from "./emailContactForm.jsx";
 
 export function CompanyCreateHeader({ id }) {
   const intl = useIntl(); // intl extracted from useIntl hook

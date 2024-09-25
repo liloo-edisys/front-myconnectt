@@ -1,6 +1,5 @@
 import React from "react";
-import { Modal, Row, Col } from "react-bootstrap";
-import { FormattedMessage } from "react-intl";
+import { Modal } from "react-bootstrap";
 
 function EmailModal(props) {
   const { onHide, activeMail } = props;

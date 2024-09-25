@@ -6,9 +6,9 @@ import paginationFactory, {
   PaginationListStandalone,
   PaginationProvider
 } from "react-bootstrap-table2-paginator";
-import { getSelectedApplicantEmails } from "../../../../../../business/actions/backoffice/applicantActions";
-import EmailModal from "./EmailModal";
-import EmailContactModal from "./EmailSender/EmailContactModal";
+import { getSelectedApplicantEmails } from "../../../../../../business/actions/backoffice/applicantActions.js";
+import EmailModal from "./emailModal.jsx";
+import EmailContactModal from "./EmailSender/emailContactModal.jsx";
 import { useParams } from "react-router-dom";
 
 function EmailsTable(props) {

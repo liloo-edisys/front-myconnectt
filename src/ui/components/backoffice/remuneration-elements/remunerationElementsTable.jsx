@@ -7,9 +7,9 @@ import paginationFactory, {
   PaginationListStandalone,
   PaginationProvider
 } from "react-bootstrap-table2-paginator";
-import { ContentRoute } from "../../../../_metronic/layout";
-import RemunerationElementForm from "./RemunerationElementForm";
-import { RemunerationElementDeleteModal } from "./RemunerationElementDeleteModal";
+import { ContentRoute } from "../../../../_metronic/layout/index.js";
+import RemunerationElementForm from "./remunerationElementForm.jsx";
+import { RemunerationElementDeleteModal } from "./remunerationElementDeleteModal.jsx";
 import { NavLink, useHistory } from "react-router-dom";
 
 function RemunerationElementsTable(props) {

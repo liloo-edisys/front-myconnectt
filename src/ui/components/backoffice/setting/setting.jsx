@@ -81,14 +81,9 @@ export default function() {
           }}
         >
           {({
-            values,
             touched,
             errors,
-            status,
-            handleSubmit,
-            setFieldValue,
-            setFieldTouched
-          }) => (
+            handleSubmit          }) => (
             <Form
               id="kt_login_signin_form"
               className="form fv-plugins-bootstrap fv-plugins-framework animated animate__animated animate__backInUp"

@@ -1,3 +1,3 @@
-import RemunerationElements from "./RemunerationElements";
+import RemunerationElements from "./remunerationElements.jsx";
 
 export { RemunerationElements };

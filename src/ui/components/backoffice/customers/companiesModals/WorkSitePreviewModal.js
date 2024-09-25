@@ -4,8 +4,8 @@ import { ModalProgressBar } from "metronic/_partials/controls";
 import { Modal } from "react-bootstrap";
 import { shallowEqual, useSelector } from "react-redux";
 
-import WorksiteEditForm from "../companiesForms/WorksiteEditForm";
-import WorkSitePreviewForm from "../companiesForms/WorkSitePreviewForm";
+import WorksiteEditForm from "../companiesForms/worksiteEditForm.jsx";
+import WorkSitePreviewForm from "../companiesForms/workSitePreviewForm.jsx";
 
 export function WorksiteCreateHeader({ id, companyName }) {
   const { actionsLoading } = useSelector(

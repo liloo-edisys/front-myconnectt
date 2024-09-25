@@ -1,3 +1,3 @@
-import NewMission from "./NewMission";
+import NewMission from "./newMission.jsx";
 
 export default NewMission;

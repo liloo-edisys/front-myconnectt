@@ -5,7 +5,7 @@ import { Modal } from "react-bootstrap";
 import { useIntl } from "react-intl";
 import { shallowEqual, useSelector } from "react-redux";
 
-import CompanyCreateForm from "../companiesForms/CompanyCreateForm";
+import CompanyCreateForm from "../companiesForms/companyCreateForm.jsx";
 
 export function CompanyCreateHeader({ id }) {
   const intl = useIntl(); // intl extracted from useIntl hook

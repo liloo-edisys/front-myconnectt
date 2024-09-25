@@ -5,7 +5,7 @@ import { Modal } from "react-bootstrap";
 import { shallowEqual, useSelector } from "react-redux";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import WorksiteEditForm from "../companiesForms/WorksiteEditForm";
+import WorksiteEditForm from "../companiesForms/worksiteEditForm.jsx";
 
 export function WorksiteCreateHeader({ id, companyName }) {
   const { actionsLoading } = useSelector(

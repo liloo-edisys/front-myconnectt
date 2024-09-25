@@ -1,11 +1,10 @@
-import React, { Component, useEffect, useState } from "react";
+import React, { Component } from "react";
 
 import { ModalProgressBar } from "metronic/_partials/controls";
 import { Modal } from "react-bootstrap";
 import { shallowEqual, useSelector } from "react-redux";
 
-import WorksiteEditForm from "../companiesForms/WorksiteEditForm";
-import WorkSitePreviewForm from "../companiesForms/WorkSitePreviewForm";
+import WorkSitePreviewForm from "../companiesForms/workSitePreviewForm.jsx";
 
 export function WorksiteCreateHeader({ id, companyName }) {
   const { actionsLoading } = useSelector(

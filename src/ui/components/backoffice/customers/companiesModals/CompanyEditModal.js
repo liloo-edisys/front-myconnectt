@@ -5,7 +5,7 @@ import { Modal } from "react-bootstrap";
 import { shallowEqual, useSelector } from "react-redux";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import CompanyEditForm from "../companiesForms/CompanyEditForm";
+import CompanyEditForm from "../companiesForms/companyEditForm.jsx";
 import {
   CommercialAgreements,
   Contracts,
