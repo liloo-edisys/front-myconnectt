@@ -5,7 +5,7 @@ import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { getDashboardDatas } from "actions/interimaire/dashboardActions";
 import { Fade } from "react-reveal";
 import { FormattedMessage } from "react-intl";
-import { toAbsoluteUrl } from "../../../../../../_metronic/_helpers";
+import { toAbsoluteUrl } from "../../../../../../_metronic/_helpers/index.js";
 import { Link, useHistory } from "react-router-dom";
 import "./styles.scss";
 import { MissionDisplayDialog } from "../../../missions/modals/missionDisplayDialog.jsx";
@@ -13,9 +13,9 @@ import {
   searchMission,
   addFavorite,
   removeFavorite
-} from "../../../../../../business/actions/client/missionsActions";
+} from "../../../../../../business/actions/client/missionsActions.js";
 //import axios from "axios";
-import { setContractsCount } from "../../../../../../business/actions/interimaire/interimairesActions";
+import { setContractsCount } from "../../../../../../business/actions/interimaire/interimairesActions.js";
 
 function AnnoncesList(props) {
   const dispatch = useDispatch();

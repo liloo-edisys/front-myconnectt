@@ -5,7 +5,7 @@ import { Route } from "react-router-dom";
 
 import { MissionsUIProvider } from "./MissionsUIContext";
 import MissionsCard from "./MissionsCard";
-import { deleteFromStorage } from "../../../shared/DeleteFromStorage";
+import { deleteFromStorage } from "../../../shared/deleteFromStorage";
 import { MissionDeleteDialog as DeleteDialog } from "../missionsModals/MissionDeleteDialog";
 import { getMission } from "../../../../../business/api/client/missionsApi";
 import { getMission as getMissionAction } from "actions/client/missionsActions";

@@ -13,7 +13,7 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import Select from "react-select";
-import useLocalStorage from "../../../shared/PersistState";
+import useLocalStorage from "../../../shared/persistState";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 
 import { getMissionEquipment } from "../../../../../business/actions/shared/listsActions";

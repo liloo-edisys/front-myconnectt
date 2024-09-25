@@ -28,7 +28,7 @@ import {
   deleteCurrentDuplicate,
   deleteCurrentTemplate
 } from "actions/client/missionsActions";
-import { deleteFromStorage } from "../../../shared/DeleteFromStorage";
+import { deleteFromStorage } from "../../../shared/deleteFromStorage";
 import SimulatorModal from "./SimulatorModal";
 import axios from "axios";
 function FinalStep(props) {

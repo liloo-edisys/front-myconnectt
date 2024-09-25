@@ -45,7 +45,7 @@ import {
   resetMission,
   getHabilitationsList
 } from "../../../../../../../business/actions/client/missionsActions";
-import { deleteFromStorage } from "../../../../../shared/DeleteFromStorage";
+import { deleteFromStorage } from "../../../../../shared/deleteFromStorage";
 import axios from "axios";
 import { useHistory, useParams } from "react-router-dom";
 import InputRange from "react-input-range";

@@ -12,7 +12,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { I18nProvider } from "../_metronic/i18n";
 import { LayoutSplashScreen, MaterialThemeProvider } from "../_metronic/layout";
 
-import ErrorComponent from "./components/shared/Toast";
+import ErrorComponent from "./components/shared/toast";
 import { Routes } from "./Routes";
 import "react-redux-toastr/lib/css/react-redux-toastr.min.css";
 

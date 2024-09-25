@@ -10,10 +10,7 @@ function ApplicationsActionsColumnFormatter(
   {
     openDisplayDialog,
     openApproveDialog,
-    openDeclineDialog,
-    history,
-    getStored
-  }
+    openDeclineDialog  }
 ) {
   return (
     <>

@@ -1,3 +1,3 @@
-import NewExperience from "./NewExperience";
+import NewExperience from "./newExperience.jsx";
 
 export { NewExperience };

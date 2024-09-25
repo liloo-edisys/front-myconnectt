@@ -1,3 +1,5 @@
-import EmailEdit from "./EmailEdit";
+import EmailEdit from "./emailEdit.jsx";
 
 export { EmailEdit };
+
+

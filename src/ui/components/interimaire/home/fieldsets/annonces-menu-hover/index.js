@@ -1,3 +1,3 @@
-import AnnoncesMenuHover from "./AnnoncesMenuHover";
+import AnnoncesMenuHover from "./annoncesMenuHover.jsx";
 
 export { AnnoncesMenuHover };

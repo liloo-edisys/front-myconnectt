@@ -16,7 +16,7 @@ import { Input } from "metronic/_partials/controls";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import useLocalStorage from "../../../shared/PersistState";
+import useLocalStorage from "../../../shared/persistState";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import moment from "moment";

@@ -8,7 +8,7 @@ import TimePicker from "rc-time-picker";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { Link } from "react-router-dom";
 import "rc-time-picker/assets/index.css";
-import useLocalStorage from "../../../shared/PersistState";
+import useLocalStorage from "../../../shared/persistState";
 import { toastr } from "react-redux-toastr";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import { shallowEqual, useSelector } from "react-redux";

@@ -15,7 +15,7 @@ import _ from "lodash";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useFormikContext } from "formik";
-import useLocalStorage from "../../../shared/PersistState";
+import useLocalStorage from "../../../shared/persistState";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import { DeleteExperienceModal } from "../profileModals/DeleteExperienceModal";
 import { updateApplicant } from "actions/client/applicantsActions";
@@ -24,7 +24,7 @@ import { parseResume } from "api/interimaire/interimairesApi";
 import { getMissionEquipment } from "../../../../../business/actions/shared/listsActions";
 import { getHabilitationsList } from "actions/client/missionsActions";
 import uuid from "react-uuid";
-import NewExperience from "../../home/fieldsets/new-experience/NewExperience";
+import NewExperience from "../../home/fieldsets/new-experience/newExperience.jsx";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 
 function FormStepThree(props, formik) {

@@ -12,7 +12,7 @@ import {
   getMission as getMissionAction,
   getTemplate as getTemplateAction
 } from "actions/client/missionsActions";
-import { deleteFromStorage } from "../../shared/DeleteFromStorage";
+import { deleteFromStorage } from "../../shared/deleteFromStorage";
 import {
   deleteCurrentDuplicate,
   deleteCurrentTemplate

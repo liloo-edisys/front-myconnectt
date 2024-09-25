@@ -12,7 +12,7 @@ import _ from "lodash";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 
-import useLocalStorage from "../../../shared/PersistState";
+import useLocalStorage from "../../../shared/persistState";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { useDropzone } from "react-dropzone";

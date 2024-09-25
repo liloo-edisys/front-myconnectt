@@ -1,3 +1,3 @@
-import AnnoncesList from "./AnnoncesList";
+import AnnoncesList from "./annoncesList.jsx";
 
 export { AnnoncesList };

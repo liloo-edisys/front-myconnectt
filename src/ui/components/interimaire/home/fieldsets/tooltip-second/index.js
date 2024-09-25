@@ -1,3 +1,3 @@
-import TooltipSecond from "./TooltipSecond";
+import TooltipSecond from "./tooltipSecond.jsx";
 
 export { TooltipSecond };

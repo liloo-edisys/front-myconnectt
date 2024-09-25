@@ -1,3 +1,3 @@
-import TooltipFirst from "./TooltipFirst";
+import TooltipFirst from "./tooltipFirst.jsx";
 
 export { TooltipFirst };

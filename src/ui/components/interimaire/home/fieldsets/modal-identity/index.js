@@ -1,3 +1,3 @@
-import ModalIdentity from "./ModalIdentity";
+import ModalIdentity from "./modalIdentity.jsx";
 
 export { ModalIdentity };

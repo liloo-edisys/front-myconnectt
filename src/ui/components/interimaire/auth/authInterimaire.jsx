@@ -6,14 +6,14 @@ import { Link, Switch, Redirect } from "react-router-dom";
 
 import { ContentRoute } from "../../../../_metronic/layout";
 
-import ForgotPasswordInterimaire from "./ForgotPasswordInterimaire";
-import LoginInterimaire from "./LoginInterimaire";
-import RegisterConfirmInterimaire from "./RegisterConfirmInterimaire";
-import RegisterInterimaire from "./RegisterInterimaire";
+import ForgotPasswordInterimaire from "./forgotPasswordInterimaire.jsx";
+import LoginInterimaire from "./loginInterimaire.jsx";
+import RegisterConfirmInterimaire from "./registerConfirmInterimaire.jsx";
+import RegisterInterimaire from "./registerInterimaire.jsx";
 import "../../../../_metronic/_assets/sass/pages/login/classic/login-1.scss";
-import ResetPasswordInterimaire from "./ResetPasswordInterimaire";
+import ResetPasswordInterimaire from "./resetPasswordInterimaire.jsx";
 import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
-import RegisterConfirmSms from "./RegisterConfirmSms";
+import RegisterConfirmSms from "./registerConfirmSms.jsx";
 import "./AuthInterimaire.css";
 
 export function AuthInterimaire() {

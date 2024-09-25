@@ -18,7 +18,7 @@ import {
   getHabilitationsList
 } from "actions/client/missionsActions";
 import { Input } from "metronic/_partials/controls";
-import useLocalStorage from "../../../shared/PersistState";
+import useLocalStorage from "../../../shared/persistState";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import { Redirect } from "react-router";
 import { countMatching } from "actions/client/applicantsActions";

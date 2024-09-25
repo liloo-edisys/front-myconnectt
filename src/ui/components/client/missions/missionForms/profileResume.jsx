@@ -19,7 +19,7 @@ import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import { countMatching } from "actions/client/applicantsActions";
 import { useFormikContext } from "formik";
-import useLocalStorage from "../../../shared/PersistState.js";
+import useLocalStorage from "../../../shared/persistState.js";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty.js";
 import moment from "moment";

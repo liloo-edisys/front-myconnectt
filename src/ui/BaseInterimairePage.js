@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 
-import DashboardPage from "components/interimaire/dashboard/DashboardInterimairePage";
+import DashboardPage from "components/interimaire/dashboard/dashboardInterimairePage.jsx";
 import { Redirect, Switch } from "react-router-dom";
 
 import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout";

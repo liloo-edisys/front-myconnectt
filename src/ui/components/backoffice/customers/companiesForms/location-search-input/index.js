@@ -1,3 +1,3 @@
-import LocationSearchInput from "./LocationSearchInput";
+import LocationSearchInput from "./locationSearchInput.jsx";
 
 export default LocationSearchInput;

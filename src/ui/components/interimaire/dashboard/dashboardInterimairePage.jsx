@@ -7,13 +7,13 @@ import { Route } from "react-router-dom";
 
 import { getInterimaire } from "actions/interimaire/interimairesActions";
 
-import { InterimaireMatchingUIProvider } from "../missions/matching/InterimaireMatchingUIContext";
-import { getMission } from "../../../../business/actions/client/missionsActions";
+import { InterimaireMatchingUIProvider } from "../missions/matching/InterimaireMatchingUIContext.js";
+import { getMission } from "../../../../business/actions/client/missionsActions.js";
 import { MissionDisplayDialog } from "../missions/modals/missionDisplayDialog.jsx";
 import { MissionApproveDialog } from "../missions/modals/missionApproveDialog.jsx";
 import { MatchingDeclineDialog } from "../missions/modals/matchingDeclineDialog.jsx";
 import { MissionDeclineDialog } from "../missions/modals/missionDeclineDialog.jsx";
-import { Home } from "../home";
+import { Home } from "../home/index.js";
 
 function DashboardInterimairePage({ history }) {
   const dispatch = useDispatch();

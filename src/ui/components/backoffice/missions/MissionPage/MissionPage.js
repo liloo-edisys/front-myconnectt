@@ -12,7 +12,7 @@ import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import CompanyEditModal from "../../companies/companiesModals/CompanyEditModal";
 import MissionFormType from "../MissionFormType";
 import { FormattedMessage, useIntl } from "react-intl";
-import { deleteFromStorage } from "../../../shared/DeleteFromStorage";
+import { deleteFromStorage } from "../../../shared/deleteFromStorage";
 import {
   getEducationLevels,
   getJobTitles,

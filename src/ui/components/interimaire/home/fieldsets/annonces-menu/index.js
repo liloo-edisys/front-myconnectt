@@ -1,3 +1,3 @@
-import AnnoncesMenu from "./AnnoncesMenu";
+import AnnoncesMenu from "./annoncesMenu.jsx";
 
 export { AnnoncesMenu };

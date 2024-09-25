@@ -1,4 +1,4 @@
-import NewExperience from "./NewExperience";
+import NewExperience from "./newExperience.jsx";
 import DeleteExperienceModal from "./DeleteExperienceModal";
 import ProfileExperiencesModal from "./ProfileExperiencesModal";
 

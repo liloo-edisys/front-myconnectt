@@ -1,3 +1,3 @@
-import EmailTuto from "./EmailTuto";
+import EmailTuto from "./emailTuto.jsx";
 
 export { EmailTuto };

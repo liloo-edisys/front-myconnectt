@@ -6,7 +6,7 @@ import { Route } from "react-router-dom";
 import { MissionDeleteDialog as DeleteDialog } from "../missionsModals/missionDeleteDialog.jsx";
 import { MissionsUIProvider } from "./MissionsUIContext";
 import MissionsCard from "./MissionsCard";
-import { deleteFromStorage } from "../../../shared/DeleteFromStorage";
+import { deleteFromStorage } from "../../../shared/deleteFromStorage";
 import { MatchingDialog } from "../missionsModals/missionMatchingDialog.jsx";
 import { MissionResumeDialog } from "../missionsModals/missionResumeDialog.jsx";
 import { MissionDeclineDialog } from "../missionsModals/missionDeclineDialog.jsx";

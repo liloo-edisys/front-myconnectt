@@ -3,14 +3,14 @@ import React, { useMemo } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { connect } from "react-redux";
-import MissionsDateColumnFormatter from "../../column-formatters/MissionsDateColumnFormatter";
-import MissionsCityColumnFormatter from "../../column-formatters/MissionsCityColumnFormatter";
-import MissionsMatchingColumnFormatter from "../../column-formatters/MissionsMatchingColumnFormatter";
+import MissionsDateColumnFormatter from "../../column-formatters/MissionsDateColumnFormatter.js";
+import MissionsCityColumnFormatter from "../../column-formatters/MissionsCityColumnFormatter.js";
+import MissionsMatchingColumnFormatter from "../../column-formatters/MissionsMatchingColumnFormatter.js";
 import { Link } from "react-router-dom";
 
-import { toAbsoluteUrl } from "../../../../../_metronic/_helpers";
+import { toAbsoluteUrl } from "../../../../../_metronic/_helpers/index.js";
 import SVG from "react-inlinesvg";
-import { useMissionsUIContext } from "../../missions/matching/InterimaireMatchingUIContext";
+import { useMissionsUIContext } from "../../missions/matching/InterimaireMatchingUIContext.js";
 import ActionsColumnFormatter from "./actionsColumnFormatter.jsx";
 
 function MissionsTable({ intl, dashboard, missions }) {

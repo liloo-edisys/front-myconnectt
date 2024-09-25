@@ -14,7 +14,7 @@ import FormStepSix from "./FormStepSix";
 
 import "../../../../../_metronic/_assets/sass/pages/wizard/wizard-2.scss";
 import * as Yup from "yup";
-import { deleteFromStorage } from "../../../shared/DeleteFromStorage";
+import { deleteFromStorage } from "../../../shared/deleteFromStorage";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import {
   getContractType,
