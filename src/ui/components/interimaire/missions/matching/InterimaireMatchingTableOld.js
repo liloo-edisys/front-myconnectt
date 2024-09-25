@@ -6,10 +6,10 @@ import BootstrapTable from "react-bootstrap-table-next";
 import { useIntl, FormattedMessage } from "react-intl";
 
 import { useMissionsUIContext } from "./InterimaireMatchingUIContext";
-import ActionsColumnFormatter from "../../column-formatters/missionsActionsColumnFormatter";
-import DateColumnFormatter from "../../column-formatters/MissionsDateColumnFormatter";
-import MatchingColumnFormatter from "../../column-formatters/MissionsMatchingColumnFormatter";
-import SalaryColumnFormatter from "../../column-formatters/MissionsSalaryColumnFormatter";
+import ActionsColumnFormatter from "../../column-formatters/missionsActionsColumnFormatter.jsx";
+import DateColumnFormatter from "../../column-formatters/missionsDateColumnFormatter.jsx";
+import MatchingColumnFormatter from "../../column-formatters/missionsMatchingColumnFormatter.jsx";
+import SalaryColumnFormatter from "../../column-formatters/missionsSalaryColumnFormatter.jsx";
 import CityColumnFormatter from "../../column-formatters/MissionsCityColumnFormatter";
 import { resetMissionIndicator } from "actions/client/missionsActions";
 

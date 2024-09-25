@@ -10,9 +10,9 @@ import { Col, Row } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 
 import { useInterimaireMissionsUIContext as useMissionsUIContext } from "./InterimaireMissionsUIContext";
-//import ActionsColumnFormatter from "../../column-formatters/missionsActionsColumnFormatter";
-//import DateColumnFormatter from "../../column-formatters/MissionsDateColumnFormatter";
-//import SalaryColumnFormatter from "../../column-formatters/MissionsSalaryColumnFormatter";
+//import ActionsColumnFormatter from "../../column-formatters/missionsActionsColumnFormatter.jsx";
+//import DateColumnFormatter from "../../column-formatters/missionsDateColumnFormatter.jsx";
+//import SalaryColumnFormatter from "../../column-formatters/missionsSalaryColumnFormatter.jsx";
 import _ from "lodash";
 import Select from "react-select";
 import DatePicker from "react-datepicker";

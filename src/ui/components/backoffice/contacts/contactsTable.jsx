@@ -11,7 +11,6 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { getCompanies } from "../../../../business/actions/client/companiesActions";
 
-// import CompanyCreateModal from "./companiesModals/CompanyCreateModal";
 import { useContactsUIContext } from "./contactsUIContext.jsx";
 import InviteContactModal from "./Modals/inviteContactModal.jsx";
 function ContactsTable({

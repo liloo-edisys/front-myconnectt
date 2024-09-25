@@ -8,7 +8,7 @@ import * as Yup from "yup";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
 import { ApplicantListModal } from "./applicant-list-modal";
-import CompanyEditModal from "../customers/companiesModals/CompanyEditModal";
+import CompanyEditModal from "../customers/companiesModals/companyEditModal.jsx";
 import WorksiteEditModal from "../customers/companiesModals/WorksiteEditModal";
 import { updateCompany } from "actions/client/companiesActions";
 import { useDispatch } from "react-redux";

@@ -7,7 +7,7 @@ import { getMatching } from "actions/client/applicantsActions";
 import { getMission } from "actions/client/missionsActions";
 import Avatar from "react-avatar";
 import moment from "moment";
-import ApplicationsStatusColumnFormatter from "components/client/missions/column-formatters/ApplicationsStatusColumnFormatter.js";
+import ApplicationsStatusColumnFormatter from "components/client/missions/column-formatters/applicationsStatusColumnFormatter.jsx";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { getJobTitles } from "../../../../../business/actions/shared/listsActions";
 import { getJobSkills } from "../../../../../business/actions/shared/listsActions";

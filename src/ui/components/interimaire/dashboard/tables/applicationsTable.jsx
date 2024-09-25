@@ -3,8 +3,8 @@ import React from "react";
 import BootstrapTable from "react-bootstrap-table-next";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { connect } from "react-redux";
-import MissionsDateColumnFormatter from "../../column-formatters/MissionsDateColumnFormatter";
-import ApplicationsStatusColumnFormatter from "../../column-formatters/ApplicationsStatusColumnFormatter";
+import MissionsDateColumnFormatter from "../../column-formatters/missionsDateColumnFormatter.jsx";
+import ApplicationsStatusColumnFormatter from "../../column-formatters/applicationsStatusColumnFormatter.jsx";
 import { Link } from "react-router-dom";
 
 import { toAbsoluteUrl } from "../../../../../_metronic/_helpers";

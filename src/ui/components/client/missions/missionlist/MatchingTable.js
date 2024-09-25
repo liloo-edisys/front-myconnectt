@@ -8,10 +8,10 @@ import { useIntl } from "react-intl";
 
 import { useMissionsUIContext } from "./MissionsUIContext";
 import { shallowEqual, useSelector } from "react-redux";
-import MatchingCandidateColumnFormatter from "../column-formatters/MatchingCandidateColumnFormatter";
-import MatchingCandidateLastJobsFormatter from "../column-formatters/MatchingCandidateLastJobsFormatter";
-import MissionsMatchingColumnFormatter from "../column-formatters/MissionsMatchingColumnFormatter";
-import MatchingActionsColumnFormatter from "../column-formatters/MatchingActionsColumnFormatter";
+import MatchingCandidateColumnFormatter from "../column-formatters/matchingCandidateColumnFormatter.jsx";
+import MatchingCandidateLastJobsFormatter from "../column-formatters/matchingCandidateLastJobsFormatter.jsx";
+import MissionsMatchingColumnFormatter from "../column-formatters/missionsMatchingColumnFormatter.jsx";
+import MatchingActionsColumnFormatter from "../column-formatters/matchingActionsColumnFormatter.jsx";
 
 function MatchingTable({ candidates, handleDeny, handleAccept, onOpenResume }) {
   const intl = useIntl();

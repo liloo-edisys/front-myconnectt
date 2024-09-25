@@ -7,7 +7,7 @@ import { Route } from "react-router-dom";
 // import { CustomerDeleteDialog } from "./customer-delete-dialog/CustomerDeleteDialog";
 // import { CustomersDeleteDialog } from "./customers-delete-dialog/CustomersDeleteDialog";
 // import { CustomersUpdateStateDialog } from "./customers-update-status-dialog/CustomersUpdateStateDialog";
-import { CompanyDeleteDialog } from "./companiesModals/CompanyDeleteDialog";
+import { CompanyDeleteDialog } from "./companiesModals/companyDeleteDialog.jsx";
 import CompanyEditModal from "./companiesModals/CompanyEditModal";
 import WorksiteCreateModal from "./companiesModals/WorksiteCreateModal";
 import WorksiteEditModal from "./companiesModals/WorksiteEditModal";

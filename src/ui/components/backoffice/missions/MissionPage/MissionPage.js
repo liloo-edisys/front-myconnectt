@@ -9,7 +9,7 @@ import SVG from "react-inlinesvg";
 import { toAbsoluteUrl } from "../../../../../_metronic/_helpers";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 
-import CompanyEditModal from "../../companies/companiesModals/CompanyEditModal";
+import CompanyEditModal from "../../companies/companiesModals/companyEditModal.jsx";
 import MissionFormType from "../MissionFormType";
 import { FormattedMessage, useIntl } from "react-intl";
 import { deleteFromStorage } from "../../../shared/deleteFromStorage";

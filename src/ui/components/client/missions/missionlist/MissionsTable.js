@@ -9,11 +9,11 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { useHistory } from "react-router-dom";
 
 import { useMissionsUIContext } from "./MissionsUIContext";
-import ActionsColumnFormatter from "../column-formatters/MissionsActionsColumnFormatter";
-import DateColumnFormatter from "../column-formatters/MissionsDateColumnFormatter";
-import OccupiedColumnFormatter from "../column-formatters/MissionsOccupiedColumnFormatter";
-import ApplicationsStatusColumnFormatter from "../column-formatters/ApplicationsStatusColumnFormatter";
-import ApplicationsActionsColumnFormatter from "../column-formatters/ApplicationsActionsColumnFormatter";
+import ActionsColumnFormatter from "../column-formatters/missionsActionsColumnFormatter.jsx";
+import DateColumnFormatter from "../column-formatters/missionsDateColumnFormatter.jsx";
+import OccupiedColumnFormatter from "../column-formatters/missionsOccupiedColumnFormatter.jsx";
+import ApplicationsStatusColumnFormatter from "../column-formatters/applicationsStatusColumnFormatter.jsx";
+import ApplicationsActionsColumnFormatter from "../column-formatters/applicationsActionsColumnFormatter.jsx";
 import _ from "lodash";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
@@ -31,7 +31,7 @@ import { getMission } from "api/client/missionsApi";
 
 import { getJobTitles } from "actions/shared/listsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import MissionsStatusColumnFormatter from "../column-formatters/MissionsStatusColumnFormatter";
+import MissionsStatusColumnFormatter from "../column-formatters/missionsStatusColumnFormatter.jsx";
 import {
   deleteCurrentDuplicate,
   deleteCurrentTemplate

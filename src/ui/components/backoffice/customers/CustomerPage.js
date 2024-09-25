@@ -2,8 +2,8 @@ import React from "react";
 
 import { connect } from "react-redux";
 import { Route } from "react-router-dom";
-import { CompanyDeleteDialog } from "./companiesModals/CompanyDeleteDialog";
-import CompanyEditModal from "./companiesModals/CompanyEditModal";
+import { CompanyDeleteDialog } from "./companiesModals/companyDeleteDialog.jsx";
+import CompanyEditModal from "./companiesModals/companyEditModal.jsx";
 import WorksiteCreateModal from "./companiesModals/WorksiteCreateModal";
 import WorksiteEditModal from "./companiesModals/WorksiteEditModal";
 import WorksitePreviewModal from "./companiesModals/WorkSitePreviewModal";

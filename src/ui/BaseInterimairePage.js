@@ -16,7 +16,7 @@ import { shallowEqual, useSelector } from "react-redux";
 import Chat from "./components/interimaire/signalr/Chat";
 import Contracts from "./components/interimaire/missions/contracts";
 
-import EmailContactModal from "./components/client/Email/EmailContactModal";
+import EmailContactModal from "./components/client/Email/emailContactModal.jsx";
 import Documents from "./components/interimaire/missions/documents";
 import HoursStatement from "./components/interimaire/hours-statement/HoursStatement";
 

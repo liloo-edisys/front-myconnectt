@@ -9,7 +9,6 @@ import {
   PleaseWaitMessage
 } from "../../../../_metronic/_helpers";
 
-// import CompanyCreateModal from "./companiesModals/CompanyCreateModal";
 import ActionsColumnFormatter from "./columnFormatters/actionsColumnFormatter.jsx";
 import { useContactsUIContext } from "./contactsUIContext.jsx";
 import InviteContactModal from "./Modals/inviteContactModal.jsx";

@@ -9,7 +9,7 @@ import {
   PleaseWaitMessage
 } from "../../../../_metronic/_helpers";
 
-import CompanyCreateModal from "./companiesModals/CompanyCreateModal";
+import CompanyCreateModal from "./companiesModals/companyCreateModal.jsx";
 import { useCompaniesUIContext } from "./CompaniesUIContext";
 import ActionsColumnFormatter from "./customers-table/column-formatters/actionsColumnFormatter.jsx";
 import { shallowEqual, useSelector } from "react-redux";

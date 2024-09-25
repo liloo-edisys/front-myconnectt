@@ -14,7 +14,7 @@ import {
   Contacts,
   VancancyTemplate
 } from "./fields";
-import ClientWizzardHeader from "./ClientWizzardHeader";
+import ClientWizzardHeader from "./clientWizzardHeader.jsx";
 
 export function CompanyCreateHeader({ id, companyName, companyStatus }) {
   const { actionsLoading } = useSelector(

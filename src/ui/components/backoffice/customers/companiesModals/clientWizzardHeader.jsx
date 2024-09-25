@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
 import SVG from "react-inlinesvg";
 import { toAbsoluteUrl } from "../../../../../_metronic/_helpers";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { shallowEqual, useSelector } from "react-redux";
-import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import Avatar from "react-avatar";
-import { FormattedMessage, useIntl, injectIntl } from "react-intl";
-import { MixedWidgetProfile } from "../../../../../_metronic/_partials/widgets";
+import { FormattedMessage, injectIntl } from "react-intl";
 
 const ClientWizzardHeader = props => {
   const { interimaireId } = useParams();

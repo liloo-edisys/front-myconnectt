@@ -8,7 +8,7 @@ import { Redirect, Route, Switch } from "react-router-dom";
 
 import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout";
 
-import EmailContactModal from "./components/client/Email/EmailContactModal";
+import EmailContactModal from "./components/client/Email/emailContactModal.jsx";
 import MissionWizardForm from "./components/client/missions/missionForms/MissionWizzard";
 import MissionPage from "./components/client/missions/MissionPage/MissionPage";
 import CompaniesContainer from "../business/containers/companiesContainer";

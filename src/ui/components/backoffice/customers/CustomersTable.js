@@ -16,7 +16,7 @@ import {
   PleaseWaitMessage
 } from "../../../../_metronic/_helpers";
 import { clearLatestClientEdited } from "../../../../business/actions/backoffice/accountsActions";
-import CompanyCreateModal from "./companiesModals/CompanyCreateModal";
+import CompanyCreateModal from "./companiesModals/companyCreateModal.jsx";
 import { useCustomersUIContext } from "./CustomersUIContext";
 import ActionsColumnFormatter from "./customers-table/column-formatters/actionsColumnFormatter.jsx";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";

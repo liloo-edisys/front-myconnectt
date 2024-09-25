@@ -41,7 +41,7 @@ import { getHabilitationsList } from "../../../../../business/actions/client/mis
 import { updateApplicant } from "actions/client/applicantsActions";
 import { toAbsoluteUrl } from "metronic/_helpers";
 import DocTypes from "../../../../../utils/DocumentTypes.json";
-import MissionsDateColumnFormatter from "../../missions/column-formatters/MissionsDateColumnFormatter";
+import MissionsDateColumnFormatter from "../../missions/column-formatters/missionsDateColumnFormatter.jsx";
 import DateColumnFormatter from "../formatters/DateColumnFormatter";
 
 function ProfileResume(props, formik) {

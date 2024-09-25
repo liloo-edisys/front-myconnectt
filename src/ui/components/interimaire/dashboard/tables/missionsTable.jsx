@@ -3,9 +3,9 @@ import React, { useMemo } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { connect } from "react-redux";
-import MissionsDateColumnFormatter from "../../column-formatters/MissionsDateColumnFormatter.js";
+import MissionsDateColumnFormatter from "../../column-formatters/missionsDateColumnFormatter.jsx";
 import MissionsCityColumnFormatter from "../../column-formatters/MissionsCityColumnFormatter.js";
-import MissionsMatchingColumnFormatter from "../../column-formatters/MissionsMatchingColumnFormatter.js";
+import MissionsMatchingColumnFormatter from "../../column-formatters/missionsMatchingColumnFormatter.jsx";
 import { Link } from "react-router-dom";
 
 import { toAbsoluteUrl } from "../../../../../_metronic/_helpers/index.js";

@@ -7,7 +7,7 @@ import { MatchingDeclineDialog as DeclineDialog } from "../modals/matchingDeclin
 import { MissionApproveDialog as ApproveDialog } from "../modals/missionApproveDialog.jsx";
 
 import { InterimaireMatchingUIProvider } from "./InterimaireMatchingUIContext.js";
-import InterimaireMatchingCard from "./InterimaireMatchingCard.js";
+import InterimaireMatchingCard from "./interimaireMatchingCard.jsx";
 
 class InterimaireMatchingPage extends React.Component {
   render() {
