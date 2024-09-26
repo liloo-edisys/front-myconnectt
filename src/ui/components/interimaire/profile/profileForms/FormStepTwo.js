@@ -24,7 +24,7 @@ import ReactDatePicker from "react-datepicker";
 import { DeleteProfileDialog } from "../profileModals/DeleteProfileDialog";
 import fr from "date-fns/locale/fr";
 import { toastr } from "react-redux-toastr";
-import { getNationalitiesList } from "../../../../../business/actions/interimaire/interimairesActions";
+import { getNationalitiesList } from "../../../../../business/actions/interimaire/interimairesActions.js";
 
 import PlacesAutocomplete, {
   geocodeByAddress,

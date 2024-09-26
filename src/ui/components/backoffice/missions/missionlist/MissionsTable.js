@@ -25,7 +25,7 @@ import paginationFactory, {
   SizePerPageDropdownStandalone
 } from "react-bootstrap-table2-paginator";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { searchMission } from "../../../../../business/actions/client/missionsActions";
+import { searchMission } from "../../../../../business/actions/client/missionsActions.js";
 import { resetMissionIndicator } from "actions/client/missionsActions";
 import { getMission } from "api/client/missionsApi";
 
@@ -36,7 +36,7 @@ import MissionsStatusColumnFormatter from "../column-formatters/missionsStatusCo
 import {
   deleteCurrentDuplicate,
   deleteCurrentTemplate
-} from "../../../../../business/actions/client/missionsActions";
+} from "../../../../../business/actions/client/missionsActions.js";
 import Avatar from "react-avatar";
 import {
   setSetelectedStartDate,

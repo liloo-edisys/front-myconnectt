@@ -25,7 +25,7 @@ import EmailsCard from "./fields/emails/emailsCard.jsx";
 import {
   getSelectedApplicantById,
   clearSelectedApplicant
-} from "../../../../business/actions/backoffice/applicantActions";
+} from "../../../../business/actions/backoffice/applicantActions.js";
 
 function NewApplicant(props) {
   const dispatch = useDispatch();

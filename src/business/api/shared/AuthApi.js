@@ -11,6 +11,7 @@ export const REGISTER_ACCOUNT_URL =
 /*export const REGISTER_INTERIMAIRE_URL =
   process.env.REACT_APP_WEBAPI_URL + "api/Applicant/Subscribe";*/
 
+  
 export const REGISTER_INTERIMAIRE_URL =
   process.env.REACT_APP_WEBAPI_URL + "api/applicant/Authenticate";
 export const CHECK_INTERIMAIRE_SMS_CODE =

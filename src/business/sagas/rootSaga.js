@@ -1,6 +1,5 @@
 import { all, call, fork, spawn } from "redux-saga/effects";
 import AuthSaga from "./shared/authSagas";
-
 import CompaniesSagas from "./client/companiesSagas";
 import ContactsSagas from "./client/contactsSagas";
 import DashboardSagas from "./client/dashboardSagas";
@@ -18,6 +17,7 @@ import AccountsSagas from "./backoffice/accountsSagas";
 import MailTemplatesSagas from "./backoffice/mailTemplatesSagas";
 import CommercialAgreementsSagas from "./backoffice/commercialAgreementsSagas";
 import ApplicantsBackofficeSagas from "./backoffice/applicantsSagas";
+
 
 export function* startWatchers() {
   yield all([

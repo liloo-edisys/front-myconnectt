@@ -44,7 +44,7 @@ import {
   resetMissionIndicator,
   resetMission,
   getHabilitationsList
-} from "../../../../../../../business/actions/client/missionsActions";
+} from "../../../../../../../business/actions/client/missionsActions.js";
 import { deleteFromStorage } from "../../../../../shared/deleteFromStorage";
 import axios from "axios";
 import { useHistory, useParams } from "react-router-dom";

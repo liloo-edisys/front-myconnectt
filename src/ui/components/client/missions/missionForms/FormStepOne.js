@@ -47,7 +47,7 @@ import {
   resetMissionIndicator,
   resetMission,
   getHabilitationsList
-} from "../../../../../business/actions/client/missionsActions";
+} from "../../../../../business/actions/client/missionsActions.js";
 import { deleteFromStorage } from "../../../shared/deleteFromStorage";
 registerLocale("fr", fr);
 

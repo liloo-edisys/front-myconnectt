@@ -14,7 +14,7 @@ import {
   deleteIdDocument,
   clearStepFiveModal,
   getNationalitiesList
-} from "../../../../../business/actions/interimaire/interimairesActions";
+} from "../../../../../business/actions/interimaire/interimairesActions.js";
 import { getTitlesTypes } from "../../../../../business/actions/shared/listsActions";
 import { DocumentsModal } from "../../home/fieldsets/indentity-documents/documents-modal";
 import VitalCardModal from "../../home/fieldsets/indentity-documents/vital-card-modal";

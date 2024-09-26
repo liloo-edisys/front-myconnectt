@@ -20,9 +20,9 @@ import LogoutInterimaire from "./components/interimaire/auth/logoutInterimaire.j
 import RegisterConfirmInterimaire from "./components/interimaire/auth/registerConfirmInterimaire.jsx";
 import RegisterConfirm from "../ui/components/client/auth/registerConfirm.jsx";
 import ResetPassword from "./components/client/auth/resetPassword.jsx";
-import { getNationalitiesList } from "../business/actions/interimaire/interimairesActions";
+import { getNationalitiesList } from "../business/actions/interimaire/interimairesActions.js";
 
-import BasePage from "./basePage.js";
+import BasePage from "./basePage";
 import BaseInterimairePage from "./baseInterimairePage.js";
 import BaseBackOfficePage from "./baseBackOfficePage.js";
 import DocumentDisplay from "./components/shared/documentDisplay.jsx";

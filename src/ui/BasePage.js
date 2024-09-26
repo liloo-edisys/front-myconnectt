@@ -6,25 +6,25 @@ import DashboardPage from "components/client/dashboard/DashboardPage";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Redirect, Route, Switch } from "react-router-dom";
 
-import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout";
+import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout/index.js";
 
 import EmailContactModal from "./components/client/Email/emailContactModal.jsx";
-import MissionWizardForm from "./components/client/missions/missionForms/MissionWizzard";
-import MissionPage from "./components/client/missions/MissionPage/MissionPage";
-import CompaniesContainer from "../business/containers/companiesContainer";
-import MissionsContainer from "../business/containers/missionsContainer";
-import MissionTemplatesContainer from "../business/containers/missionTemplatesContainer";
-import AccountInterimairesContainer from "../business/containers/accountInterimairesContainer";
-import ContactsContainer from "../business/containers/contactsContainer";
-import ProfileContainer from "../business/containers/profileContainer";
+import MissionWizardForm from "./components/client/missions/missionForms/MissionWizzard.js";
+import MissionPage from "./components/client/missions/MissionPage/MissionPage.js";
+import CompaniesContainer from "../business/containers/companiesContainer.js";
+import MissionsContainer from "../business/containers/missionsContainer.js";
+import MissionTemplatesContainer from "../business/containers/missionTemplatesContainer.js";
+import AccountInterimairesContainer from "../business/containers/accountInterimairesContainer.js";
+import ContactsContainer from "../business/containers/contactsContainer.js";
+import ProfileContainer from "../business/containers/profileContainer.js";
 import UnderConstruction from "./components/shared/underConstruction.jsx";
-import CommercialAgreement from "./components/client/commercial-agreement";
-import ContractsClient from "./components/client/missions/contracts-client";
-import Extensions from "./components/client/missions/extensions";
-import { Calendar } from "./components/client/calendar";
-import { HoursStatement } from "./components/client/hours-statement";
+import CommercialAgreement from "./components/client/commercial-agreement/index.js";
+import ContractsClient from "./components/client/missions/contracts-client/index.js";
+import Extensions from "./components/client/missions/extensions/index.js";
+import { Calendar } from "./components/client/calendar/index.js";
+import { HoursStatement } from "./components/client/hours-statement/index.js";
 import CustomerOrderPage from "./components/client/customer-order/customerOrderPage.jsx";
-import Reciepts from "./components/client/missions/reciepts/Reciepts";
+import Reciepts from "./components/client/missions/reciepts/Reciepts.js";
 
 export default function BasePage(props) {
   const dispatch = useDispatch();

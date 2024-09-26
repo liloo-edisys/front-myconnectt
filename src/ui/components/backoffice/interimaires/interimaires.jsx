@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useIntl } from "react-intl";
-import { getBackOfficeContractList } from "../../../../business/actions/backoffice/recruiterActions";
+import { getBackOfficeContractList } from "../../../../business/actions/backoffice/recruiterActions.js";
 import InterimairesCard from "./interimairesCard.jsx";
 
 function Interimaires(props) {
