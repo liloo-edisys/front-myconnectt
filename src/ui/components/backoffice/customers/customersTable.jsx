@@ -8,16 +8,16 @@ import paginationFactory, {
   PaginationListStandalone,
   PaginationProvider
 } from "react-bootstrap-table2-paginator";
-import isNullOrEmpty from "../../../../utils/isNullOrEmpty";
+import isNullOrEmpty from "../../../../utils/isNullOrEmpty.js";
 import fr from "date-fns/locale/fr";
 
 import {
   NoRecordsFoundMessage,
   PleaseWaitMessage
-} from "../../../../_metronic/_helpers";
-import { clearLatestClientEdited } from "../../../../business/actions/backoffice/accountsActions";
+} from "../../../../_metronic/_helpers/index.js";
+import { clearLatestClientEdited } from "../../../../business/actions/backoffice/accountsActions.js";
 import CompanyCreateModal from "./companiesModals/companyCreateModal.jsx";
-import { useCustomersUIContext } from "./CustomersUIContext";
+import { useCustomersUIContext } from "./customersUIContext.jsx";
 import ActionsColumnFormatter from "./customers-table/column-formatters/actionsColumnFormatter.jsx";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import axios from "axios";

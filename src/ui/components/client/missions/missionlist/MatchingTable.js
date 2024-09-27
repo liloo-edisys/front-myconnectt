@@ -6,7 +6,7 @@ import BootstrapTable from "react-bootstrap-table-next";
 
 import { useIntl } from "react-intl";
 
-import { useMissionsUIContext } from "./MissionsUIContext";
+import { useMissionsUIContext } from "./missionsUIContext.jsx";
 import { shallowEqual, useSelector } from "react-redux";
 import MatchingCandidateColumnFormatter from "../column-formatters/matchingCandidateColumnFormatter.jsx";
 import MatchingCandidateLastJobsFormatter from "../column-formatters/matchingCandidateLastJobsFormatter.jsx";

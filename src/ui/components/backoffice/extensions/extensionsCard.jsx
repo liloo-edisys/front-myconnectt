@@ -10,7 +10,7 @@ import {
   CardHeaderToolbar
 } from "../../../../_metronic/_partials/controls";
 
-import ExtensionsTable from "./ExtensionsTable";
+import ExtensionsTable from "./extensionsTable.jsx";
 
 function ExtensionsCard(props) {
   const history = useHistory();

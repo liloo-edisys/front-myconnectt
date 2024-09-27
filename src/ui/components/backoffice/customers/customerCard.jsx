@@ -11,7 +11,7 @@ import {
   CardHeaderToolbar
 } from "../../../../_metronic/_partials/controls";
 
-import CustomersTable from "./CustomersTable";
+import CustomersTable from "./customersTable.jsx";
 
 class CustomersCard extends Component {
   constructor(props) {

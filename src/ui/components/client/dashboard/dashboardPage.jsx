@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import {
   getDashboardDatas,
   goToNextStep,
-  getUserStartGuide
+  getUserStartGuide,
 } from "actions/client/dashboardActions";
 import { Pagination } from "react-bootstrap";
 import SVG from "react-inlinesvg";
@@ -16,21 +16,21 @@ import { checkFields } from "actions/client/companiesActions";
 import {
   getInvoicesTypes as getInvoicesTypesActions,
   getAccountGroups as getAccountGroupsActions,
-  getPaymentChoices as getPaymentChoicesActions
+  getPaymentChoices as getPaymentChoicesActions,
 } from "actions/shared/listsActions";
-import { MissionsUIProvider } from "./tables/MissionsUIContext";
+import { MissionsUIProvider } from "./tables/missionsUIContext.jsx";
 
 import { NavLink } from "react-router-dom";
 
-import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
-import CompanyEditModal from "../companies/companiesModals/CompanyEditModal";
+import { toAbsoluteUrl } from "../../../../_metronic/_helpers/index.js";
+import CompanyEditModal from "../companies/companiesModals/CompanyEditModal.js";
 
 import ContractsTable from "./tables/contractsTable.jsx";
-import SearchsTable from "./tables/SearchTable";
+import SearchsTable from "./tables/searchTable.jsx";
 import { getMission } from "api/client/missionsApi";
 import { getMission as getMissionAction } from "actions/client/missionsActions";
 import MissionHeaderDropdown from "../../shared/missionHeaderDropdown.jsx";
-import SimulatorModalEmpty from "../missions/missionForms/SimulatorModalEmpty";
+import SimulatorModalEmpty from "../missions/missionForms/simulatorModalEmpty.jsx";
 import "./styles.scss";
 
 import {
@@ -39,8 +39,8 @@ import {
   ThirdTooltip,
   FourthTooltip,
   FifthTooltip,
-  SixthTooltip
-} from "./tooltips";
+  SixthTooltip,
+} from "./tooltips/index.js";
 function DashboardPage({ intl, history }) {
   const dispatch = useDispatch();
 
@@ -52,9 +52,9 @@ function DashboardPage({ intl, history }) {
     userDetails,
     companies,
     currentCompanyID,
-    step
+    step,
   } = useSelector(
-    state => ({
+    (state) => ({
       dashboard: state.dashboard.dashboard,
       contracts: state.dashboard.dashboard.contracts,
       searchs: state.dashboard.dashboard.searchs,
@@ -62,7 +62,7 @@ function DashboardPage({ intl, history }) {
       userDetails: state.auth.user,
       companies: state.companies.companies,
       currentCompanyID: state.auth.user.accountID,
-      step: state.dashboard.step
+      step: state.dashboard.step,
     }),
     shallowEqual
   );
@@ -73,7 +73,7 @@ function DashboardPage({ intl, history }) {
     dispatch(
       getDashboardDatas.request({
         displayChoice: type,
-        tenantID: userDetails.tenantID
+        tenantID: userDetails.tenantID,
       })
     );
     dispatch(checkFields.request());
@@ -92,22 +92,22 @@ function DashboardPage({ intl, history }) {
   };
 
   let currentCompany = companies.filter(
-    worksite => worksite.id === currentCompanyID
+    (worksite) => worksite.id === currentCompanyID
   );
   const openWorksiteEdit = () => {
     history.push(`/dashboard/${currentCompanyID}/edit`, currentCompany[0]);
   };
   const missionsUIEvents = {
-    openDisplayDialog: data => {
+    openDisplayDialog: (data) => {
       getMission(data)
-        .then(res => dispatch(getMissionAction.success(res)))
+        .then((res) => dispatch(getMissionAction.success(res)))
         .then(
           setTimeout(() => {
             localStorage.setItem("isPreview", true);
             history.push("/mission-create/final-step");
           }, 1000)
         );
-    }
+    },
   };
 
   const showSimulator = () => {
@@ -145,7 +145,7 @@ function DashboardPage({ intl, history }) {
             top: 0,
             left: 0,
             overflowX: "hidden",
-            overflowY: "hidden"
+            overflowY: "hidden",
           }}
         />
       )}
@@ -162,7 +162,7 @@ function DashboardPage({ intl, history }) {
             top: "63.5px",
             left: 0,
             overflowX: "hidden",
-            overflowY: "hidden"
+            overflowY: "hidden",
           }}
         />
       )}
@@ -254,7 +254,7 @@ function DashboardPage({ intl, history }) {
                             active={0 === type}
                           >
                             {intl.formatMessage({
-                              id: "DASHBOARD.ALL.DEMANDS"
+                              id: "DASHBOARD.ALL.DEMANDS",
                             })}
                           </Pagination.Item>
                           <Pagination.Item
@@ -278,7 +278,7 @@ function DashboardPage({ intl, history }) {
             className="navi navi-bold navi-hover navi-active navi-link-rounded"
             style={{
               zIndex: step === 10 ? 200 : 1,
-              position: "relative"
+              position: "relative",
             }}
           >
             <div className="navi-item mt-5 box-shadow-primary">
@@ -397,7 +397,7 @@ function DashboardPage({ intl, history }) {
             style={{
               zIndex: step === 11 ? 200 : 1,
               position: "relative",
-              margin: "0px -24px"
+              margin: "0px -24px",
             }}
           >
             <Link className="col-lg-3 mw-300" to="/missions/encours">
@@ -561,7 +561,7 @@ function DashboardPage({ intl, history }) {
             className="row"
             style={{
               zIndex: step === 12 ? 200 : 1,
-              position: "relative"
+              position: "relative",
             }}
           >
             <SearchsTable dashboard={dashboard} searchs={searchs} />
@@ -570,7 +570,7 @@ function DashboardPage({ intl, history }) {
             className="row"
             style={{
               zIndex: step === 12 ? 200 : 1,
-              position: "relative"
+              position: "relative",
             }}
           >
             <ContractsTable dashboard={dashboard} contracts={contracts} />
@@ -619,7 +619,7 @@ function DashboardPage({ intl, history }) {
                           active={0 === type}
                         >
                           {intl.formatMessage({
-                            id: "DASHBOARD.ALL.DEMANDS"
+                            id: "DASHBOARD.ALL.DEMANDS",
                           })}
                         </Pagination.Item>
                         <Pagination.Item
@@ -643,7 +643,7 @@ function DashboardPage({ intl, history }) {
           className="navi navi-bold navi-hover navi-active navi-link-rounded"
           style={{
             zIndex: step === 10 ? 200 : 1,
-            position: "relative"
+            position: "relative",
           }}
         >
           <div className="navi-item mt-5 box-shadow-primary">

@@ -29,7 +29,7 @@ function ExtensionsTable(props) {
   const [extentionsToBeProcessed, setExtentionsToBeProcessed] = useState(true);
   const [extentionsProcessed, setExtentionsProcessed] = useState(false);
 
-  const { extensionList, user, accounts, totalCount } = useSelector(state => ({
+  const { extensionList, user, totalCount } = useSelector(state => ({
     extensionList: state.lists.extensions.list,
     totalCount: state.lists.extensions.totalcount,
     user: state.recruiterReducerData.user,
@@ -94,7 +94,7 @@ function ExtensionsTable(props) {
     {
       dataField: "status",
       text: intl.formatMessage({ id: "COLUMN.STATUS" }),
-      formatter: (value, row) => (
+      formatter: (value) => (
         <span>
           {value === 1
             ? intl.formatMessage({ id: "MENU.INPROGRESS" })
@@ -158,13 +158,7 @@ function ExtensionsTable(props) {
     </div>
   );
 
-  const handleChangePage = (size, page) => {
-    localStorage.setItem("pageNumber", page);
-    getData();
-  };
-
   const RemotePagination = ({
-    data,
     page,
     sizePerPage,
     onTableChange,
@@ -244,7 +238,7 @@ function ExtensionsTable(props) {
     dispatch(getApplicantById.request(row.applicantID));
   };
 
-  const onHideInterimaireModal = row => {
+  const onHideInterimaireModal = () => {
     setToogleInterimaireModal(false);
   };
 
@@ -253,7 +247,7 @@ function ExtensionsTable(props) {
     setToogleClientModal(true);
   };
 
-  const onHideClientModal = row => {
+  const onHideClientModal = () => {
     setActiveClient(null);
     setToogleClientModal(false);
   };
@@ -263,7 +257,6 @@ function ExtensionsTable(props) {
     onHideProcessModal();
   };
 
-  const onChangeSelectedStatus = {};
 
   return (
     <div>

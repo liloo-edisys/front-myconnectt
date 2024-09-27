@@ -5,10 +5,10 @@ import BootstrapTable from "react-bootstrap-table-next";
 import { injectIntl } from "react-intl";
 import { connect } from "react-redux";
 import SVG from "react-inlinesvg";
-import { toAbsoluteUrl } from "../../../../../_metronic/_helpers";
+import { toAbsoluteUrl } from "../../../../../_metronic/_helpers/index.js";
 import { Link } from "react-router-dom";
 import ActionsColumnFormatter from "./actionsColumnFormatter.jsx";
-import { useMissionsUIContext } from "./MissionsUIContext";
+import { useMissionsUIContext } from "./missionsUIContext.jsx";
 
 function SearchsTable({ intl, dashboard, searchs }) {
   const missionsUIContext = useMissionsUIContext();

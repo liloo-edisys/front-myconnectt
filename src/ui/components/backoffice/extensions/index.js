@@ -1,3 +1,3 @@
-import Extensions from "./Extensions";
+import Extensions from "./extensions.jsx";
 
 export default Extensions;

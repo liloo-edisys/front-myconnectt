@@ -3,9 +3,9 @@ import React from "react";
 import { connect } from "react-redux";
 import { Route } from "react-router-dom";
 
-import { ExtensionsUIProvider } from "./ExtensionsUIContext";
-import ExtensionsCard from "./ExtensionsCard";
-import ExtensionProfileDialog from "./extensionsModals/ExtensionProfileDialog";
+import { ExtensionsUIProvider } from "./extensionsUIContext.jsx";
+import ExtensionsCard from "./extensionsCard.jsx";
+import ExtensionProfileDialog from "./extensionsModals/ExtensionProfileDialog.js";
 
 class ExtensionsPage extends React.Component {
   constructor(props) {

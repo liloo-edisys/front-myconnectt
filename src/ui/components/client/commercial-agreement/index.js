@@ -1,3 +1,3 @@
-import CommercialAgreement from "./CommercialAgreement";
+import CommercialAgreement from "./commercialAgreement.jsx";
 
 export default CommercialAgreement;

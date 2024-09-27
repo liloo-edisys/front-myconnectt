@@ -3,7 +3,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { Route } from "react-router-dom";
 
-import { MissionsUIProvider } from "./MissionsUIContext";
+import { MissionsUIProvider } from "./missionsUIContext.jsx";
 import MissionsCard from "./MissionsCard";
 import { deleteFromStorage } from "../../../shared/deleteFromStorage";
 import { MissionDeleteDialog as DeleteDialog } from "../missionsModals/MissionDeleteDialog";

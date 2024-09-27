@@ -3,7 +3,7 @@ import {
   getInvoicesTypes as getInvoicesTypesActions,
   getAccountGroups as getAccountGroupsActions
 } from "actions/shared/listsActions";
-import CustomerPage from "components/backoffice/customers/CustomerPage";
+import CustomerPage from "components/backoffice/customers/customerPage.jsx";
 import { connect } from "react-redux";
 
 const mapStateToProps = state => ({

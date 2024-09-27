@@ -8,7 +8,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 import { useHistory } from "react-router-dom";
 
-import { useMissionsUIContext } from "./MissionsUIContext";
+import { useMissionsUIContext } from "./missionsUIContext.jsx";
 import ActionsColumnFormatter from "../column-formatters/missionsActionsColumnFormatter.jsx";
 import DateColumnFormatter from "../column-formatters/missionsDateColumnFormatter.jsx";
 import OccupiedColumnFormatter from "../column-formatters/missionsOccupiedColumnFormatter.jsx";

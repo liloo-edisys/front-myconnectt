@@ -1,9 +1,9 @@
-import FirstTooltip from "./FirstTooltip";
-import SecondTooltip from "./SecondTooltip";
-import ThirdTooltip from "./ThirdTooltip";
-import FourthTooltip from "./FourthTooltip";
-import FifthTooltip from "./FifthTooltip";
-import SixthTooltip from "./SixthTooltip";
+import FirstTooltip from "./firstTooltip.jsx";
+import SecondTooltip from "./secondTooltip.jsx";
+import ThirdTooltip from "./thirdTooltip.jsx";
+import FourthTooltip from "./fourthTooltip.jsx";
+import FifthTooltip from "./fifthTooltip.jsx";
+import SixthTooltip from "./sixthTooltip.jsx";
 export {
   SecondTooltip,
   FirstTooltip,

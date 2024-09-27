@@ -29,7 +29,7 @@ import {
   deleteCurrentTemplate
 } from "actions/client/missionsActions";
 import { deleteFromStorage } from "../../../shared/deleteFromStorage";
-import SimulatorModal from "./SimulatorModal";
+import SimulatorModal from "./simulatorModal.jsx";
 import axios from "axios";
 function FinalStep(props) {
   const dispatch = useDispatch();

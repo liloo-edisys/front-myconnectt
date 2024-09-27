@@ -1,3 +1,3 @@
-import Calendar from "./Calendar";
+import Calendar from "./calendar.jsx";
 
 export { Calendar };

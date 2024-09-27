@@ -1,6 +1,6 @@
 import React from "react";
 import { useIntl } from "react-intl";
-import MissionWizardFormClass from "./MissionWizzardClass";
+import MissionWizardFormClass from "./missionWizzardClass.jsx";
 
 function MissionWizardForm(props) {
   const intl = useIntl();

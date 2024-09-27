@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { Route } from "react-router-dom";
 
 import { MissionDeleteDialog as DeleteDialog } from "../missionsModals/missionDeleteDialog.jsx";
-import { MissionsUIProvider } from "./MissionsUIContext";
+import { MissionsUIProvider } from "./missionsUIContext.jsx";
 import MissionsCard from "./MissionsCard";
 import { deleteFromStorage } from "../../../shared/deleteFromStorage";
 import { MatchingDialog } from "../missionsModals/missionMatchingDialog.jsx";

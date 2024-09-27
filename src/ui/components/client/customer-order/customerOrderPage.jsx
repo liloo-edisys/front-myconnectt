@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useParams, Route, useHistory } from "react-router-dom";
-import { MissionsUIProvider } from "../missions/missionlist/MissionsUIContext.js";
+import { MissionsUIProvider } from "../missions/missionlist/missionsUIContext.jsx";
 import { DeleteApplicationDialog } from "../missions/missionsModals/deleteApplicationDialog.jsx";
 import { MissionDeclineDialog } from "../missions/missionsModals/missionDeclineDialog.jsx";
 import { MatchingDialog } from "../missions/missionsModals/missionMatchingDialog.jsx";
