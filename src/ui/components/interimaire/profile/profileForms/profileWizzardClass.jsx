@@ -4,22 +4,22 @@ import { Formik, Form } from "formik";
 import { connect } from "react-redux";
 import { Switch, Route, Redirect } from "react-router-dom";
 
-import FinalStep from "./FinalStep";
-import FormStepFour from "./FormStepFour";
-//import FormStepOne from "./FormStepOne";
-import FormStepThree from "./FormStepThree";
-import FormStepTwo from "./FormStepTwo";
-import FormStepFive from "./FormStepFive";
-import FormStepSix from "./FormStepSix";
+import FinalStep from "./finalStep.jsx";
+import FormStepFour from "./formStepFour.jsx";
+//import FormStepOne from "./formStepOne.jsx";
+import FormStepThree from "./formStepThree.jsx";
+import FormStepTwo from "./formStepTwo.jsx";
+import FormStepFive from "./formStepFive.jsx";
+import FormStepSix from "./formStepSix.jsx";
 
 import "../../../../../_metronic/_assets/sass/pages/wizard/wizard-2.scss";
 import * as Yup from "yup";
-import { deleteFromStorage } from "../../../shared/deleteFromStorage";
-import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
+import { deleteFromStorage } from "../../../shared/deleteFromStorage.js";
+import isNullOrEmpty from "../../../../../utils/isNullOrEmpty.js";
 import {
   getContractType,
   getJobTitles
-} from "../../../../../business/actions/shared/listsActions";
+} from "../../../../../business/actions/shared/listsActions.js";
 //import { Home } from "../../home";
 
 class ProfileWizzardClass extends Component {

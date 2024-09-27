@@ -1,5 +1,5 @@
 import NewExperience from "./newExperience.jsx";
-import DeleteExperienceModal from "./DeleteExperienceModal";
-import ProfileExperiencesModal from "./ProfileExperiencesModal";
+import DeleteExperienceModal from "./deleteExperienceModal.jsx";
+import ProfileExperiencesModal from "./profileExperiencesModal.jsx";
 
 export { NewExperience, DeleteExperienceModal, ProfileExperiencesModal };

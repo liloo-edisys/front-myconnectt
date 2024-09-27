@@ -14,15 +14,15 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import { useFormikContext } from "formik";
-import useLocalStorage from "../../../shared/persistState";
+import useLocalStorage from "../../../shared/persistState.js";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
-import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
+import isNullOrEmpty from "../../../../../utils/isNullOrEmpty.js";
 import { getJobSkills, createJobSkills } from "actions/shared/listsActions";
 import { updateApplicant } from "actions/client/applicantsActions";
 import postalCode from "../../../../../utils/postalCodes.json";
 import InputRange from "react-input-range";
 import { getJobSkills as getJobSkillsApi } from "api/shared/listsApi";
-import FormStepFour from "./FormStepFour";
+import FormStepFour from "./formStepFour.jsx";
 import axios from "axios";
 // import "react-input-range/lib/css/index.css"
 function FormStepSix(props, formik) {

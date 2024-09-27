@@ -5,11 +5,11 @@ import { connect } from "react-redux";
 import { Switch, Route, Redirect } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import FinalStep from "./FinalStep";
-import FormStepFour from "./FormStepFour";
-import FormStepOne from "./FormStepOne";
-import FormStepThree from "./FormStepThree";
-import FormStepTwo from "./FormStepTwo";
+import FinalStep from "./finalStep.jsx";
+import FormStepFour from "./formStepFour.jsx";
+import FormStepOne from "./formStepOne.jsx";
+import FormStepThree from "./formStepThree.jsx";
+import FormStepTwo from "./formStepTwo.jsx";
 import "../../../../../_metronic/_assets/sass/pages/wizard/wizard-2.scss";
 import * as Yup from "yup";
 

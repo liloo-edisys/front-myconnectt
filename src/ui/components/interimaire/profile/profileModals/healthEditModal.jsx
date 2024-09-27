@@ -19,11 +19,6 @@ export function HealthEditModal({
   files,
   editHealthInfos,
   currentType,
-  isVerso,
-  birthDay,
-  socialNumber,
-  cityBirth,
-  birthDep,
   parsed,
   isEdit,
   file
@@ -245,7 +240,7 @@ export function HealthEditModal({
     );
   };
 
-  const handleValidate = files => {
+  const handleValidate = () => {
     editHealthInfos(docNumber, birthDate, birthLoaction, birthDepartment);
     setStartDate(null);
     setEndDate(null);

@@ -1,5 +1,6 @@
 import React from "react";
-import Message from "./Message";
+import Message from "./message.jsx";
+
 
 const ChatWindow = props => {
   const chat = props.chat.map(m => (

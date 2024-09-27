@@ -20,7 +20,7 @@ import { updateApplicant } from "actions/client/applicantsActions";
 import postalCode from "../../../../../../utils/postalCodes.json";
 import InputRange from "react-input-range";
 import { getJobSkills as getJobSkillsApi } from "api/shared/listsApi";
-import FormStepFour from "../../../../interimaire/profile/profileForms/FormStepFour";
+import FormStepFour from "../../../../interimaire/profile/profileForms/formStepFour.jsx";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
 import { getSelectedApplicantById } from "../../../../../../business/actions/backoffice/applicantActions";

@@ -13,7 +13,7 @@ import { injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import { getTitlesTypes } from "../../../../business/actions/shared/listsActions";
-import { DeleteProfileDialog } from "./profileModals/DeleteProfileDialog";
+import { DeleteProfileDialog } from "./profileModals/deleteProfileDialog.jsx";
 import { useParams } from "react-router-dom";
 import IdentityInformations from "./fields/indentity-informations";
 import Experiences from "./fields/experiences";

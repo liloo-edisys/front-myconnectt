@@ -18,7 +18,7 @@ import NewMission from "./components/backoffice/new-mission/index.js";
 import MailTemplatesPage from "./components/backoffice/mailtemplates/mailTemplatesPage.jsx";
 import CommercialAgreementsPage from "./components/backoffice/commercialagreements/commercialAgreementsPage.jsx";
 import { CustomerOrderPage } from "./components/backoffice/customer-order/index.js";
-import FinalStep from "./components/backoffice/new-mission/fields/mission-creator/missionForms/FinalStep.js";
+import FinalStep from "./components/backoffice/new-mission/fields/mission-creator/missionForms/finalStep.jsx";
 import UsersCard from "./components/backoffice/users/index.js";
 import HoursStatement from "./components/backoffice/hours-statement/HoursStatement.js";
 import { Jobskills } from "./components/backoffice/jobskill/index.js";

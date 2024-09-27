@@ -15,17 +15,17 @@ import _ from "lodash";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useFormikContext } from "formik";
-import useLocalStorage from "../../../shared/persistState";
+import useLocalStorage from "../../../shared/persistState.js";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
-import { DeleteExperienceModal } from "../profileModals/DeleteExperienceModal";
+import { DeleteExperienceModal } from "../profileModals/deleteExperienceModal.jsx";
 import { updateApplicant } from "actions/client/applicantsActions";
 import { parseResume as parseResumeActions } from "actions/interimaire/interimairesActions";
 import { parseResume } from "api/interimaire/interimairesApi";
-import { getMissionEquipment } from "../../../../../business/actions/shared/listsActions";
+import { getMissionEquipment } from "../../../../../business/actions/shared/listsActions.js";
 import { getHabilitationsList } from "actions/client/missionsActions";
 import uuid from "react-uuid";
 import NewExperience from "../../home/fieldsets/new-experience/newExperience.jsx";
-import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
+import isNullOrEmpty from "../../../../../utils/isNullOrEmpty.js";
 
 function FormStepThree(props, formik) {
   const dispatch = useDispatch();

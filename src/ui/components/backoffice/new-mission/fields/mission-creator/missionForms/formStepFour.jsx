@@ -18,17 +18,17 @@ import {
   getHabilitationsList
 } from "actions/client/missionsActions";
 import { Input } from "metronic/_partials/controls";
-import useLocalStorage from "../../../../../shared/persistState";
+import useLocalStorage from "../../../../../shared/persistState.js";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import { countMatching } from "actions/client/applicantsActions";
-import isNullOrEmpty from "../../../../../../../utils/isNullOrEmpty";
+import isNullOrEmpty from "../../../../../../../utils/isNullOrEmpty.js";
 import moment from "moment";
 import TimePicker from "rc-time-picker";
 import {
   getDriverLicences,
   getMissionEquipment,
   getMissionReasons
-} from "../../../../../../../business/actions/shared/listsActions";
+} from "../../../../../../../business/actions/shared/listsActions.js";
 import { toastr } from "react-redux-toastr";
 import { useParams, useHistory } from "react-router-dom";
 

@@ -9,7 +9,7 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout/index.js";
 
 import EmailContactModal from "./components/client/Email/emailContactModal.jsx";
-import MissionWizardForm from "./components/client/missions/missionForms/MissionWizzard.js";
+import MissionWizardForm from "./components/client/missions/missionForms/missionWizzard.jsx";
 import MissionPage from "./components/client/missions/MissionPage/MissionPage.js";
 import CompaniesContainer from "../business/containers/companiesContainer.js";
 import MissionsContainer from "../business/containers/missionsContainer.js";

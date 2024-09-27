@@ -1,25 +1,25 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Field, useFormikContext } from "formik";
 import moment from "moment";
 import TimePicker from "rc-time-picker";
 import { FormattedMessage, injectIntl } from "react-intl";
-import { Link } from "react-router-dom";
+//import { Link } from "react-router-dom";
 import "rc-time-picker/assets/index.css";
-import useLocalStorage from "../../../shared/persistState";
+//import useLocalStorage from "../../../../../shared/persistState";
 import { toastr } from "react-redux-toastr";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
-import { shallowEqual, useSelector } from "react-redux";
-import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import _ from "lodash";
+//import { shallowEqual, useSelector } from "react-redux";
+import isNullOrEmpty from "../../../../../../../utils/isNullOrEmpty.js";
+//import _ from "lodash";
 
 // var date = "2020-01-01";
 
 function FormStepThree(props) {
-  const { intl } = props;
-  const { template, isTemplate, isDuplicate } = useSelector(
+  const { intl, goToSecondStep, goToFourthStep } = props;
+  /*const { template, isTemplate, isDuplicate } = useSelector(
     state => ({
       template: state.missionsReducerData.mission,
       isTemplate:
@@ -34,8 +34,28 @@ function FormStepThree(props) {
           : false
     }),
     shallowEqual
-  );
-  const [startHour, onChangeStartHour] = useLocalStorage(
+  );*/
+  const [startHour, onChangeStartHour] = useState(null);
+  const [endHour, onChangeEndHour] = useState(null);
+  const [weeklyHours, onChangeWeeklyHours] = useState(0);
+  const [complement, setComplement] = useState("");
+  useEffect(() => {
+    if (props.formik.values.missionStartHour) {
+      onChangeStartHour(
+        moment(props.formik.values.missionStartHour, "HH:mm").toDate()
+      );
+    }
+    if (props.formik.values.missionEndHour) {
+      onChangeEndHour(
+        moment(props.formik.values.missionEndHour, "HH:mm").toDate()
+      );
+    }
+    if (props.formik.values.missionHourlySupplement) {
+      setComplement(props.formik.values.missionHourlySupplement);
+    }
+    onChangeWeeklyHours(props.formik.values.missionWeeklyWorkHours);
+  }, []);
+  /*const [startHour, onChangeStartHour] = useLocalStorage(
     "startHour",
     !isNullOrEmpty(template) &&
       !isNullOrEmpty(template.missionStartHour) &&
@@ -64,8 +84,8 @@ function FormStepThree(props) {
     !isNullOrEmpty(template) && !isTemplate
       ? template.missionHourlySupplement
       : ""
-  );
-  useEffect(() => {
+  );*/
+  /*useEffect(() => {
     if (props.formik.values.missionStartHour === null) {
       props.formik.setFieldValue(
         "missionStartHour",
@@ -98,8 +118,8 @@ function FormStepThree(props) {
   }, [
     weeklyHours,
     props.formik.values.missionEndHour,
-    props.formik.values.missionStartHour
-  ]);
+    props.formik.values.missionStartHour,
+  ]);*/
 
   const handleChangeStartHour = value => {
     onChangeStartHour(value);
@@ -117,7 +137,7 @@ function FormStepThree(props) {
     );
   };
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (!_.isEmpty(template) && isTemplate) {
       props.formik.values.missionStartHour !==
         moment(startHour._d).format("HH:mm") &&
@@ -163,7 +183,7 @@ function FormStepThree(props) {
           !isTemplate ? template.missionWeeklyWorkHours : 0
         );
     }
-  }, [template, props.formik.values]);
+  }, [template, props.formik.values]);*/
 
   const { errors, touched } = useFormikContext();
 
@@ -342,61 +362,45 @@ function FormStepThree(props) {
 
                 <div className="d-flex justify-content-between border-top mt-5 pt-10">
                   <div className="mr-2">
-                    <Link
-                      to="/mission-create/step-two"
-                      className="next col-lg p-0"
+                    <button
+                      type="button"
+                      className="btn btn-light-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
+                      onClick={goToSecondStep}
                     >
-                      <button
-                        type="button"
-                        className="btn btn-light-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
-                      >
-                        <FormattedMessage id="BUTTON.BACK" />
-                      </button>
-                    </Link>
+                      <FormattedMessage id="BUTTON.BACK" />
+                    </button>
                   </div>
                   <div>
-                    <Link
-                      to={
-                        !errors.missionStartHour &&
-                        !errors.missionEndHour &&
-                        !errors.missionWeeklyWorkHours
-                          ? "/mission-create/step-four"
-                          : "#"
-                      }
-                      className="next"
+                    <button
+                      type="submit"
+                      className="btn btn-primary btn-shadow font-weight-bold px-9 py-4 my-3 mx-4"
+                      onClick={() => {
+                        setFormik();
+                        props.formik.setFieldTouched("missionStartHour", true);
+                        props.formik.setFieldTouched("missionEndHour", true);
+                        props.formik.setFieldTouched(
+                          "missionWeeklyWorkHours",
+                          true
+                        );
+                        if (
+                          errors.missionStartHour ||
+                          errors.missionEndHour ||
+                          errors.missionWeeklyWorkHours
+                        ) {
+                          return toastr.error(
+                            intl.formatMessage({
+                              id: "VALIDATION.REQUIRED_FIELDS.TITLE"
+                            }),
+                            intl.formatMessage({
+                              id: "VALIDATION.REQUIRED_FIELDS.DESC"
+                            })
+                          );
+                        }
+                        goToFourthStep();
+                      }}
                     >
-                      <button
-                        type="submit"
-                        className="btn btn-primary btn-shadow font-weight-bold px-9 py-4 my-3 mx-4"
-                        onClick={() => {
-                          setFormik();
-                          props.formik.setFieldTouched(
-                            "missionStartHour",
-                            true
-                          );
-                          props.formik.setFieldTouched("missionEndHour", true);
-                          props.formik.setFieldTouched(
-                            "missionWeeklyWorkHours",
-                            true
-                          );
-
-                          return errors.missionStartHour ||
-                            errors.missionEndHour ||
-                            errors.missionWeeklyWorkHours
-                            ? toastr.error(
-                                intl.formatMessage({
-                                  id: "VALIDATION.REQUIRED_FIELDS.TITLE"
-                                }),
-                                intl.formatMessage({
-                                  id: "VALIDATION.REQUIRED_FIELDS.DESC"
-                                })
-                              )
-                            : null;
-                        }}
-                      >
-                        <FormattedMessage id="BUTTON.NEXT" />
-                      </button>
-                    </Link>
+                      <FormattedMessage id="BUTTON.NEXT" />
+                    </button>
                   </div>
                 </div>
               </div>

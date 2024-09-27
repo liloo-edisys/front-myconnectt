@@ -4,10 +4,10 @@ import { Formik, Form } from "formik";
 import { connect } from "react-redux";
 import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 
-import FormStepFour from "./missionForms/FormStepFour";
-import FormStepOne from "./missionForms/FormStepOne";
-import FormStepThree from "./missionForms/FormStepThree";
-import FormStepTwo from "./missionForms/FormStepTwo";
+import FormStepFour from "./missionForms/formStepFour.jsx";
+import FormStepOne from "./missionForms/formStepOne.jsx";
+import FormStepThree from "./missionForms/formStepThree.jsx";
+import FormStepTwo from "./missionForms/formStepTwo.jsx";
 import "../../../../../../_metronic/_assets/sass/pages/wizard/wizard-2.scss";
 import * as Yup from "yup";
 

@@ -1,37 +1,31 @@
 import React, { useState, useEffect } from "react";
-import SVG from "react-inlinesvg";
-import { Formik, Form, Field } from "formik";
+import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import LoadingOverlay from "react-loading-overlay";
 import { FormattedMessage, useIntl } from "react-intl";
-import { Zoom } from "react-reveal";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { toAbsoluteUrl } from "../../../../../_metronic/_helpers";
 import "./styles.scss";
 import {
   goToNextStep,
   deleteIdDocument,
-  clearStepFiveModal,
   getNationalitiesList
 } from "../../../../../business/actions/interimaire/interimairesActions.js";
-import { getTitlesTypes } from "../../../../../business/actions/shared/listsActions";
-import { DocumentsModal } from "../../home/fieldsets/indentity-documents/documents-modal";
-import VitalCardModal from "../../home/fieldsets/indentity-documents/vital-card-modal";
-import RibModal from "../../home/fieldsets/indentity-documents/rib-modal";
+import { getTitlesTypes } from "../../../../../business/actions/shared/listsActions.js";
+import { DocumentsModal } from "../../home/fieldsets/indentity-documents/documents-modal/index.js";
+import VitalCardModal from "../../home/fieldsets/indentity-documents/vital-card-modal/index.js";
+import RibModal from "../../home/fieldsets/indentity-documents/rib-modal/index.js";
 import {
   ProofOfAddressModal,
   HabilitationModal,
   OtherDocumentModal
-} from "./document-modals";
+} from "./document-modals/index.js";
 
 function FormStepFive(props) {
   const intl = useIntl();
   const dispatch = useDispatch();
   const {
-    companies,
     interimaire,
-    parsed,
     loading,
     stepFiveModal,
     nationalitiesList
@@ -261,7 +255,7 @@ function FormStepFive(props) {
                 initialValues={initialValues}
                 validationSchema={RegistrationSchema}
                 setFieldValue
-                onSubmit={(values, { setSubmitting }) => {
+                onSubmit={(values) => {
                   goToNextStep();
                   /*enableLoading();
                                 registerAccount(values)
@@ -275,7 +269,7 @@ function FormStepFive(props) {
                                   });*/
                 }}
               >
-                {({ values, touched, errors, status, handleSubmit }) => (
+                {({ handleSubmit }) => (
                   <Form
                     id="kt_login_signin_form"
                     className="form fv-plugins-bootstrap fv-plugins-framework animated animate__animated animate__backInUp"

@@ -12,13 +12,13 @@ import _ from "lodash";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 
-import useLocalStorage from "../../../shared/persistState";
+import useLocalStorage from "../../../shared/persistState.js";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
-import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
+import isNullOrEmpty from "../../../../../utils/isNullOrEmpty.js";
 import { useDropzone } from "react-dropzone";
-import { cancelEdit } from "../../../../../business/actions/interimaire/interimairesActions";
+import { cancelEdit } from "../../../../../business/actions/interimaire/interimairesActions.js";
 import { parseResume } from "api/interimaire/interimairesApi";
-import IframeGoogleDocs from "../../../../../utils/googleHacks";
+import IframeGoogleDocs from "../../../../../utils/googleHacks.js";
 import { parseResume as parseResumeActions } from "actions/interimaire/interimairesActions";
 
 function FormStepOne(props, formik) {

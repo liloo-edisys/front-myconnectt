@@ -1,7 +1,7 @@
 import { HubConnectionBuilder } from "@microsoft/signalr";
 import React, { useState, useEffect, useRef } from "react";
-import ChatInput from "./ChatInput";
-import ChatWindow from "./ChatWindow";
+import ChatInput from "./chatInput.jsx";
+import ChatWindow from "./chatWindow.jsx";
 import { useSelector } from "react-redux";
 
 const Chat = () => {
@@ -61,3 +61,5 @@ const Chat = () => {
 };
 
 export default Chat;
+
+

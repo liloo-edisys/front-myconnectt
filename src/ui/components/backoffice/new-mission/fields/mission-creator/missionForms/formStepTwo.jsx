@@ -8,16 +8,16 @@ import React, { useCallback, useEffect } from "react";
 
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { getMissionRemuneration } from "../../../../../../../business/actions/shared/listsActions";
+import { getMissionRemuneration } from "../../../../../../../business/actions/shared/listsActions.js";
 import _, { debounce, isNull } from "lodash";
 import { useFormikContext } from "formik";
-import useLocalStorage from "../../../../../shared/persistState";
+import useLocalStorage from "../../../../../shared/persistState.js";
 import { toastr } from "react-redux-toastr";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import { VictoryBar, VictoryTooltip } from "victory";
-import FlyOut from "./CustomToolTip";
+import FlyOut from "./CustomToolTip.js";
 import { countMatching } from "actions/client/applicantsActions";
-import isNullOrEmpty from "../../../../../../../utils/isNullOrEmpty";
+import isNullOrEmpty from "../../../../../../../utils/isNullOrEmpty.js";
 
 function FormStepTwo(props) {
   const dispatch = useDispatch();

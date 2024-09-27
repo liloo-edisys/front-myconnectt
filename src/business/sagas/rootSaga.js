@@ -18,7 +18,6 @@ import MailTemplatesSagas from "./backoffice/mailTemplatesSagas";
 import CommercialAgreementsSagas from "./backoffice/commercialAgreementsSagas";
 import ApplicantsBackofficeSagas from "./backoffice/applicantsSagas";
 
-
 export function* startWatchers() {
   yield all([
     spawn(AuthSaga),

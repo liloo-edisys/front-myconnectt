@@ -19,14 +19,11 @@ import CreatableSelect from "react-select/creatable";
 import { countMatching } from "actions/client/applicantsActions";
 import { useFormikContext } from "formik";
 import { DatePickerField } from "metronic/_partials/controls";
-import useLocalStorage from "../../../shared/persistState";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
-import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
+import isNullOrEmpty from "../../../../../../../utils/isNullOrEmpty.js";
 import moment from "moment";
 import { registerLocale } from "react-datepicker";
 import fr from "date-fns/locale/fr";
-import InputRange from "react-input-range";
-
 import {
   createJobSkills,
   createJobTags,
@@ -36,7 +33,7 @@ import {
   getJobTags,
   getJobSkills,
   getMissionExperiences
-} from "../../../../../business/actions/shared/listsActions";
+} from "../../../../../../../business/actions/shared/listsActions.js";
 import {
   getJobSkills as getJobSkillsApi,
   getJobTags as getJobTagsApi
@@ -47,13 +44,18 @@ import {
   resetMissionIndicator,
   resetMission,
   getHabilitationsList
-} from "../../../../../business/actions/client/missionsActions.js";
-import { deleteFromStorage } from "../../../shared/deleteFromStorage";
+} from "../../../../../../../business/actions/client/missionsActions.js";
+import { deleteFromStorage } from "../../../../../shared/deleteFromStorage.js";
+import axios from "axios";
+import { useHistory, useParams } from "react-router-dom";
+import InputRange from "react-input-range";
 registerLocale("fr", fr);
 
 function FormStepOne(props, formik) {
   const dispatch = useDispatch();
-  const { intl } = props;
+  const history = useHistory();
+  const { id } = useParams();
+  const { intl, goToSecondStep, accountID } = props;
   const TENANTID = +process.env.REACT_APP_TENANT_ID;
   let {
     saveMissionSuccess,
@@ -113,74 +115,92 @@ function FormStepOne(props, formik) {
   );
 
   let worksites = companies.length
-    ? companies.filter(company => company.parentID === currentCompanyID)
+    ? companies.filter(company => company.parentID === accountID)
     : [];
 
-  let selectedMission = worksites.filter(
-    worksite => worksite.id === selectedCity
-  )[0];
-  // let selectedJobTitle = jobTitleList.filter(title => title.id === props.formik.values.jobTitleID)
   const editor = useRef(null);
-  const [selectedCity, setselectedCity] = useLocalStorage(
-    "vacancyBusinessAddressCity",
-    currentWorksite
-  );
+  const [selectedCity, setselectedCity] = useState(null);
 
   const [missionToUpdate, setMissionToUpdate] = useState([]);
 
-  const [address, setAddress] = useLocalStorage("address", null);
-  const [city, setCity] = useLocalStorage("currCity", null);
-  const [postalCode, setPostalCode] = useLocalStorage("postalCode", "");
+  const [address, setAddress] = useState(null);
+  const [city, setCity] = useState(null);
+  const [postalCode, setPostalCode] = useState("");
   const [content, setContent] = useState("");
   const [isLoading, setLoading] = useState(false);
   const [isSkillsLoading, setIsSkillsLoading] = useState(false);
-  const [distance, setDistance] = useState(
-    props.formik.values.matchingPostalCodeDistance
-  );
-  const [selectedJobTitle, setSelectedJobTitle] = useLocalStorage(
-    "jobTitleID",
-    null
-  );
+  const [selectedJobTitle, setSelectedJobTitle] = useState(null);
 
-  const [extraJobTitle, setExtraJobTitle] = useLocalStorage("jobTitle", null);
-  const [selectedTags, setSelectedTags] = useLocalStorage(
-    "vacancyApplicationCriteriaArrayJobTags",
-    null
-  );
+  const [extraJobTitle, setExtraJobTitle] = useState(null);
+  const [selectedTags, setSelectedTags] = useState(null);
   const [selectedHabilitations, setSelectedHabilitations] = useState(null);
 
-  const [selectedSkills, setSelectedSkills] = useLocalStorage(
-    "vacancyApplicationCriteriaArrayComputerSkills",
-    null
-  );
-  const [selectedLanguage, setSelectedLanguage] = useLocalStorage(
-    "vacancyApplicationCriteriaArrayLanguagesWithLevel",
-    null
+  const [selectedSkills, setSelectedSkills] = useState(null);
+  const [selectedLanguage, setSelectedLanguage] = useState(null);
+
+  const [description, setDescription] = useState(null);
+  const [selectedEducation, setSelectedEducation] = useState(null);
+
+  const [missionOrderReference, setMissionOrderReference] = useState(null);
+  const [vacancyNumberOfJobs, setVacancyNumberOfJobs] = useState([]);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [experience, setExperience] = useState(null);
+  const [distance, setDistance] = useState(
+    props?.templateSelection?.matchingPostalCodeDistance
+      ? props.templateSelection.matchingPostalCodeDistance
+      : 10
   );
 
-  const [description, setDescription] = useLocalStorage("description", null);
-  const [selectedEducation, setSelectedEducation] = useLocalStorage(
-    "vacancyApplicationCriteriaArrayRequiredEducationLevels",
-    null
-  );
+  const [recurrenceType, setRecurrenceType] = useState(0);
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState(null);
 
-  const [missionOrderReference, setMissionOrderReference] = useLocalStorage(
-    "missionOrderReference",
-    null
-  );
-  const [vacancyNumberOfJobs, setVacancyNumberOfJobs] = useLocalStorage(
-    "vacancyNumberOfJobs",
-    []
-  );
-  const [startDate, setStartDate] = useLocalStorage(
-    "vacancyContractualVacancyEmploymentContractTypeStartDate",
-    null
-  );
-  const [endDate, setEndDate] = useLocalStorage(
-    "vacancyContractualVacancyEmploymentContractTypeEndDate",
-    null
-  );
-  const [experience, setExperience] = useLocalStorage("experience", null);
+  useEffect(() => {
+    props.formik.setFieldValue("vacancyBusinessAddressCity", city);
+    props.formik.setFieldValue("address", address);
+    props.formik.setFieldValue("vacancyBusinessAddressPostalCode", postalCode);
+
+    if (props.formik.values.vacancyApplicationCriteriaArrayComputerSkills) {
+      getDataProfile(
+        props.formik.values.vacancyApplicationCriteriaArrayComputerSkills,
+        jobSkills,
+        setSelectedSkills
+      );
+    }
+    if (props.formik.values.missionArrayHabilitations) {
+      getDataProfile(
+        props.formik.values.missionArrayHabilitations,
+        habilitations,
+        setSelectedHabilitations
+      );
+    }
+
+    if (!city || !address || !postalCode) {
+      setCity(worksites[0].city);
+      props.formik.setFieldValue(
+        "vacancyBusinessAddressCity",
+        worksites[0].city
+      );
+      setAddress(worksites[0].address);
+      props.formik.setFieldValue("address", worksites[0].address);
+      setPostalCode(worksites[0].postalCode);
+      props.formik.setFieldValue(
+        "vacancyBusinessAddressPostalCode",
+        worksites[0].postalCode
+      );
+    }
+  }, [city, address, postalCode, habilitations, jobSkills]);
+
+  const getDataProfile = (newValue, list, exec) => {
+    let newArray = [];
+    for (let i = 0; i < newValue.length; i++) {
+      const index = list.findIndex(item => item.id === newValue[i]);
+      if (index > -1) {
+        newArray.push(createOption(list[index].name, list[index].id));
+      }
+    }
+    exec(newArray);
+  };
 
   const createOption = (label, value) => ({
     label,
@@ -252,11 +272,6 @@ function FormStepOne(props, formik) {
     }
   });
 
-  const handleChangeDistance = value => {
-    props.formik.setFieldValue("matchingPostalCodeDistance", value.value);
-    setDistance(value.value);
-  };
-
   const formatTags = useCallback(data => {
     if (jobTags.length) {
       let newArray = [];
@@ -292,6 +307,8 @@ function FormStepOne(props, formik) {
     return classes.join(" ");
   };
   const handleChangeAddress = e => {
+    /*setAddress(getCurrentMission("address", e));*/
+    props.formik.setFieldValue("address", e);
     setAddress(e);
     return e;
   };
@@ -302,6 +319,8 @@ function FormStepOne(props, formik) {
   };
 
   const handleChangeCity = e => {
+    //setCity(getCurrentMission("city", e));
+    props.formik.setFieldValue("city", e);
     setCity(e);
     return e;
   };
@@ -311,8 +330,8 @@ function FormStepOne(props, formik) {
       "vacancyBusinessAddressCity",
       getCurrentMission("city", e)
     );
-
     setCity(getCurrentMission("city", e));
+    //setCity(getCurrentMission("city", e));
     return e;
   };
 
@@ -644,11 +663,11 @@ function FormStepOne(props, formik) {
     props.formik.setFieldTouched("vacancyMissionDescription", true);
     props.formik.setFieldTouched("vacancyBusinessAddressPostalCode", true);
     props.formik.setFieldTouched(
-      "VacancyContractualVacancyEmploymentContractTypeStartDate",
+      "vacancyContractualVacancyEmploymentContractTypeStartDate",
       true
     );
     props.formik.setFieldTouched(
-      "VacancyContractualVacancyEmploymentContractTypeEndDate",
+      "vacancyContractualVacancyEmploymentContractTypeEndDate",
       true
     );
     props.formik.setFieldTouched("jobTitleID", true);
@@ -705,21 +724,21 @@ function FormStepOne(props, formik) {
 
   useEffect(() => {
     !isNullOrEmpty(
-      props.formik.values.VacancyContractualVacancyEmploymentContractTypeEndDate
+      props.formik.values.vacancyContractualVacancyEmploymentContractTypeEndDate
     ) &&
-      touched.VacancyContractualVacancyEmploymentContractTypeEndDate !== true &&
+      touched.vacancyContractualVacancyEmploymentContractTypeEndDate !== true &&
       props.formik.setFieldTouched(
-        "VacancyContractualVacancyEmploymentContractTypeEndDate",
+        "vacancyContractualVacancyEmploymentContractTypeEndDate",
         true
       );
     !isNullOrEmpty(
       props.formik.values
-        .VacancyContractualVacancyEmploymentContractTypeStartDate
+        .vacancyContractualVacancyEmploymentContractTypeStartDate
     ) &&
-      touched.VacancyContractualVacancyEmploymentContractTypeStartDate !==
+      touched.vacancyContractualVacancyEmploymentContractTypeStartDate !==
         true &&
       props.formik.setFieldTouched(
-        "VacancyContractualVacancyEmploymentContractTypeStartDate",
+        "vacancyContractualVacancyEmploymentContractTypeStartDate",
         true
       );
   });
@@ -728,10 +747,12 @@ function FormStepOne(props, formik) {
       isNotTemplateOrDuplicate() &&
       isNullOrEmpty(
         props.formik.values
-          .VacancyContractualVacancyEmploymentContractTypeStartDate
+          .vacancyContractualVacancyEmploymentContractTypeStartDate
       ) &&
+      props.formik.values
+        .vacancyContractualVacancyEmploymentContractTypeStartDate._isValid &&
       props.formik.setFieldValue(
-        "VacancyContractualVacancyEmploymentContractTypeStartDate",
+        "vacancyContractualVacancyEmploymentContractTypeStartDate",
         moment(
           template.vacancyContractualVacancyEmploymentContractTypeStartDate
         )
@@ -740,10 +761,12 @@ function FormStepOne(props, formik) {
       isNotTemplateOrDuplicate() &&
       isNullOrEmpty(
         props.formik.values
-          .VacancyContractualVacancyEmploymentContractTypeEndDate
+          .vacancyContractualVacancyEmploymentContractTypeEndDate
       ) &&
+      props.formik.values.vacancyContractualVacancyEmploymentContractTypeEndDate
+        ._isValid &&
       props.formik.setFieldValue(
-        "VacancyContractualVacancyEmploymentContractTypeEndDate",
+        "vacancyContractualVacancyEmploymentContractTypeEndDate",
         moment(template.vacancyContractualVacancyEmploymentContractTypeEndDate)
       );
   });
@@ -753,8 +776,9 @@ function FormStepOne(props, formik) {
   };
 
   useEffect(() => {
-    !isTemplate &&
-      isNullOrEmpty(vacancyNumberOfJobs) &&
+    let template = props.formik.values;
+
+    isNullOrEmpty(vacancyNumberOfJobs) &&
       setVacancyNumberOfJobs(template.vacancyNumberOfJobs);
     if (!isNullOrEmpty(template)) {
       isNull(experience) && setExperience(template.missionExperienceID);
@@ -800,221 +824,233 @@ function FormStepOne(props, formik) {
     missionOrderReference
   ]);
   useEffect(() => {
-    if (!_.isEmpty(template)) {
-      isNullOrEmpty(selectedJobTitle) &&
-        setSelectedJobTitle(template.jobTitleID);
-      isNullOrEmpty(props.formik.values.jobTitleID) &&
-        props.formik.setFieldValue("jobTitleID", template.jobTitleID);
+    let template = props.formik.values;
+    isNullOrEmpty(selectedJobTitle) && setSelectedJobTitle(template.jobTitleID);
+    isNullOrEmpty(props.formik.values.jobTitleID) &&
+      props.formik.setFieldValue("jobTitleID", template.jobTitleID);
 
-      isNullOrEmpty(selectedCity) && setselectedCity(template.workSiteID);
-      isNullOrEmpty(props.formik.values.workSiteID) &&
-        props.formik.setFieldValue("workSiteID", template.workSiteID);
+    isNullOrEmpty(selectedCity) && setselectedCity(template.workSiteID);
+    isNullOrEmpty(props.formik.values.workSiteID) &&
+      props.formik.setFieldValue("workSiteID", template.workSiteID);
 
-      isNullOrEmpty(extraJobTitle) && setExtraJobTitle(template.vacancyTitle);
-      isNullOrEmpty(extraJobTitle) &&
-        props.formik.setFieldValue("vacancyTitle", template.vacancyTitle);
+    isNullOrEmpty(extraJobTitle) && setExtraJobTitle(template.vacancyTitle);
+    isNullOrEmpty(extraJobTitle) &&
+      props.formik.setFieldValue("vacancyTitle", template.vacancyTitle);
 
-      isNullOrEmpty(experience) && setExperience(template.missionExperienceID);
-      isNullOrEmpty(experience) &&
-        props.formik.setFieldValue(
-          "missionExperienceID",
-          template.missionExperienceID
-        );
+    isNullOrEmpty(experience) && setExperience(template.missionExperienceID);
+    isNullOrEmpty(experience) &&
+      props.formik.setFieldValue(
+        "missionExperienceID",
+        template.missionExperienceID
+      );
 
-      isNullOrEmpty(description) &&
-        setDescription(template.vacancyMissionDescription);
-      isNullOrEmpty(props.formik.values.vacancyMissionDescription) &&
-        props.formik.setFieldValue(
-          "vacancyMissionDescription",
-          template.vacancyMissionDescription
-        );
-      !isNullOrEmpty(props.formik.values.vacancyMissionDescription) &&
-        props.formik.setFieldTouched("vacancyMissionDescription", true);
-      if (isNullOrEmpty(address)) {
-        !isNullOrEmpty(template.address)
-          ? setAddress(template.address)
-          : setAddress(getCurrentMission("address", currentWorksite));
-      }
-      isNullOrEmpty(address) && !isNullOrEmpty(template.address)
-        ? props.formik.setFieldValue("address", template.address)
-        : props.formik.setFieldValue(
-            "address",
-            getCurrentMission("address", currentWorksite)
-          );
-
-      if (isNull(city)) {
-        !isNullOrEmpty(template.vacancyBusinessAddressCity)
-          ? setCity(template.vacancyBusinessAddressCity)
-          : setCity(getCurrentMission("city", currentWorksite));
-      }
-      isNullOrEmpty(city) && !isNullOrEmpty(template.city)
-        ? props.formik.setFieldValue(
-            "vacancyBusinessAddressCity",
-            template.vacancyBusinessAddressCity
-          )
-        : props.formik.setFieldValue(
-            "vacancyBusinessAddressCity",
-            getCurrentMission("city", currentWorksite)
-          );
-
-      if (isNullOrEmpty(postalCode)) {
-        !isNullOrEmpty(template.vacancyBusinessAddressPostalCode)
-          ? setPostalCode(template.vacancyBusinessAddressPostalCode)
-          : setPostalCode(getCurrentMission("postalCode", currentWorksite));
-      }
-      isNullOrEmpty(postalCode) && !isNullOrEmpty(template.city)
-        ? props.formik.setFieldValue(
-            "vacancyBusinessAddressPostalCode",
-            template.vacancyBusinessAddressPostalCode
-          )
-        : props.formik.setFieldValue(
-            "vacancyBusinessAddressPostalCode",
-            getCurrentMission("postalCode", currentWorksite)
-          );
-      isNullOrEmpty(startDate) &&
-        isTmpOrDup === false &&
-        setStartDate(
-          moment(
-            template.vacancyContractualVacancyEmploymentContractTypeStartDate
-          )
-        );
-      isNullOrEmpty(
-        props.formik.values
-          .VacancyContractualVacancyEmploymentContractTypeStartDate
-      ) &&
-        isTmpOrDup === false &&
-        props.formik.setFieldValue(
-          "VacancyContractualVacancyEmploymentContractTypeStartDate",
-          moment(
-            template.vacancyContractualVacancyEmploymentContractTypeStartDate
-          )
-        );
-
-      isNull(missionOrderReference) &&
-        isTmpOrDup === false &&
-        setMissionOrderReference(template.missionOrderReference);
-
-      !isNull(missionOrderReference) &&
-        isTmpOrDup === false &&
-        props.formik.setFieldValue(
-          "missionOrderReference",
-          template.missionOrderReference
-        );
-
-      isTmpOrDup === false &&
-        props.formik.setFieldValue(
-          "VacancyContractualVacancyEmploymentContractTypeEndDate",
-          moment(
-            template.vacancyContractualVacancyEmploymentContractTypeEndDate
-          )
-        );
-      isNullOrEmpty(endDate) &&
-        isTmpOrDup === false &&
-        setEndDate(
-          moment(
-            template.vacancyContractualVacancyEmploymentContractTypeEndDate
-          )
-        );
-
-      // isNullOrEmpty(vacancyNumberOfJobs) &&
-      //   setVacancyNumberOfJobs(template.vacancyNumberOfJobs);
-      // isNullOrEmpty(props.formik.values.vacancyNumberOfJobs) &&
-      //   props.formik.setFieldValue(
-      //     "vacancyNumberOfJobs",
-      //     template.vacancyNumberOfJobs
-      //   );
-      !isNullOrEmpty(props.formik.values.vacancyNumberOfJobs) &&
-        props.formik.setFieldTouched("vacancyNumberOfJobs", true);
-      !isNullOrEmpty(props.formik.values.vacancyMissionDescription) &&
-        props.formik.setFieldTouched("vacancyMissionDescription", true);
-      !isNullOrEmpty(props.formik.values.jobTitleID) &&
-        props.formik.setFieldTouched("jobTitleID", true);
-
-      // educationLevels.length &&
-      //   isNullOrEmpty(selectedEducation) &&
-      //   !isNullOrEmpty(
-      //     template.vacancyApplicationCriteriaArrayRequiredEducationLevels
-      //   ) &&
-      //   formatEducation(
-      //     template.vacancyApplicationCriteriaArrayRequiredEducationLevels
-      //   );
-
-      isNullOrEmpty(
-        props.formik.values
-          .vacancyApplicationCriteriaArrayRequiredEducationLevels
-      ) &&
-        props.formik.setFieldValue(
-          "vacancyApplicationCriteriaArrayRequiredEducationLevels",
-          template.vacancyApplicationCriteriaArrayRequiredEducationLevels
-        );
-
-      // languages.length &&
-      //   isNullOrEmpty(selectedLanguage) &&
-      //   !isNullOrEmpty(
-      //     template.vacancyApplicationCriteriaArrayLanguagesWithLevel
-      //   ) &&
-      //   formatLanguage(
-      //     template.vacancyApplicationCriteriaArrayLanguagesWithLevel
-      //   );
-
-      isNull(
-        props.formik.values.vacancyApplicationCriteriaArrayLanguagesWithLevel
-      ) &&
-        !isNull(template.vacancyApplicationCriteriaArrayLanguagesWithLevel) &&
-        props.formik.setFieldValue(
-          "vacancyApplicationCriteriaArrayLanguagesWithLevel",
-          template.vacancyApplicationCriteriaArrayLanguagesWithLevel
-        );
-
-      // jobSkills.length &&
-      //   isNullOrEmpty(selectedSkills) &&
-      //   !isNullOrEmpty(
-      //     template.vacancyApplicationCriteriaArrayComputerSkills
-      //   ) &&
-      //   formatSkills(template.vacancyApplicationCriteriaArrayComputerSkills);
-
-      isNull(
-        props.formik.values.vacancyApplicationCriteriaArrayComputerSkills
-      ) &&
-        !isNullOrEmpty(
-          template.vacancyApplicationCriteriaArrayComputerSkills
-        ) &&
-        props.formik.setFieldValue(
-          "vacancyApplicationCriteriaArrayComputerSkills",
-          template.vacancyApplicationCriteriaArrayComputerSkills
-        );
-      // jobTags.length &&
-      //   isNullOrEmpty(selectedTags) &&
-      //   !isNullOrEmpty(template.vacancyApplicationCriteriaArrayJobTags) &&
-      //   formatTags(template.vacancyApplicationCriteriaArrayJobTags);
-
-      isNullOrEmpty(
-        props.formik.values.vacancyApplicationCriteriaArrayJobTags
-      ) &&
-        props.formik.setFieldValue(
-          "vacancyApplicationCriteriaArrayJobTags",
-          template.vacancyApplicationCriteriaArrayJobTags
-        );
+    isNullOrEmpty(description) &&
+      setDescription(template.vacancyMissionDescription);
+    isNullOrEmpty(props.formik.values.vacancyMissionDescription) &&
+      props.formik.setFieldValue(
+        "vacancyMissionDescription",
+        template.vacancyMissionDescription
+      );
+    !isNullOrEmpty(props.formik.values.vacancyMissionDescription) &&
+      props.formik.setFieldTouched("vacancyMissionDescription", true);
+    if (isNullOrEmpty(address)) {
+      !isNullOrEmpty(template.address)
+        ? setAddress(template.address)
+        : setAddress(worksites[0].address);
     }
+    isNullOrEmpty(address) && !isNullOrEmpty(template.address)
+      ? props.formik.setFieldValue("address", template.address)
+      : props.formik.setFieldValue("address", worksites[0].address);
+    if (isNull(city)) {
+      !isNullOrEmpty(template.vacancyBusinessAddressCity)
+        ? setCity(template.vacancyBusinessAddressCity)
+        : setCity(worksites[0].city);
+    }
+    isNullOrEmpty(city) && !isNullOrEmpty(template.city)
+      ? props.formik.setFieldValue(
+          "vacancyBusinessAddressCity",
+          template.vacancyBusinessAddressCity
+        )
+      : props.formik.setFieldValue(
+          "vacancyBusinessAddressCity",
+          getCurrentMission("city", worksites[0].city)
+        );
+
+    if (isNullOrEmpty(postalCode)) {
+      !isNullOrEmpty(template.vacancyBusinessAddressPostalCode)
+        ? setPostalCode(template.vacancyBusinessAddressPostalCode)
+        : setPostalCode(worksites[0].postalCode);
+    }
+    isNullOrEmpty(postalCode) && !isNullOrEmpty(template.city)
+      ? props.formik.setFieldValue(
+          "vacancyBusinessAddressPostalCode",
+          template.vacancyBusinessAddressPostalCode
+        )
+      : props.formik.setFieldValue(
+          "vacancyBusinessAddressPostalCode",
+          worksites[0].postalCode
+        );
+    isNullOrEmpty(startDate) &&
+      isTmpOrDup === false &&
+      setStartDate(
+        moment(
+          template.vacancyContractualVacancyEmploymentContractTypeStartDate
+        )
+      );
+    isNullOrEmpty(
+      props.formik.values
+        .vacancyContractualVacancyEmploymentContractTypeStartDate
+    ) &&
+      isTmpOrDup === false &&
+      props.formik.values
+        .vacancyContractualVacancyEmploymentContractTypeStartDate._isValid &&
+      props.formik.setFieldValue(
+        "vacancyContractualVacancyEmploymentContractTypeStartDate",
+        moment(
+          template.vacancyContractualVacancyEmploymentContractTypeStartDate
+        )
+      );
+
+    isNull(missionOrderReference) &&
+      isTmpOrDup === false &&
+      setMissionOrderReference(template.missionOrderReference);
+
+    !isNull(missionOrderReference) &&
+      isTmpOrDup === false &&
+      props.formik.setFieldValue(
+        "missionOrderReference",
+        template.missionOrderReference
+      );
+
+    isTmpOrDup === false &&
+      props.formik.values.vacancyContractualVacancyEmploymentContractTypeEndDate
+        ._isValid &&
+      props.formik.setFieldValue(
+        "vacancyContractualVacancyEmploymentContractTypeEndDate",
+        moment(template.vacancyContractualVacancyEmploymentContractTypeEndDate)
+      );
+    isNullOrEmpty(endDate) &&
+      isTmpOrDup === false &&
+      setEndDate(
+        moment(template.vacancyContractualVacancyEmploymentContractTypeEndDate)
+      );
+
+    // isNullOrEmpty(vacancyNumberOfJobs) &&
+    //   setVacancyNumberOfJobs(template.vacancyNumberOfJobs);
+    // isNullOrEmpty(props.formik.values.vacancyNumberOfJobs) &&
+    //   props.formik.setFieldValue(
+    //     "vacancyNumberOfJobs",
+    //     template.vacancyNumberOfJobs
+    //   );
+    !isNullOrEmpty(props.formik.values.vacancyNumberOfJobs) &&
+      props.formik.setFieldTouched("vacancyNumberOfJobs", true);
+    !isNullOrEmpty(props.formik.values.vacancyMissionDescription) &&
+      props.formik.setFieldTouched("vacancyMissionDescription", true);
+    !isNullOrEmpty(props.formik.values.jobTitleID) &&
+      props.formik.setFieldTouched("jobTitleID", true);
+
+    // educationLevels.length &&
+    //   isNullOrEmpty(selectedEducation) &&
+    //   !isNullOrEmpty(
+    //     template.vacancyApplicationCriteriaArrayRequiredEducationLevels
+    //   ) &&
+    //   formatEducation(
+    //     template.vacancyApplicationCriteriaArrayRequiredEducationLevels
+    //   );
+
+    isNullOrEmpty(
+      props.formik.values.vacancyApplicationCriteriaArrayRequiredEducationLevels
+    ) &&
+      props.formik.setFieldValue(
+        "vacancyApplicationCriteriaArrayRequiredEducationLevels",
+        template.vacancyApplicationCriteriaArrayRequiredEducationLevels
+      );
+
+    // languages.length &&
+    //   isNullOrEmpty(selectedLanguage) &&
+    //   !isNullOrEmpty(
+    //     template.vacancyApplicationCriteriaArrayLanguagesWithLevel
+    //   ) &&
+    //   formatLanguage(
+    //     template.vacancyApplicationCriteriaArrayLanguagesWithLevel
+    //   );
+
+    isNull(
+      props.formik.values.vacancyApplicationCriteriaArrayLanguagesWithLevel
+    ) &&
+      !isNull(template.vacancyApplicationCriteriaArrayLanguagesWithLevel) &&
+      props.formik.setFieldValue(
+        "vacancyApplicationCriteriaArrayLanguagesWithLevel",
+        template.vacancyApplicationCriteriaArrayLanguagesWithLevel
+      );
+
+    // jobSkills.length &&
+    //   isNullOrEmpty(selectedSkills) &&
+    //   !isNullOrEmpty(
+    //     template.vacancyApplicationCriteriaArrayComputerSkills
+    //   ) &&
+    //   formatSkills(template.vacancyApplicationCriteriaArrayComputerSkills);
+
+    isNull(props.formik.values.vacancyApplicationCriteriaArrayComputerSkills) &&
+      !isNullOrEmpty(template.vacancyApplicationCriteriaArrayComputerSkills) &&
+      props.formik.setFieldValue(
+        "vacancyApplicationCriteriaArrayComputerSkills",
+        template.vacancyApplicationCriteriaArrayComputerSkills
+      );
+    // jobTags.length &&
+    //   isNullOrEmpty(selectedTags) &&
+    //   !isNullOrEmpty(template.vacancyApplicationCriteriaArrayJobTags) &&
+    //   formatTags(template.vacancyApplicationCriteriaArrayJobTags);
+
+    isNullOrEmpty(props.formik.values.vacancyApplicationCriteriaArrayJobTags) &&
+      props.formik.setFieldValue(
+        "vacancyApplicationCriteriaArrayJobTags",
+        template.vacancyApplicationCriteriaArrayJobTags
+      );
   }, []);
 
-  const handleValidate = () => {
+  const handleValidate = values => {
     setFormikValues();
-    setTimeout(() => {
-      if (
-        errors.vacancyNumberOfJobs ||
-        errors.vacancyMissionDescription ||
-        errors.VacancyContractualVacancyEmploymentContractTypeStartDate ||
-        errors.VacancyContractualVacancyEmploymentContractTypeEndDate ||
-        errors.jobTitleID ||
-        errors.vacancyBusinessAddressPostalCode
-      ) {
-        toastr.error(
-          intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELDS.TITLE" }),
-          intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELDS.DESC" })
-        );
-      } else props.history.push("/mission-create/step-two");
-    }, 1000);
+    const {
+      vacancyNumberOfJobs,
+      vacancyMissionDescription,
+      vacancyContractualVacancyEmploymentContractTypeStartDate,
+      vacancyContractualVacancyEmploymentContractTypeEndDate,
+      jobTitleID,
+      vacancyBusinessAddressPostalCode
+    } = values;
+    let errors = false;
+    let now = new Date();
+    if (
+      !vacancyContractualVacancyEmploymentContractTypeStartDate ||
+      !vacancyContractualVacancyEmploymentContractTypeEndDate
+    ) {
+      return toastr.error("Veuillez saisir les dates de début et de fin");
+    }
+    if (
+      vacancyNumberOfJobs < 1 ||
+      !vacancyMissionDescription ||
+      !vacancyContractualVacancyEmploymentContractTypeStartDate ||
+      !vacancyContractualVacancyEmploymentContractTypeEndDate ||
+      !jobTitleID ||
+      !vacancyBusinessAddressPostalCode
+    ) {
+      errors = true;
+    }
+    if (
+      vacancyContractualVacancyEmploymentContractTypeStartDate < now ||
+      vacancyContractualVacancyEmploymentContractTypeEndDate < now
+    ) {
+      return toastr.error("Les dates sélectionnées sont déjà passées");
+    }
+    if (errors) {
+      return toastr.error(
+        intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELDS.TITLE" }),
+        intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELDS.DESC" })
+      );
+    } else {
+      goToSecondStep();
+    }
   };
   const handleCheckMatchs = () => {
     dispatch(
@@ -1038,47 +1074,10 @@ function FormStepOne(props, formik) {
     );
   };
 
-  useEffect(() => handleCheckMatchs(), [
-    selectedEducation,
-    selectedJobTitle,
-    selectedSkills,
-    selectedTags,
-    selectedLanguage,
-    postalCode,
-    address
-  ]);
-
-  useEffect(() => {
-    if (!isNullOrEmpty(template)) {
-      !isNullOrEmpty(
-        props.formik.values
-          .VacancyContractualVacancyEmploymentContractTypeEndDate
-      ) &&
-        props.formik.setFieldTouched(
-          "VacancyContractualVacancyEmploymentContractTypeEndDate",
-          true
-        );
-      !isNullOrEmpty(
-        props.formik.values
-          .VacancyContractualVacancyEmploymentContractTypeStartDate
-      ) &&
-        props.formik.setFieldTouched(
-          "VacancyContractualVacancyEmploymentContractTypeStartDate",
-          true
-        );
-      !isNullOrEmpty(props.formik.values.vacancyBusinessAddressPostalCode) &&
-        props.formik.setFieldTouched("vacancyBusinessAddressPostalCode", true);
-      !isNullOrEmpty(props.formik.values.vacancyMissionDescription) &&
-        props.formik.setFieldTouched("vacancyMissionDescription", true);
-    }
-  }, [template, description]);
-
-  const debouncePostalCode = useCallback(
-    debounce(() => {
-      handleCheckMatchs();
-    }, 1000),
-    []
-  );
+  const handleChangeDistance = value => {
+    props.formik.setFieldValue("matchingPostalCodeDistance", value.value);
+    setDistance(value.value);
+  };
 
   return (
     <div className="card card-custom">
@@ -1132,9 +1131,9 @@ function FormStepOne(props, formik) {
                                 {intl.formatMessage({ id: "MODEL.JOBTITLE" })}{" "}
                                 --
                               </option>
-                              {jobTitleList.map(job => (
+                              {jobTitleList.map((job, i) => (
                                 <option
-                                  key={job.id}
+                                  key={i}
                                   selected={
                                     template && template.length
                                       ? template.jobTitleID === job.id
@@ -1224,8 +1223,8 @@ function FormStepOne(props, formik) {
                               handleForceChangePostalCode(e.target.value);
                             }}
                           >
-                            {worksites.map(worksite => (
-                              <option key={worksite.id} value={worksite.id}>
+                            {worksites.map((worksite, i) => (
+                              <option key={i} value={worksite.id}>
                                 {worksite.name}
                               </option>
                             ))}
@@ -1267,7 +1266,7 @@ function FormStepOne(props, formik) {
                             );
                             handleChangeAddress(e.target.value);
                           }}
-                          value={address !== 0 ? address : null}
+                          value={address}
                         ></Field>
                       </div>
                     </div>
@@ -1293,8 +1292,8 @@ function FormStepOne(props, formik) {
                           onChange={e => {
                             handleChangeCity(e.target.value);
                           }}
-                          value={city !== 0 ? city : null}
-                          defaultValue={selectedMission && selectedMission.city}
+                          value={city}
+                          //defaultValue={selectedMission && selectedMission.city}
                         ></input>
                       </div>
                     </div>
@@ -1320,7 +1319,7 @@ function FormStepOne(props, formik) {
                           onChange={e => {
                             handleChangePostalCode(e.target.value);
                           }}
-                          value={postalCode !== 0 ? postalCode : null}
+                          value={postalCode}
                         ></input>
                       </div>
                       {touched.vacancyBusinessAddressPostalCode &&
@@ -1343,17 +1342,24 @@ function FormStepOne(props, formik) {
                       </label>
                       <DatePickerField
                         component={DatePickerField}
-                        iconHeight="36px"
                         className="col-lg-12 form-control radius-left-0"
+                        iconHeight="36px"
                         type="text"
                         placeholder="JJ/MM/AAAA"
-                        name="VacancyContractualVacancyEmploymentContractTypeStartDate"
+                        name="vacancyContractualVacancyEmploymentContractTypeStartDate"
                         onChange={date => {
                           setStartDate(date);
-                          props.formik.setFieldValue(
-                            "VacancyContractualVacancyEmploymentContractTypeStartDate",
-                            moment(date)
-                          );
+                          if (date === "Invalid date") {
+                            props.formik.setFieldValue(
+                              "vacancyContractualVacancyEmploymentContractTypeStartDate",
+                              ""
+                            );
+                          } else {
+                            props.formik.setFieldValue(
+                              "vacancyContractualVacancyEmploymentContractTypeStartDate",
+                              moment(date)
+                            );
+                          }
                           let data = props.formik.values;
                           props.formik &&
                             props.formik.values.missionHasVehicle === null &&
@@ -1371,12 +1377,12 @@ function FormStepOne(props, formik) {
                         yearItemNumber={9}
                         locale="fr"
                       ></DatePickerField>
-                      {touched.VacancyContractualVacancyEmploymentContractTypeStartDate &&
-                      errors.VacancyContractualVacancyEmploymentContractTypeStartDate ? (
+                      {touched.vacancyContractualVacancyEmploymentContractTypeStartDate &&
+                      errors.vacancyContractualVacancyEmploymentContractTypeStartDate ? (
                         <div className="fv-plugins-message-container">
                           <div className="fv-help-block">
                             {
-                              errors.VacancyContractualVacancyEmploymentContractTypeStartDate
+                              errors.vacancyContractualVacancyEmploymentContractTypeStartDate
                             }
                           </div>
                         </div>
@@ -1391,17 +1397,24 @@ function FormStepOne(props, formik) {
                       </label>
                       <DatePickerField
                         component={DatePickerField}
-                        iconHeight="36px"
                         className="col-lg-12 form-control radius-left-0"
+                        iconHeight="36px"
                         type="text"
                         placeholder="JJ/MM/AAAA"
-                        name="VacancyContractualVacancyEmploymentContractTypeEndDate"
+                        name="vacancyContractualVacancyEmploymentContractTypeEndDate"
                         onChange={date => {
                           setEndDate(date);
-                          props.formik.setFieldValue(
-                            "VacancyContractualVacancyEmploymentContractTypeEndDate",
-                            moment(date)
-                          );
+                          if (date === "Invalid date") {
+                            props.formik.setFieldValue(
+                              "vacancyContractualVacancyEmploymentContractTypeEndDate",
+                              ""
+                            );
+                          } else {
+                            props.formik.setFieldValue(
+                              "vacancyContractualVacancyEmploymentContractTypeEndDate",
+                              moment(date)
+                            );
+                          }
                           let data = props.formik.values;
                           props.formik &&
                             props.formik.values.missionHasVehicle === null &&
@@ -1419,12 +1432,12 @@ function FormStepOne(props, formik) {
                         yearItemNumber={9}
                         locale="fr"
                       ></DatePickerField>
-                      {touched.VacancyContractualVacancyEmploymentContractTypeEndDate &&
-                      errors.VacancyContractualVacancyEmploymentContractTypeEndDate ? (
+                      {touched.vacancyContractualVacancyEmploymentContractTypeEndDate &&
+                      errors.vacancyContractualVacancyEmploymentContractTypeEndDate ? (
                         <div className="fv-plugins-message-container">
                           <div className="fv-help-block">
                             {
-                              errors.VacancyContractualVacancyEmploymentContractTypeEndDate
+                              errors.vacancyContractualVacancyEmploymentContractTypeEndDate
                             }
                           </div>
                         </div>
@@ -1539,7 +1552,108 @@ function FormStepOne(props, formik) {
                     </div>
                   </div>
                 </div>
-
+                <div className="mission-form mt-10 mb-10 p-0">
+                  <h3 className="group-title">
+                    <FormattedMessage id="TEXT.RECURRENCE" />
+                  </h3>
+                </div>
+                <div className="row">
+                  <div className="col-xl-4">
+                    <div className="form-group">
+                      <label>
+                        <FormattedMessage id="TEXT.RECURRENCE.TYPE" />
+                      </label>
+                      <div className="input-group">
+                        <div className="input-group-prepend">
+                          <span className="input-group-text">
+                            <i className="icon-xl fas fa-list text-primary"></i>
+                          </span>
+                        </div>
+                        <select
+                          name="recurrenceType"
+                          className="col-lg-12 form-control"
+                          type="text"
+                          placeholder={intl.formatMessage({
+                            id: "TEXT.RECURRENCE.TYPE"
+                          })}
+                          value={recurrenceType}
+                          onChange={e => {
+                            setRecurrenceType(parseInt(e.target.value));
+                            props.formik.setFieldValue(
+                              "recurrenceType",
+                              parseInt(e.target.value)
+                            );
+                          }}
+                        >
+                          <option
+                            label="Veuillez choisir une valeur"
+                            value={0}
+                          ></option>
+                          <option
+                            label={intl.formatMessage({
+                              id: "TEXT.RECURRENCE.ANNUAL"
+                            })}
+                            value={1}
+                          ></option>
+                          <option
+                            label={intl.formatMessage({
+                              id: "TEXT.RECURRENCE.MONTHLY"
+                            })}
+                            value={2}
+                          ></option>
+                          <option
+                            label={intl.formatMessage({
+                              id: "TEXT.RECURRENCE.WEEKLY"
+                            })}
+                            value={3}
+                          ></option>
+                          <option
+                            label={intl.formatMessage({
+                              id: "TEXT.RECURRENCE.END"
+                            })}
+                            value={4}
+                          ></option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-xl-4">
+                    <div className="form-group">
+                      <label>
+                        <FormattedMessage id="TEXT.RECURRENCE.END_DATE" />
+                      </label>
+                      <div className="input-group">
+                        <DatePickerField
+                          component={DatePickerField}
+                          className="col-lg-12 form-control radius-left-0"
+                          iconHeight="36px"
+                          type="text"
+                          placeholder="JJ/MM/AAAA"
+                          name="recurrenceEndDate"
+                          onChange={date => {
+                            setRecurrenceEndDate(date);
+                            if (date === "Invalid date") {
+                              props.formik.setFieldValue(
+                                "recurrenceEndDate",
+                                ""
+                              );
+                            } else {
+                              props.formik.setFieldValue(
+                                "recurrenceEndDate",
+                                moment(date)
+                              );
+                            }
+                          }}
+                          showMonthDropdown
+                          showYearDropdown
+                          minDate={new Date()}
+                          yearItemNumber={9}
+                          locale="fr"
+                        ></DatePickerField>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div className="mission-form mt-10 mb-10 p-0">
                   <h3 className="group-title">
                     <FormattedMessage id="TEXT.PROFILE_LOOKING_FOR" />
@@ -1577,8 +1691,8 @@ function FormStepOne(props, formik) {
                             -- {intl.formatMessage({ id: "MODEL.EXPERIENCE" })}{" "}
                             --
                           </option>
-                          {jobExperiences.map(xp => (
-                            <option key={xp.id} value={xp.id}>
+                          {jobExperiences.map((xp, i) => (
+                            <option key={i} value={xp.id}>
                               {xp.name}
                             </option>
                           ))}
@@ -1638,7 +1752,6 @@ function FormStepOne(props, formik) {
                     </div>
                   </div>
                 </div>
-
                 <div className="row">
                   <div className="col-xl-4">
                     <div className="form-group">
@@ -1740,20 +1853,26 @@ function FormStepOne(props, formik) {
 
                 <div className="d-flex justify-content-between border-top mt-5 pt-10">
                   <div className="mr-2">
-                    <Link to="/mission" className="next col-lg p-0">
+                    <div
+                      onClick={() => {
+                        id ? history.goBack() : props.goBackToSelector();
+                      }}
+                      className="next col-lg p-0"
+                    >
+                      {" "}
                       <button
                         type="button"
                         className="btn btn-light-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
                       >
                         <FormattedMessage id="BUTTON.BACK" />
                       </button>
-                    </Link>
+                    </div>
                   </div>
                   <div>
                     <button
                       type="button"
                       className="btn btn-primary btn-shadow font-weight-bold px-9 py-4 my-3 mx-4"
-                      onClick={() => handleValidate()}
+                      onClick={() => handleValidate(props.formik.values)}
                     >
                       <FormattedMessage id="BUTTON.NEXT" />
                     </button>

@@ -25,7 +25,7 @@ import { toAbsoluteUrl } from "metronic/_helpers";
 import { getMissionEquipment } from "../../../../../business/actions/shared/listsActions";
 import { ProfileReferencesModal } from "../profileModals/ProfileReferencesModal";
 import ActionsColumnFormatter from "./actionsColumnFormatter.jsx";
-import { DeleteRefsModal } from "../profileModals/DeleteRefsModal";
+import { DeleteRefsModal } from "../profileModals/deleteRefsModal.jsx";
 import { updateApplicant } from "actions/client/applicantsActions";
 import { getContractType } from "actions/shared/listsActions";
 function FormStepFour(props, formik) {

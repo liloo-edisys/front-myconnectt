@@ -3,7 +3,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { Route } from "react-router-dom";
 
-import { DeleteProfileDialog } from "./Modals/DeleteProfileDialog";
+import { DeleteProfileDialog } from "./Modals/deleteProfileDialog.jsx";
 import ProfileCard from "./ProfileCard";
 import { ProfileUIProvider } from "./ProfileUIContext";
 class ProfilePage extends React.Component {

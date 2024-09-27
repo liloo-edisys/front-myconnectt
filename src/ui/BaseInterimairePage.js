@@ -11,11 +11,10 @@ import InterimaireMissionsContainer from "../business/containers/interimaireMiss
 import InterimairePropositionsContainer from "../business/containers/interimairePropositionsContainer.js";
 import InterimaireApplicationsContainer from "../business/containers/interimaireApplicationsContainer.js";
 import InterimaireFavoritesContainer from "../business/containers/interimaireFavoritesContainer.js";
-import ProfileWizzard from "./components/interimaire/profile/profileForms/ProfileWizzard";
+import ProfileWizzard from "./components/interimaire/profile/profileForms/profileWizzard.jsx";
 import { shallowEqual, useSelector } from "react-redux";
-import Chat from "./components/interimaire/signalr/Chat";
+import Chat from "./components/interimaire/signalr/chat.jsx";
 import Contracts from "./components/interimaire/missions/contracts";
-
 
 import EmailContactModal from "./components/client/Email/emailContactModal.jsx";
 import Documents from "./components/interimaire/missions/documents";

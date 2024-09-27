@@ -1,6 +1,6 @@
 import React from "react";
 import { useIntl } from "react-intl";
-import ProfileWizzardClass from "./ProfileWizzardClass";
+import ProfileWizzardClass from "./profileWizzardClass.jsx";
 
 function ProfileWizzard(props) {
   const intl = useIntl();

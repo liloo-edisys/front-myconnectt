@@ -7,12 +7,9 @@
 // Data validation is based on Yup
 // Please, be familiar with article first:
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import ReactFileReader from "react-file-reader";
+import React, { useEffect, useState } from "react";
 
-import { Field } from "formik";
-import _, { set } from "lodash";
-import { Input } from "metronic/_partials/controls";
+import _ from "lodash";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -30,15 +27,13 @@ import DocTypes from "../../../../../utils/DocumentTypes.json";
 import { updateInterimaire } from "actions/interimaire/InterimairesActions";
 import DateColumnFormatter from "./DateColumnFormatter";
 import DocActionsColumnFormatter from "./DocActionsColumnFormatter";
-import { DeleteDocumentModal } from "../profileModals/DeleteDocumentModal";
-import { PreviewDocumentModal } from "../profileModals/PreviewDocumentModal";
-import { id } from "date-fns/locale";
+import { DeleteDocumentModal } from "../profileModals/deleteDocumentModal.jsx";
+import { PreviewDocumentModal } from "../profileModals/previewDocumentModal.jsx";
 import { IDEditModal } from "../profileModals/IDEditModal";
-import { HealthEditModal } from "../profileModals/HealthEditModal";
-import { BankEditModal } from "../profileModals/BankEditModal";
+import { HealthEditModal } from "../profileModals/healthEditModal.jsx";
+import { BankEditModal } from "../profileModals/bankEditModal.jsx";
 import LoadingOverlay from "react-loading-overlay";
 import { toastr } from "react-redux-toastr";
-import IdentityDocuments from "../../home/fieldsets/indentity-documents/IdentityDocuments";
 
 function FormStepFive(props, formik) {
   const dispatch = useDispatch();

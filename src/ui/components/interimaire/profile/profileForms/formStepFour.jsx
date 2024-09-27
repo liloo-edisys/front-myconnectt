@@ -13,18 +13,17 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import Select from "react-select";
-import useLocalStorage from "../../../shared/persistState";
-import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
+import useLocalStorage from "../../../shared/persistState.js";
+import isNullOrEmpty from "../../../../../utils/isNullOrEmpty.js";
 
-import { getMissionEquipment } from "../../../../../business/actions/shared/listsActions";
+import { getMissionEquipment } from "../../../../../business/actions/shared/listsActions.js";
 import ActionsColumnFormatter from "./actionsColumnFormatter.jsx";
 import { updateApplicant } from "actions/client/applicantsActions";
 import { getContractType } from "actions/shared/listsActions";
 function FormStepFour(props, formik) {
   const dispatch = useDispatch();
   const { interimaireId } = useParams();
-  const { intl, selectedEquipment, setSelectedEquipment } = props;
-  const TENANTID = +process.env.REACT_APP_TENANT_ID;
+  const { selectedEquipment, setSelectedEquipment } = props;
 
   const { missionEquipment, parsed, contractTypes } = useSelector(
     state => ({
@@ -71,7 +70,6 @@ function FormStepFour(props, formik) {
       return setSelectedEquipment(newArray);
     }
   };
-  const useMountEffect = fun => useEffect(fun, [selectedEquipment]);
   /*useMountEffect(() => {
     missionEquipment.length &&
       isNullOrEmpty(selectedEquipment) &&
@@ -126,12 +124,6 @@ function FormStepFour(props, formik) {
   let formatedEquipment = missionEquipment.map(equipment => {
     return equipment && createOption(equipment.name, equipment.id);
   });
-  const onHide = () => {
-    setShow(false);
-    setShowDelete(false);
-    setShowEdit(false);
-    setCurrentRow([]);
-  };
   const customStyles = {
     control: (base, state) => ({
       ...base,
@@ -154,113 +146,10 @@ function FormStepFour(props, formik) {
       padding: 0
     })
   };
-  const NoDataIndication = () => (
-    <div className="d-flex justify-content-center mt-5">
-      <div
-        className="alert alert-custom alert-notice alert-light-danger fade show px-5 py-0"
-        role="alert"
-      >
-        <div className="alert-icon">
-          <i className="flaticon-warning"></i>
-        </div>
-        <div className="alert-text">Aucune référence saisie !</div>
-      </div>
-    </div>
-  );
 
-  const formatJobTitle = value => {
-    let res = contractTypes.filter(job => job.id === value);
-    return res.length ? res[0].name : null;
-  };
 
-  let columns = [
-    {
-      dataField: "contactName",
-      text: intl.formatMessage({ id: "MODEL.MANAGER" }),
-      sort: true
-    },
-    {
-      dataField: "contactEmail",
-      text: intl.formatMessage({ id: "MODEL.EMAIL" }),
-      sort: true
-    },
-    {
-      dataField: "contactPhone",
-      text: intl.formatMessage({ id: "MODEL.PHONE" }),
-      sort: true
-    },
-    {
-      dataField: "companyName",
-      text: intl.formatMessage({ id: "TEXT.COMPANY" }),
-      sort: true
-    },
-    {
-      dataField: "city",
-      text: intl.formatMessage({ id: "TEXT.LOCATION" }),
-      sort: true
-    },
-    {
-      dataField: "jobTitle",
-      text: intl.formatMessage({ id: "TEXT.PAST.JOB" }),
-      sort: true
-    },
-    {
-      dataField: "contractTypeID",
-      text: intl.formatMessage({ id: "MODEL.CONTRACT.TYPE" }),
-      sort: true,
-      formatter: (value, row) => formatJobTitle(value)
-    },
-    {
-      dataField: "action",
-      text: intl.formatMessage({ id: "MENU.ACTIONS" }),
-      classes: "text-right pr-0",
-      headerClasses: "text-right pr-3",
-      formatter: ActionsColumnFormatter,
-      style: {
-        minWidth: "100px"
-      },
-      formatExtraData: {
-        openEditModal: (row, rowIndex) => {
-          setShowEdit(true);
-          setCurrentRow({ ...row, index: rowIndex });
-        },
-        openDeleteModal: (row, rowIndex) => {
-          setShowDelete(true);
-          setCurrentRow({ ...row, index: rowIndex });
-        },
-        deleteRef: row => deleteRef(row),
-        handleUpdateRefs: row => handleUpdateRefs(row)
-      }
-    }
-  ];
-  const handleEditRefs = xp => {
-    let newExperiences =
-      parsed && !isNullOrEmpty(parsed.applicantReferences)
-        ? parsed.applicantReferences
-        : [];
 
-    newExperiences.push(xp);
-    props.formik.setFieldValue("applicantReferences", newExperiences);
-    setRefs(newExperiences);
-  };
 
-  const handleUpdateRefs = (xp, row) => {
-    let newExperiences = refs;
-    newExperiences[row] = xp;
-    setRefs(newExperiences);
-    props.formik.setFieldValue("applicantReferences", newExperiences);
-  };
-  const deleteRef = row => {
-    let newRef = refs;
-    newRef.splice(row, 1);
-    setRefs(newRef);
-    props.formik.setFieldValue("applicantReferences", newRef);
-  };
-
-  const handleChangePage = () => {
-    dispatch(updateApplicant.request(props.formik.values));
-    props.history.push("/int-profile-edit/step-five");
-  };
 
   return (
     <div className="pb-5 width-full">
