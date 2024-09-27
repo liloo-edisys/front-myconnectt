@@ -18,7 +18,7 @@ import Contracts from "./components/interimaire/missions/contracts";
 
 import EmailContactModal from "./components/client/Email/emailContactModal.jsx";
 import Documents from "./components/interimaire/missions/documents";
-import HoursStatement from "./components/interimaire/hours-statement/HoursStatement";
+import HoursStatement from "./components/interimaire/hours-statement/hoursStatement.jsx";
 
 export default function BaseInterimairePage(props) {
   let { user } = useSelector(

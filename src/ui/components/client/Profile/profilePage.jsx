@@ -4,8 +4,8 @@ import { connect } from "react-redux";
 import { Route } from "react-router-dom";
 
 import { DeleteProfileDialog } from "./Modals/deleteProfileDialog.jsx";
-import ProfileCard from "./ProfileCard";
-import { ProfileUIProvider } from "./ProfileUIContext";
+import ProfileCard from "./profileCard.jsx";
+import { ProfileUIProvider } from "./profileUIContext.jsx";
 class ProfilePage extends React.Component {
   render() {
     const { history, contact } = this.props;

@@ -8,7 +8,7 @@ import {
   getAccountGroups as getAccountGroupsActions,
   getPaymentChoices as getPaymentChoicesActions
 } from "actions/shared/listsActions";
-import CompanyPage from "components/client/companies/CompanyPage";
+import CompanyPage from "components/client/companies/companyPage.jsx";
 import { connect } from "react-redux";
 
 const mapStateToProps = state => ({

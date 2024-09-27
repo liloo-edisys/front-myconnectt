@@ -4,10 +4,10 @@ import { connect } from "react-redux";
 import { Route } from "react-router-dom";
 
 import { MissionsUIProvider } from "./missionsUIContext.jsx";
-import MissionsCard from "./MissionsCard";
-import { deleteFromStorage } from "../../../shared/deleteFromStorage";
-import { MissionDeleteDialog as DeleteDialog } from "../missionsModals/MissionDeleteDialog";
-import { getMission } from "../../../../../business/api/client/missionsApi";
+import MissionsCard from "./missionsCard.jsx";
+import { deleteFromStorage } from "../../../shared/deleteFromStorage.js";
+import { MissionDeleteDialog as DeleteDialog } from "../missionsModals/MissionDeleteDialog.js";
+import { getMission } from "../../../../../business/api/client/missionsApi.js";
 import { getMission as getMissionAction } from "actions/client/missionsActions";
 
 class MissionsPage extends React.Component {

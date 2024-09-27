@@ -7,9 +7,9 @@ import {
   Card,
   CardHeader,
   CardHeaderToolbar
-} from "../../../../_metronic/_partials/controls";
+} from "../../../../_metronic/_partials/controls/index.js";
 
-import EditProfile from "./EditProfile";
+import EditProfile from "./editProfile.jsx";
 class ProfileCard extends Component {
   constructor(props) {
     super(props);

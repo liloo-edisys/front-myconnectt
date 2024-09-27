@@ -5,13 +5,13 @@ import { Route } from "react-router-dom";
 
 import { MissionDeleteDialog as DeleteDialog } from "../missionsModals/missionDeleteDialog.jsx";
 import { MissionsUIProvider } from "./missionsUIContext.jsx";
-import MissionsCard from "./MissionsCard";
-import { deleteFromStorage } from "../../../shared/deleteFromStorage";
+import MissionsCard from "./missionsCard.jsx";
+import { deleteFromStorage } from "../../../shared/deleteFromStorage.js";
 import { MatchingDialog } from "../missionsModals/missionMatchingDialog.jsx";
 import { MissionResumeDialog } from "../missionsModals/missionResumeDialog.jsx";
 import { MissionDeclineDialog } from "../missionsModals/missionDeclineDialog.jsx";
 import { MissionValidateDialog } from "../missionsModals/missionValidateDialog.jsx";
-import { getMission } from "../../../../../business/api/client/missionsApi";
+import { getMission } from "../../../../../business/api/client/missionsApi.js";
 import { getMission as getMissionAction } from "actions/client/missionsActions";
 import { MissionProfileDialog } from "../missionsModals/missionProfileDialog.jsx";
 import { DeleteApplicationDialog } from "../missionsModals/deleteApplicationDialog.jsx";

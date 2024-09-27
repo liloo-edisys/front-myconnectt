@@ -6,13 +6,13 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { toastr } from "react-redux-toastr";
 import { Route } from "react-router-dom";
 import SVG from "react-inlinesvg";
-import { toAbsoluteUrl } from "../../../../../_metronic/_helpers";
-import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
+import { toAbsoluteUrl } from "../../../../../_metronic/_helpers/index.js";
+import isNullOrEmpty from "../../../../../utils/isNullOrEmpty.js";
 
-import CompanyEditModal from "../../companies/companiesModals/companyEditModal.jsx";
-import MissionFormType from "../MissionFormType";
+import CompanyEditModal from "../../companies/companiesModals/CompanyEditModal.js";
+import MissionFormType from "../missionFormType.jsx";
 import { FormattedMessage, useIntl } from "react-intl";
-import { deleteFromStorage } from "../../../shared/deleteFromStorage";
+import { deleteFromStorage } from "../../../shared/deleteFromStorage.js";
 import {
   getEducationLevels,
   getJobTitles,
@@ -23,12 +23,12 @@ import {
   getDriverLicences,
   getMissionEquipment,
   getMissionReasons
-} from "../../../../../business/actions/shared/listsActions";
+} from "../../../../../business/actions/shared/listsActions.js";
 import { getHabilitationsList } from "actions/client/missionsActions";
-import { resetMatching } from "../../../../../business/actions/client/applicantsActions";
+import { resetMatching } from "../../../../../business/actions/client/applicantsActions.js";
 const MissionPage = ({ history }) => {
-  const intl = useIntl();
   const dispatch = useDispatch();
+  const intl = useIntl();
   const deleteItems = () => {
     var result = {};
     for (var type in window.localStorage)
@@ -39,8 +39,8 @@ const MissionPage = ({ history }) => {
     state => ({
       isChecked: state.companies.checked,
       currentWorksite: state.auth.user.accountID,
-      jobSkills: state.lists.jobSkills,
-      companies: state.companies.companies
+      companies: state.companies.companies,
+      jobSkills: state.lists.jobSkills
     }),
     shallowEqual
   );

@@ -1,3 +1,3 @@
-import HoursStatement from "./HoursStatement";
+import HoursStatement from "./hoursStatement.jsx";
 
 export { HoursStatement };

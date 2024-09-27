@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useHistory, Route } from "react-router-dom";
+import { NavLink, useHistory, Route } from "react-router-dom";
+import { Col, Row } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useSelector, useDispatch } from "react-redux";
 import DatePicker from "react-datepicker";
@@ -7,26 +8,21 @@ import fr from "date-fns/locale/fr";
 import axios from "axios";
 import moment from "moment";
 import BootstrapTable from "react-bootstrap-table-next";
+import HoursStatementComplaint from "./fields/hoursStatementComplaint.jsx";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider,
-  SizePerPageDropdownStandalone
+  PaginationProvider
 } from "react-bootstrap-table2-paginator";
-import isNullOrEmpty from "../../../../utils/isNullOrEmpty";
+import isNullOrEmpty from "../../../../utils/isNullOrEmpty.js";
 import {
   Card,
   CardHeader,
-  CardBody,
-  CardHeaderToolbar
-} from "../../../../_metronic/_partials/controls";
-import { fakeData, weekList, statusList } from "./fakeDatas";
-import { getTRJobTitles } from "actions/shared/listsActions";
-import HoursStatementForm from "./fields/HoursStatementForm";
-import { DisplayDialog } from "../interimaires/modals/displayDialog.jsx";
-import ContractDetails from "../missions/contracts-client/ContractDetails";
-import HoursStatementComplaint from "./fields/HoursStatementComplaint";
-import MissionEndingForm from "./fields/MissionEndingForm";
-import ComplaintsList from "./fields/ComplaintsList";
+  CardBody
+} from "../../../../_metronic/_partials/controls/index.js";
+import { getCompanies } from "actions/client/companiesActions";
+import { getJobTitles } from "actions/shared/listsActions";
+import HoursStatementForm from "./fields/hoursStatementForm.jsx";
+import ComplaintsList from "./fields/complaintsList.jsx";
 
 function HoursStatement(props) {
   const dispatch = useDispatch();
@@ -34,14 +30,13 @@ function HoursStatement(props) {
   const intl = useIntl();
   const { user, jobTitleList, companies } = useSelector(state => ({
     user: state.auth.user,
-    jobTitleList: state.lists.trJobTitles,
+    jobTitleList: state.lists.jobTitles,
     companies: state.companies.companies
   }));
   const [rhList, setRhList] = useState([]);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(12);
   const [pageNumber, setPageNumber] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [selectedApplicant, setSelectedApplicant] = useState("");
   var firstDay = new Date();
   firstDay.setDate(firstDay.getDate() - 30);
   let lastDay = new Date();
@@ -53,8 +48,9 @@ function HoursStatement(props) {
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedWorksite, setSelectedWorksite] = useState(0);
   const [selectedQualification, setSelectedQualification] = useState(0);
-  const [selectedContractStatus, setSelectedContractStatus] = useState(0);
   const [idList, setIdList] = useState([]);
+  const [notSeenCount, setNotSeenCount] = useState(0);
+  const [selectAvenants, setSelectAvenants] = useState(null);
   const [bornageStartDate, setBornageStartDate] = useState("");
   const [bornageEndDate, setBornageEndDate] = useState("");
 
@@ -67,23 +63,25 @@ function HoursStatement(props) {
     : [];
 
   useEffect(() => {
-    dispatch(getTRJobTitles.request(parseInt(selectedCompany)));
-    setSelectedCompany(user.accountID);
+    if (companies.length === 0) {
+      dispatch(getCompanies.request());
+    }
+    dispatch(getJobTitles.request());
     getRH();
   }, [pageNumber]);
 
   const getRH = (firstDay, lastDay, contractNumber) => {
     let body = {
       tenantID: user.tenantID,
+      applicantID: user.applicantID,
       pageSize,
       pageNumber,
       weekNumber: parseInt(selectedWeekNumber),
-      applicantName: selectedApplicant,
       accountID: parseInt(selectedCompany),
       ChantierID: parseInt(selectedWorksite),
       contractNumber: contractNumber ? contractNumber : selectedContractNumber,
       QualificationID: parseInt(selectedQualification),
-      status: parseInt(selectedContractStatus),
+      status: 2,
       year: selectedYear ? parseInt(selectedYear) : 0
     };
 
@@ -131,15 +129,25 @@ function HoursStatement(props) {
       setBornageEndDate("");
     }
 
+    axios.put(
+      `${process.env.REACT_APP_WEBAPI_URL}api/timerecord/seen/${user.applicantID}`
+    );
     axios
       .post(
         `${process.env.REACT_APP_WEBAPI_URL}api/TimeRecord/SearchTimeRecords`,
         body
       )
       .then(res => {
+        let count = 0;
+        for (let i = 0; i < res.data.list.length; i++) {
+          if (!res.data.list[i].seenByApplicant) {
+            count = count + 1;
+          }
+        }
         setRhList(res.data.list);
         setTotalCount(res.data.totalcount);
         setIdList(res.data.idlist);
+        setNotSeenCount(count);
       })
       .catch(err => console.log(err));
   };
@@ -192,41 +200,12 @@ function HoursStatement(props) {
           {value === 0
             ? intl.formatMessage({ id: "TEXT.TO.FILL" })
             : value === 1
-            ? intl.formatMessage({ id: "TEXT.WAITING.VALIDATION" })
+            ? intl.formatMessage({ id: "TEXT.TO.VALIDATE" })
             : value === 2
             ? intl.formatMessage({ id: "TEXT.VALEDATED" })
             : ""}
         </span>
       )
-    },
-    {
-      dataField: "isComplaint",
-      text: intl.formatMessage({ id: "COLUMN.COMPLAINTS" }),
-      formatter: (value, row) => {
-        console.log(value);
-        const color = value === 2 ? "#ADFF2F" : "#FF4500";
-        console.log(color);
-        const title =
-          value === 2
-            ? intl.formatMessage({ id: "COMPLAINT.TO.PROCESS" })
-            : intl.formatMessage({ id: "COMPLAINT.PROCESSED" });
-        return (
-          <>
-            {value !== 0 && (
-              <span
-                title={title}
-                style={{
-                  height: "25px",
-                  width: "25px",
-                  backgroundColor: color,
-                  borderRadius: "50%",
-                  display: "inline-block"
-                }}
-              ></span>
-            )}
-          </>
-        );
-      }
     },
     {
       text: intl.formatMessage({ id: "COLUMN.ACTION" }),
@@ -240,50 +219,32 @@ function HoursStatement(props) {
                 history.push(`/cra/new-hours/${row.id}`);
               }}
             >
-              <FormattedMessage
-                id={row.ended || row.status == 2 ? "BUTTON.SEE" : "TEXT.GRAB"}
-              />
+              <FormattedMessage id="BUTTON.SEE.MORE" />
             </div>
-            {row.isComplaint == 0 && row.status === 2 && (
-              <div
-                className="btn btn-light-warning ml-2"
-                onClick={e => {
-                  e.stopPropagation();
-                  history.push(`/cra/complaint/${row.id}`);
-                }}
-              >
-                <FormattedMessage id="TEXT.COMPLAINT" />
-              </div>
-            )}
-            {row.isComplaint > 0 && (
-              <div
-                className="btn btn-light-warning ml-2"
-                onClick={e => {
-                  e.stopPropagation();
-                  history.push(`/cra/complaints/${row.id}`);
-                }}
-              >
-                Voir les réclamations
-              </div>
-            )}
-            <div
-              className="btn btn-light-info ml-2"
-              onClick={e => {
-                e.stopPropagation();
-                history.push(`/cra/interimaire/${row.applicantID}`);
-              }}
-            >
-              <FormattedMessage id="TEXT.APPLICANT" />
-            </div>
-            <div
-              className="btn btn-light-success ml-2"
-              onClick={e => {
-                e.stopPropagation();
-                history.push(`/cra/contract/${row.contractID}`);
-              }}
-            >
-              <FormattedMessage id="MODEL.CONTACT.CONTRACT" />
-            </div>
+            <>
+              {row.isComplaint == 0 && row.status === 2 && (
+                <div
+                  className="btn btn-light-warning ml-2"
+                  onClick={e => {
+                    e.stopPropagation();
+                    history.push(`/cra/complaint/${row.id}`);
+                  }}
+                >
+                  <FormattedMessage id="TEXT.COMPLAINT" />
+                </div>
+              )}
+              {row.isComplaint > 0 && (
+                <div
+                  className="btn btn-light-warning ml-2"
+                  onClick={e => {
+                    e.stopPropagation();
+                    history.push(`/cra/complaints/${row.id}`);
+                  }}
+                >
+                  Voir les réclamations
+                </div>
+              )}
+            </>
           </>
         );
       }
@@ -313,6 +274,32 @@ function HoursStatement(props) {
   };
 
   const handleChangePage = (size, page) => {};
+
+  /*const renderWeeks = () => {
+    return (
+      <div className="col-lg-2 mb-2">
+        <select
+          className="form-control"
+          isSearchable={true}
+          onChange={e => setSelectedWeekNumber(e.target.value)}
+        >
+          <option selected value={0} style={{ color: "lightgrey" }}>
+            -- {intl.formatMessage({ id: "TEXT.WEEK.NUMBER" })} --
+          </option>
+          {weekList.map(week => {
+            return (
+              <option id={week.value} key={week.value} value={week.value}>
+                {week.label}
+              </option>
+            );
+          })}
+        </select>
+        <small className="form-text text-muted">
+          {intl.formatMessage({ id: "TEXT.WEEK.NUMBER" })}
+        </small>
+      </div>
+    );
+  };*/
 
   const onChangeWeekNumber = value => {
     if (!value || value <= 0) {
@@ -358,23 +345,6 @@ function HoursStatement(props) {
     );
   };
 
-  const renderApplicant = () => {
-    return (
-      <div className="col-lg-2">
-        <input
-          name="city"
-          className="form-control"
-          type="text"
-          value={selectedApplicant}
-          onChange={e => setSelectedApplicant(e.target.value)}
-        ></input>
-        <small className="form-text text-muted">
-          <FormattedMessage id="TEXT.APPLICANT" />
-        </small>
-      </div>
-    );
-  };
-
   const renderCompanies = () => {
     return (
       <div className="col-lg-2 mb-2">
@@ -382,9 +352,11 @@ function HoursStatement(props) {
           className="form-control"
           name="accountID"
           isSearchable={true}
-          value={selectedCompany}
           onChange={e => setSelectedCompany(e.target.value)}
         >
+          <option selected value={0} style={{ color: "lightgrey" }}>
+            -- {intl.formatMessage({ id: "TEXT.COMPANY" })} --
+          </option>
           {filteredCompanies.map((account, index) => {
             return (
               <option id={account.id} key={index} value={account.id}>
@@ -428,19 +400,19 @@ function HoursStatement(props) {
     );
   };
 
-  const onChangeContractNumber = value => {
+  const onChangeContratsNumber = value => {
     setSelectedContractNumber(value);
     let body = {
       tenantID: user.tenantID,
+      applicantID: user.applicantID,
       pageSize,
       pageNumber,
-      weekNumber: selectedWeekNumber ? parseInt(selectedWeekNumber) : 0,
-      applicantName: selectedApplicant,
+      weekNumber: parseInt(selectedWeekNumber),
       accountID: parseInt(selectedCompany),
       ChantierID: parseInt(selectedWorksite),
       contractNumber: value,
       QualificationID: parseInt(selectedQualification),
-      status: parseInt(selectedContractStatus),
+      status: 2,
       year: selectedYear ? parseInt(selectedYear) : 0
     };
     if (selectedStartDate) {
@@ -498,7 +470,7 @@ function HoursStatement(props) {
           type="text"
           value={selectedContractNumber}
           onChange={e => {
-            onChangeContractNumber(e.target.value);
+            onChangeContratsNumber(e.target.value);
             getRH(null, null, e.target.value);
           }}
         ></input>
@@ -599,45 +571,18 @@ function HoursStatement(props) {
     );
   };
 
-  const renderStatusSelector = () => {
-    return (
-      <div className="col-lg-2">
-        <select
-          className="col-lg-12 form-control"
-          name="jobTitleID"
-          value={selectedContractStatus}
-          onChange={e => setSelectedContractStatus(e.target.value)}
-        >
-          <option selected value={-1} style={{ color: "lightgrey" }}>
-            -- {intl.formatMessage({ id: "COLUMN.STATUS" })} --
-          </option>
-          {statusList.map(status => {
-            return (
-              <option id={status.value} key={status.value} value={status.value}>
-                {status.label}
-              </option>
-            );
-          })}
-        </select>
-        <small className="form-text text-muted">
-          <FormattedMessage id="TEXT.STATUS" />
-        </small>
-      </div>
-    );
-  };
-
   const onSearchFilteredContracts = () => {
     let body = {
       tenantID: user.tenantID,
+      applicantID: user.applicantID,
       pageSize,
       pageNumber,
-      weekNumber: selectedWeekNumber ? parseInt(selectedWeekNumber) : 0,
-      applicantName: selectedApplicant,
+      weekNumber: parseInt(selectedWeekNumber),
       accountID: parseInt(selectedCompany),
       ChantierID: parseInt(selectedWorksite),
       contractNumber: selectedContractNumber,
       QualificationID: parseInt(selectedQualification),
-      status: parseInt(selectedContractStatus),
+      status: 2,
       year: selectedYear ? parseInt(selectedYear) : 0
     };
     if (selectedStartDate) {
@@ -679,7 +624,6 @@ function HoursStatement(props) {
         body
       )
       .then(res => {
-        console.log(res.data.list);
         setRhList(res.data.list);
         setTotalCount(res.data.totalcount);
         setIdList(res.data.idlist);
@@ -748,6 +692,14 @@ function HoursStatement(props) {
     </div>
   );
 
+  const onChangeSelectAvenants = value => {
+    if (value === selectAvenants) {
+      setSelectAvenants(null);
+    } else {
+      setSelectAvenants(value);
+    }
+  };
+
   const onPressNext = () => {
     if (selectedStartDate && selectedEndDate) {
       var firstDay = new Date(selectedStartDate);
@@ -776,28 +728,40 @@ function HoursStatement(props) {
     <div>
       <Card>
         <CardHeader title={intl.formatMessage({ id: "TITLE.HOURS.STATEMENT" })}>
-          <div>
+          <div className="contract_search_button_container">
             <button
               type="button"
-              className="btn btn-light-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-2 my-5 mx-4"
+              className="btn btn-light-primary contract_search_button"
               onClick={() => history.goBack()}
             >
               Retour
             </button>
+            <NavLink to="/contracts">
+              <button className="btn btn-light-success contract_search_button">
+                {intl.formatMessage({ id: "TEXT.MY.CONTRACTS" })}
+              </button>
+            </NavLink>
+            <NavLink to="/documents">
+              <button className="btn btn-light-warning contract_search_button">
+                {intl.formatMessage({ id: "TEXT.MY.DOCUMENTS" })}
+              </button>
+            </NavLink>
           </div>
         </CardHeader>
         <CardBody>
+          <div className="mb-10 mx-15">
+            Il vous reste <strong>{notSeenCount}</strong> relevé d'heures non
+            consulté.
+          </div>
           <div className="row mb-5 mx-15">
             {renderWeeks()}
             {renderYear()}
-            {renderApplicant()}
             {renderCompanies()}
             {renderChantier()}
             {renderQualifications()}
+            {renderContratsNumber()}
             {renderStartDateFilter()}
             {renderEndDateFilter()}
-            {renderContratsNumber()}
-            {renderStatusSelector()}
             <div className="col-lg-2 mb-2">
               <button
                 onClick={onSearchFilteredContracts}
@@ -836,7 +800,7 @@ function HoursStatement(props) {
               <i className="flaticon2-next ml-5"></i>
             </button>
           </div>
-          {rhList && (
+          {/*rhList && (
             <BootstrapTable
               remote
               rowClasses={["dashed"]}
@@ -848,7 +812,205 @@ function HoursStatement(props) {
               data={rhList}
               columns={columns}
             />
-          )}
+          )*/}
+
+          <Row>
+            {rhList.map((annonce, i) => (
+              <Col key={i} lg={2} className="cursor-hand">
+                <div className="annonce_container box-shadow-interimaire">
+                  <div>
+                    <div className="annonce_header_container pb-0">
+                      <h2 className="annonce_header_title">
+                        {annonce.entrepriseName}
+                      </h2>
+                    </div>
+                    <div className="annonce_body_container py-3">
+                      <div className="annonce_body_item">
+                        <i className="flaticon-map-location annonce_body_item_icon" />
+                        <div>
+                          {annonce.chantierName}
+                          {annonce.city && <span>{annonce.city}</span>}
+                        </div>
+                      </div>
+                      <div className="annonce_body_item">
+                        <i className="flaticon-edit-1 annonce_body_item_icon" />
+                        <div>{annonce.contractNumber}</div>
+                      </div>
+                      <div className="annonce_body_item">
+                        <i className="flaticon-customer annonce_body_item_icon" />
+                        <div>
+                          <div>{annonce.qualification}</div>
+                        </div>
+                      </div>
+                      <div className="annonce_body_item">
+                        <i className="flaticon-calendar-2 annonce_body_item_icon" />
+                        <div>
+                          {new Date(annonce.startDate).toLocaleDateString(
+                            "fr-FR"
+                          )}{" "}
+                          -{" "}
+                          {new Date(annonce.endDate).toLocaleDateString(
+                            "fr-FR"
+                          )}
+                        </div>
+                      </div>
+                      <div className="annonce_body_item">
+                        <i className="flaticon-layers annonce_body_item_icon" />
+                        <div>
+                          {annonce.status === 0
+                            ? intl.formatMessage({ id: "TEXT.TO.FILL" })
+                            : annonce.status === 1
+                            ? intl.formatMessage({ id: "TEXT.TO.VALIDATE" })
+                            : annonce.status === 2
+                            ? intl.formatMessage({ id: "TEXT.VALEDATED" })
+                            : ""}
+                        </div>
+                      </div>
+                      {annonce.ifm ? (
+                        <div className="annonce_body_item">
+                          <i className="flaticon-coins annonce_body_item_icon" />
+                          <div>
+                            <div>{annonce.ifm.toFixed(2)} €</div>
+                            <div className="annonce_body_salary_text">
+                              <FormattedMessage id="DISPLAY.IFM.CP" />
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="annonce_body_item">
+                          <i className="flaticon-coins annonce_body_item_icon" />
+                          <div>
+                            <div>IFM non renseignée</div>
+                          </div>
+                        </div>
+                      )}
+                      <div className="annonce_body_item">
+                        <i className="flaticon-exclamation-1 annonce_body_item_icon" />
+                        <div>
+                          {annonce.isComplaint !== 0 ? (
+                            <span
+                              style={{
+                                height: "25px",
+                                width: "25px",
+                                backgroundColor:
+                                  annonce.isComplaint === 2
+                                    ? "#FF4500"
+                                    : "#ADFF2F",
+                                borderRadius: "50%",
+                                display: "inline-block"
+                              }}
+                            ></span>
+                          ) : (
+                            <span>Pas de réclamation</span>
+                          )}
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          marginTop: 10
+                        }}
+                      >
+                        <>
+                          <div
+                            className="btn btn-light-primary mb-2"
+                            onClick={e => {
+                              e.stopPropagation();
+                              history.push(`/cra/new-hours/${annonce.id}`);
+                            }}
+                          >
+                            <FormattedMessage id="BUTTON.SEE.MORE" />
+                          </div>
+                          <>
+                            {annonce.isComplaint == 0 && annonce.status === 2 && (
+                              <div
+                                className="btn btn-light-warning"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  history.push(`/cra/complaint/${annonce.id}`);
+                                }}
+                              >
+                                <FormattedMessage id="TEXT.COMPLAINT" />
+                              </div>
+                            )}
+                            {annonce.isComplaint > 0 && (
+                              <div
+                                className="btn btn-light-warning mt-2"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  history.push(`/cra/complaints/${annonce.id}`);
+                                }}
+                              >
+                                Voir les réclamations
+                              </div>
+                            )}
+                          </>
+                        </>
+                      </div>
+                    </div>
+                    {/*<div className="annonce_body_container py-3">
+                                    <div className="annonce_body_item">
+                                      <i className="flaticon-map-location annonce_body_item_icon" />
+                                      <div>
+                                        {annonce.vacancyBusinessAddressCity} (
+                                        {annonce.vacancyBusinessAddressPostalCode})
+                                      </div>
+                                    </div>
+                                    <div className="annonce_body_item">
+                                      <i className="flaticon-calendar-2 annonce_body_item_icon" />
+                                      <div>
+                                        {new Date(
+                                          annonce.vacancyContractualVacancyEmploymentContractTypeStartDate
+                                        ).toLocaleDateString("fr-FR")}{" "}
+                                        -{" "}
+                                        {new Date(
+                                          annonce.vacancyContractualVacancyEmploymentContractTypeEndDate
+                                        ).toLocaleDateString("fr-FR")}
+                                      </div>
+                                    </div>
+                                    <div className="annonce_body_item">
+                                      <i className="flaticon-coins annonce_body_item_icon" />
+                                      <div>
+                                        <div>
+                                          {annonce.missionHourlyGrossSalary.toFixed(2)} €
+                                        </div>
+                                        <div className="annonce_body_salary_text">
+                                          <FormattedMessage id="DISPLAY.IFM.CP" />
+                                        </div>
+                                      </div>
+                                    </div>
+                                        </div>*/}
+                  </div>
+                  {/*<div className="annonce_footer_container">
+                                  <i
+                                    className={
+                                      annonce.isFavorite
+                                        ? "fas flaticon-star icon-xxl mx-2 heart-icon-color"
+                                        : "far flaticon-star icon-xxl mx-2"
+                                    }
+                                    onClick={() => {
+                                      handleFavorites(annonce.id, !annonce.isFavorite);
+                                    }}
+                                  />
+                                  <Link
+                                    className="annonce_footer_showmore mx-2 text-white"
+                                    to={`/matching/approve/${annonce.id}`}
+                                  >
+                                    <i className="flaticon2-send-1 annonce_footer_showmore_icon" />
+                                    <FormattedMessage id="TEXT.APPLY" />
+                                  </Link>
+                                  <Link
+                                    className="annonce_footer_showmore mx-2 bg-light-danger"
+                                    to={`/matching/remove/${annonce.id}`}
+                                  >
+                                    <i className="flaticon2-cross annonce_footer_cancel_icon" />
+                                  </Link>
+                                  </div>*/}
+                </div>
+              </Col>
+            ))}
+          </Row>
           <div style={{ marginTop: 30 }}>
             <RemotePagination
               data={rhList}
@@ -861,25 +1023,10 @@ function HoursStatement(props) {
         </CardBody>
       </Card>
       <Route path="/cra/new-hours/:id">
-        <HoursStatementForm idList={idList} getRH={getRH} />
+        <HoursStatementForm idList={idList} />
       </Route>
-      <Route path="/cra/interimaire/:id">
-        {({ history, match }) => (
-          <DisplayDialog
-            show={match != null}
-            history={history}
-            onHide={() => {
-              history.goBack();
-            }}
-          />
-        )}
-      </Route>
-      <Route path="/cra/contract/:id" component={ContractDetails} />
       <Route path="/cra/complaint/:id">
         <HoursStatementComplaint getRH={getRH} />
-      </Route>
-      <Route path="/cra/close-mission/:id">
-        <MissionEndingForm getRH={getRH} />
       </Route>
       <Route path="/cra/complaints/:id">
         <ComplaintsList getRH={getRH} />

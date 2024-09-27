@@ -11,7 +11,7 @@ import {
   CardHeaderToolbar
 } from "../../../../../_metronic/_partials/controls";
 
-import MissionsTable from "./MissionsTable";
+import MissionsTable from "./missionsTable.jsx";
 
 class MissionsCard extends Component {
   constructor(props) {

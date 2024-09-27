@@ -8,12 +8,12 @@ import { Route } from "react-router-dom";
 // import { CustomersDeleteDialog } from "./customers-delete-dialog/CustomersDeleteDialog";
 // import { CustomersUpdateStateDialog } from "./customers-update-status-dialog/CustomersUpdateStateDialog";
 import { CompanyDeleteDialog } from "./companiesModals/companyDeleteDialog.jsx";
-import CompanyEditModal from "./companiesModals/CompanyEditModal";
-import WorksiteCreateModal from "./companiesModals/WorksiteCreateModal";
-import WorksiteEditModal from "./companiesModals/WorksiteEditModal";
-import WorksitePreviewModal from "./companiesModals/WorkSitePreviewModal";
-import { CompaniesUIProvider } from "./CompaniesUIContext";
-import CompanyCard from "./CompanyCard";
+import CompanyEditModal from "./companiesModals/CompanyEditModal.js";
+import WorksiteCreateModal from "./companiesModals/WorksiteCreateModal.js";
+import WorksiteEditModal from "./companiesModals/WorksiteEditModal.js";
+import WorksitePreviewModal from "./companiesModals/WorkSitePreviewModal.js";
+import { CompaniesUIProvider } from "./companiesUIContext.jsx";
+import CompanyCard from "./companyCard.jsx";
 
 class CompanyPage extends React.Component {
   componentDidMount() {

@@ -22,7 +22,7 @@ import SVG from "react-inlinesvg";
 import BootstrapTable from "react-bootstrap-table-next";
 import { toAbsoluteUrl } from "metronic/_helpers";
 import { Collapse } from "react-bootstrap";
-import { DocumentModal } from "../profileModals/DocumentModal";
+import { DocumentModal } from "../profileModals/documentModal.jsx";
 import DocTypes from "../../../../../utils/DocumentTypes.json";
 import { updateInterimaire } from "actions/interimaire/InterimairesActions";
 import DateColumnFormatter from "./DateColumnFormatter";

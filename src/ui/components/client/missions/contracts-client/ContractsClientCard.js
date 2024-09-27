@@ -10,7 +10,7 @@ import {
   CardHeaderToolbar
 } from "../../../../../_metronic/_partials/controls";
 
-//import MissionsTable from "./MissionsTable";
+//import MissionsTable from "./missionsTable.jsx";
 import ContractsClientTable from "./ContractsClientTable";
 
 function ContractsClientCard(props) {

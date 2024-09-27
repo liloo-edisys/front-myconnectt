@@ -13,14 +13,14 @@ import BackOfficeDashboardPageNew from "./components/backoffice/dashboard/backOf
 import Contracts from "./components/backoffice/contracts/index.js";
 import NewApplicant from "./components/backoffice/new-applicant/index.js";
 import CustomersContainer from "../business/containers/customersContainer.js";
-import MissionsPage from "./components/backoffice/missions/missionlist/MissionsPage.js";
+import MissionsPage from "./components/backoffice/missions/missionlist/missionsPage.jsx";
 import NewMission from "./components/backoffice/new-mission/index.js";
 import MailTemplatesPage from "./components/backoffice/mailtemplates/mailTemplatesPage.jsx";
 import CommercialAgreementsPage from "./components/backoffice/commercialagreements/commercialAgreementsPage.jsx";
 import { CustomerOrderPage } from "./components/backoffice/customer-order/index.js";
 import FinalStep from "./components/backoffice/new-mission/fields/mission-creator/missionForms/finalStep.jsx";
 import UsersCard from "./components/backoffice/users/index.js";
-import HoursStatement from "./components/backoffice/hours-statement/HoursStatement.js";
+import HoursStatement from "./components/backoffice/hours-statement/hoursStatement.jsx";
 import { Jobskills } from "./components/backoffice/jobskill/index.js";
 import { Jobtags } from "./components/backoffice/jobtags/index.js";
 import { HabilitationList } from "./components/backoffice/habilitations/index.js";
@@ -36,8 +36,8 @@ import Statistiques from "./components/backoffice/statistiques/statistiques.jsx"
 export default function BaseBackOfficePage(props) {
   const dispatch = useDispatch();
   const { user, mission } = useSelector(
-    state => ({
-      user: state.auth.user
+    (state) => ({
+      user: state.auth.user,
     }),
     shallowEqual
   );

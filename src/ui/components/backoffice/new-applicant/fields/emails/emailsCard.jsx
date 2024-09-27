@@ -7,7 +7,7 @@ import {
   CardBody} from "../../../../../../_metronic/_partials/controls";
 import "./styles.scss";
 
-//import MissionsTable from "./MissionsTable";
+//import MissionsTable from "./missionsTable.jsx";
 import EmailsTable from "./emailsTable.jsx";
 
 function EmailsCard(props) {

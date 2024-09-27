@@ -17,7 +17,7 @@ import useLocalStorage from "../../../shared/persistState.js";
 import { toastr } from "react-redux-toastr";
 import MissionWizzardHeader from "./missionWizzardHeader.jsx";
 import { VictoryBar, VictoryTooltip } from "victory";
-import FlyOut from "./CustomToolTip.js";
+import FlyOut from "./customToolTip.jsx";
 import { countMatching } from "actions/client/applicantsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty.js";
 

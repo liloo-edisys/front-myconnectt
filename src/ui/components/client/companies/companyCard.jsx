@@ -8,9 +8,9 @@ import {
   CardHeader,
   CardBody,
   CardHeaderToolbar
-} from "../../../../_metronic/_partials/controls";
+} from "../../../../_metronic/_partials/controls/index.js";
 
-import CompaniesTable from "./CompaniesTable";
+import CompaniesTable from "./companiesTable.jsx";
 
 class CompaniesCard extends Component {
   constructor(props) {

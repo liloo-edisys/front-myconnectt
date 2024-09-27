@@ -5,7 +5,7 @@ import {
   resetMission
 } from "actions/client/missionsActions";
 
-import MissionsPage from "components/client/missions/missionlist/MissionsPage";
+import MissionsPage from "components/client/missions/missionlist/missionsPage.jsx";
 import { connect } from "react-redux";
 import { clearFormattedCV } from "../actions/client/applicantsActions";
 

@@ -8,7 +8,7 @@ import {
   CardBody} from "../../../../../../_metronic/_partials/controls";
 import "./styles.scss";
 
-//import MissionsTable from "./MissionsTable";
+//import MissionsTable from "./missionsTable.jsx";
 import ContractsTable from "./contractsTable.jsx";
 
 function ContractsCard(props) {

@@ -1,5 +1,5 @@
 import React from "react";
-import MissionCreatorClass from "./MissionCreatorClass";
+import MissionCreatorClass from "./missionCreatorClass.jsx";
 import { useIntl } from "react-intl";
 
 function MissionCreator(props) {

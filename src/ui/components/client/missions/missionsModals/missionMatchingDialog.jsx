@@ -3,7 +3,7 @@ import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { getMatching } from "actions/client/applicantsActions";
-import MatchingTable from "../missionlist/MatchingTable";
+import MatchingTable from "../missionlist/matchingTable.jsx";
 import { getMission } from "actions/client/missionsActions";
 import {
   declineMatching,

@@ -21,7 +21,7 @@ import PlacesAutocomplete, {
   getLatLng,
   geocodeByPlaceId
 } from "react-places-autocomplete";
-import { ApplicantDeleteModal } from "./ApplicantDeleteModal";
+import { ApplicantDeleteModal } from "./applicantDeleteModal.jsx";
 
 function IdentityInformations(props) {
   const dispatch = useDispatch();

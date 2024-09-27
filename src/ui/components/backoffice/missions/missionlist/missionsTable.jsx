@@ -25,18 +25,27 @@ import paginationFactory, {
   SizePerPageDropdownStandalone
 } from "react-bootstrap-table2-paginator";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { searchMission } from "../../../../../business/actions/client/missionsActions";
+import { searchMission } from "../../../../../business/actions/client/missionsActions.js";
 import { resetMissionIndicator } from "actions/client/missionsActions";
 import { getMission } from "api/client/missionsApi";
 
 import { getJobTitles } from "actions/shared/listsActions";
-import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
+import isNullOrEmpty from "../../../../../utils/isNullOrEmpty.js";
+import { getCompanies } from "actions/client/companiesActions";
 import MissionsStatusColumnFormatter from "../column-formatters/missionsStatusColumnFormatter.jsx";
 import {
   deleteCurrentDuplicate,
   deleteCurrentTemplate
-} from "../../../../../business/actions/client/missionsActions";
+} from "../../../../../business/actions/client/missionsActions.js";
 import Avatar from "react-avatar";
+import {
+  setSetelectedStartDate,
+  setSetelectedEndDate,
+  setSelectedAccount,
+  setDefaultStatus,
+  setPageSize,
+  setPageNumber
+} from "../../../../../business/actions/backoffice/missionsActions.js";
 
 const tenantID = +process.env.REACT_APP_TENANT_ID;
 const baseDate = new Date();
@@ -68,25 +77,20 @@ Array.constructor.prototype.flexFilter = function(info) {
 function MissionsTable({ refresh }) {
   const intl = useIntl(); // intl extracted from useIntl hook
   const dispatch = useDispatch();
-  const [selectedStartDate, setSetelectedStartDate] = useState(null);
+  let date = new Date(moment().subtract(1, "months"));
+  /*const [selectedStartDate, setSetelectedStartDate] = useState(date);
   const [selectedEndDate, setSetelectedEndDate] = useState(null);
-  const [selectedAskers, setSelectedAskers] = useState([]);
-  const [selectedTitles, setSelectedTitles] = useState([]);
-  const [titleList, setTitleList] = useState([]);
-  const [askers, setAskers] = useState([]);
+  const [selectedAccount, setSelectedAccount] = useState(null);
   const [defaultStatus, setDefaultStatus] = useState([]);
   const [pageSize, setPageSize] = useState(5);
-  const [pageNumber, setPageNumber] = useState(1);
+  const [pageNumber, setPageNumber] = useState(1);*/
   const [expanded, setExpanded] = useState([]);
 
   const clearFilter = () => {
-    setSetelectedStartDate(null);
-    setSetelectedEndDate(null);
-    setSelectedAskers(null);
-    setSelectedTitles(null);
-    setTitleList(null);
-    setAskers(null);
-    setDefaultStatus(null);
+    setSetelectedStartDate(null, dispatch);
+    setSelectedAccount(null, dispatch);
+    setSetelectedEndDate(null, dispatch);
+    setDefaultStatus(null, dispatch);
   };
 
   const status = [
@@ -109,17 +113,21 @@ function MissionsTable({ refresh }) {
   let history = useHistory();
 
   let isEdit =
-    history && history.location.pathname === "/missions/encours"
-      ? true
-      : undefined;
-
+    history && history.location.pathname === "/missions" ? true : undefined;
   let {
     missions,
     user,
     loadingMission,
     jobTitles,
     totalCount,
-    companyID
+    companyID,
+    companies,
+    selectedStartDate,
+    selectedEndDate,
+    selectedAccount,
+    defaultStatus,
+    pageSize,
+    pageNumber
   } = useSelector(
     state => ({
       user: state.contacts.user,
@@ -128,18 +136,39 @@ function MissionsTable({ refresh }) {
       loadingMission: state.missionsReducerData.loading,
       jobTitles: state.lists.jobTitles,
       companyID: state.auth.user.accountID,
-      mission: state.missionsReducerData.mission
+      mission: state.missionsReducerData.mission,
+      companies: state.companies.companies,
+      selectedStartDate: state.missionsBackOfficeReducer.selectedStartDate,
+      selectedEndDate: state.missionsBackOfficeReducer.selectedEndDate,
+      selectedAccount: state.missionsBackOfficeReducer.selectedAccount,
+      defaultStatus: state.missionsBackOfficeReducer.defaultStatus,
+      pageSize: state.missionsBackOfficeReducer.pageSize,
+      pageNumber: state.missionsBackOfficeReducer.pageNumber
     }),
     shallowEqual
   );
   const useMountEffect = fun => useEffect(fun, []);
+  let filteredCompanies =
+    companies != null
+      ? companies.length
+        ? companies
+            .filter(company => company.parentID === null)
+            .map(function(c) {
+              return {
+                value: c.id,
+                label: c.name
+              };
+            })
+        : []
+      : [];
 
   useMountEffect(() => {
     localStorage.setItem("pageNumber", 1);
     localStorage.setItem("pageSize", 5);
     localStorage.setItem("accountID", companyID);
-    dispatch(getJobTitles.request());
-
+    if (companies.length === 0) {
+      dispatch(getCompanies.request());
+    }
     dispatch(deleteCurrentDuplicate.request());
     dispatch(deleteCurrentTemplate.request());
     dispatch(resetMissionIndicator.request());
@@ -149,16 +178,21 @@ function MissionsTable({ refresh }) {
         dispatch(
           searchMission.request({
             tenantID,
-            accountID: companyID,
-            missionJobTitles: reduceData(selectedTitles),
-            startDate: selectedStartDate,
-            endDate: selectedEndDate,
-            contactName: selectedAskers,
+            startDate: !isNullOrEmpty(selectedStartDate)
+              ? moment(selectedStartDate).format("YYYY-MM-DD")
+              : null,
+            endDate: !isNullOrEmpty(selectedEndDate)
+              ? moment(selectedEndDate).format("YYYY-MM-DD")
+              : null,
+            accountID: selectedAccount ? selectedAccount.value : 0,
             isMatchingOnly: false,
             isApplicationsOnly: false,
-            pageSize: 5,
-            pageNumber: pageNumber,
-            loadMissionApplications: true
+            pageSize: pageSize,
+            pageNumber: 1,
+            loadMissionApplications: true,
+            status: !isNullOrEmpty(defaultStatus)
+              ? reduceData(defaultStatus)
+              : null
           })
         );
     } else {
@@ -169,17 +203,21 @@ function MissionsTable({ refresh }) {
         dispatch(
           searchMission.request({
             tenantID,
-            accountID: companyID,
-            userId: user.userID,
-            missionJobTitles: reduceData(selectedTitles),
-            startDate: selectedStartDate,
-            endDate: selectedEndDate,
-            contactName: selectedAskers,
+            startDate: !isNullOrEmpty(selectedStartDate)
+              ? moment(selectedStartDate).format("YYYY-MM-DD")
+              : null,
+            endDate: !isNullOrEmpty(selectedEndDate)
+              ? moment(selectedEndDate).format("YYYY-MM-DD")
+              : null,
+            accountID: selectedAccount ? selectedAccount.value : 0,
             isMatchingOnly: false,
             isApplicationsOnly: false,
-            pageSize: 5,
-            pageNumber: pageNumber,
-            loadMissionApplications: true
+            pageSize: pageSize,
+            pageNumber: 1,
+            loadMissionApplications: true,
+            status: !isNullOrEmpty(defaultStatus)
+              ? reduceData(defaultStatus)
+              : null
           })
         );
     }
@@ -192,38 +230,46 @@ function MissionsTable({ refresh }) {
         ? dispatch(
             searchMission.request({
               tenantID,
-              accountID: companyID,
-              missionJobTitles: null,
-              startDate: null,
-              endDate: null,
-              contactNames: null,
+              startDate: !isNullOrEmpty(selectedStartDate)
+                ? moment(selectedStartDate).format("YYYY-MM-DD")
+                : null,
+              endDate: !isNullOrEmpty(selectedEndDate)
+                ? moment(selectedEndDate).format("YYYY-MM-DD")
+                : null,
+              accountID: selectedAccount ? selectedAccount.value : 0,
               isMatchingOnly: false,
               isApplicationsOnly: false,
               pageSize: pageSize,
-              pageNumber: pageNumber,
+              pageNumber: 1,
               loadMissionApplications: true,
-              status: null
+              status: !isNullOrEmpty(defaultStatus)
+                ? reduceData(defaultStatus)
+                : null
             })
           )
         : dispatch(
             searchMission.request({
               tenantID,
-              accountID: companyID,
-              userID: user.userID,
-              missionJobTitles: null,
-              startDate: null,
-              endDate: null,
-              contactNames: null,
+              startDate: !isNullOrEmpty(selectedStartDate)
+                ? moment(selectedStartDate).format("YYYY-MM-DD")
+                : null,
+              endDate: !isNullOrEmpty(selectedEndDate)
+                ? moment(selectedEndDate).format("YYYY-MM-DD")
+                : null,
+              accountID: selectedAccount ? selectedAccount.value : 0,
               isMatchingOnly: false,
               isApplicationsOnly: false,
               pageSize: pageSize,
-              pageNumber: pageNumber,
+              pageNumber: 1,
               loadMissionApplications: true,
-              status: null
+              status: !isNullOrEmpty(defaultStatus)
+                ? reduceData(defaultStatus)
+                : null
             })
           );
     }
   }, [refresh, missions]);
+
   const NoDataIndication = () => (
     <div className="d-flex justify-content-center mt-5">
       <div
@@ -274,11 +320,7 @@ function MissionsTable({ refresh }) {
     },
     headerClasses: "hidden",
     className: (isExpanded, row, rowIndex) => {
-      if (row.status === 3 || row.status === 5) {
-        return "fulfilled-row";
-      } else if (rowIndex % 2 === 0) {
-        return "odd-row";
-      } else return "even-row";
+      return "fulfilled-row";
     },
     onExpand: (row, isExpand, rowIndex, e) => {
       if (isExpand) {
@@ -337,28 +379,18 @@ function MissionsTable({ refresh }) {
   const missionsUIContext = useMissionsUIContext();
   const missionsUIProps = useMemo(() => {
     return {
-      ids: missionsUIContext.ids,
-      setIds: missionsUIContext.setIds,
-      queryParams: missionsUIContext.queryParams,
-      setQueryParams: missionsUIContext.setQueryParams,
-      newWorksiteButtonClick: missionsUIContext.newWorksiteButtonClick,
-      openEditCompanyDialog: missionsUIContext.openEditCompanyDialog,
       openDeleteDialog: missionsUIContext.openDeleteDialog,
-      openDisplayDialog: missionsUIContext.openDisplayDialog,
-      openEditWorksiteDialog: missionsUIContext.openEditWorksiteDialog,
-      openMatchingDialog: missionsUIContext.openMatchingDialog,
-      editMission: missionsUIContext.editMission,
-      openResumeDialog: missionsUIContext.openResumeDialog,
-      openDeclineDialog: missionsUIContext.openDeclineDialog,
-      openValidateDialog: missionsUIContext.openValidateDialog,
-      openMissionProfileDialog: missionsUIContext.openMissionProfileDialog,
-      openDeleteApplicationDialog: missionsUIContext.openDeleteApplicationDialog
+      openDisplayDialog: missionsUIContext.openDisplayDialog
     };
   }, [missionsUIContext]);
 
   let columns = [
     {
-      dataField: "vacancyNumberOfOccupiedJobs",
+      dataField: "entrepriseName",
+      text: intl.formatMessage({ id: "TEXT.COMPANY" })
+    },
+    {
+      dataField: "vacancyNumberOfApplications",
       formatter: OccupiedColumnFormatter,
       text: intl.formatMessage({ id: "COLUMN.JOBS.NBR" }),
       attrs: (cell, row) => ({ id: `rowid_${row.id}` })
@@ -407,14 +439,8 @@ function MissionsTable({ refresh }) {
         paddinBottom: "10px"
       },
       formatExtraData: {
-        openDisplayVacancyDialog: missionsUIProps.newWorksiteButtonClick,
-        openEditVacancyDialog: missionsUIProps.openEditCompanyDialog,
         openDeleteDialog: missionsUIProps.openDeleteDialog,
-        openDisplayDialog: missionsUIProps.openDisplayDialog,
-        openMatchingDialog: missionsUIProps.openMatchingDialog,
-        openDuplicateVacancyDialog: missionsUIProps.openEditWorksiteDialog,
-        history: history,
-        editMission: missionsUIProps.editMission
+        openDisplayDialog: missionsUIProps.openDisplayDialog
       }
     }
   ];
@@ -471,25 +497,11 @@ function MissionsTable({ refresh }) {
         minWidth: "100px"
       },
       formatExtraData: {
-        openEditWorksiteDialog: missionsUIProps.openEditWorksiteDialog,
         openDeleteDialog: missionsUIProps.openDeleteDialog,
-        openDisplayDialog: missionsUIProps.openDisplayDialog,
-        openResumeDialog: missionsUIProps.openResumeDialog,
-        openDeclineDialog: missionsUIProps.openDeclineDialog,
-        openValidateDialog: missionsUIProps.openValidateDialog,
-        openMissionProfileDialog: missionsUIProps.openMissionProfileDialog,
-        openDeleteApplicationDialog: missionsUIProps.openDeleteApplicationDialog
+        openDisplayDialog: missionsUIProps.openDisplayDialog
       }
     }
   ];
-  useEffect(() => {
-    if (_.isEmpty(titleList)) {
-      missionTitleFormatter(jobTitles);
-    }
-    if (_.isEmpty(askers)) {
-      missionAskerFormatter();
-    }
-  }, [missions, jobTitles]);
 
   const filterExpanded = () => {
     let filtered = [];
@@ -500,7 +512,6 @@ function MissionsTable({ refresh }) {
         )
       : [];
     !isNullOrEmpty(rows) && rows.map(row => filtered.push(row.id));
-    setExpanded(filtered);
     return;
   };
 
@@ -514,58 +525,58 @@ function MissionsTable({ refresh }) {
 
   useEffect(() => {
     if (isEdit === true) {
-      setDefaultStatus([
-        { value: 1, label: intl.formatMessage({ id: "STATUS.NON.PROVIDED" }) },
-        {
-          label: intl.formatMessage({ id: "STATUS.PARTIALLY.PROVIDED" }),
-          value: 2
-        }
-      ]);
+      setDefaultStatus([], dispatch);
       user.displayChoice === 0 && !loadingMission
         ? dispatch(
             searchMission.request({
               tenantID,
-              accountID: companyID,
-              missionJobTitles: null,
-              startDate: null,
-              endDate: null,
-              contactNames: null,
+              startDate: !isNullOrEmpty(selectedStartDate)
+                ? moment(selectedStartDate).format("YYYY-MM-DD")
+                : null,
+              endDate: !isNullOrEmpty(selectedEndDate)
+                ? moment(selectedEndDate).format("YYYY-MM-DD")
+                : null,
+              accountID: selectedAccount ? selectedAccount.value : 0,
               isMatchingOnly: false,
               isApplicationsOnly: false,
               pageSize: pageSize,
-              pageNumber: pageNumber,
+              pageNumber: 1,
               loadMissionApplications: true,
-              status: [1, 2]
+              status: !isNullOrEmpty(defaultStatus)
+                ? reduceData(defaultStatus)
+                : null
             })
           )
         : dispatch(
             searchMission.request({
               tenantID,
-              accountID: companyID,
-              userID: user.userID,
-              missionJobTitles: null,
-              startDate: null,
-              endDate: null,
-              contactNames: null,
+              startDate: !isNullOrEmpty(selectedStartDate)
+                ? moment(selectedStartDate).format("YYYY-MM-DD")
+                : null,
+              endDate: !isNullOrEmpty(selectedEndDate)
+                ? moment(selectedEndDate).format("YYYY-MM-DD")
+                : null,
+              accountID: selectedAccount ? selectedAccount.value : 0,
               isMatchingOnly: false,
               isApplicationsOnly: false,
               pageSize: pageSize,
-              pageNumber: pageNumber,
+              pageNumber: 1,
               loadMissionApplications: true,
-              status: [1, 2]
+              status: !isNullOrEmpty(defaultStatus)
+                ? reduceData(defaultStatus)
+                : null
             })
           );
     } else {
-      setDefaultStatus(null);
+      setDefaultStatus(null, dispatch);
       user.displayChoice === 0 && !loadingMission
         ? dispatch(
             searchMission.request({
               tenantID,
-              accountID: companyID,
-              missionJobTitles: null,
-              startDate: null,
+              startDate: !isNullOrEmpty(selectedStartDate)
+                ? moment(selectedStartDate).format("YYYY-MM-DD")
+                : null,
               endDate: null,
-              contactNames: null,
               isMatchingOnly: false,
               isApplicationsOnly: false,
               pageSize: pageSize,
@@ -577,12 +588,10 @@ function MissionsTable({ refresh }) {
         : dispatch(
             searchMission.request({
               tenantID,
-              accountID: companyID,
-              userID: user.userID,
-              missionJobTitles: null,
-              startDate: null,
+              startDate: !isNullOrEmpty(selectedStartDate)
+                ? moment(selectedStartDate).format("YYYY-MM-DD")
+                : null,
               endDate: null,
-              contactNames: null,
               isMatchingOnly: false,
               isApplicationsOnly: false,
               pageSize: pageSize,
@@ -594,44 +603,22 @@ function MissionsTable({ refresh }) {
     }
   }, [isEdit]);
 
-  const renderTitleFilter = () => {
-    return (
-      <div className="col-lg-3">
-        <Select
-          name="invoiceTypeID"
-          isMulti
-          value={selectedTitles}
-          onChange={e => {
-            filterTitle(e);
-            handleChangeTitle(e);
-          }}
-          options={titleList}
-        ></Select>
-        <small className="form-text text-muted">Intitulé du poste</small>
-      </div>
-    );
-  };
-
   const filterTitle = value => {
     if (user.displayChoice === 0) {
       dispatch(
         searchMission.request({
           tenantID,
-          accountID: companyID,
-          missionJobTitles: !isNullOrEmpty(value) ? reduceData(value) : null,
           startDate: !isNullOrEmpty(selectedStartDate)
             ? moment(selectedStartDate).format("YYYY-MM-DD")
             : null,
           endDate: !isNullOrEmpty(selectedEndDate)
             ? moment(selectedEndDate).format("YYYY-MM-DD")
             : null,
-          contactNames: !isNullOrEmpty(selectedAskers)
-            ? reduceString(selectedAskers)
-            : null,
           isMatchingOnly: false,
           isApplicationsOnly: false,
           pageSize: pageSize,
           pageNumber: 1,
+          accountID: selectedAccount ? selectedAccount.value : 0,
           loadMissionApplications: true,
           status: !isNullOrEmpty(defaultStatus)
             ? reduceData(defaultStatus)
@@ -642,21 +629,16 @@ function MissionsTable({ refresh }) {
       dispatch(
         searchMission.request({
           tenantID,
-          accountID: companyID,
-          userID: user.userID,
-          missionJobTitles: !isNullOrEmpty(value) ? reduceData(value) : null,
           startDate: !isNullOrEmpty(selectedStartDate)
             ? moment(selectedStartDate).format("YYYY-MM-DD")
             : null,
           endDate: !isNullOrEmpty(selectedEndDate)
             ? moment(selectedEndDate).format("YYYY-MM-DD")
             : null,
-          contactNames: !isNullOrEmpty(selectedAskers)
-            ? reduceString(selectedAskers)
-            : null,
           isMatchingOnly: false,
           isApplicationsOnly: false,
           pageSize: pageSize,
+          accountID: selectedAccount ? selectedAccount.value : 0,
           pageNumber: 1,
           loadMissionApplications: true,
           status: !isNullOrEmpty(defaultStatus)
@@ -672,17 +654,13 @@ function MissionsTable({ refresh }) {
       ? dispatch(
           searchMission.request({
             tenantID,
-            accountID: companyID,
-            missionJobTitles: !isNullOrEmpty(selectedTitles)
-              ? reduceData(selectedTitles)
-              : null,
             startDate: !isNullOrEmpty(selectedStartDate)
               ? moment(selectedStartDate).format("YYYY-MM-DD")
               : null,
             endDate: !isNullOrEmpty(selectedEndDate)
               ? moment(selectedEndDate).format("YYYY-MM-DD")
               : null,
-            contactNames: !isNullOrEmpty(value) ? reduceString(value) : null,
+            accountID: selectedAccount ? selectedAccount.value : 0,
             isMatchingOnly: false,
             isApplicationsOnly: false,
             pageSize: pageSize,
@@ -696,18 +674,13 @@ function MissionsTable({ refresh }) {
       : dispatch(
           searchMission.request({
             tenantID,
-            accountID: companyID,
-            userID: user.userID,
-            missionJobTitles: !isNullOrEmpty(selectedTitles)
-              ? reduceData(selectedTitles)
-              : null,
             startDate: !isNullOrEmpty(selectedStartDate)
               ? moment(selectedStartDate).format("YYYY-MM-DD")
               : null,
             endDate: !isNullOrEmpty(selectedEndDate)
               ? moment(selectedEndDate).format("YYYY-MM-DD")
               : null,
-            contactNames: !isNullOrEmpty(value) ? reduceString(value) : null,
+            accountID: selectedAccount ? selectedAccount.value : 0,
             isMatchingOnly: false,
             isApplicationsOnly: false,
             pageSize: pageSize,
@@ -725,19 +698,13 @@ function MissionsTable({ refresh }) {
       ? dispatch(
           searchMission.request({
             tenantID,
-            accountID: companyID,
-            missionJobTitles: !isNullOrEmpty(selectedTitles)
-              ? reduceData(selectedTitles)
-              : null,
             startDate: !isNullOrEmpty(selectedStartDate)
               ? moment(selectedStartDate).format("YYYY-MM-DD")
               : null,
             endDate: !isNullOrEmpty(selectedEndDate)
               ? moment(selectedEndDate).format("YYYY-MM-DD")
               : null,
-            contactNames: !isNullOrEmpty(selectedAskers)
-              ? reduceString(selectedAskers)
-              : null,
+            accountID: selectedAccount ? selectedAccount.value : 0,
             isMatchingOnly: false,
             isApplicationsOnly: false,
             pageSize: pageSize,
@@ -749,20 +716,13 @@ function MissionsTable({ refresh }) {
       : dispatch(
           searchMission.request({
             tenantID,
-            accountID: companyID,
-            userId: user.userID,
-            missionJobTitles: !isNullOrEmpty(selectedTitles)
-              ? reduceData(selectedTitles)
-              : null,
             startDate: !isNullOrEmpty(selectedStartDate)
               ? moment(selectedStartDate).format("YYYY-MM-DD")
               : null,
             endDate: !isNullOrEmpty(selectedEndDate)
               ? moment(selectedEndDate).format("YYYY-MM-DD")
               : null,
-            contactNames: !isNullOrEmpty(selectedAskers)
-              ? reduceString(selectedAskers)
-              : null,
+            accountID: selectedAccount ? selectedAccount.value : 0,
             isMatchingOnly: false,
             isApplicationsOnly: false,
             pageSize: pageSize,
@@ -773,22 +733,18 @@ function MissionsTable({ refresh }) {
         );
   };
 
-  const onChangeStartDate = e => {
+  const filterAccount = value => {
     user.displayChoice === 0
       ? dispatch(
           searchMission.request({
             tenantID,
-            accountID: companyID,
-            missionJobTitles: !isNullOrEmpty(selectedTitles)
-              ? reduceData(selectedTitles)
+            startDate: !isNullOrEmpty(selectedStartDate)
+              ? moment(selectedStartDate).format("YYYY-MM-DD")
               : null,
-            startDate: moment(e).format("YYYY-MM-DD"),
             endDate: !isNullOrEmpty(selectedEndDate)
               ? moment(selectedEndDate).format("YYYY-MM-DD")
               : null,
-            contactNames: !isNullOrEmpty(selectedAskers)
-              ? reduceString(selectedAskers)
-              : null,
+            accountID: value,
             isMatchingOnly: false,
             isApplicationsOnly: false,
             pageSize: pageSize,
@@ -802,18 +758,53 @@ function MissionsTable({ refresh }) {
       : dispatch(
           searchMission.request({
             tenantID,
-            accountID: companyID,
-            userId: user.userID,
-            missionJobTitles: !isNullOrEmpty(selectedTitles)
-              ? reduceData(selectedTitles)
+            startDate: !isNullOrEmpty(selectedStartDate)
+              ? moment(selectedStartDate).format("YYYY-MM-DD")
               : null,
+            endDate: !isNullOrEmpty(selectedEndDate)
+              ? moment(selectedEndDate).format("YYYY-MM-DD")
+              : null,
+            accountID: value,
+            isMatchingOnly: false,
+            isApplicationsOnly: false,
+            pageSize: pageSize,
+            pageNumber: 1,
+            loadMissionApplications: true,
+            status: !isNullOrEmpty(defaultStatus)
+              ? reduceData(defaultStatus)
+              : null
+          })
+        );
+  };
+
+  const onChangeStartDate = e => {
+    user.displayChoice === 0
+      ? dispatch(
+          searchMission.request({
+            tenantID,
             startDate: moment(e).format("YYYY-MM-DD"),
             endDate: !isNullOrEmpty(selectedEndDate)
               ? moment(selectedEndDate).format("YYYY-MM-DD")
               : null,
-            contactNames: !isNullOrEmpty(selectedAskers)
-              ? reduceString(selectedAskers)
+            accountID: selectedAccount ? selectedAccount.value : 0,
+            isMatchingOnly: false,
+            isApplicationsOnly: false,
+            pageSize: pageSize,
+            pageNumber: 1,
+            loadMissionApplications: true,
+            status: !isNullOrEmpty(defaultStatus)
+              ? reduceData(defaultStatus)
+              : null
+          })
+        )
+      : dispatch(
+          searchMission.request({
+            tenantID,
+            startDate: moment(e).format("YYYY-MM-DD"),
+            endDate: !isNullOrEmpty(selectedEndDate)
+              ? moment(selectedEndDate).format("YYYY-MM-DD")
               : null,
+            accountID: selectedAccount ? selectedAccount.value : 0,
             isMatchingOnly: false,
             isApplicationsOnly: false,
             pageSize: pageSize,
@@ -831,18 +822,12 @@ function MissionsTable({ refresh }) {
       ? dispatch(
           searchMission.request({
             tenantID,
-            accountID: companyID,
-            missionJobTitles: !isNullOrEmpty(selectedTitles)
-              ? reduceData(selectedTitles)
-              : null,
             startDate: !isNullOrEmpty(selectedStartDate)
               ? moment(selectedStartDate).format("YYYY-MM-DD")
               : null,
             endDate: moment(e).format("YYYY-MM-DD"),
-            contactNames: !isNullOrEmpty(selectedAskers)
-              ? reduceString(selectedAskers)
-              : null,
             isMatchingOnly: false,
+            accountID: selectedAccount ? selectedAccount.value : 0,
             isApplicationsOnly: false,
             pageSize: pageSize,
             pageNumber: 1,
@@ -855,18 +840,11 @@ function MissionsTable({ refresh }) {
       : dispatch(
           searchMission.request({
             tenantID,
-            accountID: companyID,
-            userID: user.userID,
-            missionJobTitles: !isNullOrEmpty(selectedTitles)
-              ? reduceData(selectedTitles)
-              : null,
             startDate: !isNullOrEmpty(selectedStartDate)
               ? moment(selectedStartDate).format("YYYY-MM-DD")
               : null,
             endDate: moment(e).format("YYYY-MM-DD"),
-            contactNames: !isNullOrEmpty(selectedAskers)
-              ? reduceString(selectedAskers)
-              : null,
+            accountID: selectedAccount ? selectedAccount.value : 0,
             isMatchingOnly: false,
             isApplicationsOnly: false,
             pageSize: pageSize,
@@ -886,7 +864,7 @@ function MissionsTable({ refresh }) {
           className={`col-lg-12   form-control`}
           style={{ width: "100%" }}
           onChange={val => {
-            setSetelectedStartDate(val);
+            setSetelectedStartDate(val, dispatch);
             onChangeStartDate(val);
           }}
           dateFormat="dd/MM/yyyy"
@@ -909,7 +887,7 @@ function MissionsTable({ refresh }) {
           className={`col-lg-12 form-control`}
           style={{ width: "100%" }}
           onChange={val => {
-            setSetelectedEndDate(val);
+            setSetelectedEndDate(val, dispatch);
             onChangeEndDate(val);
           }}
           dateFormat="dd/MM/yyyy"
@@ -927,15 +905,7 @@ function MissionsTable({ refresh }) {
   };
 
   const handleChange = e => {
-    setDefaultStatus(e);
-  };
-
-  const handleChangeTitle = e => {
-    setSelectedTitles(e);
-  };
-
-  const handleChangeAskers = e => {
-    setSelectedAskers(e);
+    setDefaultStatus(e, dispatch);
   };
 
   const renderStatusFilter = () => {
@@ -951,41 +921,29 @@ function MissionsTable({ refresh }) {
           }}
           options={status}
         ></Select>
-        <small className="form-text text-muted">Status</small>
+        <small className="form-text text-muted">
+          <FormattedMessage id="COLUMN.STATUS" />
+        </small>
       </div>
     );
   };
 
-  const renderAskerFilter = () => {
+  const renderEntrepriseFilter = () => {
     return (
       <div className="col-lg-3">
         <Select
-          name="askers"
-          isMulti
-          value={selectedAskers}
+          name="accountID"
+          options={filteredCompanies}
+          value={selectedAccount}
+          placeholder="--Entreprise--"
           onChange={e => {
-            filterAskers(e);
-            handleChangeAskers(e);
+            setSelectedAccount(e, dispatch);
+            filterAccount(e.value);
           }}
-          options={askers}
         ></Select>
-        <small className="form-text text-muted">Demandeurs</small>
+        <small className="form-text text-muted">Entreprise</small>
       </div>
     );
-  };
-
-  const createOption = (label, value) => ({
-    label,
-    value
-  });
-
-  let missionTitleFormatter = value => {
-    let missionTitles = [];
-    !isNullOrEmpty(value) &&
-      value.map(arr => {
-        return missionTitles.push(createOption(arr.name, arr.id));
-      });
-    return setTitleList(missionTitles);
   };
 
   const reduceData = data => {
@@ -1006,35 +964,18 @@ function MissionsTable({ refresh }) {
     return result;
   };
 
-  let missionAskerFormatter = () => {
-    let missionAskers = [];
-    let askersArray = _.uniqBy(missions, function(e) {
-      return e.userName;
-    });
-    askersArray.map(arr => {
-      return missionAskers.push(createOption(arr.userName, arr.id));
-    });
-    return setAskers(missionAskers);
-  };
-
   const handleChangePage = (size, page) => {
     user.displayChoice === 0
       ? dispatch(
           searchMission.request({
             tenantID,
-            accountID: companyID,
-            missionJobTitles: !isNullOrEmpty(selectedTitles)
-              ? reduceData(selectedTitles)
-              : null,
             startDate: !isNullOrEmpty(selectedStartDate)
               ? moment(selectedStartDate).format("YYYY-MM-DD")
               : null,
             endDate: !isNullOrEmpty(selectedEndDate)
               ? moment(selectedEndDate).format("YYYY-MM-DD")
               : null,
-            contactNames: !isNullOrEmpty(selectedAskers)
-              ? reduceString(selectedAskers)
-              : null,
+            accountID: selectedAccount ? selectedAccount.value : 0,
             isMatchingOnly: false,
             isApplicationsOnly: false,
             pageSize: size,
@@ -1048,20 +989,13 @@ function MissionsTable({ refresh }) {
       : dispatch(
           searchMission.request({
             tenantID,
-            accountID: companyID,
-            userID: user.userID,
-            missionJobTitles: !isNullOrEmpty(selectedTitles)
-              ? reduceData(selectedTitles)
-              : null,
             startDate: !isNullOrEmpty(selectedStartDate)
               ? moment(selectedStartDate).format("YYYY-MM-DD")
               : null,
             endDate: !isNullOrEmpty(selectedEndDate)
               ? moment(selectedEndDate).format("YYYY-MM-DD")
               : null,
-            contactNames: !isNullOrEmpty(selectedAskers)
-              ? reduceString(selectedAskers)
-              : null,
+            accountID: selectedAccount ? selectedAccount.value : 0,
             isMatchingOnly: false,
             isApplicationsOnly: false,
             pageSize: size,
@@ -1181,8 +1115,8 @@ function MissionsTable({ refresh }) {
   );
 
   const handleTableChange = (type, { page, sizePerPage }) => {
-    setPageNumber(page);
-    setPageSize(sizePerPage);
+    setPageNumber(page, dispatch);
+    setPageSize(sizePerPage, dispatch);
     handleChangePage(sizePerPage, page);
     localStorage.setItem("pageNumber", page);
     localStorage.setItem("pageSize", sizePerPage);
@@ -1201,11 +1135,10 @@ function MissionsTable({ refresh }) {
       ) : (
         <>
           <div className="row mb-5">
-            {renderTitleFilter()}
+            {renderEntrepriseFilter()}
             {renderStatusFilter()}
             {renderStartDateFilter()}
             {renderEndDateFilter()}
-            {renderAskerFilter()}
           </div>
           <div className="mx-auto">
             <RemotePagination

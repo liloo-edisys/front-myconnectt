@@ -1,3 +1,3 @@
-import MissionCreator from "./MissionCreator";
+import MissionCreator from "./missionCreator.jsx";
 
 export { MissionCreator };

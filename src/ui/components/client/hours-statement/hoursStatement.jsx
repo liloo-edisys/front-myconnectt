@@ -12,22 +12,21 @@ import paginationFactory, {
   PaginationProvider,
   SizePerPageDropdownStandalone
 } from "react-bootstrap-table2-paginator";
-import isNullOrEmpty from "../../../../utils/isNullOrEmpty";
+import isNullOrEmpty from "../../../../utils/isNullOrEmpty.js";
 import {
   Card,
   CardHeader,
   CardBody,
   CardHeaderToolbar
-} from "../../../../_metronic/_partials/controls";
-import { fakeData, weekList, statusList } from "./fakeDatas";
-import { getJobTitles } from "actions/shared/listsActions";
-import HoursStatementForm from "./fields/HoursStatementForm";
-import { DisplayDialog } from "../../client/interimaires/modals/displayDialog.jsx";
-import ContractDetails from "../../client/missions/contracts-client/ContractDetails";
-import ClientDetails from "../../interimaire/missions/contracts/clientDetails.jsx";
-import { getCompanies } from "../../../../business/actions/client/companiesActions";
-import ComplaintsList from "./fields/ComplaintsList";
-import MissionEndingForm from "./fields/MissionEndingForm";
+} from "../../../../_metronic/_partials/controls/index.js";
+import { fakeData, weekList, statusList } from "./fakeDatas.js";
+import { getTRJobTitles } from "actions/shared/listsActions";
+import HoursStatementForm from "./fields/hoursStatementForm.jsx";
+import { DisplayDialog } from "../interimaires/modals/displayDialog.jsx";
+import ContractDetails from "../missions/contracts-client/ContractDetails.js";
+import HoursStatementComplaint from "./fields/hoursStatementComplaint.jsx";
+import MissionEndingForm from "./fields/MissionEndingForm.js";
+import ComplaintsList from "./fields/complaintsList.jsx";
 
 function HoursStatement(props) {
   const dispatch = useDispatch();
@@ -35,7 +34,7 @@ function HoursStatement(props) {
   const intl = useIntl();
   const { user, jobTitleList, companies } = useSelector(state => ({
     user: state.auth.user,
-    jobTitleList: state.lists.jobTitles,
+    jobTitleList: state.lists.trJobTitles,
     companies: state.companies.companies
   }));
   const [rhList, setRhList] = useState([]);
@@ -52,12 +51,9 @@ function HoursStatement(props) {
   const [selectedCompany, setSelectedCompany] = useState(0);
   const [selectedWeekNumber, setSelectedWeekNumber] = useState(0);
   const [selectedYear, setSelectedYear] = useState("");
-  const [worksites, setWorksites] = useState([]);
   const [selectedWorksite, setSelectedWorksite] = useState(0);
   const [selectedQualification, setSelectedQualification] = useState(0);
-  const [selectedContractStatus, setSelectedContractStatus] = useState(1);
-  const [selectedAnael, setSelectedAnael] = useState(false);
-  const [selectedComplaint, setSelectedComplaint] = useState(false);
+  const [selectedContractStatus, setSelectedContractStatus] = useState(0);
   const [idList, setIdList] = useState([]);
   const [bornageStartDate, setBornageStartDate] = useState("");
   const [bornageEndDate, setBornageEndDate] = useState("");
@@ -66,11 +62,13 @@ function HoursStatement(props) {
     ? companies.filter(company => company.parentID === null)
     : [];
 
+  let worksites = companies.length
+    ? companies.filter(company => company.parentID !== null)
+    : [];
+
   useEffect(() => {
-    if (companies.length === 0) {
-      dispatch(getCompanies.request());
-    }
-    dispatch(getJobTitles.request());
+    dispatch(getTRJobTitles.request(parseInt(selectedCompany)));
+    setSelectedCompany(user.accountID);
     getRH();
   }, [pageNumber]);
 
@@ -86,8 +84,6 @@ function HoursStatement(props) {
       contractNumber: contractNumber ? contractNumber : selectedContractNumber,
       QualificationID: parseInt(selectedQualification),
       status: parseInt(selectedContractStatus),
-      isAnael: selectedAnael,
-      isComplaint: selectedComplaint,
       year: selectedYear ? parseInt(selectedYear) : 0
     };
 
@@ -151,6 +147,7 @@ function HoursStatement(props) {
   const columns = [
     {
       dataField: "weekNumber",
+      //text: intl.formatMessage({ id: "TEXT.WEEK.NUMBER" }),
       formatter: (value, row) => {
         const filteredWeekNumber =
           parseInt(row.weekNumber) < 10 ? "0" + row.weekNumber : row.weekNumber;
@@ -180,16 +177,12 @@ function HoursStatement(props) {
     {
       dataField: "startDate",
       text: intl.formatMessage({ id: "TEXT.START.DATE" }),
-      formatter: value => (
-        <span>{new Date(value).toLocaleDateString("fr-FR")}</span>
-      )
+      formatter: value => <span>{new Date(value).toLocaleDateString()}</span>
     },
     {
       dataField: "endDate",
       text: intl.formatMessage({ id: "TEXT.END.DATE" }),
-      formatter: value => (
-        <span>{new Date(value).toLocaleDateString("fr-FR")}</span>
-      )
+      formatter: value => <span>{new Date(value).toLocaleDateString()}</span>
     },
     {
       dataField: "status",
@@ -199,7 +192,7 @@ function HoursStatement(props) {
           {value === 0
             ? intl.formatMessage({ id: "TEXT.TO.FILL" })
             : value === 1
-            ? intl.formatMessage({ id: "TEXT.TO.VALIDATE" })
+            ? intl.formatMessage({ id: "TEXT.WAITING.VALIDATION" })
             : value === 2
             ? intl.formatMessage({ id: "TEXT.VALEDATED" })
             : ""}
@@ -210,14 +203,16 @@ function HoursStatement(props) {
       dataField: "isComplaint",
       text: intl.formatMessage({ id: "COLUMN.COMPLAINTS" }),
       formatter: (value, row) => {
-        const color = row.isComplaint === 2 ? "#ADFF2F" : "#FF4500";
+        console.log(value);
+        const color = value === 2 ? "#ADFF2F" : "#FF4500";
+        console.log(color);
         const title =
-          row.isComplaint === 2
+          value === 2
             ? intl.formatMessage({ id: "COMPLAINT.TO.PROCESS" })
             : intl.formatMessage({ id: "COMPLAINT.PROCESSED" });
         return (
           <>
-            {row.isComplaint !== 0 && (
+            {value !== 0 && (
               <span
                 title={title}
                 style={{
@@ -249,6 +244,17 @@ function HoursStatement(props) {
                 id={row.ended || row.status == 2 ? "BUTTON.SEE" : "TEXT.GRAB"}
               />
             </div>
+            {row.isComplaint == 0 && row.status === 2 && (
+              <div
+                className="btn btn-light-warning ml-2"
+                onClick={e => {
+                  e.stopPropagation();
+                  history.push(`/cra/complaint/${row.id}`);
+                }}
+              >
+                <FormattedMessage id="TEXT.COMPLAINT" />
+              </div>
+            )}
             {row.isComplaint > 0 && (
               <div
                 className="btn btn-light-warning ml-2"
@@ -257,18 +263,9 @@ function HoursStatement(props) {
                   history.push(`/cra/complaints/${row.id}`);
                 }}
               >
-                <FormattedMessage id="TEXT.SEE.COMPLAINT" />
+                Voir les réclamations
               </div>
             )}
-            <div
-              className="btn btn-light-success ml-2"
-              onClick={e => {
-                e.stopPropagation();
-                history.push(`/cra/client/${row.entrepriseID}`);
-              }}
-            >
-              <FormattedMessage id="CUSTOMER" />
-            </div>
             <div
               className="btn btn-light-info ml-2"
               onClick={e => {
@@ -361,14 +358,6 @@ function HoursStatement(props) {
     );
   };
 
-  const onSelectCompany = id => {
-    setSelectedCompany(id);
-    let newWorksites = companies.length
-      ? companies.filter(company => company.parentID === parseInt(id))
-      : [];
-    setWorksites(newWorksites);
-  };
-
   const renderApplicant = () => {
     return (
       <div className="col-lg-2">
@@ -392,18 +381,17 @@ function HoursStatement(props) {
         <select
           className="form-control"
           name="accountID"
-          issearchable={true}
+          isSearchable={true}
           value={selectedCompany}
-          onChange={e => onSelectCompany(e.target.value)}
+          onChange={e => setSelectedCompany(e.target.value)}
         >
-          <option selected value={0} style={{ color: "lightgrey" }}>
-            -- {intl.formatMessage({ id: "TEXT.COMPANY" })} --
-          </option>
-          {filteredCompanies.map((account, index) => (
-            <option id={account.id} key={index} value={account.id}>
-              {account.name}
-            </option>
-          ))}
+          {filteredCompanies.map((account, index) => {
+            return (
+              <option id={account.id} key={index} value={account.id}>
+                {account.name}
+              </option>
+            );
+          })}
         </select>
         <small className="form-text text-muted">
           {intl.formatMessage({ id: "TEXT.COMPANY" })}
@@ -421,13 +409,12 @@ function HoursStatement(props) {
             name="workSiteID"
             value={selectedWorksite}
             onChange={e => setSelectedWorksite(e.target.value)}
-            disabled={selectedCompany <= 0}
           >
             <option selected value={0} style={{ color: "lightgrey" }}>
               -- {intl.formatMessage({ id: "MODEL.ACCOUNT.SITE.NAME" })} --
             </option>
             {worksites.map((worksite, i) => (
-              <option key={i} value={worksite.id}>
+              <option key={worksite.id} value={worksite.id}>
                 {worksite.name}
               </option>
             ))}
@@ -454,8 +441,6 @@ function HoursStatement(props) {
       contractNumber: value,
       QualificationID: parseInt(selectedQualification),
       status: parseInt(selectedContractStatus),
-      isAnael: selectedAnael,
-      isComplaint: selectedComplaint,
       year: selectedYear ? parseInt(selectedYear) : 0
     };
     if (selectedStartDate) {
@@ -601,8 +586,8 @@ function HoursStatement(props) {
           <option selected value={0} style={{ color: "lightgrey" }}>
             -- {intl.formatMessage({ id: "TEXT.QUALIFICATION" })} --
           </option>
-          {jobTitleList.map((job, i) => (
-            <option key={i} label={job.name} value={job.id}>
+          {jobTitleList.map(job => (
+            <option key={job.id} label={job.name} value={job.id}>
               {job.name}
             </option>
           ))}
@@ -653,8 +638,6 @@ function HoursStatement(props) {
       contractNumber: selectedContractNumber,
       QualificationID: parseInt(selectedQualification),
       status: parseInt(selectedContractStatus),
-      isAnael: selectedAnael,
-      isComplaint: selectedComplaint,
       year: selectedYear ? parseInt(selectedYear) : 0
     };
     if (selectedStartDate) {
@@ -696,6 +679,7 @@ function HoursStatement(props) {
         body
       )
       .then(res => {
+        console.log(res.data.list);
         setRhList(res.data.list);
         setTotalCount(res.data.totalcount);
         setIdList(res.data.idlist);
@@ -764,24 +748,12 @@ function HoursStatement(props) {
     </div>
   );
 
-  const onChangeSelectedAnael = () => {
-    setSelectedAnael(!selectedAnael);
-  };
-
-  const onChangeSelectedComplaint = () => {
-    setSelectedComplaint(!selectedComplaint);
-  };
-
   const onPressNext = () => {
     if (selectedStartDate && selectedEndDate) {
       var firstDay = new Date(selectedStartDate);
-      firstDay.setMonth(firstDay.getMonth() + 1);
-      firstDay = new Date(firstDay.getFullYear(), firstDay.getMonth(), 1);
-      var lastDay = new Date(
-        firstDay.getFullYear(),
-        firstDay.getMonth() + 1,
-        0
-      );
+      firstDay.setDate(firstDay.getDate() + 30);
+      let lastDay = new Date(selectedEndDate);
+      lastDay.setDate(lastDay.getDate() + 30);
       setSelectedStartDate(firstDay);
       setSelectedEndDate(lastDay);
       getRH(firstDay, lastDay);
@@ -791,18 +763,15 @@ function HoursStatement(props) {
   const onPressBack = () => {
     if (selectedStartDate && selectedEndDate) {
       var firstDay = new Date(selectedStartDate);
-      firstDay.setMonth(firstDay.getMonth() - 1);
-      firstDay = new Date(firstDay.getFullYear(), firstDay.getMonth(), 1);
-      var lastDay = new Date(
-        firstDay.getFullYear(),
-        firstDay.getMonth() + 1,
-        0
-      );
+      firstDay.setDate(firstDay.getDate() - 30);
+      let lastDay = new Date(selectedEndDate);
+      lastDay.setDate(lastDay.getDate() - 30);
       setSelectedStartDate(firstDay);
       setSelectedEndDate(lastDay);
       getRH(firstDay, lastDay);
     }
   };
+
   return (
     <div>
       <Card>
@@ -829,23 +798,6 @@ function HoursStatement(props) {
             {renderEndDateFilter()}
             {renderContratsNumber()}
             {renderStatusSelector()}
-            <div className="col-lg-2">
-              <div>
-                <span className="switch switch switch-sm">
-                  <label>
-                    <input
-                      type="checkbox"
-                      onChange={onChangeSelectedComplaint}
-                      checked={selectedComplaint}
-                    />
-                    <span></span>
-                  </label>
-                </span>
-              </div>
-              <small className="form-text text-muted">
-                <FormattedMessage id="TEXT.WITH.COMPLAINT" />
-              </small>
-            </div>
             <div className="col-lg-2 mb-2">
               <button
                 onClick={onSearchFilteredContracts}
@@ -922,13 +874,16 @@ function HoursStatement(props) {
           />
         )}
       </Route>
-      <Route path="/cra/client/:id" component={ClientDetails} />
       <Route path="/cra/contract/:id" component={ContractDetails} />
+      <Route path="/cra/complaint/:id">
+        <HoursStatementComplaint getRH={getRH} />
+      </Route>
+      <Route path="/cra/close-mission/:id">
+        <MissionEndingForm getRH={getRH} />
+      </Route>
       <Route path="/cra/complaints/:id">
         <ComplaintsList getRH={getRH} />
       </Route>
-      {/* <Route path="/cra/complaints/:id" component={ComplaintsList} getRH={getRH} /> */}
-      <Route path="/cra/close-mission/:id" component={MissionEndingForm} />
     </div>
   );
 }

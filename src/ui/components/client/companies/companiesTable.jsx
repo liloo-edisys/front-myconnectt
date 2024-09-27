@@ -7,10 +7,10 @@ import { useIntl } from "react-intl";
 import {
   NoRecordsFoundMessage,
   PleaseWaitMessage
-} from "../../../../_metronic/_helpers";
+} from "../../../../_metronic/_helpers/index.js";
 
 import CompanyCreateModal from "./companiesModals/companyCreateModal.jsx";
-import { useCompaniesUIContext } from "./CompaniesUIContext";
+import { useCompaniesUIContext } from "./companiesUIContext.jsx";
 import ActionsColumnFormatter from "./customers-table/column-formatters/actionsColumnFormatter.jsx";
 import { shallowEqual, useSelector } from "react-redux";
 

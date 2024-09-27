@@ -23,7 +23,7 @@ import BootstrapTable from "react-bootstrap-table-next";
 
 import { toAbsoluteUrl } from "metronic/_helpers";
 import { getMissionEquipment } from "../../../../../business/actions/shared/listsActions";
-import { ProfileReferencesModal } from "../profileModals/ProfileReferencesModal";
+import { ProfileReferencesModal } from "../profileModals/profileReferencesModal.jsx";
 import ActionsColumnFormatter from "./actionsColumnFormatter.jsx";
 import { DeleteRefsModal } from "../profileModals/deleteRefsModal.jsx";
 import { updateApplicant } from "actions/client/applicantsActions";

@@ -10,7 +10,7 @@ import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout/index.js";
 
 import EmailContactModal from "./components/client/Email/emailContactModal.jsx";
 import MissionWizardForm from "./components/client/missions/missionForms/missionWizzard.jsx";
-import MissionPage from "./components/client/missions/MissionPage/MissionPage.js";
+import MissionPage from "./components/client/missions/MissionPage/missionPage.jsx";
 import CompaniesContainer from "../business/containers/companiesContainer.js";
 import MissionsContainer from "../business/containers/missionsContainer.js";
 import MissionTemplatesContainer from "../business/containers/missionTemplatesContainer.js";
