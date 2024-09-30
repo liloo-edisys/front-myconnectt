@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 
 import { toAbsoluteUrl } from "../../../../../_metronic/_helpers/index.js";
 import SVG from "react-inlinesvg";
-import { useMissionsUIContext } from "../../missions/matching/InterimaireMatchingUIContext.js";
+import { useMissionsUIContext } from "../../missions/matching/interimaireMatchingUIContext.jsx";
 import ActionsColumnFormatter from "./actionsColumnFormatter.jsx";
 
 function MissionsTable({ intl, dashboard, missions }) {

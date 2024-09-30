@@ -25,7 +25,7 @@ import HoursStatementForm from "./fields/hoursStatementForm.jsx";
 import { DisplayDialog } from "../interimaires/modals/displayDialog.jsx";
 import ContractDetails from "../missions/contracts-client/ContractDetails.js";
 import HoursStatementComplaint from "./fields/hoursStatementComplaint.jsx";
-import MissionEndingForm from "./fields/MissionEndingForm.js";
+import MissionEndingForm from "./fields/missionEndingForm.jsx";
 import ComplaintsList from "./fields/complaintsList.jsx";
 
 function HoursStatement(props) {

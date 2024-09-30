@@ -7,7 +7,7 @@ import { Route } from "react-router-dom";
 
 import { getInterimaire } from "actions/interimaire/interimairesActions";
 
-import { InterimaireMatchingUIProvider } from "../missions/matching/InterimaireMatchingUIContext.js";
+import { InterimaireMatchingUIProvider } from "../missions/matching/interimaireMatchingUIContext.jsx";
 import { getMission } from "../../../../business/actions/client/missionsActions.js";
 import { MissionDisplayDialog } from "../missions/modals/missionDisplayDialog.jsx";
 import { MissionApproveDialog } from "../missions/modals/missionApproveDialog.jsx";

@@ -27,7 +27,7 @@ import ContractDetails from "../../client/missions/contracts-client/ContractDeta
 import ClientDetails from "../../interimaire/missions/contracts/clientDetails.jsx";
 import { getCompanies } from "../../../../business/actions/client/companiesActions.js";
 import ComplaintsList from "./fields/complaintsList.jsx";
-import MissionEndingForm from "./fields/MissionEndingForm.js";
+import MissionEndingForm from "./fields/missionEndingForm.jsx";
 
 function HoursStatement(props) {
   const dispatch = useDispatch();

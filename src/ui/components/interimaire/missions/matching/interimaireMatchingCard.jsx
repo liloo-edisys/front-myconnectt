@@ -10,7 +10,7 @@ import {
   CardHeaderToolbar
 } from "../../../../../_metronic/_partials/controls";
 
-import InterimaireMatchingTable from "./InterimaireMatchingTable";
+import InterimaireMatchingTable from "./interimaireMatchingTable.jsx";
 
 class InterimaireMatchingCard extends Component {
   constructor(props) {

@@ -6,7 +6,7 @@ import { MissionDisplayDialog as DisplayDialog } from "../modals/missionDisplayD
 import { MatchingDeclineDialog as DeclineDialog } from "../modals/matchingDeclineDialog.jsx";
 import { MissionApproveDialog as ApproveDialog } from "../modals/missionApproveDialog.jsx";
 
-import { InterimaireMatchingUIProvider } from "./InterimaireMatchingUIContext.js";
+import { InterimaireMatchingUIProvider } from "./interimaireMatchingUIContext.jsx";
 import InterimaireMatchingCard from "./interimaireMatchingCard.jsx";
 
 class InterimaireMatchingPage extends React.Component {

@@ -8,7 +8,7 @@ import { Col, Row } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import { Fade } from "react-reveal";
 
-import { useMissionsUIContext } from "./InterimaireMatchingUIContext";
+import { useMissionsUIContext } from "./interimaireMatchingUIContext.jsx";
 //import ActionsColumnFormatter from "../../column-formatters/missionsActionsColumnFormatter.jsx";
 //import DateColumnFormatter from "../../column-formatters/missionsDateColumnFormatter.jsx";
 //import MatchingColumnFormatter from "../../column-formatters/missionsMatchingColumnFormatter.jsx";
@@ -25,7 +25,7 @@ import {
   searchMission,
   addFavorite,
   removeFavorite
-} from "../../../../../business/actions/client/missionsActions";
+} from "../../../../../business/actions/client/missionsActions.js";
 
 import "../style.css";
 const tenantID = +process.env.REACT_APP_TENANT_ID;

@@ -2,7 +2,7 @@ import React, { Suspense, lazy } from "react";
 import { Redirect, Switch, Route } from "react-router-dom";
 import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout";
 import { BuilderPage } from "./pages/BuilderPage";
-import { MyPage } from "./pages/MyPage";
+import { MyPage } from "./pages/myPage.jsx";
 import { DashboardPage } from "./pages/DashboardPage";
 
 const GoogleMaterialPage = lazy(() =>

@@ -36,8 +36,8 @@ import Statistiques from "./components/backoffice/statistiques/statistiques.jsx"
 export default function BaseBackOfficePage(props) {
   const dispatch = useDispatch();
   const { user, mission } = useSelector(
-    (state) => ({
-      user: state.auth.user,
+    state => ({
+      user: state.auth.user
     }),
     shallowEqual
   );
