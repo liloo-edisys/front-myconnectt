@@ -1,25 +1,19 @@
 import React, { useEffect, useState } from "react";
 
 import { getBackOfficeDashboardDatas } from "actions/backoffice/dashboardActions";
-import { Pagination } from "react-bootstrap";
 import SVG from "react-inlinesvg";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { connect, shallowEqual, useDispatch, useSelector } from "react-redux";
-import { setSignalRBackoffice } from "actions/backoffice/userActions";
 import { Link } from "react-router-dom";
-import Avatar from "react-avatar";
-import { Route } from "react-router-dom";
-import axios from "axios";
 import "./styles.scss";
 
-import { NavLink } from "react-router-dom";
 
 import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
 
 function BackOfficeDashboardPageNew({ intl, history }) {
   const dispatch = useDispatch();
 
-  const { backofficeData, user, userDetails, statistics } = useSelector(
+  const { user, userDetails, statistics } = useSelector(
     state => ({
       backofficeData: state.backOfficeDashboardReducerData,
       statistics: state.backOfficeDashboardReducerData.statistics,
@@ -31,22 +25,11 @@ function BackOfficeDashboardPageNew({ intl, history }) {
   );
 
   const [windowWidth, setWindowWidth] = useState(null);
-  const [dashboardData, setDashboardData] = useState(null);
   useEffect(() => {
     dispatch(getBackOfficeDashboardDatas.request());
     setWindowWidth(window.innerWidth);
   }, [dispatch, userDetails]);
 
-  const renderStatus = () => {
-    return (
-      user &&
-      (user.backofficeRole === 1
-        ? "Super Administrateur"
-        : user.backofficeRole === 2
-        ? "Administrateur"
-        : "Utilisateur")
-    );
-  };
 
   return (
     <div className="d-flex flex-row">

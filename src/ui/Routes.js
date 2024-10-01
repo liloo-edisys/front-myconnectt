@@ -5,27 +5,28 @@
  * components (e.g: `src/app/modules/Auth/pages/AuthPage`, `src/app/BasePage`).
  */
 
-import React, { useEffect } from "react";
-
-import { ErrorPage1 } from "components/errors/errorPage1.jsx";
+import React, { useEffect, useMemo, useCallback, lazy, Suspense } from "react";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import { Redirect, Switch, Route } from "react-router-dom";
 
 import { Layout } from "../_metronic/layout";
-import { Logout, AuthPage } from "../ui/components/client/auth";
-import { AuthBackOffice } from "../ui/components/backoffice/auth/authBackOffice.jsx";
-import LogoutBackOffice from "../ui/components/backoffice/auth/logout.jsx";
-import { AuthInterimaire } from "../ui/components/interimaire/auth/authInterimaire.jsx";
-import LogoutInterimaire from "./components/interimaire/auth/logoutInterimaire.jsx";
-import RegisterConfirmInterimaire from "./components/interimaire/auth/registerConfirmInterimaire.jsx";
-import RegisterConfirm from "../ui/components/client/auth/registerConfirm.jsx";
-import ResetPassword from "./components/client/auth/resetPassword.jsx";
 import { getNationalitiesList } from "../business/actions/interimaire/interimairesActions.js";
 
-import BasePage from "./basePage";
-import BaseInterimairePage from "./baseInterimairePage.js";
-import BaseBackOfficePage from "./baseBackOfficePage.js";
-import DocumentDisplay from "./components/shared/documentDisplay.jsx";
+
+const ErrorPage1 = lazy(() => import("components/errors/errorPage1.jsx"));
+const Logout = lazy(() => import("../ui/components/client/auth/logout.jsx"));
+const AuthPage = lazy(() => import("../ui/components/client/auth/authPage.jsx"));
+const AuthBackOffice = lazy(() => import("../ui/components/backoffice/auth/authBackOffice.jsx"));
+const LogoutBackOffice = lazy(() => import("../ui/components/backoffice/auth/logout.jsx"));
+const AuthInterimaire = lazy(() => import("../ui/components/interimaire/auth/authInterimaire.jsx"));
+const LogoutInterimaire = lazy(() => import("./components/interimaire/auth/logoutInterimaire.jsx"));
+const RegisterConfirmInterimaire = lazy(() => import("./components/interimaire/auth/registerConfirmInterimaire.jsx"));
+const RegisterConfirm = lazy(() => import("../ui/components/client/auth/registerConfirm.jsx"));
+const ResetPassword = lazy(() => import("./components/client/auth/resetPassword.jsx"));
+const BasePage = lazy(() => import("./basePage"));
+const BaseInterimairePage = lazy(() => import("./baseInterimairePage.js"));
+const BaseBackOfficePage = lazy(() => import("./baseBackOfficePage.js"));
+const DocumentDisplay = lazy(() => import("./components/shared/documentDisplay.jsx"));
 
 export function Routes() {
   const { step } = useSelector(state => state.interimairesReducerData);
