@@ -78,7 +78,7 @@ export function AuthPage() {
                     <FormattedMessage id="TEXT.LEGAL" />
                   </a>
                   <a
-                    href="https://myconnectt.fr/protection-des-donnees-personnelles/"
+                    href="https://myconnectt.fr/politique-des-cookies/"
                     target="blank"
                     className="text-dark ml-10"
                   >

@@ -39,7 +39,7 @@ export function Footer() {
             <FormattedMessage id="TEXT.LEGAL" />
           </a>
           <a
-            href="https://myconnectt.fr/protection-des-donnees-personnelles/"
+            href="https://myconnectt.fr/politique-des-cookies/"
             target="blank"
             className="text font-weight-bold mr-10"
           >
@@ -69,7 +69,7 @@ export function Footer() {
           </div>
           <div className="responsive_footer_button_container">
           <a
-            href="https://myconnectt.fr/protection-des-donnees-personnelles/"
+            href="https://myconnectt.fr/politique-des-cookies/"
             target="blank"
             className="text font-weight-bold"
           >
