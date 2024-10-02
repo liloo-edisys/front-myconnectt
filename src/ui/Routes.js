@@ -12,21 +12,38 @@ import { Redirect, Switch, Route } from "react-router-dom";
 import { Layout } from "../_metronic/layout";
 import { getNationalitiesList } from "../business/actions/interimaire/interimairesActions.js";
 
-
 const ErrorPage1 = lazy(() => import("components/errors/errorPage1.jsx"));
 const Logout = lazy(() => import("../ui/components/client/auth/logout.jsx"));
-const AuthPage = lazy(() => import("../ui/components/client/auth/authPage.jsx"));
-const AuthBackOffice = lazy(() => import("../ui/components/backoffice/auth/authBackOffice.jsx"));
-const LogoutBackOffice = lazy(() => import("../ui/components/backoffice/auth/logout.jsx"));
-const AuthInterimaire = lazy(() => import("../ui/components/interimaire/auth/authInterimaire.jsx"));
-const LogoutInterimaire = lazy(() => import("./components/interimaire/auth/logoutInterimaire.jsx"));
-const RegisterConfirmInterimaire = lazy(() => import("./components/interimaire/auth/registerConfirmInterimaire.jsx"));
-const RegisterConfirm = lazy(() => import("../ui/components/client/auth/registerConfirm.jsx"));
-const ResetPassword = lazy(() => import("./components/client/auth/resetPassword.jsx"));
+const AuthPage = lazy(() =>
+  import("../ui/components/client/auth/authPage.jsx")
+);
+const AuthBackOffice = lazy(() =>
+  import("../ui/components/backoffice/auth/authBackOffice.jsx")
+);
+const LogoutBackOffice = lazy(() =>
+  import("../ui/components/backoffice/auth/logout.jsx")
+);
+const AuthInterimaire = lazy(() =>
+  import("../ui/components/interimaire/auth/authInterimaire.jsx")
+);
+const LogoutInterimaire = lazy(() =>
+  import("./components/interimaire/auth/logoutInterimaire.jsx")
+);
+const RegisterConfirmInterimaire = lazy(() =>
+  import("./components/interimaire/auth/registerConfirmInterimaire.jsx")
+);
+const RegisterConfirm = lazy(() =>
+  import("../ui/components/client/auth/registerConfirm.jsx")
+);
+const ResetPassword = lazy(() =>
+  import("./components/client/auth/resetPassword.jsx")
+);
 const BasePage = lazy(() => import("./basePage"));
 const BaseInterimairePage = lazy(() => import("./baseInterimairePage.js"));
 const BaseBackOfficePage = lazy(() => import("./baseBackOfficePage.js"));
-const DocumentDisplay = lazy(() => import("./components/shared/documentDisplay.jsx"));
+const DocumentDisplay = lazy(() =>
+  import("./components/shared/documentDisplay.jsx")
+);
 
 export function Routes() {
   const { step } = useSelector(state => state.interimairesReducerData);

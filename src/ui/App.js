@@ -19,7 +19,7 @@ const App = ({ basename, store, persistor }) => {
         newestOnTop={false}
         preventDuplicates
         position="top-center"
-        getState={(state) => state.toastr}
+        getState={state => state.toastr}
         transitionIn="fadeIn"
         transitionOut="fadeOut"
         showEasing="swing"
