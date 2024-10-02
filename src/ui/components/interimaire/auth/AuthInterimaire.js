@@ -94,7 +94,7 @@ export function AuthInterimaire() {
                     <FormattedMessage id="TEXT.PRIVACY" />
                   </a>
                   <a
-                    href="https://myconnectt.fr/contact"
+                    href="https://myconnectt.fr/interimaire/"
                     target="blank"
                     className="text-dark ml-10"
                   >
@@ -131,7 +131,7 @@ export function AuthInterimaire() {
                   <FormattedMessage id="TEXT.PRIVACY" />
                 </a>
                 <a
-                  href="https://myconnectt.fr/contact"
+                  href="https://myconnectt.fr/interimaire/"
                   target="blank"
                   className="text-dark mobile-link"
                 >

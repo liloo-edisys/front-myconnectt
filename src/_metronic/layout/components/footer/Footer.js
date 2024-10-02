@@ -46,7 +46,7 @@ export function Footer() {
             <FormattedMessage id="TEXT.PRIVACY" />
           </a>
           <a
-            href="https://myconnectt.fr/contact"
+            href="https://myconnectt.fr/recruteur/#form"
             target="blank"
             className="text font-weight-bold mr-10"
           >
@@ -76,13 +76,12 @@ export function Footer() {
             <FormattedMessage id="TEXT.PRIVACY" />
           </a>
           <a
-            href="https://myconnectt.fr/contact"
+            href="https://myconnectt.fr/recruteur/#form"
             target="blank"
             className="text font-weight-bold"
           >
             <FormattedMessage id="TEXT.CONTACT" />
           </a>
-
           </div>
         </div>
       </div>

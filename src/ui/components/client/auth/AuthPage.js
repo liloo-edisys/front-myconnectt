@@ -85,7 +85,7 @@ export function AuthPage() {
                     <FormattedMessage id="TEXT.PRIVACY" />
                   </a>
                   <a
-                    href="https://myconnectt.fr/contact"
+                    href="https://myconnectt.fr/recruteur/#form"
                     target="blank"
                     className="text-dark ml-10"
                   >
