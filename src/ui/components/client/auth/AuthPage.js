@@ -58,7 +58,7 @@ export function AuthPage() {
               <div className="d-none flex-column-auto d-lg-flex justify-content-between mt-10">
                 <div className="opacity-70 font-weight-bold">
                   <a
-                    href="https://connectt.fr/"
+                    href="https://myconnectt.fr/"
                     target="blank"
                     className="text-dark"
                   >
@@ -71,21 +71,21 @@ export function AuthPage() {
                 </div>
                 <div className="d-flex">
                   <a
-                    href="https://connectt.fr/mentions-legales/"
+                    href="https://myconnectt.fr/mentions-legales/"
                     target="blank"
                     className="text-dark ml-10"
                   >
                     <FormattedMessage id="TEXT.LEGAL" />
                   </a>
                   <a
-                    href="https://connectt.fr/protection-des-donnees-personnelles/"
+                    href="https://myconnectt.fr/politique-des-cookies/"
                     target="blank"
                     className="text-dark ml-10"
                   >
                     <FormattedMessage id="TEXT.PRIVACY" />
                   </a>
                   <a
-                    href="https://connectt.fr/contact"
+                    href="https://myconnectt.fr/recruteur/#form"
                     target="blank"
                     className="text-dark ml-10"
                   >
