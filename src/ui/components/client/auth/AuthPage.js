@@ -71,21 +71,21 @@ export function AuthPage() {
                 </div>
                 <div className="d-flex">
                   <a
-                    href="https://connectt.fr/mentions-legales/"
+                    href="https://myconnectt.fr/mentions-legales/"
                     target="blank"
                     className="text-dark ml-10"
                   >
                     <FormattedMessage id="TEXT.LEGAL" />
                   </a>
                   <a
-                    href="https://connectt.fr/protection-des-donnees-personnelles/"
+                    href="https://myconnectt.fr/protection-des-donnees-personnelles/"
                     target="blank"
                     className="text-dark ml-10"
                   >
                     <FormattedMessage id="TEXT.PRIVACY" />
                   </a>
                   <a
-                    href="https://connectt.fr/contact"
+                    href="https://myconnectt.fr/contact"
                     target="blank"
                     className="text-dark ml-10"
                   >
