@@ -58,7 +58,7 @@ export function AuthPage() {
               <div className="d-none flex-column-auto d-lg-flex justify-content-between mt-10">
                 <div className="opacity-70 font-weight-bold">
                   <a
-                    href="https://connectt.fr/"
+                    href="https://myconnectt.fr/"
                     target="blank"
                     className="text-dark"
                   >

@@ -133,7 +133,7 @@ function RegisterInterimaire(props) {
                         <FormattedMessage id="AUTH.REGISTER.RGPD" />
                         <span>
                           <a
-                            href="https://connectt.fr/mentions-legales/"
+                            href="https://myconnectt.fr/mentions-legales/"
                             target="_blank"
                             className="mr-1 ml-2 mt-3"
                             rel="noopener noreferrer"

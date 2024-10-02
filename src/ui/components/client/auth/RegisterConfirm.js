@@ -425,7 +425,7 @@ function RegisterConfirm(props) {
               {...formik.getFieldProps("acceptTerms")}
             />
             <a
-              href="https://connectt.fr/mentions-legales/"
+              href="https://myconnectt.fr/mentions-legales/"
               target="_blank"
               className="mr-1"
               rel="noopener noreferrer"
