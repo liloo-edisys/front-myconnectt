@@ -28,4 +28,4 @@ EXPOSE 3000
 
 
 # Commande par défaut pour exécuter l'application
-CMD ["npx", "serve", "-s", "int"]
+CMD ["npx", "serve", "-s", "dev"]
