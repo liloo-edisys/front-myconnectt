@@ -14,24 +14,24 @@ RUN npm install --legacy-peer-deps
 COPY . .
 
 # Exécute la commande de build
-RUN npm run build:preprod
+RUN npm run build:int
 
 
 # Utilise l'image officielle Node.js version 16.20.2
 FROM node:16.20.2
 
 
-COPY --from=build /app/preprod preprod
+COPY --from=build /app/int int
 
 # Définit le dossier exposé
 EXPOSE 3000
 
-ENV REACT_APP_ENV=PREPROD
-ENV IS_PRODUCTION=true
+ENV REACT_APP_ENV=DEV
+ENV IS_PRODUCTION=false
 ENV SKIP_PREFLIGHT_CHECK=true
-ENV REACT_APP_WEBAPI_URL=https://myconnectt-apiback-preprod.azurewebsites.net/
+ENV REACT_APP_WEBAPI_URL=https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/
 ENV REACT_APP_TENANT_ID=1
-ENV REACT_APP_URL=https://myconnectt-front-pprod.azurewebsites.net/
+ENV REACT_APP_URL=https://myconnectt-front-dev-b3cseyd9gecvd2cv.northeurope-01.azurewebsites.net/
 
 # Commande par défaut pour exécuter l'application
-CMD ["npx", "serve", "-s", "preprod"]
+CMD ["npx", "serve", "-s", "int"]
