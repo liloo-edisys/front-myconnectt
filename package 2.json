@@ -5,6 +5,7 @@
   "homepage": "/",
   "scripts": {
     "start": "react-app-rewired start -o",
+    "build:dev": "env-cmd -f .env.dev react-app-rewired build && ren build dev",
     "build:int": "env-cmd -f .env.integration react-app-rewired build && ren build int",
     "build:staging": "env-cmd -f .env.staging react-app-rewired build && ren build uat",
     "build:preprod": "env-cmd -f .env.preprod react-app-rewired build && ren build preprod",
