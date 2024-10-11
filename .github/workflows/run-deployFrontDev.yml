@@ -3,11 +3,11 @@ name: FRONT Build-Push Image and Deploy
 on:
   push:
     branches:
-      - dev
+      - dev-azure
 
   pull_request:
     branches:
-      - dev
+      - dev-azure
 jobs:
   build:
     runs-on: ubuntu-latest
