@@ -6,7 +6,7 @@ import BootstrapTable from "react-bootstrap-table-next";
 import axios from "axios";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider
+  PaginationProvider,
 } from "react-bootstrap-table2-paginator";
 import { ContentRoute } from "../../../../_metronic/layout";
 import JobskillForm from "./JobskillForm";
@@ -25,22 +25,39 @@ function JobskillsTable(props) {
   const [totalCount, setTotalCount] = useState(0);
 
   const { user, jobskills } = useSelector(
-    state => ({
+    (state) => ({
       user: state.user.user,
-      jobskills: state.lists.jobSkills
+      jobskills: state.lists.jobSkills,
     }),
     shallowEqual
   );
 
+  // ACTIVITY.DOMAINE.LIST
+
   const columns = [
     {
       dataField: "name",
-      text: intl.formatMessage({ id: "TEXT.JOBSKILL.NAME" })
+      text: intl.formatMessage({ id: "TEXT.JOBSKILL.NAME" }),
+    },
+    {
+      dataField: "skillType",
+      text: intl.formatMessage({ id: "TEXT.JOBSKILL.TYPE" }),
+      formatter: (value) => value || "-", // Affiche "-" si la valeur est vide
+    },
+    {
+      dataField: "activityDomains",
+      text: intl.formatMessage({ id: "ACTIVITY.DOMAINE.LIST" }),
+      formatter: (value) => {
+        if (!value) return "-";
+        // Si activityDomains est un tableau, vous pouvez le formater comme ceci:
+        // return value.join(", ");
+        return value;
+      },
     },
     {
       dataField: "id",
       text: intl.formatMessage({ id: "MATCHING.TABLE.ACTIONS" }),
-      formatter: value => (
+      formatter: (value) => (
         <div>
           <NavLink
             className="btn btn-light-primary btn-sm mr-2"
@@ -55,8 +72,8 @@ function JobskillsTable(props) {
             Supprimer
           </NavLink>
         </div>
-      )
-    }
+      ),
+    },
   ];
 
   useEffect(() => {
@@ -72,15 +89,16 @@ function JobskillsTable(props) {
       tenantID: user.tenantID,
       pageNumber: selectedPageNumber,
       pageSize: selectedPageSize,
-      name: selectedName
+      name: selectedName,
     };
     axios
       .post(SEARCH_JOBSKILLS_API, body)
-      .then(res => {
+      .then((res) => {
         setJobskillsList(res.data.list);
         setTotalCount(res.data.totalcount);
+        console.log("jobskillsList ---------> ", jobskillsList);
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   };
 
   const NoDataIndication = () => (
@@ -114,7 +132,7 @@ function JobskillsTable(props) {
           className="form-control"
           type="text"
           value={selectedName}
-          onChange={e => setSelectedName(e.target.value)}
+          onChange={(e) => setSelectedName(e.target.value)}
         ></input>
         <small className="form-text text-muted">
           <FormattedMessage id="MODEL.LASTNAME" />
@@ -130,15 +148,15 @@ function JobskillsTable(props) {
       tenantID: user.tenantID,
       pageNumber: 1,
       pageSize: selectedPageSize,
-      name: selectedName
+      name: selectedName,
     };
     axios
       .post(SEARCH_JOBSKILLS_API, body)
-      .then(res => {
+      .then((res) => {
         setJobskillsList(res.data.list);
         setTotalCount(res.data.totalcount);
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   };
 
   const RemotePagination = ({
@@ -148,7 +166,7 @@ function JobskillsTable(props) {
     onTableChange,
     totalSize,
     from,
-    to
+    to,
   }) => (
     <div>
       <PaginationProvider
@@ -165,7 +183,7 @@ function JobskillsTable(props) {
           nextPageText: ">",
           lastPageText: intl.formatMessage({ id: "END" }),
           nextPageTitle: ">",
-          prePageTitle: "<"
+          prePageTitle: "<",
         })}
       >
         {({ paginationProps, paginationTableProps }) => (

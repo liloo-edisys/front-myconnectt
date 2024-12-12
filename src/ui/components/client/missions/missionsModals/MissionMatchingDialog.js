@@ -125,6 +125,12 @@ export function MatchingDialog({
     );
     dispatch(getMatching.request(mission));
   };
+
+  // Fonction pour logger les candidats
+  const handleDebugCandidates = () => {
+    console.log("Liste des candidats:", candidates);
+  };
+
   let missionId = state && state.id;
 
   function usePrevious(value) {
@@ -142,7 +148,7 @@ export function MatchingDialog({
   useEffect(() => {
     show && !isNullOrEmpty(mission) && dispatch(getMatching.request(mission));
   }, [show, mission, dispatch]);
-
+  
   return (
     <Modal
       show={show}
@@ -167,6 +173,14 @@ export function MatchingDialog({
         >
           <FormattedMessage id="MATCHING.MODAL.TITLE" />
         </Modal.Title>
+        {/* Bouton de débogage ajouté ici */}
+        <button
+          type="button"
+          className="btn btn-primary mx-2"
+          onClick={handleDebugCandidates}
+        >
+          Debug Candidats
+        </button>
         <button
           type="button"
           className="close"
