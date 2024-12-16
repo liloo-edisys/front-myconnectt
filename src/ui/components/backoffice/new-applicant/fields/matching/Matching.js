@@ -230,10 +230,12 @@ function Matching(props) {
   // Load skills by activity domain
   useEffect(() => {
     const fetchSkillsByActivityDomain = async () => {
-      if (!role.length) return;
+      if (!role.length) {
+        setSkillsList([]); // Réinitialiser la liste si aucun rôle n'est sélectionné
+        return;
+      }
 
       try {
-        setIsSkillsLoading(true);
         const domainIds = role.map((item) => item.value);
         const params = new URLSearchParams();
         domainIds.forEach((id) => params.append("ActivityDomain", id));
@@ -242,20 +244,18 @@ function Matching(props) {
           `${api}api/JobSkill/GetByActivityDomain?${params.toString()}`
         );
 
-        // Formatter les compétences correctement
-        const formattedSkillsList = response.data
+        // S'assurer que chaque compétence a un name et un id valide
+        const formattedSkills = response.data
+          .filter((skill) => skill && skill.name && skill.id) // Filtrer les données invalides
           .map((skill) => ({
+            label: skill.name,
             value: skill.id,
-            label: skill.name || skill.title, // Essayer d'abord name, puis title
-          }))
-          .filter((skill) => skill.label); // Filtrer les compétences sans label
+          }));
 
-        setSkillsList(formattedSkillsList);
+        setSkillsList(formattedSkills);
       } catch (err) {
         console.error("Error loading activity domains:", err);
         toastr.error("Error", "Unable to load activity domains");
-      } finally {
-        setIsSkillsLoading(false);
       }
     };
 
@@ -275,7 +275,6 @@ function Matching(props) {
       setRole(newValue || []);
     }
   }, []);
-  
 
   const handleSkillChange = React.useCallback((newValue) => {
     setSelectedSkills(newValue || []);
@@ -332,10 +331,22 @@ function Matching(props) {
       ...base,
       borderRadius: 0,
       marginTop: 0,
+      zIndex: 1000, // Assure que le menu est au-dessus des autres éléments
     }),
     menuList: (base) => ({
       ...base,
       padding: 0,
+      maxHeight: "200px", // Limite la hauteur du menu déroulant
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? "#0d6efd"
+        : state.isFocused
+        ? "#e9ecef"
+        : null,
+      color: state.isSelected ? "white" : "black",
+      padding: "8px 12px",
     }),
   };
 
@@ -402,12 +413,12 @@ function Matching(props) {
                     isMulti
                     value={selectedSkills}
                     onChange={handleSkillChange}
-                    options={skillsList.map((skill) => ({
-                      label: skill.name,
-                      value: skill.id,
-                    }))}
+                    options={skillsList}
                     styles={customStyles}
                     className="col-lg-12 form-control"
+                    placeholder="Sélectionnez des compétences"
+                    noOptionsMessage={() => "Aucune compétence disponible"}
+                    isSearchable={true}
                   />
                 </div>
               </div>
