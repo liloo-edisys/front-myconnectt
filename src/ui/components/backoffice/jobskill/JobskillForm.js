@@ -25,7 +25,7 @@ function JobskillForm(props) {
   const [competence, setCompetence] = useState({
     name: "",
     skillType: null,
-    arrayActivityDomainIDs: [],
+    activityDomains: [],
   });
 
   const [activityDomains, setActivityDomains] = useState([]);
@@ -35,48 +35,85 @@ function JobskillForm(props) {
   const [errorActivityDomain, setErrorActivityDomain] = useState(false);
 
   useEffect(() => {
-    let URL = `${api}api/ActivityDomain`;
-    axios.get(URL).then((res) => {
-      setActivityDomains(res.data);
-      setDomainsIsLoaded(true);
-    });
-    if (id && domainsIsLoaded) {
-      getCompetence();
-    }
-  }, [id, domainsIsLoaded]);
+    const fetchActivityDomains = async () => {
+      try {
+        const URL = `${api}api/ActivityDomain`;
+        const response = await axios.get(URL);
+        setActivityDomains(response.data);
+        setDomainsIsLoaded(true);
+      } catch (err) {
+        console.error("Erreur lors du chargement des domaines:", err);
+        toastr.error(
+          "Erreur",
+          "Impossible de charger les domaines d'activité"
+        );
+      }
+    };
 
-  const getCompetence = () => {
-    const SEARCH_JOBSKILLS_API = api + "api/JobSkill/" + id;
-    axios
-      .get(SEARCH_JOBSKILLS_API)
-      .then((res) => {
-        const { arrayActivityDomainIDs } = res.data;
-        let newRoleArray = [];
-        for (let i = 0; i < arrayActivityDomainIDs.length; i++) {
-          const filteredRole = activityDomains.filter(
-            (item) => item.id === arrayActivityDomainIDs[i]
-          )[0];
-          newRoleArray.push({
-            value: filteredRole?.id,
-            label: filteredRole?.name,
+    fetchActivityDomains();
+  }, [api]);
+
+  useEffect(() => {
+    const fetchCompetenceData = async () => {
+      if (id && domainsIsLoaded) {
+        try {
+          const SEARCH_JOBSKILLS_API = `${api}api/JobSkill/${id}`;
+          const response = await axios.get(SEARCH_JOBSKILLS_API);
+          
+          // Formatage des domaines d'activité pour le Select
+          const newRoleArray = [];
+          const domains = response.data.activityDomains || [];
+          
+          // Création du tableau pour le Select à partir des activityDomains
+          domains.forEach(domain => {
+            if (domain) {
+              newRoleArray.push({
+                value: domain.id,
+                label: domain.name,
+              });
+            }
           });
+
+          setRole(newRoleArray);
+          
+          // Extraction des IDs des domaines pour le state
+          const domainIds = domains.map(domain => domain.id);
+          
+          setCompetence({
+            name: response.data.name,
+            skillType: response.data.skillTypeID,
+            activityDomains: domainIds,
+          });
+
+        } catch (err) {
+          console.error("Erreur lors du chargement de la compétence:", err);
+          toastr.error(
+            "Erreur",
+            "Impossible de charger les données de la compétence"
+          );
         }
-        setRole(newRoleArray);
-        setCompetence({
-          ...res.data,
-          arrayActivityDomainIDs: res.data.arrayActivityDomainIDs
-            ? res.data.arrayActivityDomainIDs
-            : [],
-        });
-      })
-      .catch((err) => console.log(err));
-  };
+      }
+    };
+
+    fetchCompetenceData();
+  }, [id, domainsIsLoaded, api, activityDomains]);
 
   const onChangeCompetenceName = (e) => {
     setErrorName(false);
     setCompetence({
       ...competence,
       name: e.target.value,
+    });
+  };
+
+  const handleChangeRole = (newValue) => {
+    setErrorActivityDomain(false);
+    const selectedDomains = newValue ? newValue.map(item => item.value) : [];
+    
+    setRole(newValue || []);
+    setCompetence({
+      ...competence,
+      activityDomains: selectedDomains,
     });
   };
 
@@ -103,60 +140,9 @@ function JobskillForm(props) {
     }),
   };
 
-  const createOption = (label, value) => ({
-    label,
-    value,
-  });
-
-  let formatedRole = activityDomains.map((domain) => {
-    return domain && createOption(domain.name, domain.id);
-  });
-
-  const handleChangeRole = (newValue) => {
-    setErrorActivityDomain(false);
-    let formikDomains = [];
-    let newArray = !isNullOrEmpty(role) ? [...role] : [];
-    let difference =
-      newValue !== null &&
-      role !== null &&
-      role.filter((x) => !newValue.includes(x));
-
-    if (newValue === null) {
-      newArray = [];
-    } else if (difference.length) {
-      let filteredArray = role.filter((x) => newValue.includes(x));
-      newArray = [];
-      filteredArray.map((tag) =>
-        newArray.push(createOption(tag.label, tag.value))
-      );
-    } else {
-      newArray.push(
-        createOption(
-          newValue[newValue.length - 1].label,
-          newValue[newValue.length - 1].value
-        )
-      );
-    }
-
-    newValue !== null &&
-      newValue.map((value) => {
-        return (
-          competence.arrayActivityDomainIDs !== null &&
-          !competence.arrayActivityDomainIDs.includes(value) &&
-          formikDomains.push(value.value)
-        );
-      });
-
-    setRole(newArray);
-    setCompetence({
-      ...competence,
-      arrayActivityDomainIDs: formikDomains,
-    });
-  };
-
-  const onUpdateJobskill = () => {
-    if (competence.arrayActivityDomainIDs.length === 0 || !competence.name) {
-      if (competence.arrayActivityDomainIDs.length === 0) {
+  const onUpdateJobskill = async () => {
+    if (competence.activityDomains.length === 0 || !competence.name) {
+      if (competence.activityDomains.length === 0) {
         setErrorActivityDomain(true);
       }
       if (!competence.name) {
@@ -165,27 +151,32 @@ function JobskillForm(props) {
       return;
     }
 
-    const UPDATE_JOBSKILLS_API = api + "api/JobSkill";
-    const body = {
-      ...competence,
-      arrayActivityDomainIDs: competence.arrayActivityDomainIDs,
-    };
-    axios
-      .put(UPDATE_JOBSKILLS_API, body)
-      .then((res) => {
-        getData();
-        onHide();
-        toastr.success(
-          "Succès",
-          "La compétence a été mise à jour avec succès."
-        );
-      })
-      .catch((err) => console.log(err));
+    try {
+      const UPDATE_JOBSKILLS_API = `${api}api/JobSkill`;
+      const body = {
+        id: parseInt(id),
+        name: competence.name,
+        tenantID: user.tenantID,
+        activityDomains: competence.activityDomains,
+        skillType: competence.skillType ? parseInt(competence.skillType) : null
+      };
+
+      await axios.put(UPDATE_JOBSKILLS_API, body);
+      getData();
+      onHide();
+      toastr.success("Succès", "La compétence a été mise à jour avec succès.");
+    } catch (err) {
+      console.error("Erreur lors de la mise à jour:", err);
+      toastr.error(
+        "Erreur",
+        "Une erreur est survenue lors de la mise à jour de la compétence"
+      );
+    }
   };
 
-  const onCreateJobskill = () => {
-    if (competence.arrayActivityDomainIDs.length === 0 || !competence.name) {
-      if (competence.arrayActivityDomainIDs.length === 0) {
+  const onCreateJobskill = async () => {
+    if (competence.activityDomains.length === 0 || !competence.name) {
+      if (competence.activityDomains.length === 0) {
         setErrorActivityDomain(true);
       }
       if (!competence.name) {
@@ -194,24 +185,28 @@ function JobskillForm(props) {
       return;
     }
 
-    const CREATE_JOBSKILLS_API = api + "api/JobSkill";
-    const body = {
-      ...competence,
-      tenantID: user.tenantID,
-      arrayActivityDomainIDs: competence.arrayActivityDomainIDs,
-    };
-
-    axios
-      .post(CREATE_JOBSKILLS_API, body)
-      .then((res) => {
-        getData();
-        onHide();
-        toastr.success(
-          "Succès",
-          "La nouvelle compétence a été ajoutée avec succès."
-        );
-      })
-      .catch((err) => console.log(err));
+    try {
+      const CREATE_JOBSKILLS_API = `${api}api/JobSkill`;
+      const body = {
+        name: competence.name,
+        tenantID: user.tenantID,
+        activityDomains: competence.activityDomains,
+        skillType: competence.skillType ? parseInt(competence.skillType) : null
+      };
+      await axios.post(CREATE_JOBSKILLS_API, body);
+      getData();
+      onHide();
+      toastr.success(
+        "Succès",
+        "La nouvelle compétence a été ajoutée avec succès."
+      );
+    } catch (err) {
+      console.error("Erreur lors de la création:", err);
+      toastr.error(
+        "Erreur",
+        "Une erreur est survenue lors de la création de la compétence"
+      );
+    }
   };
 
   return (
@@ -276,10 +271,13 @@ function JobskillForm(props) {
           </label>
           <Select
             isMulti
-            onChange={(e) => handleChangeRole(e)}
-            options={formatedRole}
-            styles={customStyles}
             value={role}
+            onChange={handleChangeRole}
+            options={activityDomains.map(domain => ({
+              label: domain.name,
+              value: domain.id
+            }))}
+            styles={customStyles}
             className="col-lg-12 form-control"
           />
           {errorActivityDomain && (
@@ -299,7 +297,7 @@ function JobskillForm(props) {
             onChange={(e) =>
               setCompetence({
                 ...competence,
-                skillType: e.target.value ? Number(e.target.value) : null,
+                skillType: e.target.value ? parseInt(e.target.value) : null,
               })
             }
           >

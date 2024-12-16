@@ -51,6 +51,18 @@ export function getEducationLevels() {
 export function getJobSkills() {
   return axios.get(LISTS_URL + "JobSkill");
 }
+
+export function getJobSkillsByActivityDomain(activityDomains) {
+  const params = new URLSearchParams();
+
+  // Ajoute chaque ID de domaine comme paramètre ActivityDomain
+  activityDomains.forEach((domainId) => {
+    params.append("ActivityDomain", domainId);
+  });
+
+  return axios.get(`${LISTS_URL}JobSkill/GetByActivityDomain`, { params });
+}
+
 export function createJobSkills(data) {
   const tenantID = TENANTID;
 

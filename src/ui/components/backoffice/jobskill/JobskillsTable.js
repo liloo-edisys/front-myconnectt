@@ -24,15 +24,12 @@ function JobskillsTable(props) {
   const [jobskillsList, setJobskillsList] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
 
-  const { user, jobskills } = useSelector(
+  const { user } = useSelector(
     (state) => ({
       user: state.user.user,
-      jobskills: state.lists.jobSkills,
     }),
     shallowEqual
   );
-
-  // ACTIVITY.DOMAINE.LIST
 
   const columns = [
     {
@@ -42,17 +39,15 @@ function JobskillsTable(props) {
     {
       dataField: "skillType",
       text: intl.formatMessage({ id: "TEXT.JOBSKILL.TYPE" }),
-      formatter: (value) => value || "-", // Affiche "-" si la valeur est vide
+      formatter: (value) => value || "-"
     },
     {
       dataField: "activityDomains",
       text: intl.formatMessage({ id: "ACTIVITY.DOMAINE.LIST" }),
-      formatter: (value) => {
-        if (!value) return "-";
-        // Si activityDomains est un tableau, vous pouvez le formater comme ceci:
-        // return value.join(", ");
-        return value;
-      },
+      formatter: (value, row) => {
+        if (!value || value.length === 0) return "-";
+        return value.map(domain => domain.name).join(", ");
+      }
     },
     {
       dataField: "id",
@@ -80,25 +75,26 @@ function JobskillsTable(props) {
     if (user) {
       getData();
     }
-  }, [user, selectedPageNumber]);
+  }, [user, selectedPageNumber, selectedPageSize]);
 
   const getData = () => {
-    //dispatch(getJobSkills.request());
-    const SEARCH_JOBSKILLS_API = api + "api/JobSkill/search";
+    const SEARCH_JOBSKILLS_API = `${api}api/JobSkill/search`;
     const body = {
       tenantID: user.tenantID,
       pageNumber: selectedPageNumber,
       pageSize: selectedPageSize,
       name: selectedName,
     };
+
     axios
       .post(SEARCH_JOBSKILLS_API, body)
       .then((res) => {
         setJobskillsList(res.data.list);
         setTotalCount(res.data.totalcount);
-        console.log("jobskillsList ---------> ", jobskillsList);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.error("Erreur lors de la récupération des données:", err);
+      });
   };
 
   const NoDataIndication = () => (
@@ -118,22 +114,21 @@ function JobskillsTable(props) {
   );
 
   const handleTableChange = (type, { page, sizePerPage }) => {
-    setSelectedPageNumber(parseInt(page));
+    setSelectedPageNumber(page);
     setSelectedPageSize(sizePerPage);
-
-    //handleChangePage(sizePerPage, page);
   };
 
   const renderName = () => {
     return (
       <div className="col-lg-2 width-100">
         <input
-          name="city"
+          name="name"
           className="form-control"
           type="text"
           value={selectedName}
           onChange={(e) => setSelectedName(e.target.value)}
-        ></input>
+          placeholder={intl.formatMessage({ id: "MODEL.LASTNAME" })}
+        />
         <small className="form-text text-muted">
           <FormattedMessage id="MODEL.LASTNAME" />
         </small>
@@ -143,82 +138,22 @@ function JobskillsTable(props) {
 
   const onSearchFilteredContracts = () => {
     setSelectedPageNumber(1);
-    const SEARCH_JOBSKILLS_API = api + "api/JobSkill/search";
-    const body = {
-      tenantID: user.tenantID,
-      pageNumber: 1,
-      pageSize: selectedPageSize,
-      name: selectedName,
-    };
-    axios
-      .post(SEARCH_JOBSKILLS_API, body)
-      .then((res) => {
-        setJobskillsList(res.data.list);
-        setTotalCount(res.data.totalcount);
-      })
-      .catch((err) => console.log(err));
+    getData();
   };
 
-  const RemotePagination = ({
-    data,
-    page,
-    sizePerPage,
-    onTableChange,
-    totalSize,
-    from,
-    to,
-  }) => (
-    <div>
-      <PaginationProvider
-        pagination={paginationFactory({
-          custom: true,
-          page,
-          sizePerPage,
-          totalSize,
-          from,
-          to,
-          showTotal: true,
-          firstPageText: intl.formatMessage({ id: "BEGINNING" }),
-          prePageText: "<",
-          nextPageText: ">",
-          lastPageText: intl.formatMessage({ id: "END" }),
-          nextPageTitle: ">",
-          prePageTitle: "<",
-        })}
-      >
-        {({ paginationProps, paginationTableProps }) => (
-          <div>
-            <div style={{ display: "none" }}>
-              <BootstrapTable
-                remote
-                wrapperClasses="table-responsive"
-                bordered={false}
-                classes="table table-head-custom table-vertical-center overflow-hidden"
-                bootstrap4
-                keyField="id"
-                data={jobskillsList}
-                columns={columns}
-                onTableChange={onTableChange}
-                {...paginationTableProps}
-                noDataIndication={() => <NoDataIndication />}
-              />
-            </div>
-            <div className="d-flex flex-row justify-content-between">
-              <PaginationListStandalone {...paginationProps} />
-              <div className="d-flex flex-row align-items-center">
-                <p className="ml-5" style={{ margin: 0 }}>
-                  <FormattedMessage
-                    id="MESSAGE.JOBSKILL.TOTALCOUNT"
-                    values={{ totalCount }}
-                  />
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-      </PaginationProvider>
-    </div>
-  );
+  const paginationOptions = {
+    custom: true,
+    totalSize: totalCount,
+    page: selectedPageNumber,
+    sizePerPage: selectedPageSize,
+    showTotal: true,
+    firstPageText: intl.formatMessage({ id: "BEGINNING" }),
+    prePageText: "<",
+    nextPageText: ">",
+    lastPageText: intl.formatMessage({ id: "END" }),
+    nextPageTitle: ">",
+    prePageTitle: "<",
+  };
 
   return (
     <div>
@@ -236,26 +171,38 @@ function JobskillsTable(props) {
           </button>
         </div>
       </div>
-      <BootstrapTable
-        remote
-        rowClasses={"dashed"}
-        wrapperClasses="table-responsive"
-        bordered={false}
-        classes="table table-head-custom table-vertical-center overflow-hidden"
-        bootstrap4
-        keyField="id"
-        data={jobskillsList}
-        columns={columns}
-      />
-      <div style={{ marginTop: 30 }}>
-        <RemotePagination
-          data={jobskillsList}
-          page={selectedPageNumber}
-          sizePerPage={selectedPageSize}
-          totalSize={totalCount}
-          onTableChange={handleTableChange}
-        />
-      </div>
+
+      <PaginationProvider pagination={paginationFactory(paginationOptions)}>
+        {({ paginationProps, paginationTableProps }) => (
+          <div>
+            <BootstrapTable
+              remote
+              wrapperClasses="table-responsive"
+              bordered={false}
+              classes="table table-head-custom table-vertical-center overflow-hidden"
+              bootstrap4
+              keyField="id"
+              data={jobskillsList}
+              columns={columns}
+              onTableChange={handleTableChange}
+              noDataIndication={() => <NoDataIndication />}
+              {...paginationTableProps}
+            />
+            <div className="d-flex flex-row justify-content-between align-items-center mt-3">
+              <PaginationListStandalone {...paginationProps} />
+              <div className="d-flex flex-row align-items-center">
+                <p className="ml-5 mb-0">
+                  <FormattedMessage
+                    id="MESSAGE.JOBSKILL.TOTALCOUNT"
+                    values={{ totalCount }}
+                  />
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </PaginationProvider>
+
       <ContentRoute path="/jobskills/new-jobskill">
         <JobskillForm
           onHide={() => history.push("/jobskills")}

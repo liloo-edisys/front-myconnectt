@@ -2,58 +2,33 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
-// Form is based on Formik
-// Data validation is based on Yup
-// Please, be familiar with article first:
-// https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { getMissionEquipment } from "../../../../../../business/actions/shared/ListsActions";
 
-import { Field } from "formik";
+import React, { useEffect, useState } from "react";
+import { getMissionEquipment } from "../../../../../../business/actions/shared/ListsActions";
 import _ from "lodash";
-import { Input } from "metronic/_partials/controls";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import Select from "react-select";
-import CreatableSelect from "react-select/creatable";
-import { countMatching } from "actions/client/ApplicantsActions";
-import { useFormikContext } from "formik";
-import MissionWizzardHeader from "../../MissionWizzardHeader";
 import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
-import moment from "moment";
-import { getJobSkills, createJobSkills } from "actions/shared/ListsActions";
-import SVG from "react-inlinesvg";
-import { toAbsoluteUrl } from "metronic/_helpers";
-import { updateApplicant } from "actions/client/ApplicantsActions";
+import { getJobSkillsByActivityDomain } from "actions/shared/ListsActions";
 import postalCode from "../../../../../../utils/postalCodes.json";
-import AsyncSelect from "react-select/async";
 import InputRange from "react-input-range";
-import {
-  getJobSkills as getJobSkillsApi,
-  getJobTags as getJobTagsApi
-} from "api/shared/ListsApi";
-import FormStepFour from "../../../../interimaire/profile/profileForms/FormStepFour";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
 import { getSelectedApplicantById } from "../../../../../../business/actions/backoffice/ApplicantActions";
-// import "react-input-range/lib/css/index.css"
-function Matching(props, formik) {
+
+function Matching(props) {
   const dispatch = useDispatch();
   const { intl } = props;
-  const TENANTID = +process.env.REACT_APP_TENANT_ID;
 
   const { parsed, jobSkills } = useSelector(
-    state => ({
+    (state) => ({
       jobSkills: state.lists.jobSkills,
-      parsed: state.accountsReducerData.activeInterimaire
+      parsed: state.accountsReducerData.activeInterimaire,
     }),
     shallowEqual
   );
-  const createOption = (label, value) => ({
-    label,
-    value
-  });
+
   const [experience, setExperience] = useState(null);
   const [jobTitles, setJobTitles] = useState([]);
   const [role, setRole] = useState([]);
@@ -62,337 +37,232 @@ function Matching(props, formik) {
   const [distance, setDistance] = useState(null);
   const [isSkillsLoading, setIsSkillsLoading] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const [selectedCity, setselectedCity] = useState(null);
+  const [activityDomains, setActivityDomains] = useState();
+  const [skillsList, setSkillsList] = useState([]);
+  const [selectedSkills, setSelectedSkills] = useState([]);
+  const [selectedCity, setSelectedCity] = useState(null);
   const [skills, setSkills] = useState(null);
-  const useMountEffect = fun => useEffect(fun, []);
 
-  useEffect(() => {
-    isNullOrEmpty(jobSkills) && dispatch(getJobSkills.request());
-    dispatch(getMissionEquipment.request());
-    setDistance(parsed && parsed.postalCodeSearchZone);
+  const api = process.env.REACT_APP_WEBAPI_URL;
 
-    jobTitles.length &&
-      role === null &&
-      formatRole(parsed && parsed.arrayActivityDomains);
+  // Memoize formatedRole calculation
+  const formatedRole = React.useMemo(() => 
+    jobTitles.map((equipment) => ({
+      label: equipment.name,
+      value: equipment.id
+    }))
+  , [jobTitles]);
 
-    jobSkills.length &&
-      skills === null &&
-      formatSkills(parsed && parsed.applicantArraySkills);
+  const formatRole = React.useCallback((data) => {
+    if (!jobTitles.length) return;
 
-    let URL = `${process.env.REACT_APP_WEBAPI_URL}api/ActivityDomain`;
-    isNullOrEmpty(jobTitles) &&
-      axios
-        .get(URL)
-        .then(res => {
-          const activityDomainsList = res.data;
-          let selectedActivitiesArray = [];
-          let selectedActivities = parsed.arrayActivityDomains
-            ? parsed.arrayActivityDomains
-            : [];
-          for (let i = 0; i < selectedActivities.length; i++) {
-            for (let j = 0; j < activityDomainsList.length; j++) {
-              if (selectedActivities[i] === activityDomainsList[j].id) {
-                selectedActivitiesArray.push({
-                  value: activityDomainsList[j].id,
-                  label: activityDomainsList[j].name
-                });
-              }
-            }
-          }
-          for (let i = 0; i < selectedActivitiesArray.length; i++) {
-            for (let j = 0; j < activityDomainsList.length; j++) {
-              if (selectedActivitiesArray[i].id === activityDomainsList[j].id) {
-                activityDomainsList.splice(j, 1);
-              }
-            }
-          }
-          setSelectedEquipment(parsed.missionArrayEquipments);
-          setRole(selectedActivitiesArray);
-          setJobTitles(activityDomainsList);
-        })
-        .catch(err => console.log(err));
-  }, [jobSkills]);
+    const newArray = [];
+    const formikRoles = props.formik?.values?.arrayActivityDomains 
+      ? [...props.formik.values.arrayActivityDomains]
+      : [];
 
-  /*useEffect(() => {
-    isNullOrEmpty(jobSkills) && dispatch(getJobSkills.request());
-    //isNullOrEmpty(jobTitles) && dispatch(getJobTitles.request());
-    isNullOrEmpty(distance) &&
-      !isNullOrEmpty(props.formik.values.postalCodeSearchZone) &&
-      setDistance(props.formik.values.postalCodeSearchZone);
-
-    jobTitles.length &&
-      role === null &&
-      formatRole(parsed.arrayActivityDomains);
-
-    jobSkills.length &&
-      skills === null &&
-      formatSkills(parsed.applicantArraySkills);
-
-    let URL = `${process.env.REACT_APP_WEBAPI_URL}api/ActivityDomain`;
-    axios
-      .get(URL)
-      .then((res) => {
-        const activityDomainsList = res.data;
-        let selectedActivitiesArray = [];
-        let selectedActivities = parsed.arrayActivityDomains
-          ? parsed.arrayActivityDomains
-          : [];
-        for (let i = 0; i < selectedActivities.length; i++) {
-          for (let j = 0; j < activityDomainsList.length; j++) {
-            if (selectedActivities[i] === activityDomainsList[j].id) {
-              selectedActivitiesArray.push({
-                value: activityDomainsList[j].id,
-                label: activityDomainsList[j].name,
-              });
-            }
-          }
+    if (!isNullOrEmpty(data)) {
+      data.forEach(eq => {
+        const value = jobTitles.find(l => l.id === eq);
+        if (value) {
+          newArray.push({
+            label: value.name,
+            value: value.value || value.id
+          });
         }
-        for (let i = 0; i < selectedActivitiesArray.length; i++) {
-          for (let j = 0; j < activityDomainsList.length; j++) {
-            if (selectedActivitiesArray[i].id === activityDomainsList[j].id) {
-              activityDomainsList.splice(j, 1);
-            }
-          }
-        }
-        setRole(selectedActivitiesArray);
-        setJobTitles(activityDomainsList);
-      })
-      .catch((err) => console.log(err));
-  }, [jobSkills]);*/
-
-  const handleChangeCity = newValue => {
-    let formikEquipment = [];
-    let newArray = [...role];
-    let difference =
-      newValue !== null && selectedCity.filter(x => !newValue.includes(x)); // calculates diff
-    if (newValue === null) {
-      newArray = [];
-    } else if (difference.length) {
-      let filteredArray = selectedCity.filter(x => newValue.includes(x));
-      newArray = [];
-      filteredArray.map(tag =>
-        newArray.push(createOption(tag.label, tag.value))
-      );
-    } else {
-      newArray.push(
-        createOption(
-          newValue[newValue.length - 1].label,
-          newValue[newValue.length - 1].value
-        )
-      );
-    }
-
-    newValue !== null &&
-      newValue.map(value => {
-        return (
-          props.formik.values.applicantArrayJobMobilities !== null &&
-          !props.formik.values.applicantArrayJobMobilities.includes(value) &&
-          formikEquipment.push(value.value)
-        );
       });
-    setselectedCity(newArray);
-    props.formik.setFieldValue("applicantArrayJobMobilities", formikEquipment);
-  };
-
-  const loadOptions = (inputValue, callback) => {
-    inputValue.length >= 3 &&
-      setTimeout(() => {
-        callback(
-          _.filter(postalCode, function(city) {
-            return (
-              city.Nom_commune.toLowerCase().indexOf(
-                inputValue.toLowerCase()
-              ) >= 0 ||
-              city.Code_postal.toString().indexOf(inputValue.toLowerCase()) >= 0
-            );
-          })
-        );
-      }, 1000);
-  };
-
-  const formatRole = data => {
-    if (jobTitles.length) {
-      let newArray = [];
-      let formikRoles =
-        props.formik.values.arrayActivityDomains !== null
-          ? [...props.formik.values.arrayActivityDomains]
-          : [];
-
-      !isNullOrEmpty(data) &&
-        data.map(eq => {
-          let value = jobTitles.filter(l => l.id === eq);
-          if (!isNullOrEmpty(value)) {
-            newArray.push(
-              createOption(
-                value[value.length - 1].name,
-                value[value.length - 1].value
-                  ? value[value.length - 1].value
-                  : value[value.length - 1].id
-              )
-            );
-          }
-        });
-      newArray !== null &&
-        newArray.map(value => {
-          !props.formik.values.arrayActivityDomains.includes(value.value) &&
-            formikRoles.push(value.value);
-        });
-      formikRoles !== props.formik.values.arrayActivityDomains &&
-        props.formik.setFieldValue("arrayActivityDomains", formikRoles);
-      return setRole(newArray);
-    }
-  };
-
-  const formatSkills = data => {
-    if (jobSkills.length) {
-      let newArray = [];
-      let formikSkills =
-        parsed && parsed.applicantArraySkills !== null
-          ? [...parsed.applicantArraySkills]
-          : [];
-      !isNullOrEmpty(data) &&
-        data.map(eq => {
-          let value = jobSkills.filter(l => l.id === eq);
-
-          if (!isNullOrEmpty(value)) {
-            newArray.push(
-              createOption(
-                value[value.length - 1].name,
-                value[value.length - 1].value
-                  ? value[value.length - 1].value
-                  : value[value.length - 1].id
-              )
-            );
-          }
-        });
-      /*newArray !== null &&
-        newArray.map((value) => {
-          !props.formik.values.applicantArraySkills.includes(value.value) &&
-            formikSkills.push(value.value ? value.value : value.value);
-        });
-      formikSkills !== props.formik.values.applicantArraySkills &&
-        props.formik.setFieldValue("applicantArraySkills", formikSkills);*/
-
-      if (skills === null) {
-        return setSkills(newArray);
-      }
-      return newArray;
-    }
-  };
-
-  const handleChangeRole = newValue => {
-    let formikEquipment = [];
-    let newArray = !isNullOrEmpty(role) ? [...role] : [];
-    let difference =
-      newValue !== null &&
-      role !== null &&
-      role.filter(x => !newValue.includes(x)); // calculates diff
-    if (newValue === null) {
-      newArray = [];
-    } else if (difference.length) {
-      let filteredArray = role.filter(x => newValue.includes(x));
-      newArray = [];
-      filteredArray.map(tag =>
-        newArray.push(createOption(tag.label, tag.value))
-      );
-    } else {
-      newArray.push(
-        createOption(
-          newValue[newValue.length - 1].label,
-          newValue[newValue.length - 1].value
-        )
-      );
     }
 
-    /*newValue !== null &&
-      newValue.map((value) => {
-        return (
-          props.formik.values.arrayActivityDomains !== null &&
-          !props.formik.values.arrayActivityDomains.includes(value) &&
-          formikEquipment.push(value.value)
-        );
-      });*/
+    if (newArray.length) {
+      newArray.forEach(value => {
+        if (props.formik?.values?.arrayActivityDomains && 
+            !props.formik.values.arrayActivityDomains.includes(value.value)) {
+          formikRoles.push(value.value);
+        }
+      });
+    }
+
+    if (props.formik?.values?.arrayActivityDomains && 
+        formikRoles !== props.formik.values.arrayActivityDomains) {
+      props.formik.setFieldValue("arrayActivityDomains", formikRoles);
+    }
+
     setRole(newArray);
-    //props.formik.setFieldValue("arrayActivityDomains", formikEquipment);
-  };
+  }, [jobTitles, props.formik]);
 
-  const handleChangeSkills = newValue => {
-    let formikEquipment = [];
-    let newArray = !isNullOrEmpty(skills) ? [...skills] : [];
-    let difference =
-      newValue !== null &&
-      skills !== null &&
-      skills.filter(x => !newValue.includes(x)); // calculates diff
-    if (!difference.length && newValue === null) {
-      newArray = [];
-    } else if (difference.length) {
-      let filteredArray = skills.filter(x => newValue.includes(x));
-      newArray = [];
-      filteredArray.map(tag =>
-        newArray.push(createOption(tag.label, tag.value))
-      );
-    } else {
-      newArray.push(
-        createOption(
-          newValue[newValue.length - 1].label,
-          newValue[newValue.length - 1].value
-        )
-      );
-    }
+  const formatSkills = React.useCallback((data) => {
+    if (!jobSkills.length) return null;
 
-    /*newValue !== null &&
-      newValue.map((value) => {
-        return (
-          !formikEquipment.includes(value) && formikEquipment.push(value.value)
-        );
-      });*/
-    setSkills(newArray);
-    //props.formik.setFieldValue("applicantArraySkills", formikEquipment);
-  };
-
-  /*const handleChangeLocations = (newValue) => {
-    let formikEquipment = [];
-    let newArray = [...skills];
-    let difference =
-      newValue !== null && skills.filter((x) => !newValue.includes(x)); // calculates diff
-    if (newValue === null) {
-      newArray = [];
-    } else if (difference.length) {
-      let filteredArray = skills.filter((x) => newValue.includes(x));
-      newArray = [];
-      filteredArray.map((tag) =>
-        newArray.push(createOption(tag.label, tag.value))
-      );
-    } else {
-      newArray.push(
-        createOption(
-          newValue[newValue.length - 1].label,
-          newValue[newValue.length - 1].value
-        )
-      );
-    }
-
-    newValue !== null &&
-      newValue.map((value) => {
-        return formikEquipment.push(value.value);
+    const newArray = [];
+    if (!isNullOrEmpty(data)) {
+      data.forEach(eq => {
+        const value = jobSkills.find(l => l.id === eq);
+        if (value) {
+          newArray.push({
+            label: value.name,
+            value: value.value || value.id
+          });
+        }
       });
-    setLocation(newArray);
-    props.formik.setFieldValue("applicantArraySkills", formikEquipment);
-  };*/
+    }
 
-  let formatedRole = jobTitles.map(equipment => {
-    return equipment && createOption(equipment.name, equipment.id);
-  });
+    if (skills === null) {
+      setSkills(newArray);
+    }
+    return newArray;
+  }, [jobSkills, skills]);
 
-  let formatedCity = postalCode.map((equipment, ix) => {
-    return equipment && createOption(equipment.Nom_commune, ix);
-  });
+  // Initial data loading
+  useEffect(() => {
+    const initializeData = async () => {
+      try {
+        if (isNullOrEmpty(jobSkills)) {
+          dispatch(getJobSkillsByActivityDomain.request());
+        }
+        
+        dispatch(getMissionEquipment.request());
+        
+        if (parsed?.postalCodeSearchZone) {
+          setDistance(parsed.postalCodeSearchZone);
+        }
 
-  let formatedSkill = jobSkills.map(equipment => {
-    return equipment && createOption(equipment.name, equipment.id);
-  });
-  //const { errors, touched } = useFormikContext();
+        if (jobTitles.length && role === null && parsed?.arrayActivityDomains) {
+          formatRole(parsed.arrayActivityDomains);
+        }
+
+        if (jobSkills.length && skills === null && parsed?.applicantArraySkills) {
+          formatSkills(parsed.applicantArraySkills);
+        }
+
+        if (isNullOrEmpty(jobTitles)) {
+          const res = await axios.get(`${api}api/ActivityDomain`);
+          const activityDomainsList = res.data;
+          
+          if (parsed.arrayActivityDomains) {
+            const selectedActivitiesArray = parsed.arrayActivityDomains
+              .map(activityId => {
+                const domain = activityDomainsList.find(d => d.id === activityId);
+                return domain ? {
+                  value: domain.id,
+                  label: domain.name
+                } : null;
+              })
+              .filter(Boolean);
+
+            setRole(selectedActivitiesArray);
+          }
+
+          if (parsed.missionArrayEquipments) {
+            setSelectedEquipment(parsed.missionArrayEquipments);
+          }
+
+          setJobTitles(activityDomainsList);
+          
+          if (parsed.applicantArraySkills) {
+            setSelectedSkills(parsed.applicantArraySkills);
+          }
+        }
+      } catch (err) {
+        console.error("Error initializing data:", err);
+        toastr.error("Error", "Failed to initialize data");
+      }
+    };
+
+    initializeData();
+  }, [jobSkills, api, dispatch, parsed, formatRole, formatSkills]);
+
+  // Load applicant skills
+  useEffect(() => {
+    const fetchApplicantSkills = async () => {
+      if (!parsed.applicantArraySkills?.length) return;
+
+      try {
+        const promises = parsed.applicantArraySkills.map(skillId => 
+          axios.get(`${api}api/JobSkill/${skillId}`)
+        );
+        
+        const responses = await Promise.all(promises);
+        const formattedSkills = responses.map(response => ({
+          value: response.data.id,
+          label: response.data.name
+        }));
+        
+        setSelectedSkills(formattedSkills);
+      } catch (err) {
+        console.error("Error loading skills:", err);
+        toastr.error("Error", "Unable to load skills");
+      }
+    };
+
+    fetchApplicantSkills();
+  }, [api, parsed.applicantArraySkills]);
+
+  // Load skills by activity domain
+  useEffect(() => {
+    const fetchSkillsByActivityDomain = async () => {
+      if (!role.length) return;
+
+      try {
+        const domainIds = role.map(item => item.value);
+        const params = new URLSearchParams();
+        domainIds.forEach(id => params.append("ActivityDomain", id));
+
+        const response = await axios.get(
+          `${api}api/JobSkill/GetByActivityDomain?${params.toString()}`
+        );
+        setSkillsList(response.data);
+      } catch (err) {
+        console.error("Error loading activity domains:", err);
+        toastr.error("Error", "Unable to load activity domains");
+      }
+    };
+
+    fetchSkillsByActivityDomain();
+  }, [api, role]);
+
+  const handleChangeRole = React.useCallback((newValue) => {
+    setRole(newValue || []);
+  }, []);
+
+  const handleSkillChange = React.useCallback((newValue) => {
+    setSelectedSkills(newValue || []);
+  }, []);
+
+  const handleChangeDistance = React.useCallback((value) => {
+    setDistance(value.value);
+  }, []);
+
+  const onSaveApplicant = async () => {
+    setLoading(true);
+    try {
+      const filteredSkills = selectedSkills.map(skill => skill.value);
+      const filteredRole = role.map(r => r.value);
+
+      const body = {
+        ...parsed,
+        applicantArraySkills: filteredSkills,
+        postalCodeSearchZone: distance,
+        arrayActivityDomains: filteredRole,
+      };
+
+      await axios.put(`${api}api/Applicant`, body);
+      
+      toastr.success(
+        intl.formatMessage({ id: "TITLE.INTERIMAIRE.CREATION" }),
+        intl.formatMessage({ id: "MESSAGE.INTERIMAIRE.EDIT.SUCCESS" })
+      );
+      
+      if (parsed.id) {
+        getSelectedApplicantById(parsed.id, dispatch);
+      }
+    } catch (err) {
+      const message = err.response?.data?.message || "An error occurred";
+      toastr.error(intl.formatMessage({ id: "ERROR" }), message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const customStyles = {
     control: (base, state) => ({
       ...base,
@@ -402,139 +272,18 @@ function Matching(props, formik) {
       borderColor: "transparent",
       boxShadow: null,
       "&:hover": {
-        borderColor: "transparent"
-      }
+        borderColor: "transparent",
+      },
     }),
-    menu: base => ({
+    menu: (base) => ({
       ...base,
       borderRadius: 0,
-      marginTop: 0
+      marginTop: 0,
     }),
-    menuList: base => ({
+    menuList: (base) => ({
       ...base,
-      padding: 0
-    })
-  };
-
-  const asyncStyle = {
-    control: (base, state) => ({
-      ...base,
-      background: "#F3F6F9",
-      // match with the menu
-      borderRadius: state.isFocused ? "3px 3px 0 0" : 3,
-      // Overwrittes the different states of border
-      borderColor: "transparent",
-      // Removes weird border around container
-      boxShadow: null,
-      "&:hover": {
-        // Overwrittes the different states of border
-        borderColor: "transparent"
-      }
+      padding: 0,
     }),
-    menu: base => ({
-      ...base,
-      // override border radius to match the box
-      borderRadius: 0,
-      // kill the gap
-      marginTop: 0
-    }),
-    menuList: base => ({
-      ...base,
-      // kill the white space on first and last option
-      padding: 0
-    })
-  };
-
-  const handleChangePage = () => {
-    const equipmentArray = [];
-    for (let i = 0; i < selectedEquipment.length; i++) {
-      equipmentArray.push(parseInt(selectedEquipment[i].value));
-    }
-    const newValue = {
-      ...props.formik.values,
-      missionArrayEquipments: equipmentArray
-    };
-    dispatch(updateApplicant.request(newValue));
-    //props.history.push("/int-profile-edit/final-step");
-  };
-
-  const handleChangeDistance = value => {
-    setDistance(value.value);
-    //props.formik.setFieldValue("PostalCodeSearchZone", value.value);
-  };
-  const formatFormik = values => {
-    let formatedValues = [];
-    values !== null &&
-      values.map(value => {
-        return formatedValues.push(value.value);
-      });
-    return formatedValues;
-  };
-  const handleCreateSkill = value => {
-    setIsSkillsLoading(true);
-    dispatch(createJobSkills.request({ name: value }));
-    setTimeout(() => {
-      getJobSkillsApi().then(data => {
-        let newSkill = data.data.slice(-1)[0];
-        let newArray = [...skills];
-        let formikEquipment = [];
-        newArray.push(createOption(newSkill.name, newSkill.id));
-        setSkills(newArray);
-
-        props.formik.setFieldValue(
-          "vacancyApplicationCriteriaArrayComputerSkills",
-          formatFormik(newArray)
-        );
-        newArray !== null &&
-          newArray.map(value => {
-            return (
-              !formikEquipment.includes(value) &&
-              formikEquipment.push(value.value)
-            );
-          });
-        setSkills(newArray);
-        props.formik.setFieldValue("applicantArraySkills", formikEquipment);
-      });
-      setIsSkillsLoading(false);
-    }, 2000);
-  };
-
-  const onSaveApplicant = () => {
-    setLoading(true);
-    let filteredSkills = [];
-    let filteredRole = [];
-    let equipmentArray = [];
-    for (let i = 0; i < selectedEquipment.length; i++) {
-      equipmentArray.push(parseInt(selectedEquipment[i].value));
-    }
-    for (let i = 0; i < skills.length; i++) {
-      filteredSkills.push(skills[i].value);
-    }
-    for (let i = 0; i < role.length; i++) {
-      filteredRole.push(role[i].value);
-    }
-    const body = {
-      ...parsed,
-      applicantArraySkills: filteredSkills,
-      postalCodeSearchZone: distance,
-      arrayActivityDomains: filteredRole,
-      missionArrayEquipments: equipmentArray
-    };
-    axios
-      .put(process.env.REACT_APP_WEBAPI_URL + "api/Applicant", body)
-      .then(res => {
-        setLoading(false);
-        toastr.success(
-          intl.formatMessage({ id: "TITLE.INTERIMAIRE.CREATION" }),
-          intl.formatMessage({ id: "MESSAGE.INTERIMAIRE.EDIT.SUCCESS" })
-        );
-        getSelectedApplicantById(parsed.id, dispatch);
-      })
-      .catch(err => {
-        setLoading(false);
-        let message = err.response.data.message && err.response.data.message;
-        toastr.error(intl.formatMessage({ id: "ERROR" }), message);
-      });
   };
 
   return (
@@ -546,18 +295,17 @@ function Matching(props, formik) {
               <button
                 type="button"
                 className="btn btn-primary btn-shadow font-weight-bold px-9 py-4 my-3 mx-4"
-                onClick={() => onSaveApplicant()}
+                onClick={onSaveApplicant}
                 disabled={loading}
               >
                 <span>
                   <FormattedMessage id="BUTTON.SAVE" />
                 </span>
-                {loading && (
-                  <span className="ml-3 spinner spinner-white"></span>
-                )}
+                {loading && <span className="ml-3 spinner spinner-white" />}
               </button>
             </div>
           </div>
+          
           <div className="row">
             <div className="col-xl-12">
               <div className="form-group">
@@ -568,21 +316,22 @@ function Matching(props, formik) {
                 <div className="input-group">
                   <div className="input-group-prepend">
                     <span className="input-group-text">
-                      <i className="icon-xl far fa-list-alt text-primary"></i>
+                      <i className="icon-xl far fa-list-alt text-primary" />
                     </span>
                   </div>
                   <Select
                     isMulti
-                    onChange={e => handleChangeRole(e)}
+                    value={role}
+                    onChange={handleChangeRole}
                     options={formatedRole}
                     styles={customStyles}
-                    value={role}
                     className="col-lg-12 form-control"
-                  ></Select>
+                  />
                 </div>
               </div>
             </div>
           </div>
+
           <div className="row">
             <div className="col-xl-12">
               <div className="form-group">
@@ -592,28 +341,25 @@ function Matching(props, formik) {
                 <div className="input-group">
                   <div className="input-group-prepend">
                     <span className="input-group-text">
-                      <i className="icon-xl far fa-list-alt text-primary"></i>
+                      <i className="icon-xl far fa-list-alt text-primary" />
                     </span>
                   </div>
-                  <CreatableSelect
+                  <Select
                     isMulti
-                    name="skills"
-                    onChange={handleChangeSkills}
-                    options={formatedSkill}
+                    value={selectedSkills}
+                    onChange={handleSkillChange}
+                    options={skillsList.map(skill => ({
+                      label: skill.name,
+                      value: skill.id,
+                    }))}
                     styles={customStyles}
                     className="col-lg-12 form-control"
-                    onCreateOption={handleCreateSkill}
-                    isLoading={isSkillsLoading}
-                    value={skills}
-                  ></CreatableSelect>
+                  />
                 </div>
               </div>
             </div>
           </div>
-          <FormStepFour
-            selectedEquipment={selectedEquipment}
-            setSelectedEquipment={setSelectedEquipment}
-          />
+
           <div className="row">
             <div className="col-xl-12">
               <div className="form-group">
@@ -622,7 +368,7 @@ function Matching(props, formik) {
                 </label>
                 <div className="input-group">
                   <InputRange
-                    formatLabel={value => `${value}km`}
+                    formatLabel={(value) => `${value}km`}
                     step={10}
                     maxValue={1000}
                     minValue={0}
