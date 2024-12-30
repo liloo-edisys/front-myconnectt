@@ -7,6 +7,7 @@ import { toastr } from "react-redux-toastr";
 import { FormattedMessage, useIntl } from "react-intl";
 import { jobSkillType } from "./jobSkillType.js";
 import Select from "react-select";
+import JobTitleSelect from "../jobtitle/jobTitleSelect.js";
 import isNullOrEmpty from "../../../../utils/isNullOrEmpty";
 
 function JobskillForm(props) {
@@ -43,10 +44,7 @@ function JobskillForm(props) {
         setDomainsIsLoaded(true);
       } catch (err) {
         console.error("Erreur lors du chargement des domaines:", err);
-        toastr.error(
-          "Erreur",
-          "Impossible de charger les domaines d'activité"
-        );
+        toastr.error("Erreur", "Impossible de charger les domaines d'activité");
       }
     };
 
@@ -59,13 +57,13 @@ function JobskillForm(props) {
         try {
           const SEARCH_JOBSKILLS_API = `${api}api/JobSkill/${id}`;
           const response = await axios.get(SEARCH_JOBSKILLS_API);
-          
+
           // Formatage des domaines d'activité pour le Select
           const newRoleArray = [];
           const domains = response.data.activityDomains || [];
-          
+
           // Création du tableau pour le Select à partir des activityDomains
-          domains.forEach(domain => {
+          domains.forEach((domain) => {
             if (domain) {
               newRoleArray.push({
                 value: domain.id,
@@ -75,16 +73,15 @@ function JobskillForm(props) {
           });
 
           setRole(newRoleArray);
-          
+
           // Extraction des IDs des domaines pour le state
-          const domainIds = domains.map(domain => domain.id);
-          
+          const domainIds = domains.map((domain) => domain.id);
+
           setCompetence({
             name: response.data.name,
             skillType: response.data.skillTypeID,
             activityDomains: domainIds,
           });
-
         } catch (err) {
           console.error("Erreur lors du chargement de la compétence:", err);
           toastr.error(
@@ -108,8 +105,8 @@ function JobskillForm(props) {
 
   const handleChangeRole = (newValue) => {
     setErrorActivityDomain(false);
-    const selectedDomains = newValue ? newValue.map(item => item.value) : [];
-    
+    const selectedDomains = newValue ? newValue.map((item) => item.value) : [];
+
     setRole(newValue || []);
     setCompetence({
       ...competence,
@@ -157,8 +154,8 @@ function JobskillForm(props) {
         id: parseInt(id),
         name: competence.name,
         tenantID: user.tenantID,
-        activityDomains: competence.activityDomains,
-        skillType: competence.skillType ? parseInt(competence.skillType) : null
+        activityDomains: competence.activityDomains, // change to jobTitle
+        skillType: competence.skillType ? parseInt(competence.skillType) : null,
       };
 
       await axios.put(UPDATE_JOBSKILLS_API, body);
@@ -191,9 +188,11 @@ function JobskillForm(props) {
         name: competence.name,
         tenantID: user.tenantID,
         activityDomains: competence.activityDomains,
-        skillType: competence.skillType ? parseInt(competence.skillType) : null
+        skillType: competence.skillType ? parseInt(competence.skillType) : null,
       };
-      await axios.post(CREATE_JOBSKILLS_API, body);
+      // await axios.post(CREATE_JOBSKILLS_API, body);
+      console.log("body ----------> " + JSON.stringify(body));
+
       getData();
       onHide();
       toastr.success(
@@ -266,17 +265,9 @@ function JobskillForm(props) {
           </div>
         )}
         <div className="mt-10">
-          <label>
-            <FormattedMessage id="MATCHING.ACTIVITY.DOMAINS" />
-          </label>
-          <Select
-            isMulti
+          <JobTitleSelect
             value={role}
             onChange={handleChangeRole}
-            options={activityDomains.map(domain => ({
-              label: domain.name,
-              value: domain.id
-            }))}
             styles={customStyles}
             className="col-lg-12 form-control"
           />

@@ -12,17 +12,19 @@ import _ from "lodash";
 import debounce from "debounce-promise";
 import isNullOrEmpty from "../../../../utils/isNullOrEmpty";
 import axios from "axios";
+import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
 
 function Registration(props) {
   const [selectedCity, setselectedCity] = useState(null);
-
   const [selectedCompany, setselectedCompany] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { intl, history } = props;
 
-  const handleChangeCity = value => {
+  const handleChangeCity = (value) => {
     setselectedCity(value);
   };
 
-  const handleChangeCompany = value => {
+  const handleChangeCompany = (value) => {
     setselectedCompany(value);
   };
 
@@ -56,6 +58,8 @@ function Registration(props) {
         ? selectedCompany.siege.siret
         : "",
     email: "",
+    password: "",
+    confirmPassword: "",
     address:
       selectedCompany && !isNullOrEmpty(selectedCompany.siege.adresse_complete)
         ? selectedCompany.siege.adresse_complete
@@ -74,13 +78,21 @@ function Registration(props) {
       selectedCompany &&
       !isNullOrEmpty(selectedCompany.libelle_nature_juridique_entreprise)
         ? selectedCompany.libelle_nature_juridique_entreprise
-        : "_"
+        : "_",
   };
-  const { intl, history } = props;
-  const [loading, setLoading] = useState(false);
+
   const RegistrationSchema = Yup.object().shape({
     email: Yup.string()
       .email(intl.formatMessage({ id: "VALIDATION.INVALID_EMAIL" }))
+      .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
+    password: Yup.string()
+      .min(8, intl.formatMessage({ id: "VALIDATION.MIN_LENGTH_FIELD" }))
+      .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
+    confirmPassword: Yup.string()
+      .oneOf(
+        [Yup.ref("password"), null],
+        intl.formatMessage({ id: "VALIDATION.PASSWORD_MISMATCH" })
+      )
       .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
     name: Yup.string().required(
       intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })
@@ -100,9 +112,10 @@ function Registration(props) {
     postalcode: Yup.string().required(
       intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })
     ),
-    acceptTerms: Yup.bool().required(
+    acceptTerms: Yup.bool().oneOf(
+      [true],
       intl.formatMessage({ id: "AUTH.REGISTER.TERMS_REQUIRED" })
-    )
+    ),
   });
 
   const enableLoading = () => {
@@ -116,42 +129,41 @@ function Registration(props) {
   const customStyles = {
     control: (base, state) => ({
       ...base,
-      background: "#F3F6F9",
-      // match with the menu
-      borderRadius: state.isFocused ? "3px 3px 0 0" : 3,
-      // Overwrittes the different states of border
-      borderColor: "transparent",
-      // Removes weird border around container
-      boxShadow: null,
+      background: "#F5F7FA",
+      borderRadius: "10px",
+      border: "none",
+      minHeight: "50px",
+      padding: "0 10px",
+      boxShadow: "none",
       "&:hover": {
-        // Overwrittes the different states of border
-        borderColor: "transparent"
-      }
+        borderColor: "transparent",
+      },
     }),
-    menu: base => ({
+    menu: (base) => ({
       ...base,
-      // override border radius to match the box
-      borderRadius: 0,
-      // kill the gap
-      marginTop: 0,
-      maxHeight: 200
+      borderRadius: "10px",
+      marginTop: 8,
+      overflow: "hidden",
+      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
     }),
-    menuList: base => ({
+    menuList: (base) => ({
       ...base,
-      // kill the white space on first and last option
       padding: 0,
-      maxHeight: 200
-    })
+      maxHeight: 200,
+    }),
+    placeholder: (base) => ({
+      ...base,
+      color: "#B5B5C3",
+    }),
   };
 
   const wait = 1000;
-  const getAsyncOptions = inputValue => {
+  const getAsyncOptions = (inputValue) => {
     return axios
       .get(
         `https://recherche-entreprises.api.gouv.fr/search?q=${inputValue}&&code_postal=${selectedCity.Code_postal}`
       )
-      .then(res => {
-        /*console.log(res.data.results);*/
+      .then((res) => {
         return res.data.results;
       });
   };
@@ -159,185 +171,263 @@ function Registration(props) {
   const debouncedLoadOptions = debounce(getAsyncOptions, wait);
 
   return (
-    <div
-      className="register-form login-signin pb-11"
-      style={{ display: "block" }}
-    >
-      <div className="text-center mb-10 mb-lg-20">
-        <h3 className="pageTitle">
-          <FormattedMessage id="AUTH.REGISTER.TITLE" />
-        </h3>
-        <p className="text-muted font-weight-bold col-lg-8 offset-lg-2">
-          <FormattedMessage id="AUTH.REGISTER.DESC" />
+    <div className="d-flex flex-row min-vh-100">
+      {/* Left Side - Blue Section  */}
+      <div
+        className="d-flex flex-column justify-content-center bg-primary px-15 py-20 w-550px position-fixed"
+        style={{ top: 0, height: "100vh", overflow: "hidden" }}
+      >
+        <h1 className="text-white font-weight-bold display-4 mb-14 text-center">
+          Déjà inscrit chez nous?
+        </h1>
+        <p className="text-white font-size-h4 mb-10 text-center">
+          Connectez vous à votre Espace
+          <br />
+          Recruteur pour l'effet{"  "}
+          <img
+            src={toAbsoluteUrl("/media/logos/wow.png")}
+            className="h-20px"
+            alt="wow"
+          />{"  "}
+          !
         </p>
-      </div>
-
-      <div className="form d-flex flex-column justify-content-center">
-        <AsyncSelect
-          className="col-lg-10 offset-lg-1 form-control form-control-solid min-h-50px"
-          cacheOptions
-          noOptionsMessage={() => intl.formatMessage({ id: "MESSAGE.NO.CITY" })}
-          loadingMessage={() =>
-            intl.formatMessage({ id: "MESSAGE.SEARCH.ONGOING" })
-          }
-          value={selectedCity}
-          getOptionLabel={e => `${e.Nom_commune} (${e.Code_postal})`}
-          getOptionValue={e => e.Code_postal}
-          loadOptions={loadOptions}
-          onChange={handleChangeCity}
-          placeholder={intl.formatMessage({ id: "AUTH.REGISTER.POSTALCODE" })}
-          isClearable
-          isSearchable
-          components={{
-            DropdownIndicator: () => null,
-            IndicatorSeparator: () => null
-          }}
-          styles={customStyles}
-        />
-
-        <AsyncSelect
-          className="col-lg-10 offset-lg-1 mt-4  form-control form-control-solid min-h-50px"
-          value={selectedCompany}
-          noOptionsMessage={() =>
-            intl.formatMessage({ id: "MESSAGE.NO.COMPANIES" })
-          }
-          loadingMessage={() =>
-            intl.formatMessage({ id: "MESSAGE.SEARCH.ONGOING" })
-          }
-          getOptionLabel={e => `${e.nom_complet} SIRET (${e.siege.siret})`}
-          getOptionValue={e => e.siege.siret}
-          loadOptions={debouncedLoadOptions}
-          onChange={handleChangeCompany}
-          placeholder={intl.formatMessage({ id: "AUTH.REGISTER.COMPANY_NAME" })}
-          isClearable
-          isSearchable
-          components={{
-            DropdownIndicator: () => null,
-            IndicatorSeparator: () => null
-          }}
-          styles={customStyles}
-        />
-        <div className="col-lg-10 offset-lg-1" style={{ fontSize: 8 }}>
-          * <FormattedMessage id="MESSAGE.MIN.3.CHAR" />
+        <div className="text-center">
+          <Link to="/auth/login">
+            <button className="btn btn-light-primary font-weight-bold py-3 px-8 mt-8 rounded-pill">
+              Connexion
+            </button>
+          </Link>
         </div>
       </div>
-      {selectedCompany && (
-        <Formik
-          enableReinitialize={true}
-          initialValues={initialValues}
-          validationSchema={RegistrationSchema}
-          setFieldValue
-          onSubmit={(values, { setSubmitting }) => {
-            enableLoading();
-            registerAccount(values)
-              .then(response => {
-                disableLoading();
-                response && history.push("/");
-              })
-              .catch(() => {
-                setSubmitting(true);
-                disableLoading();
-              });
-          }}
-        >
-          {({ values, touched, errors, status, handleSubmit }) => (
-            <Form
-              id="kt_login_signin_form"
-              className="form fv-plugins-bootstrap fv-plugins-framework animated animate__animated animate__backInUp"
-              onSubmit={handleSubmit}
+
+      {/* Right Side - Form Section  */}
+      <div className="d-flex flex-column flex-grow-1 justify-content-center align-items-center p-10" style={{ marginLeft: "550px" }}>
+        <div className="max-w-850px w-100">
+          <div className="text-center mb-10">
+            <Link to="/">
+              <img
+                alt="Logo"
+                src={toAbsoluteUrl("/media/logos/logo-myconnectt-color.png")}
+                className="max-h-80px"
+              />
+            </Link>
+            <h2
+              className="text-primary font-weight-bold display-3 mb-10"
+              style={{ fontSize: "2.5rem", fontWeight: "bolder" }}
             >
-              {status && (
-                <div className="mb-10 alert alert-custom alert-light-danger alert-dismissible">
-                  <div className="alert-text font-weight-bold">{status}</div>
-                </div>
-              )}
+              Bienvenue
+            </h2>
+          </div>
 
-              <div className="separator separator-solid-primary my-10 mx-30"></div>
+          <div className="form mb-10">
+            <AsyncSelect
+              className="mb-5"
+              styles={customStyles}
+              cacheOptions
+              noOptionsMessage={() =>
+                intl.formatMessage({ id: "MESSAGE.NO.CITY" })
+              }
+              loadingMessage={() =>
+                intl.formatMessage({ id: "MESSAGE.SEARCH.ONGOING" })
+              }
+              value={selectedCity}
+              getOptionLabel={(e) => `${e.Nom_commune} (${e.Code_postal})`}
+              getOptionValue={(e) => e.Code_postal}
+              loadOptions={loadOptions}
+              onChange={handleChangeCity}
+              placeholder={intl.formatMessage({
+                id: "AUTH.REGISTER.POSTALCODE",
+              })}
+              isClearable
+              isSearchable
+              components={{
+                DropdownIndicator: () => null,
+                IndicatorSeparator: () => null,
+              }}
+            />
 
-              <div className="row d-flex justify-content-center">
-                {/* begin: Email */}
-                <div className="form-group col-lg-10">
-                  <div className="input-group">
-                    <div className="input-group-prepend">
-                      <span className="input-group-text">
-                        <i className="icon-xl far fa-envelope text-primary"></i>
-                      </span>
-                    </div>
+            <AsyncSelect
+              className="mb-5"
+              styles={customStyles}
+              value={selectedCompany}
+              noOptionsMessage={() =>
+                intl.formatMessage({ id: "MESSAGE.NO.COMPANIES" })
+              }
+              loadingMessage={() =>
+                intl.formatMessage({ id: "MESSAGE.SEARCH.ONGOING" })
+              }
+              getOptionLabel={(e) =>
+                `${e.nom_complet} SIRET (${e.siege.siret})`
+              }
+              getOptionValue={(e) => e.siege.siret}
+              loadOptions={debouncedLoadOptions}
+              onChange={handleChangeCompany}
+              placeholder={intl.formatMessage({
+                id: "AUTH.REGISTER.COMPANY_NAME",
+              })}
+              isClearable
+              isSearchable
+              components={{
+                DropdownIndicator: () => null,
+                IndicatorSeparator: () => null,
+              }}
+            />
+          </div>
+
+          {selectedCompany && (
+            <Formik
+              enableReinitialize={true}
+              initialValues={initialValues}
+              validationSchema={RegistrationSchema}
+              onSubmit={(values, { setSubmitting }) => {
+                enableLoading();
+                registerAccount(values)
+                  .then((response) => {
+                    disableLoading();
+                    response && history.push("/");
+                  })
+                  .catch(() => {
+                    setSubmitting(false);
+                    disableLoading();
+                  });
+              }}
+            >
+              {({ values, touched, errors, handleSubmit }) => (
+                <Form className="form" onSubmit={handleSubmit}>
+                  <div className="form-group mb-5">
+                    <label className="font-size-h6 text-primary mb-3">
+                      Nom d'utilisateur
+                    </label>
                     <Field
-                      placeholder={intl.formatMessage({
-                        id: "MODEL.EMAIL"
-                      })}
-                      type="email"
-                      className={`form-control h-auto py-5 px-6 
-                "email"
-              `}
-                      name="email"
+                      type="text"
+                      className="form-control form-control-solid h-auto py-5 px-6 rounded-lg"
+                      name="username"
+                      placeholder="Nom d'utilisateur"
                     />
                   </div>
-                  {touched.email && errors.email ? (
-                    <div className="fv-plugins-message-container">
-                      <div className="fv-help-block">{errors.email}</div>
-                    </div>
-                  ) : null}
-                </div>
-                {/* end: Email */}
-              </div>
 
-              {/* begin: Terms and Conditions */}
-              <div className="form-group row d-flex justify-content-center">
-                <label className="checkbox ">
-                  <Field type="checkbox" name="acceptTerms" className="m-1" />
-                  <span />
-
-                  <a
-                    href="https://myconnectt.fr/mentions-legales/"
-                    target="_blank"
-                    className="mr-1 ml-2"
-                    rel="noopener noreferrer"
-                  >
-                    <FormattedMessage id="AUTH.REGISTER.TERMS" />
-                  </a>
-                </label>
-                {touched.acceptTerms && errors.acceptTerms ? (
-                  <div className="fv-plugins-message-container">
-                    <div className="fv-help-block">{errors.acceptTerms}</div>
+                  <div className="form-group mb-5">
+                    <label className="font-size-h6 text-primary mb-3">
+                      Adresse Email
+                    </label>
+                    <Field
+                      type="email"
+                      className="form-control form-control-solid h-auto py-5 px-6 rounded-lg"
+                      name="email"
+                      placeholder="Adresse Email"
+                    />
+                    {touched.email && errors.email && (
+                      <div className="text-danger mt-2">{errors.email}</div>
+                    )}
                   </div>
-                ) : null}
-              </div>
-              {/* end: Terms and Conditions */}
-              <div className="form-group d-flex flex-wrap flex-center">
-                <Link to="/auth/login">
+
+                  <div className="form-group mb-5">
+                    <label className="font-size-h6 text-primary mb-3">
+                      Mot de passe
+                    </label>
+                    <Field
+                      type="password"
+                      className="form-control form-control-solid h-auto py-5 px-6 rounded-lg"
+                      name="password"
+                      placeholder="Mot de passe"
+                    />
+                    {touched.password && errors.password && (
+                      <div className="text-danger mt-2">{errors.password}</div>
+                    )}
+                  </div>
+
+                  <div className="form-group mb-8">
+                    <label className="font-size-h6 text-primary mb-3">
+                      Confirmation de mot de passe
+                    </label>
+                    <Field
+                      type="password"
+                      className="form-control form-control-solid h-auto py-5 px-6 rounded-lg"
+                      name="confirmPassword"
+                      placeholder="Confirmation de mot de passe"
+                    />
+                    {touched.confirmPassword && errors.confirmPassword && (
+                      <div className="text-danger mt-2">
+                        {errors.confirmPassword}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="d-flex align-items-center mb-8">
+                    <div className="border-bottom flex-grow-1"></div>
+                    <span className="px-4 text-muted">ou</span>
+                    <div className="border-bottom flex-grow-1"></div>
+                  </div>
+
+                  <div className="d-flex justify-content-center gap-4 mb-8">
+                    <button
+                      type="button"
+                      className="btn btn-icon btn-light-primary hover-scale p-5 ml-4"
+                    >
+                      <i className="fab fa-google fs-4"></i>
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-icon btn-light-primary hover-scale p-5 ml-4"
+                    >
+                      <i className="fab fa-facebook-f fs-4"></i>
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-icon btn-light-primary hover-scale p-5 ml-4"
+                    >
+                      <i className="fab fa-apple fs-4"></i>
+                    </button>
+                  </div>
+
+                  <div className="form-group mb-8">
+                    <label className="checkbox checkbox-outline checkbox-primary">
+                      <Field type="checkbox" name="acceptTerms" />
+                      <span></span>
+                      <span className="ml-2">
+                        J'accepte les{" "}
+                        <a
+                          href="https://myconnectt.fr/mentions-legales/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary font-weight-bold"
+                        >
+                          conditions d'utilisation
+                        </a>
+                      </span>
+                    </label>
+                    {touched.acceptTerms && errors.acceptTerms && (
+                      <div className="text-danger mt-2">
+                        {errors.acceptTerms}
+                      </div>
+                    )}
+                  </div>
+
                   <button
-                    type="button"
-                    className="btn btn-light-primary font-weight-bold px-9 py-4 my-3 mx-4 btn-shadow"
+                    type="submit"
+                    disabled={!values.acceptTerms}
+                    className="btn btn-primary btn-block font-weight-bold py-5 px-8 rounded-lg"
                   >
-                    <FormattedMessage id="BUTTON.CANCEL" />
+                    Inscription
+                    {loading && (
+                      <span className="ml-3 spinner spinner-white"></span>
+                    )}
                   </button>
-                </Link>
-                <button
-                  type="submit"
-                  disabled={values.acceptTerms === true ? false : true}
-                  className="btn btn-primary font-weight-bold px-9 py-4 my-3 mx-4 btn-shadow"
-                >
-                  <span>
-                    <FormattedMessage id="BUTTON.REGISTER" />
-                  </span>
-                  {loading && (
-                    <span className="ml-3 spinner spinner-white"></span>
-                  )}
-                </button>
-              </div>
-            </Form>
+                </Form>
+              )}
+            </Formik>
           )}
-        </Formik>
-      )}
-      <div className="mt-10">
-        <span className="opacity-40 mr-4 text-dark">
-          <FormattedMessage id="TEXT.HAVE.MYCONNECTT.ACCOUNT" />
-        </span>
-        <Link to="/auth/login" className="text-black font-weight-normal">
-          <FormattedMessage id="TEXT.LOGIN.ACCOUNT" />
-        </Link>
+          <div className="separator separator-solid my-7"></div>
+
+          <div className="text-center mt-5">
+            <span className="text-muted mr-4">
+              <FormattedMessage id="TEXT.HAVE.MYCONNECTT.ACCOUNT" />
+            </span>
+            <Link to="/auth/login" className="text-primary font-weight-bold">
+              <FormattedMessage id="TEXT.LOGIN.ACCOUNT" />
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -39,15 +39,15 @@ function JobskillsTable(props) {
     {
       dataField: "skillType",
       text: intl.formatMessage({ id: "TEXT.JOBSKILL.TYPE" }),
-      formatter: (value) => value || "-"
+      formatter: (value) => value || "-",
     },
     {
       dataField: "activityDomains",
-      text: intl.formatMessage({ id: "ACTIVITY.DOMAINE.LIST" }),
+      text: intl.formatMessage({ id: "TEXT.JOB.TITLE" }),
       formatter: (value, row) => {
         if (!value || value.length === 0) return "-";
-        return value.map(domain => domain.name).join(", ");
-      }
+        return value.map((domain) => domain.name).join(", ");
+      },
     },
     {
       dataField: "id",
@@ -91,6 +91,7 @@ function JobskillsTable(props) {
       .then((res) => {
         setJobskillsList(res.data.list);
         setTotalCount(res.data.totalcount);
+        console.log("res.data.list ---------> ", res.data.list);
       })
       .catch((err) => {
         console.error("Erreur lors de la récupération des données:", err);

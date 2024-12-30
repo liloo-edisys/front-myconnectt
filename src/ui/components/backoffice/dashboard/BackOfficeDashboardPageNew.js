@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from "react";
 
 import { getBackOfficeDashboardDatas } from "actions/backoffice/DashboardActions";
-import { Pagination } from "react-bootstrap";
 import SVG from "react-inlinesvg";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { connect, shallowEqual, useDispatch, useSelector } from "react-redux";
-import { setSignalRBackoffice } from "actions/backoffice/UserActions";
 import { Link } from "react-router-dom";
-import Avatar from "react-avatar";
-import { Route } from "react-router-dom";
-import axios from "axios";
 import "./styles.scss";
 
-import { NavLink } from "react-router-dom";
 
 import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
 
@@ -20,12 +14,12 @@ function BackOfficeDashboardPageNew({ intl, history }) {
   const dispatch = useDispatch();
 
   const { backofficeData, user, userDetails, statistics } = useSelector(
-    state => ({
+    (state) => ({
       backofficeData: state.backOfficeDashboardReducerData,
       statistics: state.backOfficeDashboardReducerData.statistics,
       user: state.auth.user,
       userDetails: state.auth.user,
-      authToken: state.auth.authToken
+      authToken: state.auth.authToken,
     }),
     shallowEqual
   );
@@ -217,6 +211,31 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                   </div>
                 </div>
               </div>
+              <div className="statistics_relance_container">
+                <div className="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2">
+                  Nombre de relances
+                </div>
+                <div
+                  style={{ display: "flex", justifyContent: "space-around" }}
+                >
+                  <div>
+                    <div className="font-weight-bold text-muted font-size-lg mb-2">
+                      Relances envoyées
+                    </div>
+                    <div className="custom_counter_stats text-success">
+                      {statistics.rateLoginAccounts} 
+                    </div>
+                  </div>
+                  <div>
+                    <div className="font-weight-bold text-muted font-size-lg mb-2">
+                      Réponses reçues
+                    </div>
+                    <div className="custom_counter_stats text-success">
+                      {statistics.rateLoginApplicants} 
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -225,7 +244,7 @@ function BackOfficeDashboardPageNew({ intl, history }) {
         <div
           className="row"
           style={{
-            position: "relative"
+            position: "relative",
           }}
         >
           <Link className="col-lg-4 mw-300" to="/missions">
@@ -236,14 +255,14 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center"
+                      alignItems: "center",
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
                         justifyContent: "center",
-                        alignItems: "center"
+                        alignItems: "center",
                       }}
                     >
                       <span className="svg-icon svg-icon-info svg-icon-3x ml-n1">
@@ -288,14 +307,14 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center"
+                      alignItems: "center",
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
                         justifyContent: "center",
-                        alignItems: "center"
+                        alignItems: "center",
                       }}
                     >
                       <span className="svg-icon svg-icon-rose svg-icon-3x ml-n1">
@@ -343,14 +362,14 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center"
+                      alignItems: "center",
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
                         justifyContent: "center",
-                        alignItems: "center"
+                        alignItems: "center",
                       }}
                     >
                       <span className="svg-icon svg-icon-jaune svg-icon-3x ml-n1">
@@ -395,14 +414,14 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center"
+                      alignItems: "center",
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
                         justifyContent: "center",
-                        alignItems: "center"
+                        alignItems: "center",
                       }}
                     >
                       <span className="svg-icon svg-icon-primary svg-icon-3x ml-n1">
@@ -445,14 +464,14 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center"
+                      alignItems: "center",
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
                         justifyContent: "center",
-                        alignItems: "center"
+                        alignItems: "center",
                       }}
                     >
                       <span className="svg-icon svg-icon-success svg-icon-3x ml-n1">
@@ -497,14 +516,14 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center"
+                      alignItems: "center",
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
                         justifyContent: "center",
-                        alignItems: "center"
+                        alignItems: "center",
                       }}
                     >
                       <span className="svg-icon svg-icon-danger svg-icon-3x ml-n1">
@@ -549,14 +568,14 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center"
+                      alignItems: "center",
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
                         justifyContent: "center",
-                        alignItems: "center"
+                        alignItems: "center",
                       }}
                     >
                       <span className="svg-icon svg-icon-warning svg-icon-3x ml-n1">
@@ -601,14 +620,14 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center"
+                      alignItems: "center",
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
                         justifyContent: "center",
-                        alignItems: "center"
+                        alignItems: "center",
                       }}
                     >
                       <span className="svg-icon svg-icon-green svg-icon-3x ml-n1">
@@ -654,14 +673,14 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center"
+                      alignItems: "center",
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
                         justifyContent: "center",
-                        alignItems: "center"
+                        alignItems: "center",
                       }}
                     >
                       <span className="svg-icon svg-icon-applicant-message svg-icon-3x ml-n1">
@@ -708,14 +727,14 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center"
+                      alignItems: "center",
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
                         justifyContent: "center",
-                        alignItems: "center"
+                        alignItems: "center",
                       }}
                     >
                       <span className="svg-icon svg-icon-client-message svg-icon-3x ml-n1">
@@ -762,14 +781,14 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center"
+                      alignItems: "center",
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
                         justifyContent: "center",
-                        alignItems: "center"
+                        alignItems: "center",
                       }}
                     >
                       <span className="svg-icon svg-icon-application-offer svg-icon-3x ml-n1">
@@ -816,14 +835,14 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center"
+                      alignItems: "center",
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
                         justifyContent: "center",
-                        alignItems: "center"
+                        alignItems: "center",
                       }}
                     >
                       <span className="svg-icon svg-icon-decline-offer svg-icon-3x ml-n1">

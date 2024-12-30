@@ -10,7 +10,7 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
-import { getJobSkillsByActivityDomain } from "actions/shared/ListsActions";
+import { getJobSkillsByActivityDomain , getJobSkillsGetByJobTitle } from "actions/shared/ListsActions";
 import InputRange from "react-input-range";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
@@ -128,7 +128,7 @@ function Matching(props) {
     const initializeData = async () => {
       try {
         if (isNullOrEmpty(jobSkills)) {
-          dispatch(getJobSkillsByActivityDomain.request());
+          dispatch(getJobSkillsGetByJobTitle.request());
         }
 
         dispatch(getMissionEquipment.request());

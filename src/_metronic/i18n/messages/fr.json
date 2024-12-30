@@ -800,6 +800,7 @@
   "TEXT.DELETE.JOBSKILL.DESCRIPTION": "Attention ! Voulez-vous supprimer définitivement la compétence {name} ?",
   "TEXT.JOBTAG.MANAGEMENT": "Gestion des tags",
   "TEXT.JOBTAG.TITLE": "Liste des tags",
+  "TEXT.JOB.TITLE": "Poste",
   "MODEL.CREATE.JOBTAG.TITLE": "Ajouter un tag",
   "MESSAGE.JOBTAG.TOTALCOUNT": "Total de {totalCount} tag(s)",
   "TEXT.JOBTAG.NAME": "Nom du tag",

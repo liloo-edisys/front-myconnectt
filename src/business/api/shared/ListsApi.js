@@ -63,6 +63,17 @@ export function getJobSkillsByActivityDomain(activityDomains) {
   return axios.get(`${LISTS_URL}JobSkill/GetByActivityDomain`, { params });
 }
 
+export function getJobSkillsGetByJobTitle(activityDomains) {
+  const params = new URLSearchParams();
+
+  // Ajoute chaque ID de domaine comme paramètre ActivityDomain
+  activityDomains.forEach((domainId) => {
+    params.append("ActivityDomain", domainId);
+  });
+
+  return axios.get(`${LISTS_URL}JobSkill/GetByJobTitle`, { params });
+}
+
 export function createJobSkills(data) {
   const tenantID = TENANTID;
 
