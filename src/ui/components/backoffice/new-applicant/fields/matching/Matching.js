@@ -10,10 +10,15 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
-import { getJobSkillsByActivityDomain , getJobSkillsGetByJobTitle } from "actions/shared/ListsActions";
+import {
+  getJobSkillsByActivityDomain,
+  getJobSkillsGetByJobTitle,
+} from "actions/shared/ListsActions";
 import InputRange from "react-input-range";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
+import JobTitleSelect from "../../../jobtitle/jobTitleSelect.js";
+
 import { getSelectedApplicantById } from "../../../../../../business/actions/backoffice/ApplicantActions";
 
 function Matching(props) {
@@ -36,7 +41,6 @@ function Matching(props) {
   const [distance, setDistance] = useState(null);
   const [isSkillsLoading, setIsSkillsLoading] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [activityDomains, setActivityDomains] = useState();
   const [skillsList, setSkillsList] = useState([]);
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [selectedCity, setSelectedCity] = useState(null);
@@ -59,8 +63,8 @@ function Matching(props) {
       if (!jobTitles.length) return;
 
       const newArray = [];
-      const formikRoles = props.formik?.values?.arrayActivityDomains
-        ? [...props.formik.values.arrayActivityDomains]
+      const formikRoles = props.formik?.values?.arrayJobTitles
+        ? [...props.formik.values.arrayJobTitles]
         : [];
 
       if (!isNullOrEmpty(data)) {
@@ -78,8 +82,8 @@ function Matching(props) {
       if (newArray.length) {
         newArray.forEach((value) => {
           if (
-            props.formik?.values?.arrayActivityDomains &&
-            !props.formik.values.arrayActivityDomains.includes(value.value)
+            props.formik?.values?.arrayJobTitles &&
+            !props.formik.values.arrayJobTitles.includes(value.value)
           ) {
             formikRoles.push(value.value);
           }
@@ -87,10 +91,10 @@ function Matching(props) {
       }
 
       if (
-        props.formik?.values?.arrayActivityDomains &&
-        formikRoles !== props.formik.values.arrayActivityDomains
+        props.formik?.values?.arrayJobTitles &&
+        formikRoles !== props.formik.values.arrayJobTitles
       ) {
-        props.formik.setFieldValue("arrayActivityDomains", formikRoles);
+        props.formik.setFieldValue("arrayJobTitles", formikRoles);
       }
 
       setRole(newArray);
@@ -137,50 +141,67 @@ function Matching(props) {
           setDistance(parsed.postalCodeSearchZone);
         }
 
-        if (jobTitles.length && role === null && parsed?.arrayActivityDomains) {
-          formatRole(parsed.arrayActivityDomains);
+        // Load job titles
+        try {
+          const res = await axios.get(`${api}api/JobTitle`);
+          console.log('Job titles response:', res.data); // Debug log
+          
+          if (res.data && Array.isArray(res.data)) {
+            setJobTitles(res.data);
+
+            // Handle existing selected job titles
+            if (parsed?.arrayJobTitles && parsed.arrayJobTitles.length > 0) {
+              console.log('Parsed job titles:', parsed.arrayJobTitles); // Debug log
+              
+              const rolePromises = parsed.arrayJobTitles.map(async (titleId) => {
+                try {
+                  const titleResponse = await axios.get(
+                    `${api}api/JobTitle/${titleId}`
+                  );
+                  return {
+                    value: titleId,
+                    label: titleResponse.data.name,
+                  };
+                } catch (error) {
+                  console.error(`Error fetching job title ${titleId}:`, error);
+                  return null;
+                }
+              });
+
+              const resolvedRoles = (await Promise.all(rolePromises)).filter(Boolean);
+              console.log('Resolved roles:', resolvedRoles); // Debug log
+              setRole(resolvedRoles);
+            }
+          } else {
+            console.error('Invalid job titles data format:', res.data);
+            toastr.error("Error", "Invalid job titles data format");
+          }
+        } catch (error) {
+          console.error('Error loading job titles:', error);
+          toastr.error("Error", "Failed to load job titles");
         }
 
-        if (
-          jobSkills.length &&
-          skills === null &&
-          parsed?.applicantArraySkills
-        ) {
-          formatSkills(parsed.applicantArraySkills);
+        // Handle skills
+        if (parsed?.applicantArraySkills && parsed.applicantArraySkills.length > 0) {
+          const skillPromises = parsed.applicantArraySkills.map(async (skillId) => {
+            try {
+              const skillResponse = await axios.get(
+                `${api}api/JobSkill/${skillId}`
+              );
+              return {
+                value: skillId,
+                label: skillResponse.data.name,
+              };
+            } catch (error) {
+              console.error(`Error fetching skill ${skillId}:`, error);
+              return null;
+            }
+          });
+
+          const resolvedSkills = (await Promise.all(skillPromises)).filter(Boolean);
+          setSelectedSkills(resolvedSkills);
         }
 
-        if (isNullOrEmpty(jobTitles)) {
-          const res = await axios.get(`${api}api/ActivityDomain`);
-          const activityDomainsList = res.data;
-
-          if (parsed.arrayActivityDomains) {
-            const selectedActivitiesArray = parsed.arrayActivityDomains
-              .map((activityId) => {
-                const domain = activityDomainsList.find(
-                  (d) => d.id === activityId
-                );
-                return domain
-                  ? {
-                      value: domain.id,
-                      label: domain.name,
-                    }
-                  : null;
-              })
-              .filter(Boolean);
-
-            setRole(selectedActivitiesArray);
-          }
-
-          if (parsed.missionArrayEquipments) {
-            setSelectedEquipment(parsed.missionArrayEquipments);
-          }
-
-          setJobTitles(activityDomainsList);
-
-          if (parsed.applicantArraySkills) {
-            setSelectedSkills(parsed.applicantArraySkills);
-          }
-        }
       } catch (err) {
         console.error("Error initializing data:", err);
         toastr.error("Error", "Failed to initialize data");
@@ -188,79 +209,47 @@ function Matching(props) {
     };
 
     initializeData();
-  }, [jobSkills, api, dispatch, parsed, formatRole, formatSkills]);
+  }, [jobSkills, api, dispatch, parsed]);
 
-  // Load applicant skills
+  // Load skills by job title
   useEffect(() => {
-    const fetchApplicantSkills = async () => {
-      if (!parsed.applicantArraySkills?.length) return;
-
+    const fetchSkillsByJobTitle = async () => {
+      setIsSkillsLoading(true);
       try {
-        setIsSkillsLoading(true);
-        // Récupérer les compétences une par une
-        const promises = parsed.applicantArraySkills.map((skillId) =>
-          axios.get(`${api}api/JobSkill/${skillId}`)
+        if (!role || !role.length) {
+          setSkillsList([]);
+          return;
+        }
+
+        const jobTitleIds = role.map((item) => item.value);
+        const params = new URLSearchParams();
+        jobTitleIds.forEach((id) => params.append("JobTitles", id));
+
+        const response = await axios.get(
+          `${api}api/JobSkill/GetByJobTitle?${params.toString()}`
         );
 
-        const responses = await Promise.all(promises);
+        if (response.data) {
+          const formattedSkills = response.data
+            .filter((skill) => skill && skill.name && skill.id)
+            .map((skill) => ({
+              label: skill.name,
+              value: skill.id,
+            }));
 
-        // S'assurer que nous avons les bonnes données
-        const formattedSkills = responses
-          .filter((response) => response.data) // Filtrer les réponses nulles
-          .map((response) => ({
-            value: response.data.id,
-            label: response.data.name || response.data.title, // Essayer d'abord name, puis title
-          }));
-
-        // Ne mettre à jour que si nous avons des compétences valides
-        if (formattedSkills.length > 0) {
-          setSelectedSkills(formattedSkills);
+          setSkillsList(formattedSkills);
         }
       } catch (err) {
         console.error("Error loading skills:", err);
         toastr.error("Error", "Unable to load skills");
+        setSkillsList([]);
       } finally {
         setIsSkillsLoading(false);
       }
     };
 
-    fetchApplicantSkills();
-  }, [api, parsed.applicantArraySkills]);
-
-  // Load skills by activity domain
-  useEffect(() => {
-    const fetchSkillsByActivityDomain = async () => {
-      if (!role.length) {
-        setSkillsList([]); // Réinitialiser la liste si aucun rôle n'est sélectionné
-        return;
-      }
-
-      try {
-        const domainIds = role.map((item) => item.value);
-        const params = new URLSearchParams();
-        domainIds.forEach((id) => params.append("ActivityDomain", id));
-
-        const response = await axios.get(
-          `${api}api/JobSkill/GetByActivityDomain?${params.toString()}`
-        );
-
-        // S'assurer que chaque compétence a un name et un id valide
-        const formattedSkills = response.data
-          .filter((skill) => skill && skill.name && skill.id) // Filtrer les données invalides
-          .map((skill) => ({
-            label: skill.name,
-            value: skill.id,
-          }));
-
-        setSkillsList(formattedSkills);
-      } catch (err) {
-        console.error("Error loading activity domains:", err);
-        toastr.error("Error", "Unable to load activity domains");
-      }
-    };
-
-    fetchSkillsByActivityDomain();
-  }, [api, role]);
+    fetchSkillsByJobTitle();
+  }, [api, role, setSkillsList]);
 
   const handleChangeRole = React.useCallback((newValue, actionMeta) => {
     if (newValue && newValue.length > 8) {
@@ -269,7 +258,7 @@ function Matching(props) {
       // Optionnellement, afficher un message à l'utilisateur
       toastr.warning(
         intl.formatMessage({ id: "WARNING" }),
-        "Maximum 7 domains can be selected"
+        "Maximum 7 job titles can be selected"
       );
     } else {
       setRole(newValue || []);
@@ -294,7 +283,7 @@ function Matching(props) {
         ...parsed,
         applicantArraySkills: filteredSkills,
         postalCodeSearchZone: distance,
-        arrayActivityDomains: filteredRole,
+        missionArrayDesiredJobTitles: filteredRole,
       };
 
       await axios.put(`${api}api/Applicant`, body);
@@ -321,10 +310,10 @@ function Matching(props) {
       background: "transparent",
       margin: "-9px",
       borderRadius: state.isFocused ? "3px 3px 0 0" : 3,
-      borderColor: "transparent",
-      boxShadow: null,
+      borderColor: state.isFocused ? "#0d6efd" : "transparent",
+      boxShadow: state.isFocused ? "0 0 0 1px #0d6efd" : null,
       "&:hover": {
-        borderColor: "transparent",
+        borderColor: state.isFocused ? "#0d6efd" : "transparent",
       },
     }),
     menu: (base) => ({
@@ -351,97 +340,73 @@ function Matching(props) {
   };
 
   return (
-    <div className="wizard-body py-8 px-8">
-      <div className="row mx-10-responsive">
-        <div className="pb-5 width-full">
-          <div className="border-bottom mb-5 pb-3 align-right">
-            <div className="col-sm-12 col-xl-12">
-              <button
-                type="button"
-                className="btn btn-primary btn-shadow font-weight-bold px-9 py-4 my-3 mx-4"
-                onClick={onSaveApplicant}
-                disabled={loading}
-              >
-                <span>
-                  <FormattedMessage id="BUTTON.SAVE" />
+    <div className="container py-8 px-8">
+      <div className="row">
+        <div className="col-12 mb-5">
+          <div className="d-flex justify-content-end">
+            <button
+              type="button"
+              className="btn btn-primary btn-shadow font-weight-bold px-9 py-4"
+              onClick={onSaveApplicant}
+              disabled={loading}
+            >
+              <span>
+                <FormattedMessage id="BUTTON.SAVE" />
+              </span>
+              {loading && <span className="ml-3 spinner spinner-white" />}
+            </button>
+          </div>
+        </div>
+
+        <div className="col-12 mb-4">
+          <JobTitleSelect
+            value={role}
+            onChange={handleChangeRole}
+            styles={customStyles}
+            className="form-control"
+          />
+        </div>
+
+        <div className="col-12 mb-4">
+          <div className="form-group">
+            <label>
+              <FormattedMessage id="MODEL.COMPETENCES" />
+            </label>
+            <div className="input-group">
+              <div className="input-group-prepend">
+                <span className="input-group-text">
+                  <i className="icon-xl far fa-list-alt text-primary" />
                 </span>
-                {loading && <span className="ml-3 spinner spinner-white" />}
-              </button>
+              </div>
+              <Select
+                isMulti
+                value={selectedSkills}
+                onChange={handleSkillChange}
+                options={skillsList}
+                styles={customStyles}
+                className="form-control"
+                placeholder="Sélectionnez des compétences"
+                noOptionsMessage={() => "Aucune compétence disponible"}
+                isSearchable={true}
+              />
             </div>
           </div>
+        </div>
 
-          <div className="row">
-            <div className="col-xl-12">
-              <div className="form-group">
-                <label>
-                  <FormattedMessage id="MATCHING.ACTIVITY.DOMAINS" />
-                  <span className="asterisk">*</span>
-                </label>
-                <div className="input-group">
-                  <div className="input-group-prepend">
-                    <span className="input-group-text">
-                      <i className="icon-xl far fa-list-alt text-primary" />
-                    </span>
-                  </div>
-                  <Select
-                    isMulti
-                    value={role}
-                    onChange={handleChangeRole}
-                    options={formatedRole}
-                    styles={customStyles}
-                    className="col-lg-12 form-control"
-                    isOptionDisabled={() => role.length >= 7} // Désactive les options quand la limite est atteinte
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="row">
-            <div className="col-xl-12">
-              <div className="form-group">
-                <label>
-                  <FormattedMessage id="MODEL.COMPETENCES" />
-                </label>
-                <div className="input-group">
-                  <div className="input-group-prepend">
-                    <span className="input-group-text">
-                      <i className="icon-xl far fa-list-alt text-primary" />
-                    </span>
-                  </div>
-                  <Select
-                    isMulti
-                    value={selectedSkills}
-                    onChange={handleSkillChange}
-                    options={skillsList}
-                    styles={customStyles}
-                    className="col-lg-12 form-control"
-                    placeholder="Sélectionnez des compétences"
-                    noOptionsMessage={() => "Aucune compétence disponible"}
-                    isSearchable={true}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="row">
-            <div className="col-xl-12">
-              <div className="form-group">
-                <label>
-                  <FormattedMessage id="MATCHING.TABLE.AREA" />
-                </label>
-                <div className="input-group">
-                  <InputRange
-                    formatLabel={(value) => `${value}km`}
-                    step={10}
-                    maxValue={1000}
-                    minValue={0}
-                    value={distance}
-                    onChange={(value) => handleChangeDistance({ value })}
-                  />
-                </div>
-              </div>
+        <div className="col-12 mb-4">
+          <div className="form-group">
+            <label>
+              <FormattedMessage id="MATCHING.TABLE.AREA" />
+            </label>
+            <div className="input-group">
+              <InputRange
+                formatLabel={(value) => `${value}km`}
+                step={10}
+                maxValue={1000}
+                minValue={0}
+                value={distance}
+                onChange={(value) => handleChangeDistance({ value })}
+              />
             </div>
           </div>
         </div>

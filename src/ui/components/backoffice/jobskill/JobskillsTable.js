@@ -42,11 +42,11 @@ function JobskillsTable(props) {
       formatter: (value) => value || "-",
     },
     {
-      dataField: "activityDomains",
+      dataField: "jobTitles",
       text: intl.formatMessage({ id: "TEXT.JOB.TITLE" }),
       formatter: (value, row) => {
         if (!value || value.length === 0) return "-";
-        return value.map((domain) => domain.name).join(", ");
+        return value.map((title) => title.name).join(", ");
       },
     },
     {
