@@ -144,16 +144,16 @@ function Matching(props) {
         // Load job titles
         try {
           const res = await axios.get(`${api}api/JobTitle`);
-          console.log('Job titles response:', res.data); // Debug log
+          console.log('Job titles response:', res.data);
           
           if (res.data && Array.isArray(res.data)) {
             setJobTitles(res.data);
 
-            // Handle existing selected job titles
-            if (parsed?.arrayJobTitles && parsed.arrayJobTitles.length > 0) {
-              console.log('Parsed job titles:', parsed.arrayJobTitles); // Debug log
+            // Handle existing selected job titles from missionArrayDesiredJobTitles
+            if (parsed?.missionArrayDesiredJobTitles && parsed.missionArrayDesiredJobTitles.length > 0) {
+              console.log('Parsed desired job titles:', parsed.missionArrayDesiredJobTitles);
               
-              const rolePromises = parsed.arrayJobTitles.map(async (titleId) => {
+              const rolePromises = parsed.missionArrayDesiredJobTitles.map(async (titleId) => {
                 try {
                   const titleResponse = await axios.get(
                     `${api}api/JobTitle/${titleId}`
@@ -169,7 +169,7 @@ function Matching(props) {
               });
 
               const resolvedRoles = (await Promise.all(rolePromises)).filter(Boolean);
-              console.log('Resolved roles:', resolvedRoles); // Debug log
+              console.log('Resolved roles:', resolvedRoles);
               setRole(resolvedRoles);
             }
           } else {
