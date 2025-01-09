@@ -1,0 +1,230 @@
+// RecurrenceModal.js
+import React, { useState, useEffect } from "react";
+import { Modal } from "react-bootstrap";
+import { FormattedMessage } from "react-intl";
+import axios from "axios";
+import { toastr } from "react-redux-toastr";
+import moment from "moment";
+
+function RecurrenceModal({ show, onHide, vacancyID }) {
+  // États
+  const [recurrenceTypes, setRecurrenceTypes] = useState([]);
+  const [selectedRecurrenceType, setSelectedRecurrenceType] = useState(0);
+  const [existingRecurrence, setExistingRecurrence] = useState(null);
+  const [isLoading, setIsLoading] = useState({
+    types: false,
+    submit: false,
+    initial: true,
+  });
+
+  // URLs de l'API
+  const API_BASE_URL =
+    "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api";
+
+  const API_ENDPOINTS = {
+    types: "/VacancyRecurrence/Types",
+    byVacancyId: (id) => `/VacancyRecurrence/ByVacancyId/${id}`,
+    base: "/VacancyRecurrence",
+    delete: (id) => `/VacancyRecurrence/${id}`, // Nouvel endpoint
+  };
+
+  const fetchRecurrenceTypes = async () => {
+    setIsLoading((prev) => ({ ...prev, types: true }));
+    try {
+      const response = await axios.get(`${API_BASE_URL}${API_ENDPOINTS.types}`);
+      setRecurrenceTypes(response.data);
+    } catch (error) {
+      console.error("Error fetching recurrence types:", error);
+      toastr.error("Erreur lors de la récupération des types de récurrence");
+    } finally {
+      setIsLoading((prev) => ({ ...prev, types: false }));
+    }
+  };
+
+  const fetchExistingRecurrence = async () => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}${API_ENDPOINTS.byVacancyId(vacancyID)}`,
+        {
+          headers: { accept: "text/plain" },
+        }
+      );
+      setExistingRecurrence(response.data);
+      if (response.data && response.data.typeID) {
+        setSelectedRecurrenceType(response.data.typeID);
+      }
+    } catch (error) {
+      console.error("Error fetching existing recurrence:", error);
+      setExistingRecurrence(null);
+    } finally {
+      setIsLoading((prev) => ({ ...prev, initial: false }));
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!existingRecurrence?.id || isNaN(existingRecurrence.id)) {
+      toastr.error("ID de récurrence invalide");
+      return;
+    }
+  
+    setIsLoading(prev => ({ ...prev, submit: true }));
+    try {
+      await axios.delete(
+        `${API_BASE_URL}${API_ENDPOINTS.base}?id=${existingRecurrence.id}`,
+        {
+          headers: {
+            'Accept': '*/*',
+            'Content-Type': 'text/plain;charset=UTF-8'
+          }
+        }
+      );
+      toastr.success("Récurrence supprimée avec succès");
+      onHide();
+    } catch (error) {
+      console.error('Error deleting recurrence:', error);
+      toastr.error("Erreur lors de la suppression de la récurrence");
+    } finally {
+      setIsLoading(prev => ({ ...prev, submit: false }));
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (selectedRecurrenceType === 0 && existingRecurrence?.id) {
+      await handleDelete();
+      return;
+    }
+
+    if (selectedRecurrenceType === 0) {
+      toastr.warning("Veuillez sélectionner un type de récurrence");
+      return;
+    }
+
+    setIsLoading((prev) => ({ ...prev, submit: true }));
+    try {
+      const data = {
+        id: existingRecurrence?.id || 0,
+        vacancyID: vacancyID,
+        typeID: selectedRecurrenceType,
+        nextDate: moment().toISOString(),
+      };
+
+      if (existingRecurrence?.id) {
+        // PUT request
+        await axios.put(`${API_BASE_URL}${API_ENDPOINTS.base}`, data, {
+          headers: {
+            accept: "*/*",
+            "Content-Type": "application/json",
+          },
+        });
+        toastr.success("Récurrence modifiée avec succès");
+      } else {
+        // POST request
+        await axios.post(`${API_BASE_URL}${API_ENDPOINTS.base}`, data, {
+          headers: {
+            accept: "*/*",
+            "Content-Type": "application/json",
+          },
+        });
+        toastr.success("Récurrence ajoutée avec succès");
+      }
+      onHide();
+    } catch (error) {
+      console.error("Error submitting recurrence:", error);
+      toastr.error("Erreur lors de la sauvegarde de la récurrence");
+    } finally {
+      setIsLoading((prev) => ({ ...prev, submit: false }));
+    }
+  };
+
+  useEffect(() => {
+    if (show) {
+      fetchRecurrenceTypes();
+      if (vacancyID) {
+        fetchExistingRecurrence();
+      }
+    }
+  }, [show, vacancyID]);
+
+  const getButtonText = () => {
+    if (selectedRecurrenceType === 0 && existingRecurrence?.id) {
+      return "BUTTON.SAVE";
+    }
+    return existingRecurrence?.id ? "BUTTON.EDIT" : "TEXT.ADD";
+  };
+
+  return (
+    <Modal
+      show={show}
+      onHide={onHide}
+      aria-labelledby="example-modal-sizes-title-lg"
+      size="lg"
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="example-modal-sizes-title-lg">
+          <FormattedMessage id="TEXT.RECURRENCE" />
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <div className="form-group">
+          <label className="col-form-label">
+            <FormattedMessage id="TEXT.RECURRENCE.TYPE" />
+          </label>
+          <div className="input-group">
+            <div className="input-group-prepend">
+              <span className="input-group-text">
+                <i className="icon-xl fas fa-list text-primary"></i>
+              </span>
+            </div>
+            <select
+              name="recurrenceType"
+              className="form-control"
+              value={selectedRecurrenceType}
+              onChange={(e) =>
+                setSelectedRecurrenceType(parseInt(e.target.value))
+              }
+              disabled={isLoading.types || isLoading.initial}
+            >
+              <option value={0}>
+                {isLoading.types
+                  ? "Chargement..."
+                  : "Veuillez choisir une valeur"}
+              </option>
+              {recurrenceTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </Modal.Body>
+      <Modal.Footer>
+        <button
+          type="button"
+          onClick={onHide}
+          className="btn btn-light btn-elevate mr-2"
+          disabled={isLoading.submit}
+        >
+          <FormattedMessage id="BUTTON.CANCEL" />
+        </button>
+        <button
+          type="button"
+          onClick={handleSubmit}
+          className={`btn ${
+            selectedRecurrenceType === 0 && existingRecurrence?.id
+              ? "btn-danger"
+              : "btn-primary"
+          } btn-elevate`}
+          disabled={isLoading.submit || isLoading.types || isLoading.initial}
+        >
+          {isLoading.submit && (
+            <span className="spinner spinner-white mr-3"></span>
+          )}
+          <FormattedMessage id={getButtonText()} />
+        </button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
+
+export default RecurrenceModal;

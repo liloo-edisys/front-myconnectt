@@ -6,71 +6,87 @@
 // Data validation is based on Yup
 // Please, be familiar with article first:
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
-import React, { useCallback, useEffect, useRef, useState } from "react";
-
-import { Field } from "formik";
+import React, { useEffect, useState } from "react";
 import _ from "lodash";
-import { Input } from "metronic/_partials/controls";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import Select from "react-select";
-import CreatableSelect from "react-select/creatable";
-import { countMatching } from "actions/client/ApplicantsActions";
-import { useFormikContext } from "formik";
 import useLocalStorage from "../../../shared/PersistState";
 import MissionWizzardHeader from "./MissionWizzardHeader";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import moment from "moment";
-import { getJobSkills, createJobSkills } from "actions/shared/ListsActions";
-import SVG from "react-inlinesvg";
-import { toAbsoluteUrl } from "metronic/_helpers";
+import { getJobSkills } from "actions/shared/ListsActions";
 import { updateApplicant } from "actions/client/ApplicantsActions";
-import postalCode from "../../../../../utils/postalCodes.json";
-import AsyncSelect from "react-select/async";
-import InputRange from "react-input-range";
-import {
-  getJobSkills as getJobSkillsApi,
-  getJobTags as getJobTagsApi
-} from "api/shared/ListsApi";
-import FormStepFour from "./FormStepFour";
+import { toastr } from "react-redux-toastr";
+import JobTitleSelect from "../../jobTitle/jobTitleSelect";
 import axios from "axios";
 // import "react-input-range/lib/css/index.css"
 function FormStepSix(props, formik) {
+  const api = process.env.REACT_APP_WEBAPI_URL;
+
   const dispatch = useDispatch();
   const { intl } = props;
-  const TENANTID = +process.env.REACT_APP_TENANT_ID;
 
   const { parsed, jobSkills, updateInterimaireIdentityLoading } = useSelector(
-    state => ({
+    (state) => ({
       jobSkills: state.lists.jobSkills,
       parsed: state.interimairesReducerData.interimaire,
       updateInterimaireIdentityLoading:
-        state.interimairesReducerData.updateInterimaireIdentityLoading
+        state.interimairesReducerData.updateInterimaireIdentityLoading,
     }),
     shallowEqual
   );
 
   const createOption = (label, value) => ({
     label,
-    value
+    value,
   });
-  const [experience, setExperience] = useLocalStorage("experience", null);
   const [jobTitles, setJobTitles] = useState([]);
-  const [role, setRole] = useLocalStorage([]);
-  const [selectedEquipment, setSelectedEquipment] = useLocalStorage(
-    "selectedEquipment",
-    null
-  );
-  const [location, setLocation] = useLocalStorage(
-    "applicantArrayJobMobilities",
-    []
-  );
-  const [distance, setDistance] = useLocalStorage("PostalCodeSearchZone", null);
-  const [isSkillsLoading, setIsSkillsLoading] = useState(false);
+  const [skillsList, setSkillsList] = useState([]);
+  const [selectedSkills, setSelectedSkills] = useState([]);
 
-  const [selectedCity, setselectedCity] = useState(null);
-  const useMountEffect = fun => useEffect(fun, []);
+  const [role, setRole] = useLocalStorage([]);
+  const [distance, setDistance] = useLocalStorage("PostalCodeSearchZone", null);
+
+  const handleSkillChange = React.useCallback((newValue) => {
+    setSelectedSkills(newValue || []);
+  }, []);
+
+  // Load skills by job title
+  useEffect(() => {
+    const fetchSkillsByJobTitle = async () => {
+      try {
+        if (!role || !role.length) {
+          setSkillsList([]);
+          return;
+        }
+
+        const jobTitleIds = role.map((item) => item.value);
+        const params = new URLSearchParams();
+        jobTitleIds.forEach((id) => params.append("JobTitles", id));
+
+        const response = await axios.get(
+          `${api}api/JobSkill/GetByJobTitle?${params.toString()}`
+        );
+
+        if (response.data) {
+          const formattedSkills = response.data
+            .filter((skill) => skill && skill.name && skill.id)
+            .map((skill) => ({
+              label: skill.name,
+              value: skill.id,
+            }));
+
+          setSkillsList(formattedSkills);
+        }
+      } catch (err) {
+        console.error("Error loading skills:", err);
+        toastr.error("Error", "Unable to load skills");
+        setSkillsList([]);
+      }
+    };
+
+    fetchSkillsByJobTitle();
+  }, [api, role, setSkillsList]);
 
   useEffect(() => {
     isNullOrEmpty(jobSkills) && dispatch(getJobSkills.request());
@@ -93,7 +109,7 @@ function FormStepSix(props, formik) {
     isNullOrEmpty(jobTitles) &&
       axios
         .get(URL)
-        .then(res => {
+        .then((res) => {
           const activityDomainsList = res.data;
           let selectedActivitiesArray = [];
           let selectedActivities = parsed.arrayActivityDomains
@@ -104,7 +120,7 @@ function FormStepSix(props, formik) {
               if (selectedActivities[i] === activityDomainsList[j].id) {
                 selectedActivitiesArray.push({
                   value: activityDomainsList[j].id,
-                  label: activityDomainsList[j].name
+                  label: activityDomainsList[j].name,
                 });
               }
             }
@@ -119,60 +135,10 @@ function FormStepSix(props, formik) {
           setRole(selectedActivitiesArray);
           setJobTitles(activityDomainsList);
         })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
   }, [jobSkills]);
 
-  const handleChangeCity = newValue => {
-    let formikEquipment = [];
-    let newArray = [...role];
-    let difference =
-      newValue !== null && selectedCity.filter(x => !newValue.includes(x)); // calculates diff
-    if (newValue === null) {
-      newArray = [];
-    } else if (difference.length) {
-      let filteredArray = selectedCity.filter(x => newValue.includes(x));
-      newArray = [];
-      filteredArray.map(tag =>
-        newArray.push(createOption(tag.label, tag.value))
-      );
-    } else {
-      newArray.push(
-        createOption(
-          newValue[newValue.length - 1].label,
-          newValue[newValue.length - 1].value
-        )
-      );
-    }
-
-    newValue !== null &&
-      newValue.map(value => {
-        return (
-          props.formik.values.applicantArrayJobMobilities !== null &&
-          !props.formik.values.applicantArrayJobMobilities.includes(value) &&
-          formikEquipment.push(value.value)
-        );
-      });
-    setselectedCity(newArray);
-    props.formik.setFieldValue("applicantArrayJobMobilities", formikEquipment);
-  };
-
-  const loadOptions = (inputValue, callback) => {
-    inputValue.length >= 3 &&
-      setTimeout(() => {
-        callback(
-          _.filter(postalCode, function(city) {
-            return (
-              city.Nom_commune.toLowerCase().indexOf(
-                inputValue.toLowerCase()
-              ) >= 0 ||
-              city.Code_postal.toString().indexOf(inputValue.toLowerCase()) >= 0
-            );
-          })
-        );
-      }, 1000);
-  };
-
-  const formatRole = data => {
+  const formatRole = (data) => {
     if (jobTitles.length) {
       let newArray = [];
       let formikRoles =
@@ -181,8 +147,8 @@ function FormStepSix(props, formik) {
           : [];
 
       !isNullOrEmpty(data) &&
-        data.map(eq => {
-          let value = jobTitles.filter(l => l.id === eq);
+        data.map((eq) => {
+          let value = jobTitles.filter((l) => l.id === eq);
           if (!isNullOrEmpty(value)) {
             newArray.push(
               createOption(
@@ -195,7 +161,7 @@ function FormStepSix(props, formik) {
           }
         });
       newArray !== null &&
-        newArray.map(value => {
+        newArray.map((value) => {
           !props.formik.values.arrayActivityDomains.includes(value.value) &&
             formikRoles.push(value.value);
         });
@@ -206,7 +172,7 @@ function FormStepSix(props, formik) {
   };
   const [skills, setSkills] = useLocalStorage("applicantArraySkills", null);
 
-  const formatSkills = data => {
+  const formatSkills = (data) => {
     if (jobSkills.length) {
       let newArray = [];
       let formikSkills =
@@ -214,8 +180,8 @@ function FormStepSix(props, formik) {
           ? [...parsed.applicantArraySkills]
           : [];
       !isNullOrEmpty(data) &&
-        data.map(eq => {
-          let value = jobSkills.filter(l => l.id === eq);
+        data.map((eq) => {
+          let value = jobSkills.filter((l) => l.id === eq);
 
           if (!isNullOrEmpty(value)) {
             newArray.push(
@@ -229,7 +195,7 @@ function FormStepSix(props, formik) {
           }
         });
       newArray !== null &&
-        newArray.map(value => {
+        newArray.map((value) => {
           !props.formik.values.applicantArraySkills.includes(value.value) &&
             formikSkills.push(value.value ? value.value : value.value);
         });
@@ -245,118 +211,20 @@ function FormStepSix(props, formik) {
     }
   };
 
-  const handleChangeRole = newValue => {
-    let formikEquipment = [];
-    let newArray = !isNullOrEmpty(role) ? [...role] : [];
-    let difference =
-      newValue !== null &&
-      role !== null &&
-      role.filter(x => !newValue.includes(x)); // calculates diff
-    if (newValue === null) {
-      newArray = [];
-    } else if (difference.length) {
-      let filteredArray = role.filter(x => newValue.includes(x));
-      newArray = [];
-      filteredArray.map(tag =>
-        newArray.push(createOption(tag.label, tag.value))
+  const handleChangeRole = React.useCallback((newValue, actionMeta) => {
+    if (newValue && newValue.length > 8) {
+      // Limiter à 7 items en gardant seulement les 7 premiers
+      setRole(newValue.slice(0, 7));
+      // Optionnellement, afficher un message à l'utilisateur
+      toastr.warning(
+        intl.formatMessage({ id: "WARNING" }),
+        "Maximum 7 job titles can be selected"
       );
     } else {
-      newArray.push(
-        createOption(
-          newValue[newValue.length - 1].label,
-          newValue[newValue.length - 1].value
-        )
-      );
+      setRole(newValue || []);
     }
+  }, []);
 
-    newValue !== null &&
-      newValue.map(value => {
-        return (
-          props.formik.values.arrayActivityDomains !== null &&
-          !props.formik.values.arrayActivityDomains.includes(value) &&
-          formikEquipment.push(value.value)
-        );
-      });
-    setRole(newArray);
-    props.formik.setFieldValue("arrayActivityDomains", formikEquipment);
-  };
-
-  const handleChangeSkills = newValue => {
-    let formikEquipment = [];
-    let newArray = !isNullOrEmpty(skills) ? [...skills] : [];
-    let difference =
-      newValue !== null &&
-      skills !== null &&
-      skills.filter(x => !newValue.includes(x)); // calculates diff
-    if (!difference.length && newValue === null) {
-      newArray = [];
-    } else if (difference.length) {
-      let filteredArray = skills.filter(x => newValue.includes(x));
-      newArray = [];
-      filteredArray.map(tag =>
-        newArray.push(createOption(tag.label, tag.value))
-      );
-    } else {
-      newArray.push(
-        createOption(
-          newValue[newValue.length - 1].label,
-          newValue[newValue.length - 1].value
-        )
-      );
-    }
-
-    newValue !== null &&
-      newValue.map(value => {
-        return (
-          !formikEquipment.includes(value) && formikEquipment.push(value.value)
-        );
-      });
-    setSkills(newArray);
-    props.formik.setFieldValue("applicantArraySkills", formikEquipment);
-  };
-
-  const handleChangeLocations = newValue => {
-    let formikEquipment = [];
-    let newArray = [...skills];
-    let difference =
-      newValue !== null && skills.filter(x => !newValue.includes(x)); // calculates diff
-    if (newValue === null) {
-      newArray = [];
-    } else if (difference.length) {
-      let filteredArray = skills.filter(x => newValue.includes(x));
-      newArray = [];
-      filteredArray.map(tag =>
-        newArray.push(createOption(tag.label, tag.value))
-      );
-    } else {
-      newArray.push(
-        createOption(
-          newValue[newValue.length - 1].label,
-          newValue[newValue.length - 1].value
-        )
-      );
-    }
-
-    newValue !== null &&
-      newValue.map(value => {
-        return formikEquipment.push(value.value);
-      });
-    setLocation(newArray);
-    props.formik.setFieldValue("applicantArraySkills", formikEquipment);
-  };
-
-  let formatedRole = jobTitles.map(equipment => {
-    return equipment && createOption(equipment.name, equipment.id);
-  });
-
-  let formatedCity = postalCode.map((equipment, ix) => {
-    return equipment && createOption(equipment.Nom_commune, ix);
-  });
-
-  let formatedSkill = jobSkills.map(equipment => {
-    return equipment && createOption(equipment.name, equipment.id);
-  });
-  const { errors, touched } = useFormikContext();
   const customStyles = {
     control: (base, state) => ({
       ...base,
@@ -366,101 +234,26 @@ function FormStepSix(props, formik) {
       borderColor: "transparent",
       boxShadow: null,
       "&:hover": {
-        borderColor: "transparent"
-      }
+        borderColor: "transparent",
+      },
     }),
-    menu: base => ({
+    menu: (base) => ({
       ...base,
       borderRadius: 0,
-      marginTop: 0
+      marginTop: 0,
     }),
-    menuList: base => ({
+    menuList: (base) => ({
       ...base,
-      padding: 0
-    })
-  };
-
-  const asyncStyle = {
-    control: (base, state) => ({
-      ...base,
-      background: "#F3F6F9",
-      // match with the menu
-      borderRadius: state.isFocused ? "3px 3px 0 0" : 3,
-      // Overwrittes the different states of border
-      borderColor: "transparent",
-      // Removes weird border around container
-      boxShadow: null,
-      "&:hover": {
-        // Overwrittes the different states of border
-        borderColor: "transparent"
-      }
+      padding: 0,
     }),
-    menu: base => ({
-      ...base,
-      // override border radius to match the box
-      borderRadius: 0,
-      // kill the gap
-      marginTop: 0
-    }),
-    menuList: base => ({
-      ...base,
-      // kill the white space on first and last option
-      padding: 0
-    })
   };
 
   const handleChangePage = () => {
-    const equipmentArray = [];
-    for (let i = 0; i < selectedEquipment.length; i++) {
-      equipmentArray.push(parseInt(selectedEquipment[i].value));
-    }
     const newValue = {
       ...props.formik.values,
-      missionArrayEquipments: equipmentArray
     };
     dispatch(updateApplicant.request(newValue));
     //props.history.push("/int-profile-edit/final-step");
-  };
-
-  const handleChangeDistance = value => {
-    setDistance(value.value);
-    props.formik.setFieldValue("PostalCodeSearchZone", value.value);
-  };
-  const formatFormik = values => {
-    let formatedValues = [];
-    values !== null &&
-      values.map(value => {
-        return formatedValues.push(value.value);
-      });
-    return formatedValues;
-  };
-  const handleCreateSkill = value => {
-    setIsSkillsLoading(true);
-    dispatch(createJobSkills.request({ name: value }));
-    setTimeout(() => {
-      getJobSkillsApi().then(data => {
-        let newSkill = data.data.slice(-1)[0];
-        let newArray = [...skills];
-        let formikEquipment = [];
-        newArray.push(createOption(newSkill.name, newSkill.id));
-        setSkills(newArray);
-
-        props.formik.setFieldValue(
-          "vacancyApplicationCriteriaArrayComputerSkills",
-          formatFormik(newArray)
-        );
-        newArray !== null &&
-          newArray.map(value => {
-            return (
-              !formikEquipment.includes(value) &&
-              formikEquipment.push(value.value)
-            );
-          });
-        setSkills(newArray);
-        props.formik.setFieldValue("applicantArraySkills", formikEquipment);
-      });
-      setIsSkillsLoading(false);
-    }, 2000);
   };
 
   return (
@@ -493,30 +286,13 @@ function FormStepSix(props, formik) {
                           </button>
                         </div>
                       </div>
-                      <div className="row">
-                        <div className="col-xl-12">
-                          <div className="form-group">
-                            <label>
-                              <FormattedMessage id="MATCHING.ACTIVITY.DOMAINS" />
-                              <span className="asterisk">*</span>
-                            </label>
-                            <div className="input-group">
-                              <div className="input-group-prepend">
-                                <span className="input-group-text">
-                                  <i className="icon-xl far fa-list-alt text-primary"></i>
-                                </span>
-                              </div>
-                              <Select
-                                isMulti
-                                onChange={e => handleChangeRole(e)}
-                                options={formatedRole}
-                                styles={customStyles}
-                                value={role}
-                                className="col-lg-12 form-control"
-                              ></Select>
-                            </div>
-                          </div>
-                        </div>
+                      <div className="col-12 mb-4">
+                        <JobTitleSelect
+                          value={role}
+                          onChange={handleChangeRole}
+                          styles={customStyles}
+                          className="form-control"
+                        />
                       </div>
                       <div className="row">
                         <div className="col-xl-12">
@@ -530,41 +306,18 @@ function FormStepSix(props, formik) {
                                   <i className="icon-xl far fa-list-alt text-primary"></i>
                                 </span>
                               </div>
-                              <CreatableSelect
+                              <Select
                                 isMulti
-                                name="skills"
-                                onChange={handleChangeSkills}
-                                options={formatedSkill}
+                                value={selectedSkills}
+                                onChange={handleSkillChange}
+                                options={skillsList}
                                 styles={customStyles}
-                                className="col-lg-12 form-control"
-                                onCreateOption={handleCreateSkill}
-                                isLoading={isSkillsLoading}
-                                value={skills}
-                              ></CreatableSelect>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <FormStepFour
-                        selectedEquipment={selectedEquipment}
-                        setSelectedEquipment={setSelectedEquipment}
-                      />
-                      <div className="row">
-                        <div className="col-xl-12">
-                          <div className="form-group">
-                            <label>
-                              <FormattedMessage id="MATCHING.TABLE.AREA" />
-                            </label>
-                            <div className="input-group">
-                              <InputRange
-                                formatLabel={value => `${value}km`}
-                                step={10}
-                                maxValue={1000}
-                                minValue={0}
-                                value={distance}
-                                onChange={value =>
-                                  handleChangeDistance({ value })
+                                className="form-control"
+                                placeholder="Sélectionnez des compétences"
+                                noOptionsMessage={() =>
+                                  "Aucune compétence disponible"
                                 }
+                                isSearchable={true}
                               />
                             </div>
                           </div>
