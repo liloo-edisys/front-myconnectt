@@ -311,6 +311,7 @@
   "TEXT.MISSIONS_DETAILS": "Précisions sur la mission",
   "TEXT.FIRST_DAY_INFORMATION": "Informations 1er jour « (Si différent) »",
   "TEXT.MISSION_HOURS": "Horaire pour la mission",
+  "VALIDATION.REQUIRED_TIME": "Veuillez sélectionner une heure pour {fieldName}",
   "TEXT.REMUNERATION_DESC": "Le salaire brut minimum que vous devez proposer doit être égal à celui d'un salarié à qualification et poste de travail équivalents au sein de votre entreprise.",
   "TEXT.REMUNERATION_ANOTHER": "Autres éléments de rémunération",
   "TEXT.REMUNERATION_ADD": "Ajouter un nouvel élément de rémunération",

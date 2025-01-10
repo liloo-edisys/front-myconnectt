@@ -1,13 +1,4 @@
-/* eslint-disable no-unused-expressions */
-/* eslint-disable array-callback-return */
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable no-unused-vars */
-// Form is based on Formik
-// Data validation is based on Yup
-// Please, be familiar with article first:
-// https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
 import React, { useEffect, useState } from "react";
-import _ from "lodash";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
@@ -16,15 +7,16 @@ import MissionWizzardHeader from "./MissionWizzardHeader";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { getJobSkills } from "actions/shared/ListsActions";
 import { updateApplicant } from "actions/client/ApplicantsActions";
+import { getSelectedApplicantById } from "../../../../../business/actions/backoffice/ApplicantActions";
 import { toastr } from "react-redux-toastr";
 import JobTitleSelect from "../../jobTitle/jobTitleSelect";
 import axios from "axios";
-// import "react-input-range/lib/css/index.css"
-function FormStepSix(props, formik) {
-  const api = process.env.REACT_APP_WEBAPI_URL;
 
+function FormStepSix(props) {
+  const api = process.env.REACT_APP_WEBAPI_URL;
   const dispatch = useDispatch();
   const { intl } = props;
+  const [loading, setLoading] = useState(false);
 
   const { parsed, jobSkills, updateInterimaireIdentityLoading } = useSelector(
     (state) => ({
@@ -36,194 +28,165 @@ function FormStepSix(props, formik) {
     shallowEqual
   );
 
-  const createOption = (label, value) => ({
-    label,
-    value,
-  });
-  const [jobTitles, setJobTitles] = useState([]);
   const [skillsList, setSkillsList] = useState([]);
   const [selectedSkills, setSelectedSkills] = useState([]);
+  const [role, setRole] = useLocalStorage("selectedRoles", []);
 
-  const [role, setRole] = useLocalStorage([]);
-  const [distance, setDistance] = useLocalStorage("PostalCodeSearchZone", null);
+  const initializeData = async () => {
+    try {
+      if (isNullOrEmpty(jobSkills)) {
+        dispatch(getJobSkills.request());
+      }
 
-  const handleSkillChange = React.useCallback((newValue) => {
-    setSelectedSkills(newValue || []);
-  }, []);
+      // Initialiser les compétences directement depuis parsed et jobSkills
+      if (parsed?.applicantArraySkills?.length > 0) {
+        const skillPromises = parsed.applicantArraySkills.map(
+          async (skillId) => {
+            try {
+              const skillResponse = await axios.get(
+                `${api}api/JobSkill/${skillId}`
+              );
+              return {
+                value: skillId,
+                label: skillResponse.data.name,
+              };
+            } catch (error) {
+              console.error(`Error fetching skill ${skillId}:`, error);
+              return null;
+            }
+          }
+        );
 
-  // Load skills by job title
+        const resolvedSkills = (await Promise.all(skillPromises)).filter(
+          Boolean
+        );
+        setSelectedSkills(resolvedSkills);
+      }
+
+      // Initialiser les rôles depuis missionArrayDesiredJobTitles
+      if (parsed?.missionArrayDesiredJobTitles?.length > 0) {
+        const rolePromises = parsed.missionArrayDesiredJobTitles.map(
+          async (titleId) => {
+            try {
+              const titleResponse = await axios.get(
+                `${api}api/JobTitle/${titleId}`
+              );
+              return {
+                value: titleId,
+                label: titleResponse.data.name,
+              };
+            } catch (error) {
+              console.error(`Error fetching job title ${titleId}:`, error);
+              return null;
+            }
+          }
+        );
+
+        const resolvedRoles = (await Promise.all(rolePromises)).filter(Boolean);
+        console.log("Initializing roles with:", resolvedRoles);
+        setRole(resolvedRoles);
+      }
+    } catch (error) {
+      console.error("Error initializing data:", error);
+      toastr.error("Error", "Failed to initialize data");
+    }
+  };
+  // Initialize roles and skills
+  useEffect(() => {
+    initializeData();
+  }, [parsed, jobSkills, api]);
+
+  const handleSkillChange = React.useCallback(
+    (newValue) => {
+      setSelectedSkills(newValue || []);
+      if (props.formik.values) {
+        props.formik.setFieldValue(
+          "applicantArraySkills",
+          (newValue || []).map((skill) => skill.value)
+        );
+      }
+    },
+    [props.formik]
+  );
+
   useEffect(() => {
     const fetchSkillsByJobTitle = async () => {
-      try {
-        if (!role || !role.length) {
-          setSkillsList([]);
-          return;
-        }
+      if (!role?.length) {
+        console.log("No roles selected, clearing skills list");
+        setSkillsList([]);
+        return;
+      }
 
+      try {
         const jobTitleIds = role.map((item) => item.value);
+        console.log("Fetching skills for job titles:", jobTitleIds);
+
         const params = new URLSearchParams();
         jobTitleIds.forEach((id) => params.append("JobTitles", id));
 
+        console.log(
+          "API call URL:",
+          `${api}api/JobSkill/GetByJobTitle?${params.toString()}`
+        );
         const response = await axios.get(
           `${api}api/JobSkill/GetByJobTitle?${params.toString()}`
         );
 
+        console.log("Skills API response:", response.data);
+
         if (response.data) {
           const formattedSkills = response.data
-            .filter((skill) => skill && skill.name && skill.id)
+            .filter((skill) => {
+              if (!skill?.name || !skill?.id) {
+                console.warn("Found invalid skill:", skill);
+                return false;
+              }
+              return true;
+            })
             .map((skill) => ({
               label: skill.name,
               value: skill.id,
             }));
 
+          console.log("Formatted skills:", formattedSkills);
           setSkillsList(formattedSkills);
+        } else {
+          console.warn("No data received from skills API");
+          setSkillsList([]);
         }
       } catch (err) {
         console.error("Error loading skills:", err);
+        console.error("Error details:", {
+          message: err.message,
+          response: err.response?.data,
+          status: err.response?.status,
+        });
         toastr.error("Error", "Unable to load skills");
         setSkillsList([]);
       }
     };
 
     fetchSkillsByJobTitle();
-  }, [api, role, setSkillsList]);
+  }, [api, role]);
 
   useEffect(() => {
     isNullOrEmpty(jobSkills) && dispatch(getJobSkills.request());
-    //isNullOrEmpty(jobTitles) && dispatch(getJobTitles.request());
-    isNullOrEmpty(distance) &&
-      !isNullOrEmpty(
-        props.formik.values && props.formik.values.postalCodeSearchZone
-      ) &&
-      setDistance(props.formik.values.postalCodeSearchZone);
-
-    jobTitles.length &&
-      role === null &&
-      formatRole(parsed.arrayActivityDomains);
-
-    jobSkills.length &&
-      skills === null &&
-      formatSkills(parsed && parsed.applicantArraySkills);
-
-    let URL = `${process.env.REACT_APP_WEBAPI_URL}api/ActivityDomain`;
-    isNullOrEmpty(jobTitles) &&
-      axios
-        .get(URL)
-        .then((res) => {
-          const activityDomainsList = res.data;
-          let selectedActivitiesArray = [];
-          let selectedActivities = parsed.arrayActivityDomains
-            ? parsed.arrayActivityDomains
-            : [];
-          for (let i = 0; i < selectedActivities.length; i++) {
-            for (let j = 0; j < activityDomainsList.length; j++) {
-              if (selectedActivities[i] === activityDomainsList[j].id) {
-                selectedActivitiesArray.push({
-                  value: activityDomainsList[j].id,
-                  label: activityDomainsList[j].name,
-                });
-              }
-            }
-          }
-          for (let i = 0; i < selectedActivitiesArray.length; i++) {
-            for (let j = 0; j < activityDomainsList.length; j++) {
-              if (selectedActivitiesArray[i].id === activityDomainsList[j].id) {
-                activityDomainsList.splice(j, 1);
-              }
-            }
-          }
-          setRole(selectedActivitiesArray);
-          setJobTitles(activityDomainsList);
-        })
-        .catch((err) => console.log(err));
   }, [jobSkills]);
 
-  const formatRole = (data) => {
-    if (jobTitles.length) {
-      let newArray = [];
-      let formikRoles =
-        props.formik.values.arrayActivityDomains !== null
-          ? [...props.formik.values.arrayActivityDomains]
-          : [];
-
-      !isNullOrEmpty(data) &&
-        data.map((eq) => {
-          let value = jobTitles.filter((l) => l.id === eq);
-          if (!isNullOrEmpty(value)) {
-            newArray.push(
-              createOption(
-                value[value.length - 1].name,
-                value[value.length - 1].value
-                  ? value[value.length - 1].value
-                  : value[value.length - 1].id
-              )
-            );
-          }
-        });
-      newArray !== null &&
-        newArray.map((value) => {
-          !props.formik.values.arrayActivityDomains.includes(value.value) &&
-            formikRoles.push(value.value);
-        });
-      formikRoles !== props.formik.values.arrayActivityDomains &&
-        props.formik.setFieldValue("arrayActivityDomains", formikRoles);
-      return setRole(newArray);
-    }
-  };
-  const [skills, setSkills] = useLocalStorage("applicantArraySkills", null);
-
-  const formatSkills = (data) => {
-    if (jobSkills.length) {
-      let newArray = [];
-      let formikSkills =
-        parsed && parsed.applicantArraySkills !== null
-          ? [...parsed.applicantArraySkills]
-          : [];
-      !isNullOrEmpty(data) &&
-        data.map((eq) => {
-          let value = jobSkills.filter((l) => l.id === eq);
-
-          if (!isNullOrEmpty(value)) {
-            newArray.push(
-              createOption(
-                value[value.length - 1].name,
-                value[value.length - 1].value
-                  ? value[value.length - 1].value
-                  : value[value.length - 1].id
-              )
-            );
-          }
-        });
-      newArray !== null &&
-        newArray.map((value) => {
-          !props.formik.values.applicantArraySkills.includes(value.value) &&
-            formikSkills.push(value.value ? value.value : value.value);
-        });
-      if (props.formik.values && props.formik.values.applicantArraySkills) {
-        formikSkills !== props.formik.values.applicantArraySkills &&
-          props.formik.setFieldValue("applicantArraySkills", formikSkills);
+  const handleChangeRole = React.useCallback(
+    (newValue) => {
+      if (newValue && newValue.length > 8) {
+        setRole(newValue.slice(0, 7));
+        toastr.warning(
+          intl.formatMessage({ id: "WARNING" }),
+          "Maximum 7 job titles can be selected"
+        );
+      } else {
+        setRole(newValue || []);
       }
-
-      if (skills === null) {
-        return setSkills(newArray);
-      }
-      return newArray;
-    }
-  };
-
-  const handleChangeRole = React.useCallback((newValue, actionMeta) => {
-    if (newValue && newValue.length > 8) {
-      // Limiter à 7 items en gardant seulement les 7 premiers
-      setRole(newValue.slice(0, 7));
-      // Optionnellement, afficher un message à l'utilisateur
-      toastr.warning(
-        intl.formatMessage({ id: "WARNING" }),
-        "Maximum 7 job titles can be selected"
-      );
-    } else {
-      setRole(newValue || []);
-    }
-  }, []);
+    },
+    [intl, setRole]
+  );
 
   const customStyles = {
     control: (base, state) => ({
@@ -248,12 +211,24 @@ function FormStepSix(props, formik) {
     }),
   };
 
-  const handleChangePage = () => {
-    const newValue = {
-      ...props.formik.values,
-    };
-    dispatch(updateApplicant.request(newValue));
-    //props.history.push("/int-profile-edit/final-step");
+  const handleChangePage = async () => {
+    setLoading(true);
+    try {
+      const filteredSkills = selectedSkills.map((skill) => skill.value);
+      const filteredRole = role.map((r) => r.value);
+
+      const body = {
+        ...parsed,
+        applicantArraySkills: filteredSkills,
+        missionArrayDesiredJobTitles: filteredRole,
+      };
+      await dispatch(updateApplicant.request(body));
+    } catch (err) {
+      const message = err.response?.data?.message || "An error occurred";
+      toastr.error(intl.formatMessage({ id: "ERROR" }), message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -275,12 +250,12 @@ function FormStepSix(props, formik) {
                             type="button"
                             className="btn btn-primary btn-shadow font-weight-bold px-9 py-4 my-3 mx-4"
                             onClick={() => handleChangePage()}
-                            disabled={updateInterimaireIdentityLoading}
+                            disabled={loading}
                           >
                             <span>
                               <FormattedMessage id="BUTTON.SAVE" />
                             </span>
-                            {updateInterimaireIdentityLoading && (
+                            {loading && (
                               <span className="ml-3 spinner spinner-white"></span>
                             )}
                           </button>

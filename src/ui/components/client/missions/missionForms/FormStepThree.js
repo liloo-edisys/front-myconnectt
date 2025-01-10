@@ -20,7 +20,7 @@ import _ from "lodash";
 function FormStepThree(props) {
   const { intl } = props;
   const { template, isTemplate, isDuplicate } = useSelector(
-    state => ({
+    (state) => ({
       template: state.missionsReducerData.mission,
       isTemplate:
         state.missionsReducerData.currentTemplate &&
@@ -31,7 +31,7 @@ function FormStepThree(props) {
         state.missionsReducerData.currentDuplicate &&
         state.missionsReducerData.currentDuplicate.length
           ? true
-          : false
+          : false,
     }),
     shallowEqual
   );
@@ -98,10 +98,10 @@ function FormStepThree(props) {
   }, [
     weeklyHours,
     props.formik.values.missionEndHour,
-    props.formik.values.missionStartHour
+    props.formik.values.missionStartHour,
   ]);
 
-  const handleChangeStartHour = value => {
+  const handleChangeStartHour = (value) => {
     onChangeStartHour(value);
     props.formik.setFieldValue(
       "missionStartHour",
@@ -109,7 +109,7 @@ function FormStepThree(props) {
     );
   };
 
-  const handleChangeEndHour = value => {
+  const handleChangeEndHour = (value) => {
     onChangeEndHour(value);
     props.formik.setFieldValue(
       "missionEndHour",
@@ -179,7 +179,7 @@ function FormStepThree(props) {
     );
   };
 
-  const handleChangeComplement = e => {
+  const handleChangeComplement = (e) => {
     setComplement(e.target.value);
     props.formik.setFieldValue("missionHourlySupplement", e.target.value);
   };
@@ -226,7 +226,7 @@ function FormStepThree(props) {
                           clearIcon={false}
                           onBlur={props.formik.handleBlur}
                           name="missionStartHour"
-                          addon={panel => (
+                          addon={(panel) => (
                             <button
                               type="button"
                               className="btn btn-light-primary btn-shadow m-0 p-0 font-weight-bold px-5 py-1 my-3 mx-4"
@@ -239,7 +239,7 @@ function FormStepThree(props) {
                       </div>
                       {touched.missionStartHour && errors.missionStartHour ? (
                         <div className="asterisk">
-                          {errors["missionStartHour"]}
+                          <FormattedMessage id="MESSAGE.FIELD.EMPTY" />
                         </div>
                       ) : null}
                     </div>
@@ -263,7 +263,7 @@ function FormStepThree(props) {
                           value={
                             !isNullOrEmpty(endHour) ? moment(endHour) : null
                           }
-                          onChange={e => {
+                          onChange={(e) => {
                             handleChangeEndHour(e);
                             onChangeEndHour(e);
                           }}
@@ -271,7 +271,7 @@ function FormStepThree(props) {
                           clearIcon={false}
                           onBlur={props.formik.handleBlur}
                           name="missionEndHour"
-                          addon={panel => (
+                          addon={(panel) => (
                             <button
                               type="button"
                               className="btn btn-light-primary btn-shadow m-0 p-0 font-weight-bold px-5 py-1 my-3 mx-4"
@@ -284,7 +284,7 @@ function FormStepThree(props) {
                       </div>
                       {touched.missionEndHour && errors.missionEndHour ? (
                         <div className="asterisk">
-                          {errors["missionEndHour"]}
+                          <FormattedMessage id="MESSAGE.FIELD.EMPTY" />
                         </div>
                       ) : null}
                     </div>
@@ -309,7 +309,7 @@ function FormStepThree(props) {
                           placeholder="40,00H"
                           value={weeklyHours}
                           onBlur={props.formik.handleBlur}
-                          onChange={e => {
+                          onChange={(e) => {
                             handleChangeWeeklyHours(e.target.value);
                           }}
                         ></Field>
@@ -332,7 +332,7 @@ function FormStepThree(props) {
                       </label>
                       <textarea
                         className="col-lg-12 form-control"
-                        onChange={e => handleChangeComplement(e)}
+                        onChange={(e) => handleChangeComplement(e)}
                         value={complement}
                         maxLength="70"
                       />
@@ -385,10 +385,10 @@ function FormStepThree(props) {
                             errors.missionWeeklyWorkHours
                             ? toastr.error(
                                 intl.formatMessage({
-                                  id: "VALIDATION.REQUIRED_FIELDS.TITLE"
+                                  id: "VALIDATION.REQUIRED_FIELDS.TITLE",
                                 }),
                                 intl.formatMessage({
-                                  id: "VALIDATION.REQUIRED_FIELDS.DESC"
+                                  id: "VALIDATION.REQUIRED_FIELDS.DESC",
                                 })
                               )
                             : null;

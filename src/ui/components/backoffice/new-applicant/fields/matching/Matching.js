@@ -102,31 +102,6 @@ function Matching(props) {
     [jobTitles, props.formik]
   );
 
-  const formatSkills = React.useCallback(
-    (data) => {
-      if (!jobSkills.length) return null;
-
-      const newArray = [];
-      if (!isNullOrEmpty(data)) {
-        data.forEach((eq) => {
-          const value = jobSkills.find((l) => l.id === eq);
-          if (value) {
-            newArray.push({
-              label: value.name,
-              value: value.value || value.id,
-            });
-          }
-        });
-      }
-
-      if (skills === null) {
-        setSkills(newArray);
-      }
-      return newArray;
-    },
-    [jobSkills, skills]
-  );
-
   // Initial data loading
   useEffect(() => {
     const initializeData = async () => {
