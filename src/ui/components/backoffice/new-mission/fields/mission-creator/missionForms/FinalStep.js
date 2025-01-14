@@ -611,24 +611,6 @@ function FinalStep(props) {
                   isPreview !== "true" ? (
                     <div className="my-lg-0 my-3">
                       <button
-                        onClick={() => handleClickAddReccurence()}
-                        type="button"
-                        className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
-                      >
-                        <FormattedMessage
-                          id={
-                            selectedRecurrenceType !== 0
-                              ? "BUTTON.EDIT.RECCURENCE"
-                              : "BUTTON.ADD.RECCURENCE"
-                          }
-                        />
-                      </button>
-                      <RecurrenceModal
-                        show={showRecurrenceModal}
-                        onHide={handleCloseRecurrenceModal}
-                        vacancyID={missionToDisplay.id}
-                      />
-                      <button
                         onClick={() => handleClickEdit()}
                         type="button"
                         className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
@@ -660,6 +642,24 @@ function FinalStep(props) {
                     </div>
                   ) : (
                     <div>
+                      <button
+                        onClick={() => handleClickAddReccurence()}
+                        type="button"
+                        className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
+                      >
+                        <FormattedMessage
+                          id={
+                            selectedRecurrenceType !== 0
+                              ? "BUTTON.EDIT.RECCURENCE"
+                              : "BUTTON.ADD.RECCURENCE"
+                          }
+                        />
+                      </button>
+                      <RecurrenceModal
+                        show={showRecurrenceModal}
+                        onHide={handleCloseRecurrenceModal}
+                        vacancyID={missionToDisplay.id}
+                      />
                       <button
                         onClick={showSimulator}
                         type="button"

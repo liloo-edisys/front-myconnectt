@@ -1535,7 +1535,7 @@ function FormStepOne(props, formik) {
                     </div>
                   </div>
                 </div>
-                <div className="mission-form mt-10 mb-10 p-0">
+                {/* <div className="mission-form mt-10 mb-10 p-0">
                   <h3 className="group-title">
                     <FormattedMessage id="TEXT.RECURRENCE" />
                   </h3>
@@ -1636,7 +1636,7 @@ function FormStepOne(props, formik) {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 <div className="mission-form mt-10 mb-10 p-0">
                   <h3 className="group-title">
