@@ -33,7 +33,7 @@ function QuickUserBackOffice() {
       toggle.click()
     }
     persistor.purge();
-    window.location.replace(`${process.env.REACT_APP_URL}auth/backoffice-login`);
+    window.location.replace(`${process.env.REACT_APP_URL}auth/login`);
     //history.push('/backoffice-logout');
   }
 
