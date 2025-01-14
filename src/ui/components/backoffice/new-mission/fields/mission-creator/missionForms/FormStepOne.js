@@ -1640,44 +1640,6 @@ function FormStepOne(props, formik) {
 
                 <div className="mission-form mt-10 mb-10 p-0">
                   <h3 className="group-title">
-                    <FormattedMessage id="TEXT.PUBLISH_DATE" />
-                  </h3>
-                </div>
-                <div className="col-xl-4">
-                  <div className="form-group">
-                    <label>
-                      <FormattedMessage id="TEXT.PUBLISH_DATE" />
-                    </label>
-                    <div className="input-group">
-                      <DatePickerField
-                        component={DatePickerField}
-                        className="col-lg-12 form-control radius-left-0"
-                        iconHeight="36px"
-                        type="text"
-                        placeholder="JJ/MM/AAAA"
-                        name="publishDate"
-                        onChange={(date) => {
-                          setpublishDate(date);
-                          if (date === "Invalid date") {
-                            props.formik.setFieldValue("publishDate", "");
-                          } else {
-                            props.formik.setFieldValue(
-                              "publishDate",
-                              moment(date)
-                            );
-                          }
-                        }}
-                        showMonthDropdown
-                        showYearDropdown
-                        minDate={new Date()}
-                        yearItemNumber={9}
-                        locale="fr"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="mission-form mt-10 mb-10 p-0">
-                  <h3 className="group-title">
                     <FormattedMessage id="TEXT.PROFILE_LOOKING_FOR" />
                   </h3>
                 </div>

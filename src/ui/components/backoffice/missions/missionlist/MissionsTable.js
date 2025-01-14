@@ -14,6 +14,7 @@ import DateColumnFormatter from "../column-formatters/MissionsDateColumnFormatte
 import OccupiedColumnFormatter from "../column-formatters/MissionsOccupiedColumnFormatter";
 import ApplicationsStatusColumnFormatter from "../column-formatters/ApplicationsStatusColumnFormatter";
 import ApplicationsActionsColumnFormatter from "../column-formatters/ApplicationsActionsColumnFormatter";
+
 import _ from "lodash";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
@@ -48,6 +49,8 @@ import {
   setPageNumber
 } from "../../../../../business/actions/backoffice/MissionsActions.js";
 
+
+
 const tenantID = +process.env.REACT_APP_TENANT_ID;
 const baseDate = new Date();
 baseDate.setMonth(baseDate.getMonth() - 1);
@@ -79,12 +82,6 @@ function MissionsTable({ refresh }) {
   const intl = useIntl(); // intl extracted from useIntl hook
   const dispatch = useDispatch();
   let date = new Date(moment().subtract(1, "months"));
-  /*const [selectedStartDate, setSetelectedStartDate] = useState(date);
-  const [selectedEndDate, setSetelectedEndDate] = useState(null);
-  const [selectedAccount, setSelectedAccount] = useState(null);
-  const [defaultStatus, setDefaultStatus] = useState([]);
-  const [pageSize, setPageSize] = useState(5);
-  const [pageNumber, setPageNumber] = useState(1);*/
   const [expanded, setExpanded] = useState([]);
 
   const clearFilter = () => {
@@ -380,8 +377,22 @@ function MissionsTable({ refresh }) {
   const missionsUIContext = useMissionsUIContext();
   const missionsUIProps = useMemo(() => {
     return {
+      ids: missionsUIContext.ids,
+      setIds: missionsUIContext.setIds,
+      queryParams: missionsUIContext.queryParams,
+      setQueryParams: missionsUIContext.setQueryParams,
+      newWorksiteButtonClick: missionsUIContext.newWorksiteButtonClick,
+      openEditCompanyDialog: missionsUIContext.openEditCompanyDialog,
       openDeleteDialog: missionsUIContext.openDeleteDialog,
-      openDisplayDialog: missionsUIContext.openDisplayDialog
+      openDisplayDialog: missionsUIContext.openDisplayDialog,
+      openEditWorksiteDialog: missionsUIContext.openEditWorksiteDialog,
+      openMatchingDialog: missionsUIContext.openMatchingDialog,
+      editMission: missionsUIContext.editMission,
+      openResumeDialog: missionsUIContext.openResumeDialog,
+      openDeclineDialog: missionsUIContext.openDeclineDialog,
+      openValidateDialog: missionsUIContext.openValidateDialog,
+      openMissionProfileDialog: missionsUIContext.openMissionProfileDialog,
+      openDeleteApplicationDialog: missionsUIContext.openDeleteApplicationDialog
     };
   }, [missionsUIContext]);
 
@@ -441,7 +452,8 @@ function MissionsTable({ refresh }) {
       },
       formatExtraData: {
         openDeleteDialog: missionsUIProps.openDeleteDialog,
-        openDisplayDialog: missionsUIProps.openDisplayDialog
+        openDisplayDialog: missionsUIProps.openDisplayDialog,
+        openMissionProfileDialog: missionsUIProps.openMissionProfileDialog,
       }
     }
   ];
@@ -498,8 +510,14 @@ function MissionsTable({ refresh }) {
         minWidth: "100px"
       },
       formatExtraData: {
+        // openEditWorksiteDialog: missionsUIProps.openEditWorksiteDialog,
         openDeleteDialog: missionsUIProps.openDeleteDialog,
-        openDisplayDialog: missionsUIProps.openDisplayDialog
+        openDisplayDialog: missionsUIProps.openDisplayDialog,
+        // openResumeDialog: missionsUIProps.openResumeDialog,
+        // openDeclineDialog: missionsUIProps.openDeclineDialog,
+        // openValidateDialog: missionsUIProps.openValidateDialog,
+        openMissionProfileDialog: missionsUIProps.openMissionProfileDialog,
+        // openDeleteApplicationDialog: missionsUIProps.openDeleteApplicationDialog
       }
     }
   ];

@@ -647,13 +647,7 @@ function FinalStep(props) {
                         type="button"
                         className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
                       >
-                        <FormattedMessage
-                          id={
-                            selectedRecurrenceType !== 0
-                              ? "BUTTON.EDIT.RECCURENCE"
-                              : "BUTTON.ADD.RECCURENCE"
-                          }
-                        />
+                        <FormattedMessage id={"BUTTON.OFFER.PROGRAM"} />
                       </button>
                       <RecurrenceModal
                         show={showRecurrenceModal}

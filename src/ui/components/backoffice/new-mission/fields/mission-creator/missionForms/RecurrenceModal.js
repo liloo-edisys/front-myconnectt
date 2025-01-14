@@ -5,12 +5,17 @@ import { FormattedMessage } from "react-intl";
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
 import moment from "moment";
+import { DatePickerField } from "metronic/_partials/controls";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import fr from "date-fns/locale/fr";
 
 function RecurrenceModal({ show, onHide, vacancyID }) {
   // États
   const [recurrenceTypes, setRecurrenceTypes] = useState([]);
   const [selectedRecurrenceType, setSelectedRecurrenceType] = useState(0);
   const [existingRecurrence, setExistingRecurrence] = useState(null);
+  const [publishDate, setpublishDate] = useState(null);
   const [isLoading, setIsLoading] = useState({
     types: false,
     submit: false,
@@ -53,6 +58,10 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
       if (response.data && response.data.typeID) {
         setSelectedRecurrenceType(response.data.typeID);
       }
+      // Ajout de l'initialisation de publishDate
+      if (response.data && response.data.publishDate) {
+        setpublishDate(moment(response.data.publishDate).toDate());
+      }
     } catch (error) {
       console.error("Error fetching existing recurrence:", error);
       setExistingRecurrence(null);
@@ -66,25 +75,25 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
       toastr.error("ID de récurrence invalide");
       return;
     }
-  
-    setIsLoading(prev => ({ ...prev, submit: true }));
+
+    setIsLoading((prev) => ({ ...prev, submit: true }));
     try {
       await axios.delete(
         `${API_BASE_URL}${API_ENDPOINTS.base}?id=${existingRecurrence.id}`,
         {
           headers: {
-            'Accept': '*/*',
-            'Content-Type': 'text/plain;charset=UTF-8'
-          }
+            Accept: "*/*",
+            "Content-Type": "text/plain;charset=UTF-8",
+          },
         }
       );
       toastr.success("Récurrence supprimée avec succès");
       onHide();
     } catch (error) {
-      console.error('Error deleting recurrence:', error);
+      console.error("Error deleting recurrence:", error);
       toastr.error("Erreur lors de la suppression de la récurrence");
     } finally {
-      setIsLoading(prev => ({ ...prev, submit: false }));
+      setIsLoading((prev) => ({ ...prev, submit: false }));
     }
   };
 
@@ -106,10 +115,10 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
         vacancyID: vacancyID,
         typeID: selectedRecurrenceType,
         nextDate: moment().toISOString(),
+        publishDate: publishDate ? moment(publishDate).format('YYYY-MM-DD') + 'T00:00:00.000Z' : null,
       };
 
       if (existingRecurrence?.id) {
-        // PUT request
         await axios.put(`${API_BASE_URL}${API_ENDPOINTS.base}`, data, {
           headers: {
             accept: "*/*",
@@ -118,7 +127,6 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
         });
         toastr.success("Récurrence modifiée avec succès");
       } else {
-        // POST request
         await axios.post(`${API_BASE_URL}${API_ENDPOINTS.base}`, data, {
           headers: {
             accept: "*/*",
@@ -130,7 +138,7 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
       onHide();
     } catch (error) {
       console.error("Error submitting recurrence:", error);
-      toastr.error("Erreur lors de la sauvegarde de la récurrence");
+      toastr.error(error.response?.data || "Erreur lors de la soumission de la récurrence");
     } finally {
       setIsLoading((prev) => ({ ...prev, submit: false }));
     }
@@ -195,6 +203,28 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
                 </option>
               ))}
             </select>
+          </div>
+          <label className="mt-4">
+            <FormattedMessage id="TEXT.PUBLISH_DATE" />
+          </label>
+          <div className="input-group">
+            <div className="input-group-prepend">
+              <span className="input-group-text">
+                <i className="fas fa-calendar-alt text-primary"></i>
+              </span>
+            </div>
+            <DatePicker
+              selected={publishDate}
+              onChange={(date) => setpublishDate(date)}
+              className="form-control"
+              dateFormat="dd/MM/yyyy"
+              placeholderText="JJ/MM/AAAA"
+              locale={fr}
+              minDate={new Date()}
+              showMonthDropdown
+              showYearDropdown
+              yearDropdownItemNumber={9}
+            />
           </div>
         </div>
       </Modal.Body>
