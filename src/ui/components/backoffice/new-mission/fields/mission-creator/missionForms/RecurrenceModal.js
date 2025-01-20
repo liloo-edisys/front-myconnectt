@@ -27,10 +27,10 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
     "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api";
 
   const API_ENDPOINTS = {
-    types: "/VacancyRecurrence/Types",
-    byVacancyId: (id) => `/VacancyRecurrence/ByVacancyId/${id}`,
-    base: "/VacancyRecurrence",
-    delete: (id) => `/VacancyRecurrence/${id}`, // Nouvel endpoint
+    types: "/VacancyOfferProgram/Types",
+    byVacancyId: (id) => `/VacancyOfferProgram/ByVacancyId/${id}`,
+    base: "/VacancyOfferProgram",
+    delete: (id) => `/VacancyOfferProgram/${id}`, // Nouvel endpoint
   };
 
   const fetchRecurrenceTypes = async () => {

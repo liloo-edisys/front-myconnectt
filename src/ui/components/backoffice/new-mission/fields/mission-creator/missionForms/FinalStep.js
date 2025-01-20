@@ -82,7 +82,7 @@ function FinalStep(props) {
   const fetchExistingRecurrence = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_WEBAPI_URL}api/VacancyRecurrence/ByVacancyId/${missionToDisplay.id}`,
+        `${process.env.REACT_APP_WEBAPI_URL}api/VacancyOfferProgram/ByVacancyId/${missionToDisplay.id}`,
         {
           headers: { accept: "text/plain" },
         }
@@ -118,7 +118,7 @@ function FinalStep(props) {
   const fetchRecurrenceTypes = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_WEBAPI_URL}api/VacancyRecurrence/Types`,
+        `${process.env.REACT_APP_WEBAPI_URL}api/VacancyOfferProgram/Types`,
         {
           headers: { accept: "text/plain" },
         }
