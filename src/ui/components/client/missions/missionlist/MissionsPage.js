@@ -71,8 +71,9 @@ class MissionsPage extends React.Component {
         history.push(`/missions/resume`, data);
       },
       openMissionProfileDialog: data => {
-        history.push(`/missions/applicant/${data.applicantID}`, data);
+        history.push(`/missions/applicant/${data.applicantID}`, {...data});
         this.setState({ currentApplicant: data.applicantID });
+        // console.log("data dans openMissionProfileDialog" , data);
       },
       openDeleteApplicationDialog: row => {
         history.push(`/missions/delete-application`, row);

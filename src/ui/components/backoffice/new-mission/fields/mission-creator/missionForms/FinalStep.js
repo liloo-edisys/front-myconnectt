@@ -79,6 +79,7 @@ function FinalStep(props) {
   const [isLoading, setIsLoading] = useState({ initial: true });
   const [recurrenceTypes, setRecurrenceTypes] = useState([]);
 
+
   const fetchExistingRecurrence = async () => {
     try {
       const response = await axios.get(
@@ -165,6 +166,8 @@ function FinalStep(props) {
     getHabilitationsList(dispatch);
     fetchExistingRecurrence();
     fetchRecurrenceTypes();
+    console.log("missionToDisplay -------> ", missionToDisplay);
+    
   }, [dispatch]);
 
   useEffect(() => {
@@ -642,12 +645,30 @@ function FinalStep(props) {
                     </div>
                   ) : (
                     <div>
-                      <button
+                      {/* <button
                         onClick={() => handleClickAddReccurence()}
                         type="button"
                         className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
                       >
                         <FormattedMessage id={"BUTTON.OFFER.PROGRAM"} />
+                      </button> */}
+                      {missionToDisplay.status !== 2 && 
+                       missionToDisplay.status !== 3 && 
+                       missionToDisplay.status !== 4 && (
+                        <button
+                          onClick={() => handleClickAddReccurence()}
+                          type="button"
+                          className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
+                        >
+                          <FormattedMessage id={"BUTTON.OFFER.PROGRAM"} />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleClickEdit()}
+                        type="button"
+                        className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
+                      >
+                        <FormattedMessage id="BUTTON.EDIT" />
                       </button>
                       <RecurrenceModal
                         show={showRecurrenceModal}

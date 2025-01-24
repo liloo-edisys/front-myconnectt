@@ -16,6 +16,7 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
   const [selectedRecurrenceType, setSelectedRecurrenceType] = useState(0);
   const [existingRecurrence, setExistingRecurrence] = useState(null);
   const [publishDate, setpublishDate] = useState(null);
+  const [publishTypeID, setPublishTypeID] = useState(null);
   const [isLoading, setIsLoading] = useState({
     types: false,
     submit: false,
@@ -55,6 +56,7 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
         }
       );
       setExistingRecurrence(response.data);
+
       if (response.data && response.data.typeID) {
         setSelectedRecurrenceType(response.data.typeID);
       }
@@ -115,7 +117,10 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
         vacancyID: vacancyID,
         typeID: selectedRecurrenceType,
         nextDate: moment().toISOString(),
-        publishDate: publishDate ? moment(publishDate).format('YYYY-MM-DD') + 'T00:00:00.000Z' : null,
+        publishTypeID: publishTypeID,
+        publishDate: publishDate
+          ? moment(publishDate).format("YYYY-MM-DD") + "T00:00:00.000Z"
+          : null,
       };
 
       if (existingRecurrence?.id) {
@@ -138,7 +143,9 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
       onHide();
     } catch (error) {
       console.error("Error submitting recurrence:", error);
-      toastr.error(error.response?.data || "Erreur lors de la soumission de la récurrence");
+      toastr.error(
+        error.response?.data || "Erreur lors de la soumission de la récurrence"
+      );
     } finally {
       setIsLoading((prev) => ({ ...prev, submit: false }));
     }
@@ -169,7 +176,7 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
     >
       <Modal.Header closeButton>
         <Modal.Title id="example-modal-sizes-title-lg">
-          <FormattedMessage id="TEXT.RECURRENCE" />
+          <FormattedMessage id="BUTTON.OFFER.PROGRAM" />
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -204,27 +211,33 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
               ))}
             </select>
           </div>
-          <label className="mt-4">
-            <FormattedMessage id="TEXT.PUBLISH_DATE" />
+          <label className="col-form-label">
+            <FormattedMessage id="TEXT.PUBLICATION.TYPE" />
           </label>
           <div className="input-group">
             <div className="input-group-prepend">
               <span className="input-group-text">
-                <i className="fas fa-calendar-alt text-primary"></i>
+                <i className="icon-xl fas fa-list text-primary"></i>
               </span>
             </div>
-            <DatePicker
-              selected={publishDate}
-              onChange={(date) => setpublishDate(date)}
+            <select
+              name="recurrenceType"
               className="form-control"
-              dateFormat="dd/MM/yyyy"
-              placeholderText="JJ/MM/AAAA"
-              locale={fr}
-              minDate={new Date()}
-              showMonthDropdown
-              showYearDropdown
-              yearDropdownItemNumber={9}
-            />
+              value={publishTypeID}
+              onChange={(e) => setPublishTypeID(parseInt(e.target.value))}
+              disabled={isLoading.types || isLoading.initial}
+            >
+              <option value={0}>
+                {isLoading.types
+                  ? "Chargement..."
+                  : "Veuillez choisir une valeur"}
+              </option>
+              {recurrenceTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </Modal.Body>

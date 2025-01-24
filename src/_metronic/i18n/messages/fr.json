@@ -889,6 +889,7 @@
   "TEXT.INVOICES.TABLE": "facture(s)",
   "TEXT.RECURRENCE": "Récurrence",
   "TEXT.RECURRENCE.TYPE": "Type de la récurrence",
+  "TEXT.PUBLICATION.TYPE": "Type de publication",
   "TEXT.RECURRENCE.END_DATE": "Date de fin de la récurrence",
   "TEXT.RECURRENCE_NEXT_DATE": "Prochaine date",
   "TEXT.RECURRENCE.ANNUAL": "Annuelle",

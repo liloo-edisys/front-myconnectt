@@ -1,0 +1,17 @@
+.responsive_header_desktop {
+  display: block;
+}
+
+.responsive_header_mobile {
+  display: none;
+  text-align: center;
+}
+
+@media (max-width: 425px) {
+  .responsive_header_desktop {
+    display: none !important;
+  }
+  .responsive_header_mobile {
+    display: block;
+  }
+}

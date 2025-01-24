@@ -156,6 +156,23 @@ function FormStepOne(props, formik) {
   const [recurrenceEndDate, setRecurrenceEndDate] = useState(null);
   const [publishDate, setpublishDate] = useState(null);
 
+  const [selectedRecurrenceType, setSelectedRecurrenceType] = useState(0);
+  const [publishTypeID, setPublishTypeID] = useState(null);
+  const [recurrenceTypes, setRecurrenceTypes] = useState([]);
+
+  const API_BASE_URL =
+    "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api";
+
+  const fetchRecurrenceTypes = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/VacancyOfferProgram/Types`);
+      setRecurrenceTypes(response.data);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des types:", error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     props.formik.setFieldValue("vacancyBusinessAddressCity", city);
     props.formik.setFieldValue("address", address);
@@ -190,6 +207,8 @@ function FormStepOne(props, formik) {
         worksites[0].postalCode
       );
     }
+    fetchRecurrenceTypes()
+    
   }, [city, address, postalCode, habilitations, jobSkills]);
 
   const getDataProfile = (newValue, list, exec) => {
@@ -1505,6 +1524,12 @@ function FormStepOne(props, formik) {
                   </div>
                 </div>
 
+                <div className="mission-form mt-10 mb-10 p-0">
+                  <h3 className="group-title">
+                    <FormattedMessage id="BUTTON.OFFER.PROGRAM" />
+                  </h3>
+                </div>
+
                 <div className="row">
                   <div className="col-xl-12">
                     <div className="form-group">
@@ -1535,6 +1560,75 @@ function FormStepOne(props, formik) {
                     </div>
                   </div>
                 </div>
+
+                <div className="row">
+                  <div className="col-xl-12">
+                    <div className="form-group">
+                      <label className="col-form-label">
+                        <FormattedMessage id="TEXT.RECURRENCE.TYPE" />
+                      </label>
+                      <div className="input-group">
+                        <div className="input-group-prepend">
+                          <span className="input-group-text">
+                            <i className="icon-xl fas fa-list text-primary"></i>
+                          </span>
+                        </div>
+                        <select
+                          name="recurrenceType"
+                          className="form-control"
+                          value={selectedRecurrenceType}
+                          onChange={(e) =>
+                            setSelectedRecurrenceType(parseInt(e.target.value))
+                          }
+                          disabled={isLoading.types || isLoading.initial}
+                        >
+                          <option value={0}>
+                            {isLoading.types
+                              ? "Chargement..."
+                              : "Veuillez choisir une valeur"}
+                          </option>
+                          {recurrenceTypes.map((type) => (
+                            <option key={type.id} value={type.id}>
+                              {type.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <label className="col-form-label">
+                        <FormattedMessage id="TEXT.PUBLICATION.TYPE" />
+                      </label>
+                      <div className="input-group">
+                        <div className="input-group-prepend">
+                          <span className="input-group-text">
+                            <i className="icon-xl fas fa-list text-primary"></i>
+                          </span>
+                        </div>
+                        <select
+                          name="recurrenceType"
+                          className="form-control"
+                          value={publishTypeID}
+                          onChange={(e) =>
+                            setPublishTypeID(parseInt(e.target.value))
+                          }
+                          disabled={isLoading.types || isLoading.initial}
+                        >
+                          <option value={0}>
+                            {isLoading.types
+                              ? "Chargement..."
+                              : "Veuillez choisir une valeur"}
+                          </option>
+                          {recurrenceTypes.map((type) => (
+                            <option key={type.id} value={type.id}>
+                              {type.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                
                 {/* <div className="mission-form mt-10 mb-10 p-0">
                   <h3 className="group-title">
                     <FormattedMessage id="TEXT.RECURRENCE" />

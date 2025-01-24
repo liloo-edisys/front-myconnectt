@@ -18,7 +18,7 @@ export function MissionsUIProvider({ missionsUIEvents, children, history }) {
     openDeclineDialog: missionsUIEvents.openDeclineDialog,
     openValidateDialog: missionsUIEvents.openValidateDialog,
     openMissionProfileDialog: missionsUIEvents.openMissionProfileDialog,
-    openDeleteApplicationDialog: missionsUIEvents.openDeleteApplicationDialog
+    openDeleteApplicationDialog: missionsUIEvents.openDeleteApplicationDialog,
   };
 
   return (
