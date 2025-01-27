@@ -3,78 +3,67 @@
 /* eslint-disable no-script-url,jsx-a11y/anchor-is-valid */
 import React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-import { Link } from "react-router-dom";
 
-function MissionsActionsColumnFormatter(
+function ApplicationsActionsColumnFormatter(
   cellContent,
   row,
   rowIndex,
   {
-    openDeleteDialog,
-    openDisplayDialog,
-    openMatchingDialog,
-    editMission
+    openDeclineDialog,
+    openValidateDialog,
+    openMissionProfileDialog,
+    openDeleteApplicationDialog,
   }
 ) {
   return (
     <>
       <a
-        onClick={e => {
-          e.stopPropagation();
-          openDisplayDialog(row.id);
-        }}
         className="btn  btn-light-primary mr-2"
+        onClick={() => {
+          openMissionProfileDialog(row);
+        }}
       >
-        <FormattedMessage id="BUTTON.SEE.VACANCY" />
+        <FormattedMessage id="BUTTON.SEE.PROFILE" />
       </a>
 
-      {row && row.missionIsValidated ? (
+      {row.status === 1 ? (
+        <a
+          onClick={(e) => {
+            e.stopPropagation();
+            openDeleteApplicationDialog(row);
+          }}
+          title="Annuler l'invitation"
+          className="btn btn-icon btn-light-danger mr-2"
+        >
+          <i className="far fa-trash-alt"></i>
+        </a>
+      ) : null}
+      {row.status === 2 ? (
         <>
           <a
-            className="btn btn-light-warning mr-2"
-            onClick={e => {
+            onClick={(e) => {
               e.stopPropagation();
-              openMatchingDialog(row);
+              openValidateDialog(row);
             }}
+            title="Valider"
+            className="btn btn-icon btn-light-success mr-2"
           >
-            <span className="navi-icon mr-2">
-              <i className="fas fa-search"></i>
-            </span>
-            <span className="menu-text">
-              <FormattedMessage id="BUTTON.APPLICANTS.SEARCH" />
-            </span>
+            <i className="far fa-handshake"></i>
           </a>
-          <Link
-            to={`/customer-order/${row.id}`}
-            className="btn  btn-light-info mr-2"
+          <a
+            onClick={(e) => {
+              e.stopPropagation();
+              openDeclineDialog(row);
+            }}
+            title="Décliner"
+            className="btn btn-icon btn-light-danger mr-2"
           >
-            Suivi
-          </Link>
+            <i className="flaticon2-cancel"></i>
+          </a>
         </>
-      ) : (
-        <a
-          onClick={e => {
-            e.stopPropagation();
-            editMission(row);
-          }}
-          title="Modifier"
-          className="btn btn-icon btn-light-info mr-2"
-        >
-          <i className="far fa-edit"></i>
-        </a>
-      )}
-      <a
-        onClick={e => {
-          e.stopPropagation();
-          openDeleteDialog(row);
-        }}
-        title="Supprimer"
-        className="btn btn-icon btn-light-danger mr-2"
-      >
-        <i className="far fa-trash-alt"></i>
-      </a>
+      ) : null}
     </>
   );
 }
 
-export default MissionsActionsColumnFormatter;
+export default ApplicationsActionsColumnFormatter;

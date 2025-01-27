@@ -16,7 +16,6 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
   const [selectedRecurrenceType, setSelectedRecurrenceType] = useState(0);
   const [existingRecurrence, setExistingRecurrence] = useState(null);
   const [publishDate, setpublishDate] = useState(null);
-  const [publishTypeID, setPublishTypeID] = useState(null);
   const [isLoading, setIsLoading] = useState({
     types: false,
     submit: false,
@@ -55,18 +54,22 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
           headers: { accept: "text/plain" },
         }
       );
-      setExistingRecurrence(response.data);
+      console.log("Response data:", response.data); // Pour débugger
 
-      if (response.data && response.data.typeID) {
-        setSelectedRecurrenceType(response.data.typeID);
-      }
-      // Ajout de l'initialisation de publishDate
+      // Mettre à jour existingRecurrence
+      setExistingRecurrence(response.data);
+     setSelectedRecurrenceType(response.data.TypeID);
+
+      // Mettre à jour la date de publication si présente
       if (response.data && response.data.publishDate) {
         setpublishDate(moment(response.data.publishDate).toDate());
       }
     } catch (error) {
       console.error("Error fetching existing recurrence:", error);
+      // Réinitialiser les états en cas d'erreur
       setExistingRecurrence(null);
+      setSelectedRecurrenceType(0);
+      setpublishDate(null);
     } finally {
       setIsLoading((prev) => ({ ...prev, initial: false }));
     }
@@ -117,7 +120,6 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
         vacancyID: vacancyID,
         typeID: selectedRecurrenceType,
         nextDate: moment().toISOString(),
-        publishTypeID: publishTypeID,
         publishDate: publishDate
           ? moment(publishDate).format("YYYY-MM-DD") + "T00:00:00.000Z"
           : null,
@@ -211,33 +213,27 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
               ))}
             </select>
           </div>
-          <label className="col-form-label">
-            <FormattedMessage id="TEXT.PUBLICATION.TYPE" />
+          <label className="mt-4">
+            <FormattedMessage id="TEXT.PUBLISH_DATE" />
           </label>
           <div className="input-group">
             <div className="input-group-prepend">
               <span className="input-group-text">
-                <i className="icon-xl fas fa-list text-primary"></i>
+                <i className="fas fa-calendar-alt text-primary"></i>
               </span>
             </div>
-            <select
-              name="recurrenceType"
+            <DatePicker
+              selected={publishDate}
+              onChange={(date) => setpublishDate(date)}
               className="form-control"
-              value={publishTypeID}
-              onChange={(e) => setPublishTypeID(parseInt(e.target.value))}
-              disabled={isLoading.types || isLoading.initial}
-            >
-              <option value={0}>
-                {isLoading.types
-                  ? "Chargement..."
-                  : "Veuillez choisir une valeur"}
-              </option>
-              {recurrenceTypes.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.name}
-                </option>
-              ))}
-            </select>
+              dateFormat="dd/MM/yyyy"
+              placeholderText="JJ/MM/AAAA"
+              locale={fr}
+              minDate={new Date()}
+              showMonthDropdown
+              showYearDropdown
+              yearDropdownItemNumber={9}
+            />
           </div>
         </div>
       </Modal.Body>

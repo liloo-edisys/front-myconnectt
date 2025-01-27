@@ -27,7 +27,7 @@ export function MissionProfileDialog({
   const { state } = history.location;
 
   console.log("state dans MissionProfileDialog --------------> ", state);
-  
+
   const TENANTID = process.env.REACT_APP_TENANT_ID;
 
   const dispatch = useDispatch();
@@ -414,11 +414,11 @@ export function MissionProfileDialog({
           ...nextApp,
         };
         history.push(`/missions/applicant/${nextApp.applicantID}`, nextState);
-        setCurrentIndex(currentIndex + 1); 
+        setCurrentIndex(currentIndex + 1);
       }
     }
   };
-   
+
   const handlePrevious = () => {
     if (allMissions && allMissions.missionApplications) {
       const applicants = allMissions.missionApplications;
@@ -432,7 +432,7 @@ export function MissionProfileDialog({
         setCurrentIndex(currentIndex - 1);
       }
     }
-   };
+  };
 
   const showNavigation = allMissions?.missionApplications?.length > 0;
 
@@ -445,16 +445,6 @@ export function MissionProfileDialog({
     >
       <Modal.Header closeButton className="pb-0">
         <Modal.Title className="pageSubtitle w-100 flex-row flex-space-between responsive_header_desktop pr-5">
-          {showNavigation && (
-            <button
-              onClick={handlePrevious}
-              disabled={currentIndex === 0}
-              className="btn btn-light-primary"
-            >
-              Précédent
-            </button>
-          )}
-
           <div className=" ml-5 align-items-center d-flex flex-row ">
             <div className=" ml-5 align-items-center d-flex flex-row ">
               {applicant && state && state.status === 5 ? (
@@ -486,14 +476,6 @@ export function MissionProfileDialog({
                     )}`
                   : resume && `/document/display/${encoreUrl(resume)}`
               }
-              /*href={
-                applicant && state && state.status === 5
-                  ? encoreUrl(applicant.primaryCurriculumVitaeUrl)
-                  : resume
-                  ? encoreUrl(resume)
-                  : null
-              }*/
-              //href={encoreUrl(resume)}
             >
               <span className="navi-icon mr-2">
                 <i className="fas fa-id-badge"></i>
@@ -541,9 +523,20 @@ export function MissionProfileDialog({
           </div>
           {showNavigation && (
             <button
+              onClick={handlePrevious}
+              disabled={currentIndex === 0}
+              className="btn btn-light-primary mb-6"
+            >
+              Précédent
+            </button>
+          )}
+          {showNavigation && (
+            <button
               onClick={handleNext}
-              disabled={currentIndex === (allMissions?.missionApplications?.length - 1)}
-              className="btn btn-light-primary"
+              disabled={
+                currentIndex === allMissions?.missionApplications?.length - 1
+              }
+              className="btn btn-light-primary ml-4 mb-6"
             >
               Suivant
             </button>
@@ -715,9 +708,7 @@ export function MissionProfileDialog({
                         />
                         <p className="pageDetails">
                           <span>
-                            {applicant
-                              ? state?.accountNumberOfMissions
-                              : null}{" "}
+                            {applicant ? state?.accountNumberOfMissions : null}{" "}
                             Missions
                           </span>
                         </p>

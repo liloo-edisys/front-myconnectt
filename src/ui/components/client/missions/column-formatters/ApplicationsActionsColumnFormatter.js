@@ -9,14 +9,7 @@ function ApplicationsActionsColumnFormatter(
   row,
   rowIndex,
   {
-    openEditVacancyDialog,
-    openDeleteVacancyDialog,
-    openDisplayVacancyDialog,
-    openDuplicateVacancyDialog,
-    openMatchingVacancyDialog,
-    openResumeDialog,
     openDeclineDialog,
-    history,
     openValidateDialog,
     openMissionProfileDialog,
     openDeleteApplicationDialog

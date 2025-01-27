@@ -13,10 +13,6 @@ function MissionsActionsColumnFormatter(
     openDeleteDialog,
     openDisplayDialog,
     openMatchingDialog,
-    openDuplicateVacancyDialog,
-    openMatchingVacancyDialog,
-    history,
-    getStored,
     editMission
   }
 ) {

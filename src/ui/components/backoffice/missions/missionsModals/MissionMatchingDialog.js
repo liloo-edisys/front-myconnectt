@@ -3,7 +3,7 @@ import { Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { getMatching } from "actions/client/ApplicantsActions";
-import MatchingTable from "../missionlist/MatchingTable";
+// import MatchingTable from "../missionlist/MatchingTable";
 import { getMission } from "actions/client/MissionsActions";
 import {
   declineMatching,
@@ -192,12 +192,12 @@ export function MatchingDialog({
         </button>
       </Modal.Header>
       <Modal.Body className="py-0">
-        <MatchingTable
+        {/* <MatchingTable
           candidates={candidates}
           handleAccept={handleAccept}
           handleDeny={handleDeny}
           onOpenResume={onOpenResume}
-        />
+        /> */}
       </Modal.Body>
     </Modal>
   );

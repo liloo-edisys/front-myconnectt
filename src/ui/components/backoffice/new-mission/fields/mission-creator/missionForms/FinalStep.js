@@ -222,7 +222,7 @@ function FinalStep(props) {
     getMission(missionToDisplay.id)
       .then(localStorage.setItem("id", missionToDisplay.id))
       .then(deleteItems())
-      .then(props.history.push("/mission-create/step-one"));
+      .then(props.history.push(`/mission/update/${missionToDisplay.id}`));
   };
 
   const formatExperiences = () => {
