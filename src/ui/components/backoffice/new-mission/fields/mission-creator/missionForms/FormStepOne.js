@@ -11,6 +11,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Field } from "formik";
 import _, { debounce, isNull } from "lodash";
 import { Input } from "metronic/_partials/controls";
+import DatePicker from "react-datepicker";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -157,7 +158,6 @@ function FormStepOne(props, formik) {
   const [publishDate, setpublishDate] = useState(null);
 
   const [selectedRecurrenceType, setSelectedRecurrenceType] = useState(0);
-  const [publishTypeID, setPublishTypeID] = useState(null);
   const [recurrenceTypes, setRecurrenceTypes] = useState([]);
 
   const API_BASE_URL =
@@ -165,7 +165,9 @@ function FormStepOne(props, formik) {
 
   const fetchRecurrenceTypes = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/VacancyOfferProgram/Types`);
+      const response = await axios.get(
+        `${API_BASE_URL}/VacancyOfferProgram/Types`
+      );
       setRecurrenceTypes(response.data);
     } catch (error) {
       console.error("Erreur lors de la récupération des types:", error);
@@ -207,8 +209,7 @@ function FormStepOne(props, formik) {
         worksites[0].postalCode
       );
     }
-    fetchRecurrenceTypes()
-    
+    fetchRecurrenceTypes();
   }, [city, address, postalCode, habilitations, jobSkills]);
 
   const getDataProfile = (newValue, list, exec) => {
@@ -1593,38 +1594,41 @@ function FormStepOne(props, formik) {
                             </option>
                           ))}
                         </select>
-                      </div>
-                      <label className="col-form-label">
-                        <FormattedMessage id="TEXT.PUBLICATION.TYPE" />
-                      </label>
-                      <div className="input-group">
-                        <div className="input-group-prepend">
-                          <span className="input-group-text">
-                            <i className="icon-xl fas fa-list text-primary"></i>
-                          </span>
-                        </div>
-                        <select
-                          name="recurrenceType"
-                          className="form-control"
-                          value={publishTypeID}
-                          onChange={(e) =>
-                            setPublishTypeID(parseInt(e.target.value))
-                          }
-                          disabled={isLoading.types || isLoading.initial}
-                        >
-                          <option value={0}>
-                            {isLoading.types
-                              ? "Chargement..."
-                              : "Veuillez choisir une valeur"}
-                          </option>
-                          {recurrenceTypes.map((type) => (
-                            <option key={type.id} value={type.id}>
-                              {type.name}
-                            </option>
-                          ))}
-                        </select>
+
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>
+                    <FormattedMessage id="TEXT.PUBLISH_DATE" />
+                  </label>
+                  <div className="input-group">
+                    <DatePickerField
+                      component={DatePickerField}
+                      className="col-lg-12 form-control radius-left-0"
+                      iconHeight="36px"
+                      type="text"
+                      placeholder="JJ/MM/AAAA"
+                      name="recurrenceEndDate"
+                      onChange={(date) => {
+                        setpublishDate(date);
+                        if (date === "Invalid date") {
+                          props.formik.setFieldValue("recurrenceEndDate", "");
+                        } else {
+                          props.formik.setFieldValue(
+                            "recurrenceEndDate",
+                            moment(date)
+                          );
+                        }
+                      }}
+                      showMonthDropdown
+                      showYearDropdown
+                      minDate={new Date()}
+                      yearItemNumber={9}
+                      locale="fr"
+                    ></DatePickerField>
                   </div>
                 </div>
 

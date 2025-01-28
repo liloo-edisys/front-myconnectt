@@ -77,7 +77,7 @@ function FinalStep(props) {
   const [selectedRecurrenceType, setSelectedRecurrenceType] = useState(0);
   const [nextDate, setNextDate] = useState(null);
   const [isLoading, setIsLoading] = useState({ initial: true });
-  const [recurrenceTypes, setRecurrenceTypes] = useState([]);
+  const [recurrenceTypes, setRecurrenceTypes] = useState();
 
 
   const fetchExistingRecurrence = async () => {
@@ -88,7 +88,9 @@ function FinalStep(props) {
           headers: { accept: "text/plain" },
         }
       );
-      setExistingRecurrence(response.data);
+       await console.log("fetchExistingRecurrence ---------> ", response.data);
+      
+      setExistingRecurrence(response?.data?.recurrenceTypeName);
       // Si la réponse est null ou undefined après un delete, on met typeID à 0
       if (!response.data) {
         setSelectedRecurrenceType(0);
@@ -194,18 +196,6 @@ function FinalStep(props) {
       (reason) => reason.id === missionToDisplay.missionReasonID
     );
     return reason.length && reason[0].name;
-  };
-
-  const formatRecurrenceType = () => {
-    if (missionToDisplay.recurrenceType === 0) return "";
-    if (missionToDisplay.recurrenceType === 1)
-      return intl.formatMessage({ id: "TEXT.RECURRENCE.ANNUAL" });
-    if (missionToDisplay.recurrenceType === 2)
-      return intl.formatMessage({ id: "TEXT.RECURRENCE.MONTHLY" });
-    if (missionToDisplay.recurrenceType === 3)
-      return intl.formatMessage({ id: "TEXT.RECURRENCE.WEEKLY" });
-    if (missionToDisplay.recurrenceType === 4)
-      return intl.formatMessage({ id: "TEXT.RECURRENCE.END" });
   };
 
   const deleteItems = () => {
@@ -1174,9 +1164,7 @@ function FinalStep(props) {
                     </div>
                     <div className="col-lg-3">
                       <p className="font-weight-bolder">
-                        {recurrenceTypes.find(
-                          (type) => type.id === selectedRecurrenceType
-                        )?.title || ""}
+                        {existingRecurrence|| ""}
                       </p>
                     </div>
                     <div className="col-lg-3">

@@ -5,11 +5,12 @@ import { FormattedMessage } from "react-intl";
 import {
   validateMission,
   resetMission,
-  getHabilitationsList
+  getHabilitationsList,
 } from "actions/client/MissionsActions";
 import { Redirect } from "react-router";
 
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import RecurrenceModal from "./ReccurenceModal";
 import {
   getJobTitles,
   getMissionExperiences,
@@ -20,13 +21,13 @@ import {
   getLanguages,
   getJobSkills,
   getJobTags,
-  getMissionEquipment
+  getMissionEquipment,
 } from "actions/shared/ListsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { getMission } from "api/client/MissionsApi";
 import {
   deleteCurrentDuplicate,
-  deleteCurrentTemplate
+  deleteCurrentTemplate,
 } from "actions/client/MissionsActions";
 import { deleteFromStorage } from "../../../shared/DeleteFromStorage";
 import SimulatorModal from "./SimulatorModal";
@@ -46,9 +47,9 @@ function FinalStep(props) {
     missionRemuneration,
     missionToDisplay,
     loading,
-    habilitations
+    habilitations,
   } = useSelector(
-    state => ({
+    (state) => ({
       updateMissionSuccess: state.missionsReducerData.updateMissionSuccess,
       missionExperiences: state.lists.missionExperiences,
       missionsReasons: state.lists.missionsReasons,
@@ -61,14 +62,21 @@ function FinalStep(props) {
       missionEquipment: state.lists.missionEquipment,
       missionToDisplay: state.missionsReducerData.lastCreatedMission,
       loading: state.missionsReducerData.loading,
-      habilitations: state.missionsReducerData.habilitations
+      habilitations: state.missionsReducerData.habilitations,
     }),
     shallowEqual
   );
   const [agreementValidated, setAgreementValidated] = useState(false);
   const [toggleSimulator, setToogleSimilator] = useState(false);
   let isPreview = localStorage.getItem("isPreview");
-  const useMountEffect = fun => useEffect(fun, []);
+  const [showRecurrenceModal, setShowRecurrenceModal] = useState(false);
+  const [existingRecurrence, setExistingRecurrence] = useState(null);
+  const [selectedRecurrenceType, setSelectedRecurrenceType] = useState(0);
+  const [nextDate, setNextDate] = useState(null);
+  const [isLoading, setIsLoading] = useState({ initial: true });
+  const [recurrenceTypes, setRecurrenceTypes] = useState([]);
+
+  const useMountEffect = (fun) => useEffect(fun, []);
   useEffect(() => {
     //mouse moves
     return () => {
@@ -93,14 +101,14 @@ function FinalStep(props) {
     if (missionToDisplay) {
       let body = {
         id1: missionToDisplay.accountID,
-        id2: missionToDisplay.jobTitleID
+        id2: missionToDisplay.jobTitleID,
       };
       axios
         .post(
           `${process.env.REACT_APP_WEBAPI_URL}api/CommercialAgreement/GetCommercialAgreement`,
           body
         )
-        .then(res => {
+        .then((res) => {
           if (res.data.isValidated) {
             setAgreementValidated(true);
           }
@@ -110,7 +118,7 @@ function FinalStep(props) {
 
   const formatReason = () => {
     let reason = missionsReasons.filter(
-      reason => reason.id === missionToDisplay.missionReasonID
+      (reason) => reason.id === missionToDisplay.missionReasonID
     );
     return reason.length && reason[0].name;
   };
@@ -133,7 +141,7 @@ function FinalStep(props) {
 
   const formatExperiences = () => {
     let xp = missionExperiences.filter(
-      xp => xp.id === missionToDisplay.missionExperienceID
+      (xp) => xp.id === missionToDisplay.missionExperienceID
     );
     return xp.length ? xp[0].name : null;
   };
@@ -144,8 +152,8 @@ function FinalStep(props) {
       missionToDisplay.vacancyApplicationCriteriaArrayRequiredEducationLevels
     ) {
       missionToDisplay.vacancyApplicationCriteriaArrayRequiredEducationLevels.map(
-        diploma => {
-          let label = educationLevels.filter(l => l.id === diploma);
+        (diploma) => {
+          let label = educationLevels.filter((l) => l.id === diploma);
           return (diplomas = diplomas.concat(
             label.length && label[0].name + " - "
           ));
@@ -159,8 +167,8 @@ function FinalStep(props) {
     let langs = "";
     if (missionToDisplay.vacancyApplicationCriteriaArrayLanguagesWithLevel) {
       missionToDisplay.vacancyApplicationCriteriaArrayLanguagesWithLevel.map(
-        language => {
-          let label = languages.filter(l => l.id === language);
+        (language) => {
+          let label = languages.filter((l) => l.id === language);
           return (langs = langs.concat(
             label.length && label[0].frenchName + " - "
           ));
@@ -174,8 +182,8 @@ function FinalStep(props) {
     let skills = "";
     if (missionToDisplay.vacancyApplicationCriteriaArrayComputerSkills) {
       missionToDisplay.vacancyApplicationCriteriaArrayComputerSkills.map(
-        skill => {
-          let label = jobSkills.filter(jobSkill => jobSkill.id === skill);
+        (skill) => {
+          let label = jobSkills.filter((jobSkill) => jobSkill.id === skill);
           return (skills = skills.concat(
             label.length && label[0].name + " - "
           ));
@@ -188,8 +196,8 @@ function FinalStep(props) {
   const formatTags = () => {
     let tags = "";
     if (missionToDisplay.vacancyApplicationCriteriaArrayJobTags) {
-      missionToDisplay.vacancyApplicationCriteriaArrayJobTags.map(tag => {
-        let label = jobTags.filter(jobTag => jobTag.id === tag);
+      missionToDisplay.vacancyApplicationCriteriaArrayJobTags.map((tag) => {
+        let label = jobTags.filter((jobTag) => jobTag.id === tag);
         return (tags = tags.concat(label.length && label[0].name + " - "));
       });
     }
@@ -210,9 +218,9 @@ function FinalStep(props) {
 
   const formatRemuneration = () => {
     if (missionToDisplay && missionToDisplay.missionRemunerationItems) {
-      return missionToDisplay.missionRemunerationItems.map(salary => {
+      return missionToDisplay.missionRemunerationItems.map((salary) => {
         let label = missionRemuneration.filter(
-          remuneration => remuneration.id === salary.missionRemunerationID
+          (remuneration) => remuneration.id === salary.missionRemunerationID
         );
         return (
           <div className="d-flex col-lg-12">
@@ -239,8 +247,10 @@ function FinalStep(props) {
   const formatEquipment = () => {
     let equipements = "";
     if (missionToDisplay.missionArrayEquipments) {
-      missionToDisplay.missionArrayEquipments.map(eq => {
-        let label = missionEquipment.filter(equipement => equipement.id === eq);
+      missionToDisplay.missionArrayEquipments.map((eq) => {
+        let label = missionEquipment.filter(
+          (equipement) => equipement.id === eq
+        );
         return (equipements = equipements.concat(
           label.length && label[0].name + " - "
         ));
@@ -252,8 +262,8 @@ function FinalStep(props) {
   const formatLicenses = () => {
     let licenses = "";
     if (missionToDisplay.missionArrayDriverLicenses) {
-      missionToDisplay.missionArrayDriverLicenses.map(license => {
-        let label = driverLicenses.filter(lic => lic.id === license);
+      missionToDisplay.missionArrayDriverLicenses.map((license) => {
+        let label = driverLicenses.filter((lic) => lic.id === license);
         return (licenses = licenses.concat(
           label.length && label[0].name + " - "
         ));
@@ -271,7 +281,7 @@ function FinalStep(props) {
           {
             ...missionToDisplay,
             MissionIsValidated: true,
-            IsCreateTemplate: true
+            IsCreateTemplate: true,
           },
           { id: missionToDisplay.id }
         )
@@ -288,11 +298,64 @@ function FinalStep(props) {
           {
             ...missionToDisplay,
             MissionIsValidated: true,
-            IsCreateTemplate: false
+            IsCreateTemplate: false,
           },
           { id: missionToDisplay.id }
         )
       );
+    }
+  };
+
+  const fetchRecurrenceTypes = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_WEBAPI_URL}api/VacancyOfferProgram/Types`,
+        {
+          headers: { accept: "text/plain" },
+        }
+      );
+      if (response.data) {
+        setRecurrenceTypes(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching recurrence types:", error);
+      setRecurrenceTypes([]);
+    }
+  };
+
+  const fetchExistingRecurrence = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_WEBAPI_URL}api/VacancyOfferProgram/ByVacancyId/${missionToDisplay.id}`,
+        {
+          headers: { accept: "text/plain" },
+        }
+      );
+      setExistingRecurrence(response.data);
+      // Si la réponse est null ou undefined après un delete, on met typeID à 0
+      if (!response.data) {
+        setSelectedRecurrenceType(0);
+        setNextDate(null);
+      } else {
+        if (response.data.typeID) {
+          setSelectedRecurrenceType(response.data.typeID);
+          console.log(
+            "selectedRecurrenceType -----------------> ",
+            selectedRecurrenceType
+          );
+        }
+        if (response.data.nextDate) {
+          setNextDate(response.data.nextDate);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching existing recurrence:", error);
+      setExistingRecurrence(null);
+      // En cas d'erreur (y compris après un delete), on met typeID à 0
+      setSelectedRecurrenceType(0);
+      setNextDate(null);
+    } finally {
+      setIsLoading((prev) => ({ ...prev, initial: false }));
     }
   };
 
@@ -304,6 +367,16 @@ function FinalStep(props) {
     setToogleSimilator(false);
   };
 
+  const handleClickAddReccurence = () => {
+    setShowRecurrenceModal(true);
+  };
+
+  const handleCloseRecurrenceModal = async () => {
+    setShowRecurrenceModal(false);
+    await fetchRecurrenceTypes();
+    fetchExistingRecurrence();
+  };
+
   const formatHabilitations = () => {
     let skills = [];
     var outStr = "";
@@ -312,8 +385,8 @@ function FinalStep(props) {
       !isNullOrEmpty(missionToDisplay) &&
       missionToDisplay.missionArrayHabilitations
     ) {
-      missionToDisplay.missionArrayHabilitations.map(skill => {
-        let label = habilitations.filter(jobSkill => jobSkill.id === skill);
+      missionToDisplay.missionArrayHabilitations.map((skill) => {
+        let label = habilitations.filter((jobSkill) => jobSkill.id === skill);
         return skills.push(label.length && label[0].name);
       });
     }
@@ -399,6 +472,13 @@ function FinalStep(props) {
                   isPreview !== "true" ? (
                     <div className="my-lg-0 my-3">
                       <button
+                        onClick={() => handleClickAddReccurence()}
+                        type="button"
+                        className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
+                      >
+                        <FormattedMessage id={"BUTTON.OFFER.PROGRAM"} />
+                      </button>
+                      <button
                         onClick={() => handleClickEdit()}
                         type="button"
                         className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
@@ -430,6 +510,18 @@ function FinalStep(props) {
                     </div>
                   ) : (
                     <div>
+                      {missionToDisplay.status !== 2 &&
+                        missionToDisplay.status !== 3 &&
+                        missionToDisplay.status !== 4 && (
+                          <button
+                            onClick={() => handleClickAddReccurence()}
+                            type="button"
+                            className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
+                          >
+                            <FormattedMessage id={"BUTTON.OFFER.PROGRAM"} />
+                          </button>
+                        )}
+
                       <button
                         onClick={showSimulator}
                         type="button"
@@ -449,6 +541,11 @@ function FinalStep(props) {
                       </button>
                     </div>
                   )}
+                  <RecurrenceModal
+                    show={showRecurrenceModal}
+                    onHide={handleCloseRecurrenceModal}
+                    vacancyID={missionToDisplay.id}
+                  />
                 </div>
                 <div className="d-flex flex-wrap justify-content-between mt-1">
                   <div className="d-flex flex-column flex-grow-1 pr-8">
@@ -462,6 +559,7 @@ function FinalStep(props) {
                 </div>
               </div>
             </div>
+
             <div className="separator separator-solid"></div>
             <div className="d-flex align-items-center flex-wrap mt-8">
               <div className="d-flex align-items-center flex-lg-fill mr-5 mb-2">
