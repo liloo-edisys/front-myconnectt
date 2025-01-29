@@ -296,53 +296,76 @@ function MissionsTable({ refresh }) {
   );
 
   const expandRow = {
-    renderer: (row, rowKey) => (
-      <div className="subtable">
-        <BootstrapTable
-          bordered={false}
-          classes={`table table-head-custom table-vertical-center overflow-hidden `}
-          bootstrap4
-          remote
-          wrapperClasses="table-responsive test"
-          keyField="applicationID"
-          data={row && row.missionApplications ? row.missionApplications : []}
-          columns={applicationColumns}
-          noDataIndication={() => <NoApplicantsIndication />}
-        ></BootstrapTable>
-      </div>
-    ),
-    expandHeaderColumnRenderer: () => {
+    renderer: function(row, rowKey) {
+      localStorage.setItem("allMissions", JSON.stringify(row));
+      // Stocker l'ID actuel pour filtrage
+      localStorage.setItem("currentMissionId", row.id);
+      return (
+        <div className="subtable">
+          <BootstrapTable
+            bordered={false}
+            classes={`table table-head-custom table-vertical-center overflow-hidden `}
+            bootstrap4
+            remote
+            wrapperClasses="table-responsive test"
+            keyField="applicationID"
+            data={row && row.missionApplications ? row.missionApplications : []}
+            columns={applicationColumns}
+            noDataIndication={function() {
+              return <NoApplicantsIndication />;
+            }}
+          ></BootstrapTable>
+        </div>
+      );
+    },
+  
+    expandHeaderColumnRenderer: function() {
       return null;
     },
+  
     headerClasses: "hidden",
-    className: (isExpanded, row, rowIndex) => {
+  
+    className: function(isExpanded, row, rowIndex) {
       return "fulfilled-row";
     },
-    onExpand: (row, isExpand, rowIndex, e) => {
+  
+    onExpand: function(row, isExpand, rowIndex, e) {
       if (isExpand) {
         let exp = [...expanded, row.id];
         setExpanded(exp);
       } else {
-        let exp = expanded.filter((x) => x !== row.id);
+        let exp = expanded.filter(function(x) {
+          return x !== row.id;
+        });
         setExpanded(exp);
       }
-
+  
       getMission(row.id)
-        .then((res) => res.data)
-        .then((data) =>
-          localStorage.setItem("candidateMission", JSON.stringify(data))
-        )
-        .then(localStorage.setItem("candidate", JSON.stringify(row)));
+        .then(function(res) {
+          return res.data;
+        })
+        .then(function(data) {
+          return localStorage.setItem("candidateMission", JSON.stringify(data));
+        })
+        .then(function() {
+          localStorage.setItem("candidate", JSON.stringify(row));
+        });
     },
+  
     showExpandColumn: true,
     expanded: expanded,
-    expandColumnRenderer: ({ expanded, rowKey, expandable }) => {
-      let mission =
-        missions && missions.filter((mission) => mission.id === rowKey)[0];
+  
+    expandColumnRenderer: function({ expanded, rowKey, expandable }) {
+      let mission = missions && missions.filter(function(mission) {
+        return mission.id === rowKey;
+      })[0];
+  
       return (
         <div>
           <span
-            onClick={() => filterExpanded()}
+            onClick={function() {
+              return filterExpanded();
+            }}
             data-tip={
               mission && mission.userName
                 ? mission.userName
@@ -361,7 +384,7 @@ function MissionsTable({ refresh }) {
               />
             )}
           </span>
-
+  
           {expanded ? (
             <i className="fas fa-angle-double-down text-primary"></i>
           ) : (
@@ -369,7 +392,7 @@ function MissionsTable({ refresh }) {
           )}
         </div>
       );
-    },
+    }
   };
 
   const missionsUIContext = useMissionsUIContext();

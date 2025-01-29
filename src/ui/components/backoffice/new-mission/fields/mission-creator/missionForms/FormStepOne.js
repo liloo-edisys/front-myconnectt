@@ -95,6 +95,7 @@ function FormStepOne(props, formik) {
     jobSkills,
     educationLevels,
     languages,
+    missionToDisplay,
     currentWorksite,
     template,
     currentCompanyID,
@@ -103,6 +104,7 @@ function FormStepOne(props, formik) {
       jobTitleList: state.lists.jobTitles,
       jobExperiences: state.lists.missionExperiences,
       jobTags: state.lists.jobTags,
+      missionToDisplay: state.missionsReducerData.lastCreatedMission,
       jobSkills: state.lists.jobSkills,
       languages: state.lists.languages,
       educationLevels: state.lists.educationLevels,
@@ -153,12 +155,11 @@ function FormStepOne(props, formik) {
       : 10
   );
 
-  const [recurrenceType, setRecurrenceType] = useState(0);
-  const [recurrenceEndDate, setRecurrenceEndDate] = useState(null);
   const [publishDate, setpublishDate] = useState(null);
 
   const [selectedRecurrenceType, setSelectedRecurrenceType] = useState(0);
   const [recurrenceTypes, setRecurrenceTypes] = useState([]);
+  const [existingRecurrence, setExistingRecurrence] = useState(null);
 
   const API_BASE_URL =
     "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api";
@@ -172,6 +173,35 @@ function FormStepOne(props, formik) {
     } catch (error) {
       console.error("Erreur lors de la récupération des types:", error);
       throw error;
+    }
+  };
+
+  const fetchExistingRecurrence = async (id) => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/VacancyOfferProgram/ByVacancyId/${id}`,
+        {
+          headers: { accept: "text/plain" },
+        }
+      );
+
+      // Mettre à jour existingRecurrence
+      setExistingRecurrence(response.data);
+      setSelectedRecurrenceType(response.data.TypeID);
+      // Mettre à jour la date de publication si présente
+      if (response.data && response.data.publishDate) {
+        const date = moment(response.data.publishDate).toDate();
+        setpublishDate(date);
+        props.formik.setFieldValue("publishDate", date);
+        props.formik.setFieldValue("recurrenceEndDate", date);
+      }
+    } catch (error) {
+      console.error("Error fetching existing recurrence:", error);
+      setExistingRecurrence(null);
+      setSelectedRecurrenceType(0);
+      setpublishDate(null);
+      props.formik.setFieldValue("publishDate", null);
+      props.formik.setFieldValue("recurrenceEndDate", null);
     }
   };
 
@@ -210,6 +240,7 @@ function FormStepOne(props, formik) {
       );
     }
     fetchRecurrenceTypes();
+    fetchExistingRecurrence();
   }, [city, address, postalCode, habilitations, jobSkills]);
 
   const getDataProfile = (newValue, list, exec) => {
@@ -465,6 +496,10 @@ function FormStepOne(props, formik) {
       formatFormik(newArray)
     );
   };
+
+  useEffect(() => {
+    fetchExistingRecurrence();
+  }, []);
 
   const handleChangeTags = (newValue) => {
     let newArray = selectedTags !== null ? [...selectedTags] : [];
@@ -1594,7 +1629,6 @@ function FormStepOne(props, formik) {
                             </option>
                           ))}
                         </select>
-
                       </div>
                     </div>
                   </div>
@@ -1612,23 +1646,24 @@ function FormStepOne(props, formik) {
                       type="text"
                       placeholder="JJ/MM/AAAA"
                       name="recurrenceEndDate"
+                      selected={publishDate}
+                      value={publishDate}
                       onChange={(date) => {
-                        setpublishDate(date);
-                        if (date === "Invalid date") {
-                          props.formik.setFieldValue("recurrenceEndDate", "");
-                        } else {
-                          props.formik.setFieldValue(
-                            "recurrenceEndDate",
-                            moment(date)
-                          );
-                        }
+                        const formattedDate = date
+                          ? moment(date).toDate()
+                          : null;
+                        setpublishDate(formattedDate);
+                        props.formik.setFieldValue(
+                          "publishDate",
+                          formattedDate
+                        );
                       }}
                       showMonthDropdown
                       showYearDropdown
                       minDate={new Date()}
                       yearItemNumber={9}
                       locale="fr"
-                    ></DatePickerField>
+                    />
                   </div>
                 </div>
 

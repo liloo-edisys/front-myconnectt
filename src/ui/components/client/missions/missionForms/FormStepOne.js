@@ -151,10 +151,6 @@ function FormStepOne(props, formik) {
         `${API_BASE_URL}/VacancyOfferProgram/Types`
       );
       setRecurrenceTypes(response.data);
-      console.log(
-        " <----------------- fetchRecurrenceTypes -----------------> ",
-        response.data
-      );
     } catch (error) {
       console.error("Erreur lors de la récupération des types:", error);
       throw error;
@@ -162,7 +158,6 @@ function FormStepOne(props, formik) {
   };
 
   const fetchExistingRecurrence = async (id) => {
-    console.log("-------- CALL fetchExistingRecurrence API--------");
     try {
       const response = await axios.get(
         `${API_BASE_URL}/VacancyOfferProgram/ByVacancyId/${id}`,
@@ -174,15 +169,6 @@ function FormStepOne(props, formik) {
       // Mettre à jour existingRecurrence
       setExistingRecurrence(response.data);
       setSelectedRecurrenceType(response.data.TypeID);
-      console.log(
-        " <----------------- publishDate -----------------> ",
-        response.data.publishDate
-      );
-      console.log(
-        " <----------------- TypeID -----------------> ",
-        response.data.TypeID
-      );
-
       // Mettre à jour la date de publication si présente
       if (response.data && response.data.publishDate) {
         const date = moment(response.data.publishDate).toDate();
@@ -702,41 +688,63 @@ function FormStepOne(props, formik) {
     return formatedValues;
   };
 
-  const setFormikValues = () => {
-    props.formik.setFieldTouched("vacancyNumberOfJobs", true);
-    props.formik.setFieldTouched("vacancyMissionDescription", true);
-    props.formik.setFieldTouched("vacancyBusinessAddressPostalCode", true);
-    props.formik.setFieldTouched(
-      "VacancyContractualVacancyEmploymentContractTypeStartDate",
-      true
-    );
-    props.formik.setFieldTouched(
-      "VacancyContractualVacancyEmploymentContractTypeEndDate",
-      true
-    );
-    props.formik.setFieldTouched("jobTitleID", true);
+  const setFormikValues = async () => {
+    try {
+      // 1. Mise à jour explicite de TypeID
+      const typeValue = parseInt(selectedRecurrenceType) || 0;
+      await props.formik.setFieldValue("TypeID", typeValue);
 
-    props.formik.setFieldValue("jobTitleID", parseInt(selectedJobTitle));
-    props.formik.setFieldValue("vacancyTitle", extraJobTitle);
-    props.formik.setFieldValue("Address", address);
-    props.formik.setFieldValue("vacancyBusinessAddressCity", city);
-    props.formik.setFieldValue("vacancyBusinessAddressPostalCode", postalCode);
-    props.formik.setFieldValue(
-      "publishDate",
-      publishDate ? moment(publishDate) : null
-    );
-    props.formik.setFieldValue("typeID", selectedRecurrenceType);
-    if (!template) {
-      props.formik.setFieldValue(
-        "vacancyApplicationCriteriaArrayJobTags",
-        formatFormik(selectedTags)
-      );
-      props.formik.setFieldValue(
-        "vacancyApplicationCriteriaArrayRequiredEducationLevels",
-        formatFormik(selectedEducation)
-      );
+      // 2. Mettre à jour les champs touched
+      const fieldsToTouch = [
+        "vacancyNumberOfJobs",
+        "vacancyMissionDescription",
+        "vacancyBusinessAddressPostalCode",
+        "VacancyContractualVacancyEmploymentContractTypeStartDate",
+        "VacancyContractualVacancyEmploymentContractTypeEndDate",
+        "jobTitleID",
+        "TypeID",
+      ];
+
+      for (const field of fieldsToTouch) {
+        await props.formik.setFieldTouched(field, true);
+      }
+
+      // 3. Mise à jour des autres valeurs
+      const updates = {
+        jobTitleID: parseInt(selectedJobTitle) || null,
+        vacancyTitle: extraJobTitle || "",
+        Address: address || "",
+        vacancyBusinessAddressCity: city || "",
+        vacancyBusinessAddressPostalCode: postalCode || "",
+        publishDate: publishDate ? moment(publishDate) : null,
+        TypeID: typeValue, // Répéter la mise à jour de TypeID pour s'assurer qu'elle est bien prise en compte
+      };
+
+      // Appliquer les mises à jour une par une
+      for (const [field, value] of Object.entries(updates)) {
+        await props.formik.setFieldValue(field, value);
+      }
+
+      // 4. Mise à jour des tags et éducation si nécessaire
+      if (!template) {
+        await props.formik.setFieldValue(
+          "vacancyApplicationCriteriaArrayJobTags",
+          formatFormik(selectedTags)
+        );
+        await props.formik.setFieldValue(
+          "vacancyApplicationCriteriaArrayRequiredEducationLevels",
+          formatFormik(selectedEducation)
+        );
+      }
+
+      console.log("=== Fin setFormikValues ===");
+      console.log("TypeID final:", props.formik.values.TypeID);
+    } catch (error) {
+      console.error("Erreur dans setFormikValues:", error);
+      throw error;
     }
   };
+
   useEffect(() => {
     if (!_.isEmpty(localStorage.getItem("id"))) {
       let id = parseInt(localStorage.getItem("id"));
@@ -869,10 +877,38 @@ function FormStepOne(props, formik) {
   ]);
 
   useEffect(() => {
-    fetchRecurrenceTypes();
-    fetchExistingRecurrence(mission?.id);
-    console.log(" <----------------- mission -----------------> ", mission);
-  }, []);
+    // Référence pour savoir si le composant est monté
+    let isMounted = true;
+
+    const loadRecurrenceData = async () => {
+      try {
+        // Charger les types seulement si on n'en a pas déjà
+        if (isMounted && recurrenceTypes.length === 0) {
+          await fetchRecurrenceTypes();
+        }
+
+        // Vérifier explicitement que mission.id est défini et est un nombre valide
+        if (
+          isMounted &&
+          mission?.id &&
+          !isNaN(mission.id) &&
+          !existingRecurrence
+        ) {
+          console.log("Fetching recurrence for mission ID:", mission.id);
+          await fetchExistingRecurrence(mission.id);
+        }
+      } catch (error) {
+        console.error("Error loading recurrence data:", error);
+      }
+    };
+
+    loadRecurrenceData();
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, [mission?.id, recurrenceTypes.length, existingRecurrence]); // Ajout des dépendances manquantes
 
   useEffect(() => {
     if (!_.isEmpty(template)) {
@@ -1073,24 +1109,53 @@ function FormStepOne(props, formik) {
     }
   }, []);
 
-  const handleValidate = () => {
-    setFormikValues();
-    setTimeout(() => {
-      if (
-        errors.vacancyNumberOfJobs ||
-        errors.vacancyMissionDescription ||
-        errors.VacancyContractualVacancyEmploymentContractTypeStartDate ||
-        errors.VacancyContractualVacancyEmploymentContractTypeEndDate ||
-        errors.jobTitleID ||
-        errors.vacancyBusinessAddressPostalCode
-      ) {
-        toastr.error(
-          intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELDS.TITLE" }),
-          intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELDS.DESC" })
-        );
-      } else props.history.push("/mission-create/step-two");
-    }, 1000);
+  const handleValidate = async () => {
+    console.log("=== Début de handleValidate ===");
+    console.log(
+      "selectedRecurrenceType avant traitement:",
+      selectedRecurrenceType
+    );
+
+    // Forcer la mise à jour de TypeID immédiatement
+    const typeValue = parseInt(selectedRecurrenceType) || 0;
+    await props.formik.setFieldValue("TypeID", typeValue);
+
+    console.log(
+      "TypeID après setFieldValue direct:",
+      props.formik.values.TypeID
+    );
+
+    // Mettre à jour les autres valeurs
+    await setFormikValues();
+
+    // Vérifier que TypeID est toujours défini
+    console.log("TypeID après setFormikValues:", props.formik.values.TypeID);
+
+    // Vérification des erreurs
+    const hasErrors = !!(
+      props.formik.errors.vacancyNumberOfJobs ||
+      props.formik.errors.vacancyMissionDescription ||
+      props.formik.errors
+        .VacancyContractualVacancyEmploymentContractTypeStartDate ||
+      props.formik.errors
+        .VacancyContractualVacancyEmploymentContractTypeEndDate ||
+      props.formik.errors.jobTitleID ||
+      props.formik.errors.vacancyBusinessAddressPostalCode
+    );
+
+    console.log("Erreurs présentes:", hasErrors);
+
+    if (hasErrors) {
+      toastr.error(
+        intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELDS.TITLE" }),
+        intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELDS.DESC" })
+      );
+      return;
+    }
+
+    props.history.push("/mission-create/step-two");
   };
+
   const handleCheckMatchs = () => {
     dispatch(
       countMatching.request({

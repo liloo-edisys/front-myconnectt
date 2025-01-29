@@ -79,7 +79,6 @@ function FinalStep(props) {
   const [isLoading, setIsLoading] = useState({ initial: true });
   const [recurrenceTypes, setRecurrenceTypes] = useState();
 
-
   const fetchExistingRecurrence = async () => {
     try {
       const response = await axios.get(
@@ -88,8 +87,8 @@ function FinalStep(props) {
           headers: { accept: "text/plain" },
         }
       );
-       await console.log("fetchExistingRecurrence ---------> ", response.data);
-      
+      await console.log("fetchExistingRecurrence ---------> ", response.data);
+
       setExistingRecurrence(response?.data?.recurrenceTypeName);
       // Si la réponse est null ou undefined après un delete, on met typeID à 0
       if (!response.data) {
@@ -169,7 +168,6 @@ function FinalStep(props) {
     fetchExistingRecurrence();
     fetchRecurrenceTypes();
     console.log("missionToDisplay -------> ", missionToDisplay);
-    
   }, [dispatch]);
 
   useEffect(() => {
@@ -642,17 +640,17 @@ function FinalStep(props) {
                       >
                         <FormattedMessage id={"BUTTON.OFFER.PROGRAM"} />
                       </button> */}
-                      {missionToDisplay.status !== 2 && 
-                       missionToDisplay.status !== 3 && 
-                       missionToDisplay.status !== 4 && (
-                        <button
-                          onClick={() => handleClickAddReccurence()}
-                          type="button"
-                          className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
-                        >
-                          <FormattedMessage id={"BUTTON.OFFER.PROGRAM"} />
-                        </button>
-                      )}
+                      {missionToDisplay.status !== 2 &&
+                        missionToDisplay.status !== 3 &&
+                        missionToDisplay.status !== 4 && (
+                          <button
+                            onClick={() => handleClickAddReccurence()}
+                            type="button"
+                            className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
+                          >
+                            <FormattedMessage id={"BUTTON.OFFER.PROGRAM"} />
+                          </button>
+                        )}
                       <button
                         onClick={() => handleClickEdit()}
                         type="button"
@@ -1145,43 +1143,46 @@ function FinalStep(props) {
                 {/* Fin Premier Jour */}
                 {/* Récurrence */}
                 <div className="row d-flex flex-column col-lg-12 justifify-content-center">
-                  <div className="d-flex flex-row mt-5">
+                  {existingRecurrence && (
                     <div>
-                      <i className="far fa-user icon-xl icon-blue"></i>
+                      <div className="d-flex flex-row mt-5">
+                        <div>
+                          <i className="far fa-user icon-xl icon-blue"></i>
+                        </div>
+                        <div className="d-flex flex-column ml-3">
+                          <h3 className="group-title">
+                            <FormattedMessage id="TEXT.RECURRENCE" />
+                          </h3>
+                        </div>
+                      </div>
+                      <div className="d-flex flex-row col-lg-12 justify-content-around ml-3">
+                        <div className="col-lg-3">
+                          <p className="block-title">
+                            <FormattedMessage id="TEXT.RECURRENCE.TYPE" />
+                          </p>
+                        </div>
+                        <div className="col-lg-3">
+                          <p className="font-weight-bolder">
+                            {existingRecurrence || ""}
+                          </p>
+                        </div>
+                        <div className="col-lg-3">
+                          <p className="block-title">
+                            <FormattedMessage id="TEXT.RECURRENCE_NEXT_DATE" />
+                          </p>
+                        </div>
+                        <div className="col-lg-3">
+                          <p className="font-weight-bolder">
+                            {nextDate
+                              ? Moment(nextDate)
+                                  .locale("fr")
+                                  .format("DD MMMM YYYY")
+                              : ""}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="d-flex flex-column ml-3">
-                      <h3 className="group-title">
-                        <FormattedMessage id="TEXT.RECURRENCE" />
-                      </h3>
-                    </div>
-                  </div>
-
-                  <div className="d-flex flex-row col-lg-12 justify-content-around ml-3">
-                    <div className="col-lg-3">
-                      <p className="block-title">
-                        <FormattedMessage id="TEXT.RECURRENCE.TYPE" />
-                      </p>
-                    </div>
-                    <div className="col-lg-3">
-                      <p className="font-weight-bolder">
-                        {existingRecurrence|| ""}
-                      </p>
-                    </div>
-                    <div className="col-lg-3">
-                      <p className="block-title">
-                        <FormattedMessage id="TEXT.RECURRENCE_NEXT_DATE" />
-                      </p>
-                    </div>
-                    <div className="col-lg-3">
-                      <p className="font-weight-bolder">
-                        {nextDate
-                          ? Moment(nextDate)
-                              .locale("fr")
-                              .format("DD MMMM YYYY")
-                          : ""}
-                      </p>
-                    </div>
-                  </div>
+                  )}
                 </div>
                 {/* Fin récurrence */}
               </div>

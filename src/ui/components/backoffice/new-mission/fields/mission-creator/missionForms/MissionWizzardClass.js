@@ -14,12 +14,12 @@ import * as Yup from "yup";
 
 class MissionWizardFormClass extends Component {
   state = {
-    submitted: false
+    submitted: false,
   };
   handleSubmit = () => {
     this.setState(
       {
-        submitted: true
+        submitted: true,
       },
       () => this.props.history.push("/")
     );
@@ -80,11 +80,11 @@ class MissionWizardFormClass extends Component {
         .max(5, intl.formatMessage({ id: "MESSAGE.MIN.5.NUMBERS" })),
       missionReasonJustification: Yup.string()
         .required(intl.formatMessage({ id: "MESSAGE.FILL.FIELD" }))
-        .typeError(intl.formatMessage({ id: "MESSAGE.CHECK.VALUE" }))
+        .typeError(intl.formatMessage({ id: "MESSAGE.CHECK.VALUE" })),
     });
     let currentMission = this.props.companies.length
       ? this.props.companies.filter(
-          company => company.id === this.props.user.currentWorkSiteID
+          (company) => company.id === this.props.user.currentWorkSiteID
         )
       : [];
 
@@ -155,7 +155,7 @@ class MissionWizardFormClass extends Component {
       iban: this.props.mission.iban || null,
       bic: this.props.mission.bic || null,
       vacancyApplicationCriteriaArrayJobTags:
-        this.props.mission.vacancyApplicationCriteriaArrayJobTags || null
+        this.props.mission.vacancyApplicationCriteriaArrayJobTags || null,
     };
 
     return (
@@ -166,7 +166,7 @@ class MissionWizardFormClass extends Component {
         isInitialValid={({ initialValues: values }) =>
           Step1Schema.isValidSync(values)
         }
-        render={props => (
+        render={(props) => (
           <Form>
             <Switch>
               <Redirect
@@ -178,6 +178,7 @@ class MissionWizardFormClass extends Component {
                 path="/mission-create/step-one"
                 render={() => (
                   <FormStepOne
+                    key={window.location.pathname} // Ajouter cette ligne
                     currentWorkiste={currentWorkiste}
                     formik={props}
                     {...this.props}
@@ -186,20 +187,44 @@ class MissionWizardFormClass extends Component {
               />
               <Route
                 path="/mission-create/step-two"
-                render={() => <FormStepTwo formik={props} {...this.props} />}
+                render={() => (
+                  <FormStepTwo
+                    key={window.location.pathname} // Ajouter cette ligne
+                    formik={props}
+                    {...this.props}
+                  />
+                )}
               />
               <Route
                 path="/mission-create/step-three"
-                render={() => <FormStepThree formik={props} {...this.props} />}
+                render={() => (
+                  <FormStepThree
+                    key={window.location.pathname} // Ajouter cette ligne
+                    formik={props}
+                    {...this.props}
+                  />
+                )}
               />
               <Route
                 path="/mission-create/step-four"
-                render={() => <FormStepFour formik={props} {...this.props} />}
+                render={() => (
+                  <FormStepFour
+                    key={window.location.pathname} // Ajouter cette ligne
+                    formik={props}
+                    {...this.props}
+                  />
+                )}
               />
               <Route
                 exact
                 path="/mission/create/final-step"
-                render={() => <FinalStep formik={props} {...this.props} />}
+                render={() => (
+                  <FinalStep
+                    key={window.location.pathname} // Ajouter cette ligne
+                    formik={props}
+                    {...this.props}
+                  />
+                )}
               />
             </Switch>
           </Form>
@@ -209,11 +234,11 @@ class MissionWizardFormClass extends Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     user: state.contacts.user,
     companies: state.companies.companies,
-    currentTemplate: state.missionsReducerData.currentTemplate
+    currentTemplate: state.missionsReducerData.currentTemplate,
   };
 };
 

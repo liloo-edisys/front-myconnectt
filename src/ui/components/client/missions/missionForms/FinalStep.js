@@ -1005,7 +1005,44 @@ function FinalStep(props) {
                     </div>
                   </div>
                 </div>
-                {/* Fin Premier Jour */}
+                <div>
+                  <div className="d-flex flex-row mt-5">
+                    <div>
+                      <i className="far fa-user icon-xl icon-blue"></i>
+                    </div>
+                    <div className="d-flex flex-column ml-3">
+                      <h3 className="group-title">
+                        <FormattedMessage id="TEXT.RECURRENCE" />
+                      </h3>
+                    </div>
+                  </div>
+                  <div className="d-flex flex-row col-lg-12 justify-content-around ml-3">
+                    <div className="col-lg-3">
+                      <p className="block-title">
+                        <FormattedMessage id="TEXT.RECURRENCE.TYPE" />
+                      </p>
+                    </div>
+                    <div className="col-lg-3">
+                      <p className="font-weight-bolder">
+                        {existingRecurrence?.recurrenceTypeName || ""}
+                      </p>
+                    </div>
+                    <div className="col-lg-3">
+                      <p className="block-title">
+                        <FormattedMessage id="TEXT.RECURRENCE_NEXT_DATE" />
+                      </p>
+                    </div>
+                    <div className="col-lg-3">
+                      <p className="font-weight-bolder">
+                        {nextDate
+                          ? Moment(nextDate)
+                              .locale("fr")
+                              .format("DD MMMM YYYY")
+                          : ""}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
