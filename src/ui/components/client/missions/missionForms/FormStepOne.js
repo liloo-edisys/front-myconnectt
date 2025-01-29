@@ -159,32 +159,39 @@ function FormStepOne(props, formik) {
 
   const fetchExistingRecurrence = async (id) => {
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}/VacancyOfferProgram/ByVacancyId/${id}`,
-        {
-          headers: { accept: "text/plain" },
-        }
-      );
+        const response = await axios.get(
+            `${API_BASE_URL}/VacancyOfferProgram/ByVacancyId/${id}`,
+            {
+                headers: { accept: "text/plain" },
+            }
+        );
 
-      // Mettre à jour existingRecurrence
-      setExistingRecurrence(response.data);
-      setSelectedRecurrenceType(response.data.TypeID);
-      // Mettre à jour la date de publication si présente
-      if (response.data && response.data.publishDate) {
-        const date = moment(response.data.publishDate).toDate();
+        // Mettre à jour existingRecurrence
+        setExistingRecurrence(response.data);
+        setSelectedRecurrenceType(response.data.TypeID);
+
+        // Définir la date
+        let date;
+        if (response.data && response.data.publishDate) {
+            date = moment(response.data.publishDate).toDate();
+        } else {
+            date = moment().toDate(); // Utiliser la date actuelle si pas de date
+        }
+
+        // Mettre à jour les states et formik avec la date
         setpublishDate(date);
         props.formik.setFieldValue("publishDate", date);
         props.formik.setFieldValue("recurrenceEndDate", date);
-      }
+
     } catch (error) {
-      console.error("Error fetching existing recurrence:", error);
-      setExistingRecurrence(null);
-      setSelectedRecurrenceType(0);
-      setpublishDate(null);
-      props.formik.setFieldValue("publishDate", null);
-      props.formik.setFieldValue("recurrenceEndDate", null);
+        console.error("Error fetching existing recurrence:", error);
+        setExistingRecurrence(null);
+        setSelectedRecurrenceType(0);
+        setpublishDate(null);
+        props.formik.setFieldValue("publishDate", null);
+        props.formik.setFieldValue("recurrenceEndDate", null);
     }
-  };
+};
 
   const [selectedJobTitle, setSelectedJobTitle] = useLocalStorage(
     "jobTitleID",
