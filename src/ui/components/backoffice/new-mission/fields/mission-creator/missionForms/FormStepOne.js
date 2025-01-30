@@ -9,7 +9,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { Field } from "formik";
-import _, { debounce, isNull } from "lodash";
+import _, { debounce, isNull, set } from "lodash";
 import { Input } from "metronic/_partials/controls";
 import DatePicker from "react-datepicker";
 import { FormattedMessage, injectIntl } from "react-intl";
@@ -56,11 +56,9 @@ function FormStepOne(props, formik) {
   const dispatch = useDispatch();
   const history = useHistory();
   const { id } = useParams();
+
   const { intl, goToSecondStep, accountID } = props;
-  const TENANTID = +process.env.REACT_APP_TENANT_ID;
   let {
-    saveMissionSuccess,
-    updateMissionSuccess,
     isTemplate,
     isDuplicate,
     isTmpOrDup,
@@ -95,10 +93,7 @@ function FormStepOne(props, formik) {
     jobSkills,
     educationLevels,
     languages,
-    missionToDisplay,
-    currentWorksite,
     template,
-    currentCompanyID,
   } = useSelector(
     (state) => ({
       jobTitleList: state.lists.jobTitles,
@@ -121,7 +116,6 @@ function FormStepOne(props, formik) {
     ? companies.filter((company) => company.parentID === accountID)
     : [];
 
-  const editor = useRef(null);
   const [selectedCity, setselectedCity] = useState(null);
 
   const [missionToUpdate, setMissionToUpdate] = useState([]);
@@ -160,6 +154,8 @@ function FormStepOne(props, formik) {
   const [selectedRecurrenceType, setSelectedRecurrenceType] = useState(0);
   const [recurrenceTypes, setRecurrenceTypes] = useState([]);
   const [existingRecurrence, setExistingRecurrence] = useState(null);
+  const [vacancyID, setVacancyID] = useState(null);
+  const [ProgramId, setProgramId] = useState(null);
 
   const API_BASE_URL =
     "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api";
@@ -188,6 +184,8 @@ function FormStepOne(props, formik) {
       // Mettre à jour existingRecurrence
       setExistingRecurrence(response.data);
       setSelectedRecurrenceType(response.data.TypeID);
+      setVacancyID(response.data.vacancyID);
+      setProgramId(response.data.id);
 
       // Définir la date
       let date;
@@ -206,13 +204,14 @@ function FormStepOne(props, formik) {
       setExistingRecurrence(null);
       setSelectedRecurrenceType(0);
       setpublishDate(null);
+      setVacancyID(0);
+      setProgramId(0);
       props.formik.setFieldValue("publishDate", null);
       props.formik.setFieldValue("recurrenceEndDate", null);
     }
   };
 
   useEffect(() => {
-    // Référence pour savoir si le composant est monté
     let isMounted = true;
 
     const loadRecurrenceData = async () => {
@@ -222,15 +221,10 @@ function FormStepOne(props, formik) {
           await fetchRecurrenceTypes();
         }
 
-        // Vérifier explicitement que mission.id est défini et est un nombre valide
-        if (
-          isMounted &&
-          mission?.id &&
-          !isNaN(mission.id) &&
-          !existingRecurrence
-        ) {
-          console.log("Fetching recurrence for mission ID:", mission.id);
-          await fetchExistingRecurrence(mission.id);
+        // Vérifier que l'id n'est pas undefined avant d'exécuter
+        if (isMounted && id && !isNaN(parseInt(id)) && !existingRecurrence) {
+          console.log("Fetching recurrence for mission ID:", id);
+          await fetchExistingRecurrence(parseInt(id));
         }
       } catch (error) {
         console.error("Error loading recurrence data:", error);
@@ -243,7 +237,7 @@ function FormStepOne(props, formik) {
     return () => {
       isMounted = false;
     };
-  }, [mission?.id, recurrenceTypes.length, existingRecurrence]);
+  }, [id, recurrenceTypes.length, existingRecurrence]);
 
   useEffect(() => {
     props.formik.setFieldValue("vacancyBusinessAddressCity", city);
@@ -280,7 +274,6 @@ function FormStepOne(props, formik) {
       );
     }
     fetchRecurrenceTypes();
-    fetchExistingRecurrence();
   }, [city, address, postalCode, habilitations, jobSkills]);
 
   const getDataProfile = (newValue, list, exec) => {
@@ -537,10 +530,6 @@ function FormStepOne(props, formik) {
     );
   };
 
-  useEffect(() => {
-    fetchExistingRecurrence();
-  }, []);
-
   const handleChangeTags = (newValue) => {
     let newArray = selectedTags !== null ? [...selectedTags] : [];
     let difference =
@@ -615,7 +604,7 @@ function FormStepOne(props, formik) {
     } else if (difference.length) {
       let filteredArray = selectedSkills.filter((x) => newValue.includes(x));
       newArray = [];
-      filteredArray.map((skill, index) => {
+      filteredArray.map((skill) => {
         return newArray.push(createOption(skill.label, skill.value));
       });
     } else {
@@ -643,7 +632,7 @@ function FormStepOne(props, formik) {
     } else if (difference.length) {
       let filteredArray = selectedEducation.filter((x) => newValue.includes(x));
       newArray = [];
-      filteredArray.map((skill, index) => {
+      filteredArray.map((skill) => {
         return newArray.push(createOption(skill.label, skill.value));
       });
     } else {
@@ -754,13 +743,13 @@ function FormStepOne(props, formik) {
     return formatedValues;
   };
 
+  console.log("<------- mission -------> ", mission);
+
   const setFormikValues = async () => {
     try {
-      // 1. Mise à jour explicite de TypeID
       const typeValue = parseInt(selectedRecurrenceType) || 0;
       await props.formik.setFieldValue("TypeID", typeValue);
 
-      // 2. Mettre à jour les champs touched
       const fieldsToTouch = [
         "vacancyNumberOfJobs",
         "vacancyMissionDescription",
@@ -775,23 +764,27 @@ function FormStepOne(props, formik) {
         await props.formik.setFieldTouched(field, true);
       }
 
-      // 3. Mise à jour des autres valeurs
       const updates = {
         jobTitleID: parseInt(selectedJobTitle) || null,
         vacancyTitle: extraJobTitle || "",
         Address: address || "",
         vacancyBusinessAddressCity: city || "",
         vacancyBusinessAddressPostalCode: postalCode || "",
-        publishDate: publishDate ? moment(publishDate) : null,
-        TypeID: typeValue, // Répéter la mise à jour de TypeID pour s'assurer qu'elle est bien prise en compte
+
+        vacancyOfferProgram: {
+          publishDate: publishDate
+            ? moment(publishDate).format("YYYY-MM-DD") + "T00:00:00.000Z"
+            : null,
+          TypeID: typeValue,
+          vacancyID: vacancyID || 0,
+          id: ProgramId || 0,
+        },
       };
 
-      // Appliquer les mises à jour une par une
       for (const [field, value] of Object.entries(updates)) {
         await props.formik.setFieldValue(field, value);
       }
 
-      // 4. Mise à jour des tags et éducation si nécessaire
       if (!template) {
         await props.formik.setFieldValue(
           "vacancyApplicationCriteriaArrayJobTags",
@@ -802,9 +795,6 @@ function FormStepOne(props, formik) {
           formatFormik(selectedEducation)
         );
       }
-
-      console.log("=== Fin setFormikValues ===");
-      console.log("TypeID final:", props.formik.values.TypeID);
     } catch (error) {
       console.error("Erreur dans setFormikValues:", error);
       throw error;
@@ -828,12 +818,6 @@ function FormStepOne(props, formik) {
     }
   }, [dispatch, props.currentWorkiste, template]);
   const useMountEffect = (fun) => useEffect(fun, []);
-  let deleteItems = () => {
-    var result = {};
-    for (var type in window.localStorage)
-      if (!type.includes("persist")) result[type] = window.localStorage[type];
-    for (var item in result) deleteFromStorage(item);
-  };
   useMountEffect(() => {
     dispatch(resetMissionIndicator.request());
     dispatch(getJobTitles.request());
@@ -1215,7 +1199,7 @@ function FormStepOne(props, formik) {
                         <Field
                           name="jobTitleID"
                           validate={props.formik.values.jobTitleID}
-                          render={({ field, form }) => (
+                          render={({ field }) => (
                             <select
                               className={`${getFieldCSSClasses(
                                 touched[field.name],
@@ -1709,17 +1693,20 @@ function FormStepOne(props, formik) {
                       iconHeight="36px"
                       type="text"
                       placeholder="JJ/MM/AAAA"
+                      dateFormat="dd/MM/yyyy"
                       name="recurrenceEndDate"
                       selected={publishDate}
-                      value={publishDate}
+                      value={moment(publishDate).format("DD/MM/YYYY")}
                       onChange={(date) => {
-                        const formattedDate = date
-                          ? moment(date).toDate()
-                          : null;
-                        setpublishDate(formattedDate);
+                        if (!date) {
+                          setpublishDate(null);
+                          props.formik.setFieldValue("publishDate", null);
+                          return;
+                        }
+                        setpublishDate(date);
                         props.formik.setFieldValue(
                           "publishDate",
-                          formattedDate
+                          moment(date).format("YYYY-MM-DD") + "T00:00:00.000Z"
                         );
                       }}
                       showMonthDropdown
@@ -1792,7 +1779,7 @@ function FormStepOne(props, formik) {
                         <Select
                           isMulti
                           name="langs"
-                          onChange={(e, action) => {
+                          onChange={(e) => {
                             handleChangeEducation(e);
                           }}
                           options={formattedEducation}

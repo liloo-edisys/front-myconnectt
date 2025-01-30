@@ -127,6 +127,8 @@ function FormStepOne(props, formik) {
     currentWorksite
   );
 
+  console.log("<------- mission -------> ", mission);
+
   const [address, setAddress] = useLocalStorage("address", null);
   const [city, setCity] = useLocalStorage("currCity", null);
   const [postalCode, setPostalCode] = useLocalStorage("postalCode", "");
@@ -141,6 +143,8 @@ function FormStepOne(props, formik) {
 
   const [selectedRecurrenceType, setSelectedRecurrenceType] = useState(0);
   const [recurrenceTypes, setRecurrenceTypes] = useState([]);
+  const [vacancyID, setVacancyID] = useState(null);
+  const [ProgramId, setProgramId] = useState(null);
 
   const API_BASE_URL =
     "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api";
@@ -159,39 +163,42 @@ function FormStepOne(props, formik) {
 
   const fetchExistingRecurrence = async (id) => {
     try {
-        const response = await axios.get(
-            `${API_BASE_URL}/VacancyOfferProgram/ByVacancyId/${id}`,
-            {
-                headers: { accept: "text/plain" },
-            }
-        );
-
-        // Mettre à jour existingRecurrence
-        setExistingRecurrence(response.data);
-        setSelectedRecurrenceType(response.data.TypeID);
-
-        // Définir la date
-        let date;
-        if (response.data && response.data.publishDate) {
-            date = moment(response.data.publishDate).toDate();
-        } else {
-            date = moment().toDate(); // Utiliser la date actuelle si pas de date
+      const response = await axios.get(
+        `${API_BASE_URL}/VacancyOfferProgram/ByVacancyId/${id}`,
+        {
+          headers: { accept: "text/plain" },
         }
+      );
 
-        // Mettre à jour les states et formik avec la date
-        setpublishDate(date);
-        props.formik.setFieldValue("publishDate", date);
-        props.formik.setFieldValue("recurrenceEndDate", date);
+      // Mettre à jour existingRecurrence
+      setExistingRecurrence(response.data);
+      setSelectedRecurrenceType(response.data.TypeID);
+      setVacancyID(response.data.vacancyID);
+      setProgramId(response.data.id);
 
+      // Définir la date
+      let date;
+      if (response.data && response.data.publishDate) {
+        date = moment(response.data.publishDate).toDate();
+      } else {
+        date = moment().toDate(); // Utiliser la date actuelle si pas de date
+      }
+
+      // Mettre à jour les states et formik avec la date
+      setpublishDate(date);
+      props.formik.setFieldValue("publishDate", date);
+      props.formik.setFieldValue("recurrenceEndDate", date);
     } catch (error) {
-        console.error("Error fetching existing recurrence:", error);
-        setExistingRecurrence(null);
-        setSelectedRecurrenceType(0);
-        setpublishDate(null);
-        props.formik.setFieldValue("publishDate", null);
-        props.formik.setFieldValue("recurrenceEndDate", null);
+      console.error("Error fetching existing recurrence:", error);
+      setExistingRecurrence(null);
+      setSelectedRecurrenceType(0);
+      setpublishDate(null);
+      setVacancyID(0);
+      setProgramId(0);
+      props.formik.setFieldValue("publishDate", null);
+      props.formik.setFieldValue("recurrenceEndDate", null);
     }
-};
+  };
 
   const [selectedJobTitle, setSelectedJobTitle] = useLocalStorage(
     "jobTitleID",
@@ -723,15 +730,21 @@ function FormStepOne(props, formik) {
         Address: address || "",
         vacancyBusinessAddressCity: city || "",
         vacancyBusinessAddressPostalCode: postalCode || "",
-        publishDate: publishDate ? moment(publishDate) : null,
-        TypeID: typeValue, // Répéter la mise à jour de TypeID pour s'assurer qu'elle est bien prise en compte
+
+        vacancyOfferProgram: {
+          publishDate: publishDate
+            ? moment(publishDate).format("YYYY-MM-DD") + "T00:00:00.000Z"
+            : null,
+          TypeID: typeValue,
+          vacancyID: vacancyID || 0,
+          id: ProgramId || 0,
+        },
       };
 
       // Appliquer les mises à jour une par une
       for (const [field, value] of Object.entries(updates)) {
         await props.formik.setFieldValue(field, value);
       }
-
       // 4. Mise à jour des tags et éducation si nécessaire
       if (!template) {
         await props.formik.setFieldValue(
@@ -910,6 +923,7 @@ function FormStepOne(props, formik) {
     };
 
     loadRecurrenceData();
+    console.log("--------------- mission.id ---------------", mission.id);
 
     // Cleanup function
     return () => {
@@ -1735,17 +1749,20 @@ function FormStepOne(props, formik) {
                       iconHeight="36px"
                       type="text"
                       placeholder="JJ/MM/AAAA"
+                      dateFormat="dd/MM/yyyy"
                       name="recurrenceEndDate"
                       selected={publishDate}
-                      value={publishDate}
+                      value={moment(publishDate).format("DD/MM/YYYY")}
                       onChange={(date) => {
-                        const formattedDate = date
-                          ? moment(date).toDate()
-                          : null;
-                        setpublishDate(formattedDate);
+                        if (!date) {
+                          setpublishDate(null);
+                          props.formik.setFieldValue("publishDate", null);
+                          return;
+                        }
+                        setpublishDate(date);
                         props.formik.setFieldValue(
                           "publishDate",
-                          formattedDate
+                          moment(date).format("YYYY-MM-DD") + "T00:00:00.000Z"
                         );
                       }}
                       showMonthDropdown
