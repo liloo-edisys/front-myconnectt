@@ -3,44 +3,25 @@
 import React, { useEffect, useState, useMemo } from "react";
 
 import objectPath from "object-path";
-import {
-  Nav,
-  Tab,
-  Dropdown,
-  OverlayTrigger,
-  Tooltip,
-  Modal
-} from "react-bootstrap";
+import { Dropdown, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import SVG from "react-inlinesvg";
 import PerfectScrollbar from "react-perfect-scrollbar";
-import axios from "axios";
 import { FormattedMessage } from "react-intl";
 
 import { toAbsoluteUrl } from "../../../_metronic/_helpers";
 import { DropdownTopbarItemToggler } from "../../../_metronic/_partials/dropdowns";
 import { useHtmlClassService } from "../../../_metronic/layout/_core/MetronicLayout";
-import { SET_CURRENT_NOTIF } from "../../../constants/constants";
 import "./styles.scss";
-import {
-  getNotifications,
-  setNotifRead
-} from "../../../business/actions/shared/NotificationsActions";
-import { Block } from "@material-ui/icons";
+import { getNotifications } from "../../../business/actions/shared/NotificationsActions";
 import { UserNotificationPopup } from "./UserNotificationPopup";
 import { setSignalRInterimaire } from "../../../business/actions/interimaire/InterimairesActions";
 import { setSignalRClient } from "../../../business/actions/client/UserActions";
 import { setSignalRBackoffice } from "../../../business/actions/backoffice/UserActions";
 import { Link } from "react-router-dom";
 
-const perfectScrollbarOptions = {
-  wheelSpeed: 2,
-  wheelPropagation: false
-};
-
 export function UserNotificationsDropdownMobile() {
   const dispatch = useDispatch();
-  const bgImage = toAbsoluteUrl("/media/bg/bg-1.jpg");
   const uiService = useHtmlClassService();
   const [selectedNotif, setSelectedNotif] = useState(null);
 
@@ -48,7 +29,7 @@ export function UserNotificationsDropdownMobile() {
     return {
       offcanvas:
         objectPath.get(uiService.config, "extras.notifications.layout") ===
-        "offcanvas"
+        "offcanvas",
     };
   }, [uiService]);
 
@@ -56,23 +37,15 @@ export function UserNotificationsDropdownMobile() {
     setSelectedNotif(null);
   };
 
-  const {
-    notifs,
-    unread,
-    userDetails,
-    currentNotif,
-    showNotifModal,
-    authToken,
-    userType
-  } = useSelector(
-    state => ({
+  const { notifs, unread, userDetails, authToken, userType } = useSelector(
+    (state) => ({
       notifs: state.lists.notifs,
       unread: state.lists.unread,
       userDetails: state.auth.user,
       currentNotif: state.lists.currentNotif,
       showNotifModal: state.lists.showNotifModal,
       authToken: state.auth.authToken,
-      userType: state.auth.user.userType
+      userType: state.auth.user.userType,
     }),
     shallowEqual
   );
@@ -88,6 +61,8 @@ export function UserNotificationsDropdownMobile() {
       setSignalRBackoffice(authToken, dispatch, setSelectedNotif);
     }
   }, [dispatch]);
+
+  console.log(" ------------- notifs------------- ", notifs);
 
   return (
     <>
@@ -182,7 +157,7 @@ export function UserNotificationsDropdownMobile() {
                       fontSize: 8,
                       padding: 4,
                       marginLeft: 15,
-                      minWidth: "auto"
+                      minWidth: "auto",
                     }}
                   >
                     {unread > 9 ? "9+" : unread}
@@ -214,14 +189,14 @@ export function UserNotificationsDropdownMobile() {
                 <PerfectScrollbar
                   options={{
                     wheelSpeed: 2,
-                    wheelPropagation: false
+                    wheelPropagation: false,
                   }}
                   className="scroll mr-n7"
                   style={{
                     maxHeight: "300px",
                     position: "relative",
                     width: "100%",
-                    paddingTop: "20px"
+                    paddingTop: "20px",
                   }}
                 >
                   {notifs.length == 0 && (
@@ -236,7 +211,7 @@ export function UserNotificationsDropdownMobile() {
                             display: "block",
                             whiteSpace: "nowrap",
                             width: "19em",
-                            textAlign: "center"
+                            textAlign: "center",
                           }}
                         >
                           <FormattedMessage id="NOTIF.EMPTY" />
@@ -245,7 +220,7 @@ export function UserNotificationsDropdownMobile() {
                     </div>
                   )}
                   {notifs &&
-                    notifs.map(notif => (
+                    notifs.map((notif) => (
                       <div
                         key={notif.id}
                         style={{ marginTop: "5px" }}
@@ -258,7 +233,7 @@ export function UserNotificationsDropdownMobile() {
                             }}
                             className="text-dark text-hover-primary mb-1 font-size-lg"
                             style={{
-                              fontWeight: !notif.readed ? "bold" : "inherit"
+                              fontWeight: !notif.readed ? "bold" : "inherit",
                             }}
                             dangerouslySetInnerHTML={{ __html: notif.title }}
                           ></a>
@@ -269,7 +244,7 @@ export function UserNotificationsDropdownMobile() {
                               whiteSpace: "nowrap",
                               width: "19em",
                               overflow: "hidden",
-                              textOverflow: "ellipsis"
+                              textOverflow: "ellipsis",
                             }}
                             dangerouslySetInnerHTML={{ __html: notif.message }}
                           ></span>

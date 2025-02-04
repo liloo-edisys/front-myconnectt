@@ -7,7 +7,6 @@ import { connect, shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import "./styles.scss";
 
-
 import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
 
 function BackOfficeDashboardPageNew({ intl, history }) {
@@ -223,7 +222,7 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                       Relances envoyées
                     </div>
                     <div className="custom_counter_stats text-success">
-                      {statistics.rateLoginAccounts} 
+                      {statistics.rateLoginAccounts}
                     </div>
                   </div>
                   <div>
@@ -231,7 +230,7 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                       Réponses reçues
                     </div>
                     <div className="custom_counter_stats text-success">
-                      {statistics.rateLoginApplicants} 
+                      {statistics.rateLoginApplicants}
                     </div>
                   </div>
                 </div>

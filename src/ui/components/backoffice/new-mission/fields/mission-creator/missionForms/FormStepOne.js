@@ -194,7 +194,6 @@ function FormStepOne(props, formik) {
       } else {
         date = moment().toDate(); // Utiliser la date actuelle si pas de date
       }
-
       // Mettre à jour les states et formik avec la date
       setpublishDate(date);
       props.formik.setFieldValue("publishDate", date);
@@ -202,12 +201,12 @@ function FormStepOne(props, formik) {
     } catch (error) {
       console.error("Error fetching existing recurrence:", error);
       setExistingRecurrence(null);
-      setSelectedRecurrenceType(0);
-      setpublishDate(null);
+      setSelectedRecurrenceType(null);
+      const today = moment().toDate();
+    setpublishDate(today);
       setVacancyID(0);
-      setProgramId(0);
-      props.formik.setFieldValue("publishDate", null);
-      props.formik.setFieldValue("recurrenceEndDate", null);
+      setProgramId(null);
+      props.formik.setFieldValue("publishDate", today);
     }
   };
 
@@ -743,11 +742,9 @@ function FormStepOne(props, formik) {
     return formatedValues;
   };
 
-  console.log("<------- mission -------> ", mission);
-
   const setFormikValues = async () => {
     try {
-      const typeValue = parseInt(selectedRecurrenceType) || 0;
+      const typeValue = parseInt(selectedRecurrenceType) || null;
       await props.formik.setFieldValue("TypeID", typeValue);
 
       const fieldsToTouch = [

@@ -5,6 +5,7 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Redirect, Route, Switch } from "react-router-dom";
 import { getRecruiter } from "actions/backoffice/RecruiterActions";
 
+import ChatWidget from './components/shared/MetronicChat';
 import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout";
 
 import UnderConstruction from "./components/shared/UnderConstruction";
@@ -47,6 +48,10 @@ export default function BaseBackOfficePage(props) {
     dispatch(getRecruiter.request());
   }, [dispatch]);
 
+  const handleSendMessage = (message) => {
+    // Votre logique de traitement des messages ici
+    console.log('Message envoyé:', message);
+  };
   return (
     <Suspense fallback={<LayoutSplashScreen />}>
       <Switch>
@@ -105,6 +110,7 @@ export default function BaseBackOfficePage(props) {
         <ContentRoute path="/setting" component={Setting} />
         <Redirect to="error/error-v1" />
       </Switch>
+      <ChatWidget onSendMessage={handleSendMessage} />
     </Suspense>
   );
 }
