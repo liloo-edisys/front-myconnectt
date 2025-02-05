@@ -25,6 +25,7 @@ import { Calendar } from "./components/client/calendar";
 import { HoursStatement } from "./components/client/hours-statement";
 import CustomerOrderPage from "./components/client/customer-order/CustomerOrderPage";
 import Reciepts from "./components/client/missions/reciepts/Reciepts";
+import MetronicChat from './components/shared/MetronicChat';
 
 export default function BasePage(props) {
   const dispatch = useDispatch();
@@ -100,6 +101,7 @@ export default function BasePage(props) {
         />
         <Redirect to="error/error-v1" />
       </Switch>
+      <MetronicChat/>
     </Suspense>
   );
 }

@@ -2,16 +2,13 @@ import React, { Suspense, useEffect } from "react";
 
 // import DashboardPage from "components/backoffice/dashboard/DashboardPage";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Redirect, Route, Switch } from "react-router-dom";
+import { Redirect, Switch } from "react-router-dom";
 import { getRecruiter } from "actions/backoffice/RecruiterActions";
 
-import ChatWidget from './components/shared/MetronicChat';
 import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout";
 
-import UnderConstruction from "./components/shared/UnderConstruction";
 import Extensions from "./components/backoffice/extensions";
 import Interimaires from "./components/backoffice/interimaires";
-import BackOfficeDashboardPage from "./components/backoffice/dashboard/BackOfficeDashboardPage";
 import BackOfficeDashboardPageNew from "./components/backoffice/dashboard/BackOfficeDashboardPageNew";
 import Contracts from "./components/backoffice/contracts";
 import NewApplicant from "./components/backoffice/new-applicant/";
@@ -110,7 +107,6 @@ export default function BaseBackOfficePage(props) {
         <ContentRoute path="/setting" component={Setting} />
         <Redirect to="error/error-v1" />
       </Switch>
-      <ChatWidget onSendMessage={handleSendMessage} />
     </Suspense>
   );
 }
