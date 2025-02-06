@@ -37,7 +37,6 @@ export default function Messenger() {
   const [content, setContent] = useState("");
   const [showNewMessageModal, setShowNewMessageModal] = useState(false);
   const [newMessageSubject, setNewMessageSubject] = useState("");
-  const [newMessageRecipient, setNewMessageRecipient] = useState("");
   const [sendToAllTemp, setSendToAllTemp] = useState(false);
   const [selectedApplicants, setSelectedApplicants] = useState([]);
 
@@ -236,7 +235,7 @@ export default function Messenger() {
   const handleNewMessage = () => {
     if (
       !newMessageSubject ||
-      (!sendToAllTemp && !newMessageRecipient) ||
+      (!sendToAllTemp && selectedApplicants.length === 0) ||
       !content
     ) {
       toastr.error("Erreur", "Veuillez remplir tous les champs");
@@ -244,27 +243,38 @@ export default function Messenger() {
     }
 
     const body = {
-      body: content,
+      applicantsID: sendToAllTemp
+        ? null
+        : selectedApplicants.map((applicant) => applicant.value),
+      allApplicants: sendToAllTemp,
+      accountID: 0,
       subject: newMessageSubject,
-      recipientEmail: sendToAllTemp ? null : newMessageRecipient,
-      sendToAllTemp: sendToAllTemp,
-      tenantID: user.tenantID,
+      body: content,
     };
 
     axios
-      .post(`${api}api/email/SendNewEmail`, body)
+      .post(`${api}api/Message/DelayedMessage/Applicant`, body, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+      })
       .then((res) => {
-        toastr.success("Succès", "Votre mail a été envoyé avec succès.");
+        toastr.success(
+          "Succès",
+          "Votre message différé a été programmé avec succès."
+        );
         getMessages();
         setShowNewMessageModal(false);
         resetNewMessageForm();
       })
-      .catch((err) =>
+      .catch((err) => {
+        console.error("Erreur lors de l'envoi du message différé:", err);
         toastr.error(
           "Erreur",
-          "Une erreur est survenue lors de l'envoi du message."
-        )
-      );
+          "Une erreur est survenue lors de la programmation du message différé."
+        );
+      });
   };
 
   const selectStyles = {
@@ -475,105 +485,105 @@ export default function Messenger() {
           onHide={() => {
             setShowNewMessageModal(false);
             resetNewMessageForm();
-            }}
-            aria-labelledby="new-message-modal"
-          >
-            <Modal.Header closeButton>
+          }}
+          aria-labelledby="new-message-modal"
+        >
+          <Modal.Header closeButton>
             <Modal.Title id="new-message-modal">
               <FormattedMessage
-              id="MESSAGE.NEW.TITLE"
-              defaultMessage="Nouveau message"
+                id="MESSAGE.NEW.TITLE"
+                defaultMessage="Nouveau message"
               />
             </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
+          </Modal.Header>
+          <Modal.Body>
             <div className="form-group mb-4">
               <div className="d-flex align-items-center mb-3 justify-content-end">
-              <label className="checkbox checkbox-lg checkbox-primary flex-shrink-0 mr-4">
-                <input
-                type="checkbox"
-                checked={sendToAllTemp}
-                onChange={(e) => {
-                  setSendToAllTemp(e.target.checked);
-                  if (e.target.checked) {
-                  setSelectedApplicants([]);
-                  }
-                }}
-                />
-                <span></span>
-                &nbsp;&nbsp;
-                <FormattedMessage
-                id="MESSAGE.SEND_TO_ALL_TEMP"
-                defaultMessage="Envoyer à tous les intérimaires"
-                />
-              </label>
+                <label className="checkbox checkbox-lg checkbox-primary flex-shrink-0 mr-4">
+                  <input
+                    type="checkbox"
+                    checked={sendToAllTemp}
+                    onChange={(e) => {
+                      setSendToAllTemp(e.target.checked);
+                      if (e.target.checked) {
+                        setSelectedApplicants([]);
+                      }
+                    }}
+                  />
+                  <span></span>
+                  &nbsp;&nbsp;
+                  <FormattedMessage
+                    id="MESSAGE.SEND_TO_ALL_TEMP"
+                    defaultMessage="Envoyer à tous les intérimaires"
+                  />
+                </label>
               </div>
               {!sendToAllTemp && (
-              <div>
-                <label>
-                <FormattedMessage
-                  id="MESSAGE.RECIPIENT"
-                  defaultMessage="Destinataire"
-                />
-                </label>
-                <Select
-                isMulti
-                isClearable
-                isDisabled={sendToAllTemp}
-                styles={selectStyles}
-                loadOptions={loadApplicants}
-                onChange={handleApplicantsChange}
-                placeholder={intl.formatMessage({
-                  id: "MESSAGE.RECIPIENTS.PLACEHOLDER",
-                  defaultMessage: "Rechercher des intérimaires...",
-                })}
-                noOptionsMessage={() =>
-                  intl.formatMessage({
-                  id: "MESSAGE.NO_RESULTS",
-                  defaultMessage: "Aucun résultat",
-                  })
-                }
-                loadingMessage={() =>
-                  intl.formatMessage({
-                  id: "MESSAGE.LOADING",
-                  defaultMessage: "Chargement...",
-                  })
-                }
-                className="react-select"
-                classNamePrefix="react-select"
-                defaultOptions={[]}
-                />
-              </div>
+                <div>
+                  <label>
+                    <FormattedMessage
+                      id="MESSAGE.RECIPIENT"
+                      defaultMessage="Destinataire"
+                    />
+                  </label>
+                  <Select
+                    isMulti
+                    isClearable
+                    isDisabled={sendToAllTemp}
+                    styles={selectStyles}
+                    loadOptions={loadApplicants}
+                    onChange={handleApplicantsChange}
+                    placeholder={intl.formatMessage({
+                      id: "MESSAGE.RECIPIENTS.PLACEHOLDER",
+                      defaultMessage: "Rechercher des intérimaires...",
+                    })}
+                    noOptionsMessage={() =>
+                      intl.formatMessage({
+                        id: "MESSAGE.NO_RESULTS",
+                        defaultMessage: "Aucun résultat",
+                      })
+                    }
+                    loadingMessage={() =>
+                      intl.formatMessage({
+                        id: "MESSAGE.LOADING",
+                        defaultMessage: "Chargement...",
+                      })
+                    }
+                    className="react-select"
+                    classNamePrefix="react-select"
+                    defaultOptions={[]}
+                  />
+                </div>
               )}
             </div>
             <div className="form-group mb-4">
               <label>
-              <FormattedMessage id="MESSAGE.SUBJECT" defaultMessage="Sujet" />
+                <FormattedMessage id="MESSAGE.SUBJECT" defaultMessage="Sujet" />
               </label>
               <input
-              type="text"
-              className="form-control"
-              value={newMessageSubject}
-              onChange={(e) => setNewMessageSubject(e.target.value)}
+                type="text"
+                className="form-control"
+                value={newMessageSubject}
+                onChange={(e) => setNewMessageSubject(e.target.value)}
               />
             </div>
             <div className="form-group">
               <label>
-              <FormattedMessage
-                id="MESSAGE.CONTENT"
-                defaultMessage="Message"
-              />
+                <FormattedMessage
+                  id="MESSAGE.CONTENT"
+                  defaultMessage="Message"
+                />
               </label>
               <JoditEditor
-              ref={editor}
-              value={content}
-              config={config}
-              tabIndex={1}
-              onBlur={(newContent) => setContent(newContent)}
+                ref={editor}
+                value={content}
+                config={config}
+                tabIndex={1}
+                onBlur={(newContent) => setContent(newContent)}
               />
             </div>
-            </Modal.Body>
-            <Modal.Footer>
+          </Modal.Body>
+          <Modal.Footer>
             <button
               className="btn btn-light-primary mr-2"
               onClick={() => {

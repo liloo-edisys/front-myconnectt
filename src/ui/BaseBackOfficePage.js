@@ -32,6 +32,8 @@ import Declinaisons from "./components/backoffice/declinaisons/Declinaisons";
 import Setting from "./components/backoffice/setting";
 import ContactsContainer from "./containers/ContactsContainerBackoffice";
 import Statistiques from "./components/backoffice/statistiques/statistiques";
+import ChatPage from "./components/backoffice/ChatPage/ChatPage";
+import {ParentBubble} from './components/backoffice/ChatPage/parentBubble/ParentBubble'
 
 export default function BaseBackOfficePage(props) {
   const dispatch = useDispatch();
@@ -45,10 +47,7 @@ export default function BaseBackOfficePage(props) {
     dispatch(getRecruiter.request());
   }, [dispatch]);
 
-  const handleSendMessage = (message) => {
-    // Votre logique de traitement des messages ici
-    console.log('Message envoyé:', message);
-  };
+
   return (
     <Suspense fallback={<LayoutSplashScreen />}>
       <Switch>
@@ -87,6 +86,7 @@ export default function BaseBackOfficePage(props) {
         <ContentRoute path="/decline/applicant" component={Declinaisons} />
         <ContentRoute path="/decline/client" component={Declinaisons} />
         <ContentRoute path="/statistiques" component={Statistiques} />
+
         <ContentRoute
           path="/remuneration-elements"
           component={RemunerationElements}
@@ -105,8 +105,10 @@ export default function BaseBackOfficePage(props) {
         />
         <ContentRoute path="/customers" component={CustomersContainer} />
         <ContentRoute path="/setting" component={Setting} />
+        <ContentRoute path="/messages" component={ChatPage} />
         <Redirect to="error/error-v1" />
       </Switch>
+      {/* <ParentBubble/> */}
     </Suspense>
   );
 }
