@@ -144,11 +144,11 @@ export function UserNotificationsDropdown() {
                 )}
               />
             </span>
-            {unread > 0 && (
+            {/* {unread > 0 && (
               <span className="notification-count">
                 {unread > 9 ? "9+" : unread}
               </span>
-            )}
+            )} */}
             <span className="pulse-ring"></span>
           </div>
         </div>

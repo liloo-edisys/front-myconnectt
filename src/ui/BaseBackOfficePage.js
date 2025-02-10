@@ -33,7 +33,7 @@ import Setting from "./components/backoffice/setting";
 import ContactsContainer from "./containers/ContactsContainerBackoffice";
 import Statistiques from "./components/backoffice/statistiques/statistiques";
 import ChatPage from "./components/backoffice/ChatPage/ChatPage";
-import {ParentBubble} from './components/backoffice/ChatPage/parentBubble/ParentBubble'
+import DelayedMessage from "./components/backoffice/delayedMessage/DelayedMessage";
 
 export default function BaseBackOfficePage(props) {
   const dispatch = useDispatch();
@@ -86,7 +86,7 @@ export default function BaseBackOfficePage(props) {
         <ContentRoute path="/decline/applicant" component={Declinaisons} />
         <ContentRoute path="/decline/client" component={Declinaisons} />
         <ContentRoute path="/statistiques" component={Statistiques} />
-
+        <ContentRoute path="/delayedMessage" component={DelayedMessage} />
         <ContentRoute
           path="/remuneration-elements"
           component={RemunerationElements}

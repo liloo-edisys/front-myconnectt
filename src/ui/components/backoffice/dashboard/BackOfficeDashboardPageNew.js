@@ -718,6 +718,60 @@ function BackOfficeDashboardPageNew({ intl, history }) {
               </div>
             </div>
           </Link>
+          <Link className="col-lg-4 mw-300" to="/delayedMessage">
+            <div className="card card-custom card-stretch gutter-b box-shadow-primary">
+              <div className="card-body gif-container d-flex align-items-center py-0 pr-1">
+                <div className="d-flex flex-column flex-grow-1 py-2 py-lg-5">
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <span className="svg-icon svg-icon-applicant-message svg-icon-3x ml-n1">
+                        <SVG
+                          src={toAbsoluteUrl("/media/svg/icons/Files/File.svg")}
+                        ></SVG>
+                      </span>
+                      <span
+                        className="custom-counter "
+                        style={{ color: "#FF9966" }}
+                      >
+                        {statistics.nbrMsgApplicants}
+                      </span>
+                    </div>
+                    <div className="gif-wrapper">
+                      <img
+                        src="/media/elements/message-applicant.gif"
+                        alt=""
+                        className="align-self-end h-100px static-gif"
+                      />
+                      <img
+                        src="/media/elements/message-applicant.gif"
+                        alt=""
+                        className="align-self-end h-100px"
+                      />
+                    </div>
+                  </div>
+                  <span className="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 text-hover-primary">
+                    {/*<FormattedMessage id="USER.COMMERCIAL.AGREEMENT" />*/}
+                    Message différé
+                  </span>
+                  <span className="font-weight-bold text-muted font-size-lg">
+                    <FormattedMessage id="DESC.APPLICANT.MESSENGER.LIST" />
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Link>
           <Link className="col-lg-4 mw-300" to="/messenger/client">
             <div className="card card-custom card-stretch gutter-b box-shadow-primary">
               <div className="card-body gif-container d-flex align-items-center py-0 pr-1">

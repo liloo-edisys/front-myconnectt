@@ -1,7 +1,7 @@
 import React from "react";
 import {
   deleteNotification,
-  setNotifRead
+  setNotifRead,
 } from "../../../business/actions/shared/NotificationsActions";
 import "./styles.scss";
 
@@ -13,16 +13,29 @@ export function UserNotificationPopup(props) {
 
   return (
     <Modal show={true} onHide={closePopup} className="notifications_modal">
-      <div style={{ border: "1px solid #2e63a7", borderRadius: 5 }}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            <span dangerouslySetInnerHTML={{ __html: notif.title }}></span>
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <span dangerouslySetInnerHTML={{ __html: notif.message }}></span>
-        </Modal.Body>
-      </div>
+      {notif?.subject ? (
+        <div style={{ border: "1px solid #2e63a7", borderRadius: 5 }}>
+          <Modal.Header closeButton>
+            <Modal.Title>
+              <span dangerouslySetInnerHTML={{ __html: notif.subject }}></span>
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <span dangerouslySetInnerHTML={{ __html: notif.body }}></span>
+          </Modal.Body>
+        </div>
+      ) : (
+        <div style={{ border: "1px solid #2e63a7", borderRadius: 5 }}>
+          <Modal.Header closeButton>
+            <Modal.Title>
+              <span dangerouslySetInnerHTML={{ __html: notif.title }}></span>
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <span dangerouslySetInnerHTML={{ __html: notif.message }}></span>
+          </Modal.Body>
+        </div>
+      )}
     </Modal>
   );
 }

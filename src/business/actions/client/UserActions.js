@@ -49,6 +49,15 @@ export const setSignalRClient = (authToken, dispatch, setSelectedNotif) => {
         });
         setSelectedNotif(notif);
       });
+      connection.on("SendDelayedMessage", notif => {
+        dispatch({
+          type: actionTypes.PUSH_NEW_NOTIF,
+          payload: notif
+        });
+        setSelectedNotif(notif);
+        console.log("notif -----------> ", notif);
+        
+      });
     })
     .catch(err => {
       console.log("SignalR Connection Error: ", err);

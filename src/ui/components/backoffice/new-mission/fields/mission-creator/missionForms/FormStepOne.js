@@ -6,15 +6,13 @@
 // Data validation is based on Yup
 // Please, be familiar with article first:
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { Field } from "formik";
-import _, { debounce, isNull, set } from "lodash";
+import _, { isNull } from "lodash";
 import { Input } from "metronic/_partials/controls";
-import DatePicker from "react-datepicker";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import { countMatching } from "actions/client/ApplicantsActions";
@@ -43,10 +41,8 @@ import { toastr } from "react-redux-toastr";
 import {
   getMission as getMissionAction,
   resetMissionIndicator,
-  resetMission,
   getHabilitationsList,
 } from "../../../../../../../business/actions/client/MissionsActions";
-import { deleteFromStorage } from "../../../../../shared/DeleteFromStorage";
 import axios from "axios";
 import { useHistory, useParams } from "react-router-dom";
 import InputRange from "react-input-range";
@@ -203,7 +199,7 @@ function FormStepOne(props, formik) {
       setExistingRecurrence(null);
       setSelectedRecurrenceType(null);
       const today = moment().toDate();
-    setpublishDate(today);
+      setpublishDate(today);
       setVacancyID(0);
       setProgramId(null);
       props.formik.setFieldValue("publishDate", today);
@@ -390,33 +386,33 @@ function FormStepOne(props, formik) {
 
     return classes.join(" ");
   };
+
   const handleChangeAddress = (e) => {
-    /*setAddress(getCurrentMission("address", e));*/
-    props.formik.setFieldValue("address", e);
-    setAddress(e);
-    return e;
+    const newAddress = e.target.value;
+    setAddress(newAddress); // Permettre une valeur vide
+    props.formik.setFieldValue("address", newAddress);
   };
+
   const handleForceChangeAddress = (e) => {
-    props.formik.setFieldValue("address", getCurrentMission("address", e));
-    setAddress(getCurrentMission("address", e));
-    return e;
+    const newAddress = getCurrentMission("address", e);
+    if (newAddress) {
+      setAddress(newAddress);
+      props.formik.setFieldValue("address", newAddress);
+    }
   };
 
   const handleChangeCity = (e) => {
-    //setCity(getCurrentMission("city", e));
-    props.formik.setFieldValue("city", e);
-    setCity(e);
-    return e;
+    const newCity = e.target.value;
+    setCity(newCity); // Permettre une valeur vide
+    props.formik.setFieldValue("vacancyBusinessAddressCity", newCity);
   };
 
   const handleForceChangeCity = (e) => {
-    props.formik.setFieldValue(
-      "vacancyBusinessAddressCity",
-      getCurrentMission("city", e)
-    );
-    setCity(getCurrentMission("city", e));
-    //setCity(getCurrentMission("city", e));
-    return e;
+    const newCity = getCurrentMission("city", e);
+    if (newCity) {
+      setCity(newCity);
+      props.formik.setFieldValue("vacancyBusinessAddressCity", newCity);
+    }
   };
 
   const handleChangePostalCode = (e) => {
@@ -427,12 +423,11 @@ function FormStepOne(props, formik) {
   };
 
   const handleForceChangePostalCode = (e) => {
-    props.formik.setFieldValue(
-      "vacancyBusinessAddressPostalCode",
-      getCurrentMission("postalCode", e)
-    );
-    setPostalCode(getCurrentMission("postalCode", e));
-    return e;
+    const newPostalCode = getCurrentMission("postalCode", e);
+    if (newPostalCode) {
+      setPostalCode(newPostalCode);
+      props.formik.setFieldValue("vacancyBusinessAddressPostalCode", newPostalCode);
+    }
   };
 
   const handleChangeJobTitle = (e) => {
@@ -558,6 +553,51 @@ function FormStepOne(props, formik) {
       formatFormik(newArray)
     );
   };
+
+  useEffect(() => {
+    if (worksites.length > 0) {
+      // Seulement si les champs n'ont pas déjà des valeurs (du template ou existantes)
+      if (!props.formik.values.address && !address) {
+        setAddress(worksites[0].address);
+        props.formik.setFieldValue("address", worksites[0].address);
+      }
+
+      if (!props.formik.values.vacancyBusinessAddressCity && !city) {
+        setCity(worksites[0].city);
+        props.formik.setFieldValue(
+          "vacancyBusinessAddressCity",
+          worksites[0].city
+        );
+      }
+
+      if (
+        !props.formik.values.vacancyBusinessAddressPostalCode &&
+        !postalCode
+      ) {
+        setPostalCode(worksites[0].postalCode);
+        props.formik.setFieldValue(
+          "vacancyBusinessAddressPostalCode",
+          worksites[0].postalCode
+        );
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    // On met à jour Formik uniquement si les valeurs existent
+    if (city !== undefined) {
+      props.formik.setFieldValue("vacancyBusinessAddressCity", city);
+    }
+    if (address !== undefined) {
+      props.formik.setFieldValue("address", address);
+    }
+    if (postalCode !== undefined) {
+      props.formik.setFieldValue(
+        "vacancyBusinessAddressPostalCode",
+        postalCode
+      );
+    }
+  }, [city, address, postalCode]);
 
   const handleChangeHabilitations = (newValue) => {
     let newArray =
@@ -1319,7 +1359,7 @@ function FormStepOne(props, formik) {
                   </div>
                   <div className="col-xl-3">
                     <div className="form-group">
-                      <label className=" col-form-label">
+                      <label className="col-form-label">
                         <FormattedMessage id="MODEL.ACCOUNT.ADDRESS" />
                       </label>
                       <div className="input-group">
@@ -1329,34 +1369,22 @@ function FormStepOne(props, formik) {
                           </span>
                         </div>
                         <Field
-                          as="input"
                           name="address"
-                          className="col-lg-12 form-control"
-                          type="text"
+                          component={Input}
+                          className="form-control form-control-lg"
                           placeholder={intl.formatMessage({
                             id: "MODEL.ACCOUNT.ADDRESS",
                           })}
-                          onChange={(e) => {
-                            let data = props.formik.values;
-                            props.formik &&
-                              props.formik.values.missionHasVehicle === null &&
-                              delete data["missionHasVehicle"];
-                            dispatch(
-                              countMatching.request({
-                                ...data,
-                                address: e.target.value,
-                              })
-                            );
-                            handleChangeAddress(e.target.value);
-                          }}
-                          value={address}
-                        ></Field>
+                          value={address || ""} // Ajout de || "" pour éviter une valeur null
+                          onChange={handleChangeAddress}
+                        />
                       </div>
                     </div>
                   </div>
+
                   <div className="col-xl-3">
                     <div className="form-group">
-                      <label className=" col-form-label">
+                      <label className="col-form-label">
                         <FormattedMessage id="MODEL.ACCOUNT.CITY" />
                       </label>
                       <div className="input-group">
@@ -1365,19 +1393,16 @@ function FormStepOne(props, formik) {
                             <i className="icon-xl fas fa-city text-primary"></i>
                           </span>
                         </div>
-                        <input
+                        <Field
                           name="vacancyBusinessAddressCity"
-                          className="col-lg-12 form-control"
-                          type="text"
+                          component={Input}
+                          className="form-control form-control-lg"
                           placeholder={intl.formatMessage({
                             id: "MODEL.ACCOUNT.CITY",
                           })}
-                          onChange={(e) => {
-                            handleChangeCity(e.target.value);
-                          }}
-                          value={city}
-                          //defaultValue={selectedMission && selectedMission.city}
-                        ></input>
+                          value={city || ""}
+                          onChange={handleChangeCity}
+                        />
                       </div>
                     </div>
                   </div>

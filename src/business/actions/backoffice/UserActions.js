@@ -207,5 +207,5 @@ export const setSignalRBackoffice = (authToken, dispatch) => {
         });
       });
     })
-    .catch(e => console.log("Connection failed: ", e));
+    .catch(e => console.log("Connection with SignalR failed: ", e));
 };

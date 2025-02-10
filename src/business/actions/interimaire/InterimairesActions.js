@@ -15,11 +15,9 @@ import {
   ADD_EXPERIENCE,
   REMOVE_EXPERIENCE,
   GET_USER_START_GUIDE,
-  GO_TO_NEXT_STEP,
   USER_BY_MOBILE_SUCCESS,
   UPDATE_INTERIMAIRE_IDENTITY_REQUEST,
   UPDATE_INTERIMAIRE_IDENTITY_SUCCESS,
-  UPDATE_INTERIMAIRE_IDENTITY_FAILLED,
   CLEAR_ANIMATION_DURATION,
   SET_COUNT_MATCHING,
   INCREMENT_COUNT_APPLICATIONS,
@@ -522,7 +520,8 @@ export const setSignalRInterimaire = (
 
   connection
     .start()
-    .then(result => {
+    .then(() => {
+      console.log("SignalR connection established.");
       connection.on("SendNotification", notif => {
         dispatch({
           type: actionTypes.PUSH_NEW_NOTIF,
@@ -530,11 +529,23 @@ export const setSignalRInterimaire = (
         });
         setSelectedNotif(notif);
       });
+      connection.on("SendDelayedMessage", notif => {
+        dispatch({
+          type: actionTypes.PUSH_NEW_NOTIF,
+          payload: notif
+        });
+        // dispatch({
+        //   type: actionTypes.GET_NOTIFICATIONS,
+        //   payload: notif
+        // });
+        setSelectedNotif(notif);
+      });
       connection.on("UpdatePropositions", count => {
         dispatch({
           type: INCREMENT_COUNT_PROPOSITIONS,
           payload: count
         });
+        console.log("UpdatePropositions ---------> ", count);
       });
       connection.on("UpdateApplications", count => {
         dispatch({
@@ -542,8 +553,9 @@ export const setSignalRInterimaire = (
           payload: count
         });
       });
+      
     })
-    .catch(e => console.log("Connection failed: ", e));
+    .catch(e => console.log("Connection with SignalR failed: ", e.message));
 };
 
 export const getContractList = (body, dispatch) => {
