@@ -367,17 +367,6 @@ export default function Messenger() {
               : "TEXT.CLIENT.MESSENGER",
         })}
       >
-        <CardHeaderToolbar>
-          <button
-            className="btn btn-primary"
-            onClick={() => setShowNewMessageModal(true)}
-          >
-            <FormattedMessage
-              id="MESSAGE.NEW"
-              defaultMessage="Nouveau message"
-            />
-          </button>
-        </CardHeaderToolbar>
       </CardHeader>
       <CardBody>
         <Modal
