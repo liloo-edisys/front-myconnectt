@@ -71,30 +71,6 @@ const delayTypes = [
   { value: 4, label: "Clients spécifiques" },
 ];
 
-const columns = [
-  {
-    dataField: "subject",
-    text: "Sujet",
-    headerStyle: { width: "30%" },
-  },
-  {
-    dataField: "body",
-    text: "Contenu",
-    headerStyle: { width: "50%" },
-    formatter: (cell) => <div dangerouslySetInnerHTML={{ __html: cell }} />,
-  },
-  {
-    dataField: "actions",
-    text: "Actions",
-    headerStyle: { width: "20%" },
-    formatter: () => (
-      <button className="btn btn-primary btn-sm">
-        Voir
-      </button>
-    ),
-  },
-];
-
 const customStyles = {
   control: (base) => ({
     ...base,
@@ -123,6 +99,10 @@ const MessagesList = () => {
   const [newMessageSubject, setNewMessageSubject] = useState("");
   const [content, setContent] = useState("");
 
+  // États pour le modal de visualisation
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState(null);
+
   const config = {
     readonly: false,
     height: 300,
@@ -133,6 +113,49 @@ const MessagesList = () => {
       'link', '|',
       'source'
     ],
+  };
+
+  // Configuration des colonnes avec la fonction de visualisation
+  const columns = [
+    {
+      dataField: "subject",
+      text: "Sujet",
+      headerStyle: { width: "30%" },
+    },
+    {
+      dataField: "body",
+      text: "Contenu",
+      headerStyle: { width: "50%" },
+      formatter: (cell) => (
+        <div 
+          style={{ 
+            maxHeight: "100px", 
+            overflow: "hidden", 
+            textOverflow: "ellipsis" 
+          }}
+          dangerouslySetInnerHTML={{ __html: cell }} 
+        />
+      ),
+    },
+    {
+      dataField: "actions",
+      text: "Actions",
+      headerStyle: { width: "20%" },
+      formatter: (cell, row) => (
+        <button 
+          className="btn btn-primary btn-sm"
+          onClick={() => handleViewMessage(row)}
+        >
+          Voir
+        </button>
+      ),
+    },
+  ];
+
+  // Fonction pour ouvrir le modal de visualisation
+  const handleViewMessage = (message) => {
+    setSelectedMessage(message);
+    setShowViewModal(true);
   };
 
   // Gestion du changement de type
@@ -241,7 +264,7 @@ const MessagesList = () => {
         messageData = {
           applicantsID: !sendToAll ? selectedRecipients.map(r => r.value) : [],
           allApplicants: sendToAll,
-          accountID: 0, // À ajuster selon vos besoins
+          accountID: 0,
           subject: newMessageSubject,
           body: content
         };
@@ -255,23 +278,18 @@ const MessagesList = () => {
         };
       }
 
-      // Envoyer le message
       await axios.post(endpoint, messageData);
-
-      // Fermer le modal et réinitialiser le formulaire
       setShowNewMessageModal(false);
       resetNewMessageForm();
-      
-      // Recharger la liste des messages
       fetchMessages(selectedType.value);
     } catch (error) {
       console.error("Erreur lors de l'envoi du message:", error);
-      // Gérer l'erreur
     }
   };
 
   return (
     <div className={classes.container}>
+      {/* En-tête avec sélection du type et bouton nouveau message */}
       <div className={classes.header}>
         <div className={classes.typeSelect}>
           <select
@@ -297,6 +315,7 @@ const MessagesList = () => {
         </button>
       </div>
 
+      {/* Table des messages */}
       <div className={classes.table}>
         <BootstrapTable
           keyField="accountID"
@@ -310,6 +329,7 @@ const MessagesList = () => {
         />
       </div>
 
+      {/* Modal de création de nouveau message */}
       <Modal
         size="xl"
         show={showNewMessageModal}
@@ -330,11 +350,12 @@ const MessagesList = () => {
         <Modal.Body>
           <div className="form-group mb-4">
             <div className="d-flex justify-content-between mb-4">
-              <div className={classes.radioGroup}>
-                <label className="radio radio-lg radio-primary mr-4">
+              <div className="flex flex-col space-y-2">
+                <label className="inline-flex items-center">
                   <input
                     type="radio"
                     name="messageType"
+                    className="form-radio text-blue-500 h-5 w-5"
                     checked={messageType === 'temp'}
                     onChange={() => {
                       setMessageType('temp');
@@ -342,16 +363,13 @@ const MessagesList = () => {
                       setSelectedRecipients([]);
                     }}
                   />
-                  <span></span>
-                  <FormattedMessage
-                    id="MESSAGE.TYPE.TEMP"
-                    defaultMessage="Intérimaires"
-                  />
+                  <span className="ml-2">Intérimaires</span>
                 </label>
-                <label className="radio radio-lg radio-primary ml-4">
+                <label className="inline-flex items-center ml-6">
                   <input
                     type="radio"
                     name="messageType"
+                    className="form-radio text-blue-500 h-5 w-5"
                     checked={messageType === 'client'}
                     onChange={() => {
                       setMessageType('client');
@@ -359,11 +377,7 @@ const MessagesList = () => {
                       setSelectedRecipients([]);
                     }}
                   />
-                  <span></span>
-                  <FormattedMessage
-                    id="MESSAGE.TYPE.CLIENT"
-                    defaultMessage="Clients"
-                  />
+                  <span className="ml-2">Clients</span>
                 </label>
               </div>
               <div>
@@ -466,6 +480,39 @@ const MessagesList = () => {
             className="btn btn-primary btn-shadow"
           >
             <FormattedMessage id="BUTTON.SEND" defaultMessage="Envoyer" />
+          </button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal de visualisation du message */}
+      <Modal
+        show={showViewModal}
+        onHide={() => setShowViewModal(false)}
+        size="lg"
+        aria-labelledby="view-message-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="view-message-modal">
+            {selectedMessage?.subject}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div
+            className="message-content p-4"
+            style={{ 
+              backgroundColor: "#fff",
+              borderRadius: "4px",
+              minHeight: "200px"
+            }}
+            dangerouslySetInnerHTML={{ __html: selectedMessage?.body }}
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setShowViewModal(false)}
+          >
+            <FormattedMessage id="BUTTON.CLOSE" defaultMessage="Fermer" />
           </button>
         </Modal.Footer>
       </Modal>

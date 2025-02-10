@@ -874,6 +874,7 @@
   "TEXT.SUPPORT.EMAIL": "Adresse mail de support",
   "DOCUMENT.MESSAGE.PROCESSING": "Document en cours de traitement",
   "DESC.APPLICANT.MESSENGER.LIST": "Accéder à la messagerie des intérimaires",
+  "DESC.APPLICANT.DELAYED.LIST": "Accéder à la messagerie des messages différés",
   "DESC.CLIENT.MESSENGER.LIST": "Accéder à la messagerie des clients",
   "DESC.APPLICANT.DECLINE.LIST": "Accéder à la liste des refus par les intérimaires",
   "DESC.CLIENT.DECLINE.LIST": "Accéder à la liste des refus par les clients",

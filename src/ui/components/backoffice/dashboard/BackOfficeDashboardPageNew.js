@@ -745,7 +745,7 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                         className="custom-counter "
                         style={{ color: "#FF9966" }}
                       >
-                        {statistics.nbrMsgApplicants}
+                        {statistics.nbDelayMessage}
                       </span>
                     </div>
                     <div className="gif-wrapper">
@@ -766,7 +766,7 @@ function BackOfficeDashboardPageNew({ intl, history }) {
                     Message différé
                   </span>
                   <span className="font-weight-bold text-muted font-size-lg">
-                    <FormattedMessage id="DESC.APPLICANT.MESSENGER.LIST" />
+                    <FormattedMessage id="DESC.APPLICANT.DELAYED.LIST" defaultMessage="Accéder à la messagerie des messages différés" />
                   </span>
                 </div>
               </div>
