@@ -7,6 +7,9 @@ import AsyncSelect from "react-select/async";
 import JoditEditor from "jodit-react";
 import { FormattedMessage } from "react-intl";
 import debounce from "debounce-promise";
+import AccessTimeIcon from "@material-ui/icons/AccessTime";
+import EmailIcon from "@material-ui/icons/Email";
+import GroupIcon from "@material-ui/icons/Group";
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -93,7 +96,7 @@ const MessagesList = () => {
 
   // États pour le modal de nouveau message
   const [showNewMessageModal, setShowNewMessageModal] = useState(false);
-  const [messageType, setMessageType] = useState('temp');
+  const [messageType, setMessageType] = useState("temp");
   const [sendToAll, setSendToAll] = useState(false);
   const [selectedRecipients, setSelectedRecipients] = useState([]);
   const [newMessageSubject, setNewMessageSubject] = useState("");
@@ -108,11 +111,24 @@ const MessagesList = () => {
     height: 300,
     toolbarButtonSize: "small",
     buttons: [
-      'bold', 'italic', 'underline', '|',
-      'ul', 'ol', '|',
-      'link', '|',
-      'source'
+      "bold",
+      "italic",
+      "underline",
+      "|",
+      "ul",
+      "ol",
+      "|",
+      "link",
+      "|",
+      "source",
     ],
+  };
+
+  const DelayType = {
+    AllApplicants: 1,
+    SpecifiqApplicants: 2,
+    AllClients: 3,
+    SpecifiqClients: 4,
   };
 
   // Configuration des colonnes avec la fonction de visualisation
@@ -120,29 +136,57 @@ const MessagesList = () => {
     {
       dataField: "subject",
       text: "Sujet",
-      headerStyle: { width: "30%" },
+      headerStyle: { width: "20%" },
     },
     {
       dataField: "body",
       text: "Contenu",
-      headerStyle: { width: "50%" },
+      headerStyle: { width: "35%" },
       formatter: (cell) => (
-        <div 
-          style={{ 
-            maxHeight: "100px", 
-            overflow: "hidden", 
-            textOverflow: "ellipsis" 
-          }}
-          dangerouslySetInnerHTML={{ __html: cell }} 
+        <div
+          className="max-h-24 overflow-hidden"
+          dangerouslySetInnerHTML={{ __html: cell }}
         />
       ),
+    },
+    {
+      dataField: "creationDate",
+      text: "Date",
+      headerStyle: { width: "20%" },
+      formatter: (cell) => {
+        const date = new Date(cell);
+        return date.toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+      },
+    },
+    {
+      dataField: "destinataire",
+      text: "Destinataires",
+      headerStyle: { width: "25%" },
+      formatter: (cell, row) => {
+        // Gestion selon le delayType
+        switch (row.delayType) {
+          case DelayType.AllApplicants:
+            return "Tous les intérimaires";
+          case DelayType.AllClients:
+            return "Tous les clients";
+          case DelayType.SpecifiqApplicants:
+          case DelayType.SpecifiqClients:
+            return cell && cell.length > 0 ? cell.join(", ") : "-";
+          default:
+            return "-";
+        }
+      },
     },
     {
       dataField: "actions",
       text: "Actions",
       headerStyle: { width: "20%" },
       formatter: (cell, row) => (
-        <button 
+        <button
           className="btn btn-primary btn-sm"
           onClick={() => handleViewMessage(row)}
         >
@@ -152,7 +196,6 @@ const MessagesList = () => {
     },
   ];
 
-  // Fonction pour ouvrir le modal de visualisation
   const handleViewMessage = (message) => {
     setSelectedMessage(message);
     setShowViewModal(true);
@@ -224,7 +267,7 @@ const MessagesList = () => {
         groupID: 0,
         pageSize: 10,
         pageNumber: 1,
-        status: null
+        status: null,
       };
 
       const response = await axios.post(
@@ -247,7 +290,7 @@ const MessagesList = () => {
 
   // Gestion du formulaire
   const resetNewMessageForm = () => {
-    setMessageType('temp');
+    setMessageType("temp");
     setSendToAll(false);
     setSelectedRecipients([]);
     setNewMessageSubject("");
@@ -259,22 +302,24 @@ const MessagesList = () => {
       let endpoint;
       let messageData;
 
-      if (messageType === 'temp') {
+      if (messageType === "temp") {
         endpoint = `${api}api/Message/DelayedMessage/Applicant`;
         messageData = {
-          applicantsID: !sendToAll ? selectedRecipients.map(r => r.value) : [],
+          applicantsID: !sendToAll
+            ? selectedRecipients.map((r) => r.value)
+            : [],
           allApplicants: sendToAll,
           accountID: 0,
           subject: newMessageSubject,
-          body: content
+          body: content,
         };
       } else {
         endpoint = `${api}api/Message/DelayedMessage/Customer`;
         messageData = {
-          customersID: !sendToAll ? selectedRecipients.map(r => r.value) : [],
+          customersID: !sendToAll ? selectedRecipients.map((r) => r.value) : [],
           allCustomer: sendToAll,
           subject: newMessageSubject,
-          body: content
+          body: content,
         };
       }
 
@@ -294,9 +339,11 @@ const MessagesList = () => {
         <div className={classes.typeSelect}>
           <select
             className="form-control"
-            value={selectedType?.value || ''}
+            value={selectedType?.value || ""}
             onChange={(e) => {
-              const type = delayTypes.find(t => t.value === parseInt(e.target.value));
+              const type = delayTypes.find(
+                (t) => t.value === parseInt(e.target.value)
+              );
               handleTypeChange(type);
             }}
           >
@@ -356,9 +403,9 @@ const MessagesList = () => {
                     type="radio"
                     name="messageType"
                     className="form-radio text-blue-500 h-5 w-5"
-                    checked={messageType === 'temp'}
+                    checked={messageType === "temp"}
                     onChange={() => {
-                      setMessageType('temp');
+                      setMessageType("temp");
                       setSendToAll(false);
                       setSelectedRecipients([]);
                     }}
@@ -370,9 +417,9 @@ const MessagesList = () => {
                     type="radio"
                     name="messageType"
                     className="form-radio text-blue-500 h-5 w-5"
-                    checked={messageType === 'client'}
+                    checked={messageType === "client"}
                     onChange={() => {
-                      setMessageType('client');
+                      setMessageType("client");
                       setSendToAll(false);
                       setSelectedRecipients([]);
                     }}
@@ -394,7 +441,7 @@ const MessagesList = () => {
                   />
                   <span></span>
                   &nbsp;&nbsp;
-                  {messageType === 'temp' ? (
+                  {messageType === "temp" ? (
                     <FormattedMessage
                       id="MESSAGE.SEND_TO_ALL_TEMP"
                       defaultMessage="Envoyer à tous les intérimaires"
@@ -408,7 +455,7 @@ const MessagesList = () => {
                 </label>
               </div>
             </div>
-            
+
             {!sendToAll && (
               <div>
                 <label>
@@ -423,11 +470,15 @@ const MessagesList = () => {
                   defaultOptions
                   value={selectedRecipients}
                   isDisabled={sendToAll}
-                  loadOptions={messageType === 'temp' ? debouncedLoadApplicants : debouncedLoadClients}
+                  loadOptions={
+                    messageType === "temp"
+                      ? debouncedLoadApplicants
+                      : debouncedLoadClients
+                  }
                   onChange={(selected) => setSelectedRecipients(selected || [])}
                   placeholder={
-                    messageType === 'temp' 
-                      ? "Rechercher des intérimaires..." 
+                    messageType === "temp"
+                      ? "Rechercher des intérimaires..."
                       : "Rechercher des clients..."
                   }
                   noOptionsMessage={() => "Aucun résultat"}
@@ -490,31 +541,86 @@ const MessagesList = () => {
         onHide={() => setShowViewModal(false)}
         size="lg"
         aria-labelledby="view-message-modal"
+        className="fade"
       >
-        <Modal.Header closeButton>
-          <Modal.Title id="view-message-modal">
-            {selectedMessage?.subject}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div
-            className="message-content p-4"
-            style={{ 
-              backgroundColor: "#fff",
-              borderRadius: "4px",
-              minHeight: "200px"
+        <div className="bg-white rounded shadow-lg overflow-hidden">
+          {/* Header */}
+          <Modal.Header
+            className="py-4 px-5"
+            style={{
+              backgroundColor: "#007bff", // Couleur unie
+              color: "white",
             }}
-            dangerouslySetInnerHTML={{ __html: selectedMessage?.body }}
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <button
-            className="btn btn-secondary"
-            onClick={() => setShowViewModal(false)}
           >
-            <FormattedMessage id="BUTTON.CLOSE" defaultMessage="Fermer" />
-          </button>
-        </Modal.Footer>
+            <div className="w-100">
+              {/* Date */}
+              <div className="d-flex align-items-center mb-2">
+                <AccessTimeIcon
+                  className="mr-2"
+                  style={{ fontSize: 20, color: "white" }}
+                />
+                <span style={{ fontSize: "14px", fontWeight: "300" }}>
+                  {selectedMessage?.creationDate
+                    ? new Date(selectedMessage.creationDate).toLocaleDateString(
+                        "fr-FR",
+                        {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        }
+                      )
+                    : "-"}
+                </span>
+              </div>
+
+              {/* Sujet */}
+              <h4
+                className="mb-0 font-weight-bold text-uppercase"
+                style={{ fontSize: "18px" }}
+              >
+                {selectedMessage?.subject || "Sans sujet"}
+              </h4>
+            </div>
+          </Modal.Header>
+
+          {/* Body */}
+          <Modal.Body className="px-5 py-4">
+            <div className="mb-4 d-flex align-items-center text-secondary">
+              <GroupIcon
+                className="mr-2"
+                style={{ fontSize: 20, color: "#6c757d" }}
+              />
+              <span>
+                {selectedMessage?.delayType === 1
+                  ? "Tous les intérimaires"
+                  : selectedMessage?.delayType === 3
+                  ? "Tous les clients"
+                  : selectedMessage?.destinataire?.length > 0
+                  ? selectedMessage.destinataire.join(", ")
+                  : "-"}
+              </span>
+            </div>
+            <div
+              className="prose max-w-none"
+              dangerouslySetInnerHTML={{ __html: selectedMessage?.body }}
+            />
+          </Modal.Body>
+
+          {/* Footer */}
+          <Modal.Footer className="bg-light py-3 px-4 border-top">
+            <button
+              className="btn btn-primary px-4 py-2"
+              style={{
+                backgroundColor: "#007bff",
+                borderRadius: "8px",
+                color: "white",
+              }}
+              onClick={() => setShowViewModal(false)}
+            >
+              <FormattedMessage id="BUTTON.CLOSE" defaultMessage="Fermer" />
+            </button>
+          </Modal.Footer>
+        </div>
       </Modal>
     </div>
   );

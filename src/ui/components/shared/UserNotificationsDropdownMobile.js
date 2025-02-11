@@ -172,8 +172,8 @@ export function UserNotificationsDropdownMobile() {
                     </div>
                   )}
 
-                  {notifs.map((notif) => (
-                    <div key={notif.id || Math.random()} className="d-flex align-items-center mb-6" style={{ marginTop: "5px" }}>
+                  {notifs.map((notif, index) => (
+                    <div key={index} className="d-flex align-items-center mb-6" style={{ marginTop: "5px" }}>
                       <div className="d-flex flex-column font-weight-bold">
                         {/* Pour les notifications standards */}
                         {notif.title && (
