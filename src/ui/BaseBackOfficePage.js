@@ -1,4 +1,5 @@
 import React, { Suspense, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 // import DashboardPage from "components/backoffice/dashboard/DashboardPage";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
@@ -34,19 +35,20 @@ import ContactsContainer from "./containers/ContactsContainerBackoffice";
 import Statistiques from "./components/backoffice/statistiques/statistiques";
 import ChatPage from "./components/backoffice/ChatPage/ChatPage";
 import DelayedMessage from "./components/backoffice/delayedMessage/DelayedMessage";
+import { ParentBubble } from "./components/backoffice/ChatPage/parentBubble/ParentBubble";
 
 export default function BaseBackOfficePage(props) {
   const dispatch = useDispatch();
+  const location = useLocation(); // Ajoutez cette ligne
   const { user, mission } = useSelector(
-    state => ({
-      user: state.auth.user
+    (state) => ({
+      user: state.auth.user,
     }),
     shallowEqual
   );
   useEffect(() => {
     dispatch(getRecruiter.request());
   }, [dispatch]);
-
 
   return (
     <Suspense fallback={<LayoutSplashScreen />}>
@@ -108,7 +110,7 @@ export default function BaseBackOfficePage(props) {
         <ContentRoute path="/messages" component={ChatPage} />
         <Redirect to="error/error-v1" />
       </Switch>
-      {/* <ParentBubble/> */}
+      {location.pathname !== "/messages" && <ParentBubble />}
     </Suspense>
   );
 }

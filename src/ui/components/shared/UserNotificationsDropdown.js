@@ -3,30 +3,17 @@
 import React, { useEffect, useState, useMemo } from "react";
 
 import objectPath from "object-path";
-import {
-  Nav,
-  Tab,
-  Dropdown,
-  OverlayTrigger,
-  Tooltip,
-  Modal
-} from "react-bootstrap";
+import { Dropdown, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import SVG from "react-inlinesvg";
 import PerfectScrollbar from "react-perfect-scrollbar";
-import axios from "axios";
 import { FormattedMessage } from "react-intl";
 
 import { toAbsoluteUrl } from "../../../_metronic/_helpers";
 import { DropdownTopbarItemToggler } from "../../../_metronic/_partials/dropdowns";
 import { useHtmlClassService } from "../../../_metronic/layout/_core/MetronicLayout";
-import { SET_CURRENT_NOTIF } from "../../../constants/constants";
 import "./styles.scss";
-import {
-  getNotifications,
-  setNotifRead
-} from "../../../business/actions/shared/NotificationsActions";
-import { Block } from "@material-ui/icons";
+import { getNotifications } from "../../../business/actions/shared/NotificationsActions";
 import { UserNotificationPopup } from "./UserNotificationPopup";
 import { setSignalRInterimaire } from "../../../business/actions/interimaire/InterimairesActions";
 import { setSignalRClient } from "../../../business/actions/client/UserActions";
@@ -35,7 +22,7 @@ import { Link } from "react-router-dom";
 
 const perfectScrollbarOptions = {
   wheelSpeed: 2,
-  wheelPropagation: false
+  wheelPropagation: false,
 };
 
 export function UserNotificationsDropdown() {
@@ -48,7 +35,7 @@ export function UserNotificationsDropdown() {
     return {
       offcanvas:
         objectPath.get(uiService.config, "extras.notifications.layout") ===
-        "offcanvas"
+        "offcanvas",
     };
   }, [uiService]);
 
@@ -63,16 +50,16 @@ export function UserNotificationsDropdown() {
     currentNotif,
     showNotifModal,
     authToken,
-    userType
+    userType,
   } = useSelector(
-    state => ({
+    (state) => ({
       notifs: state.lists.notifs,
       unread: state.lists.unread,
       userDetails: state.auth.user,
       currentNotif: state.lists.currentNotif,
       showNotifModal: state.lists.showNotifModal,
       authToken: state.auth.authToken,
-      userType: state.auth.user.userType
+      userType: state.auth.user.userType,
     }),
     shallowEqual
   );
@@ -89,7 +76,7 @@ export function UserNotificationsDropdown() {
     }
   }, [dispatch]);
 
-  const getRandomInt = max => {
+  const getRandomInt = (max) => {
     return Math.floor(Math.random() * max);
   };
 
@@ -97,28 +84,28 @@ export function UserNotificationsDropdown() {
     {
       containerStyle: "symbol symbol-40 symbol-light-primary mr-5",
       iconStyle: "svg-icon svg-icon-xl svg-icon-primary",
-      iconUrl: "/media/svg/icons/Home/Library.svg"
+      iconUrl: "/media/svg/icons/Home/Library.svg",
     },
     {
       containerStyle: "symbol symbol-40 symbol-light-warning mr-5",
       iconStyle: "svg-icon svg-icon-lg svg-icon-warning",
-      iconUrl: "/media/svg/icons/Communication/Write.svg"
+      iconUrl: "/media/svg/icons/Communication/Write.svg",
     },
     {
       containerStyle: "symbol symbol-40 symbol-light-success mr-5",
       iconStyle: "svg-icon svg-icon-lg svg-icon-success",
-      iconUrl: "/media/svg/icons/Communication/Group-chat.svg"
+      iconUrl: "/media/svg/icons/Communication/Group-chat.svg",
     },
     {
       containerStyle: "symbol symbol-40 symbol-light-danger mr-5",
       iconStyle: "svg-icon svg-icon-lg svg-icon-danger",
-      iconUrl: "/media/svg/icons/General/Attachment2.svg"
+      iconUrl: "/media/svg/icons/General/Attachment2.svg",
     },
     {
       containerStyle: "symbol symbol-40 symbol-light-info mr-5",
       iconStyle: "svg-icon svg-icon-lg svg-icon-info",
-      iconUrl: "/media/svg/icons/Communication/Shield-user.svg"
-    }
+      iconUrl: "/media/svg/icons/Communication/Shield-user.svg",
+    },
   ];
 
   return (
@@ -254,14 +241,14 @@ export function UserNotificationsDropdown() {
                 <PerfectScrollbar
                   options={{
                     wheelSpeed: 2,
-                    wheelPropagation: false
+                    wheelPropagation: false,
                   }}
                   className="scroll mr-n7"
                   style={{
                     maxHeight: "300px",
                     position: "relative",
                     width: "100%",
-                    paddingTop: "20px"
+                    paddingTop: "20px",
                   }}
                 >
                   {notifs.length == 0 && (
@@ -276,7 +263,7 @@ export function UserNotificationsDropdown() {
                             display: "block",
                             whiteSpace: "nowrap",
                             width: "19em",
-                            textAlign: "center"
+                            textAlign: "center",
                           }}
                         >
                           <FormattedMessage id="NOTIF.EMPTY" />
@@ -285,14 +272,14 @@ export function UserNotificationsDropdown() {
                     </div>
                   )}
                   {notifs &&
-                    notifs.map(notif => {
+                    notifs.map((notif) => {
                       const index = getRandomInt(5);
                       return (
                         <div
                           key={notif.id}
                           style={{
                             marginTop: "5px",
-                            justifyContent: "space-between"
+                            justifyContent: "space-between",
                           }}
                           className="d-flex mb-5 px-5"
                         >
@@ -312,7 +299,7 @@ export function UserNotificationsDropdown() {
                               }}
                               className="text-dark text-hover-primary mb-1 font-size-lg"
                               style={{
-                                fontWeight: !notif.readed ? "bold" : "inherit"
+                                fontWeight: !notif.readed ? "bold" : "inherit",
                               }}
                               dangerouslySetInnerHTML={{ __html: notif.title }}
                             ></a>
@@ -323,10 +310,10 @@ export function UserNotificationsDropdown() {
                                 whiteSpace: "nowrap",
                                 width: "19em",
                                 overflow: "hidden",
-                                textOverflow: "ellipsis"
+                                textOverflow: "ellipsis",
                               }}
                               dangerouslySetInnerHTML={{
-                                __html: notif.message
+                                __html: notif.message,
                               }}
                             ></span>
                           </div>

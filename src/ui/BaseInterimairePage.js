@@ -19,6 +19,7 @@ import Contracts from "./components/interimaire/missions/contracts";
 import EmailContactModal from "./components/client/Email/EmailContactModal";
 import Documents from "./components/interimaire/missions/documents";
 import HoursStatement from "./components/interimaire/hours-statement/HoursStatement";
+import MetronicChat from './components/shared/MetronicChat';
 
 export default function BaseInterimairePage(props) {
   let { user } = useSelector(
@@ -82,6 +83,7 @@ export default function BaseInterimairePage(props) {
 
         <Redirect to="error/int-error-v1" />
       </Switch>
+      <MetronicChat />
     </Suspense>
   );
 }

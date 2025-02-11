@@ -26,10 +26,18 @@ const ChatPage = () => {
       sender: "Ben Cline",
       avatar: "/api/placeholder/40/40",
       subject: "Build stunning courses with Content...",
-      preview: "Nullam molestie tincidunt sem, at tincidunt libero vulputate id. Sed ultric...",
+      preview:
+        "Nullam molestie tincidunt sem, at tincidunt libero vulputate id. Sed ultric...",
       date: "Dec 15",
       starred: true,
-      messages: [],
+      messages: [
+        {
+          id: 1,
+          text: "Nullam molestie tincidunt sem, at tincidunt libero vulputate id. Sed ultric...",
+          sender: "Virginia Jordan",
+          timestamp: "15:00",
+        },
+      ],
     },
     {
       id: 2,
@@ -40,18 +48,6 @@ const ChatPage = () => {
       preview: "I am writing on behalf of the Product Development Team...",
       date: "Dec 15",
       starred: false,
-      content: `Hi John,
-
-I am writing on behalf of the Product Development Team, and would like to request that you make a special appearance to our next quarterly team meeting.The past few months have been tremendously successful; we not only reached but also surpassed our
-
-My team showed a lot of dedication and nonpareil workmanship during this period, for which we also have a few awards of recognition to hand out and would be extremely grateful.
-
-year, hence the date for this meeting has not been finalized yet.
-
-If you could please notify me of the dates that you are available within the next month, I will endeavor to find common availability with our team.If you have any questions regarding this request, please do not hesitate to contact me directly. I await your response with anticipation.
-
-Yours Sincerely,
-Erric`,
       messages: [
         {
           id: 1,
@@ -61,14 +57,11 @@ Erric`,
         },
         {
           id: 2,
-          text: "I have a question about the report. Did you include the latest sales figures?",
+          text:
+            "I have a question about the report. Did you include the latest sales figures?",
           sender: "You",
           timestamp: "15:01",
         },
-      ],
-      attachments: [
-        { name: "Agreement.pdf", size: "245kb", type: "pdf" },
-        { name: "Cloudy.jpg", size: "245kb", type: "image" },
       ],
     },
     {
@@ -76,7 +69,8 @@ Erric`,
       sender: "Airbnb",
       avatar: "/api/placeholder/40/40",
       subject: "Let's finish your listing!",
-      preview: "Mauris lorem quam, pretium ac tellus in, bibendum vehicula metus. Class patent...",
+      preview:
+        "Mauris lorem quam, pretium ac tellus in, bibendum vehicula metus. Class patent...",
       date: "Dec 15",
       starred: false,
       messages: [],
@@ -87,7 +81,7 @@ Erric`,
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    const updatedMails = mails.map(mail => {
+    const updatedMails = mails.map((mail) => {
       if (mail.id === selectedMail) {
         return {
           ...mail,
@@ -97,13 +91,13 @@ Erric`,
               id: Date.now(),
               text: newMessage,
               sender: "You",
-              timestamp: new Date().toLocaleTimeString([], { 
-                hour: '2-digit', 
-                minute: '2-digit',
-                hour12: false 
+              timestamp: new Date().toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
               }),
-            }
-          ]
+            },
+          ],
         };
       }
       return mail;
@@ -114,20 +108,20 @@ Erric`,
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage(e);
     }
   };
 
-  const selectedMailData = mails.find(m => m.id === selectedMail);
+  const selectedMailData = mails.find((m) => m.id === selectedMail);
 
   const handleStarMail = (mailId) => {
-    const updatedMails = mails.map(mail => {
+    const updatedMails = mails.map((mail) => {
       if (mail.id === mailId) {
         return {
           ...mail,
-          starred: !mail.starred
+          starred: !mail.starred,
         };
       }
       return mail;
@@ -135,10 +129,11 @@ Erric`,
     setMails(updatedMails);
   };
 
-  const filteredMails = mails.filter(mail =>
-    mail.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    mail.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    mail.preview.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredMails = mails.filter(
+    (mail) =>
+      mail.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      mail.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      mail.preview.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -166,7 +161,9 @@ Erric`,
           {filteredMails.map((mail) => (
             <div
               key={mail.id}
-              className={`mail-item ${selectedMail === mail.id ? "active" : ""}`}
+              className={`mail-item ${
+                selectedMail === mail.id ? "active" : ""
+              }`}
               onClick={() => setSelectedMail(mail.id)}
             >
               <AccountCircle className="avatar" />
@@ -178,7 +175,7 @@ Erric`,
                 <div className="subject">{mail.subject}</div>
                 <div className="preview">{mail.preview}</div>
               </div>
-              <div 
+              <div
                 className="star-icon-wrapper"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -216,10 +213,10 @@ Erric`,
                 </div>
               </div>
               <div className="actions">
-                <Reply />
+                {/* <Reply />
                 <Delete />
                 <Email />
-                <MoreVert />
+                <MoreVert /> */}
               </div>
             </div>
 
@@ -248,7 +245,12 @@ Erric`,
 
               <div className="messages-section">
                 {selectedMailData.messages?.map((msg) => (
-                  <div key={msg.id} className={`message ${msg.sender === 'You' ? 'sent' : 'received'}`}>
+                  <div
+                    key={msg.id}
+                    className={`message ${
+                      msg.sender === "You" ? "sent" : "received"
+                    }`}
+                  >
                     <div className="message-content">{msg.text}</div>
                     <div className="message-time">{msg.timestamp}</div>
                   </div>
@@ -266,8 +268,8 @@ Erric`,
                   onKeyPress={handleKeyPress}
                   className="message-input"
                 />
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="send-btn"
                   disabled={!newMessage.trim()}
                 >
