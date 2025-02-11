@@ -1,0 +1,254 @@
+/* Styles pour les boutons d'action */
+.btn.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  height: 35px;
+  width: 35px;
+  cursor: pointer;
+}
+
+.btn.btn-icon.btn-sm {
+  height: 30px;
+  width: 30px;
+}
+
+.btn.btn-icon .svg-icon {
+  margin: 0;
+}
+
+.btn.btn-light {
+  color: #7E8299;
+  background-color: #F3F6F9;
+  border-color: transparent;
+}
+
+.btn.btn-light.btn-hover-primary:hover {
+  color: #FFFFFF;
+  background-color: #3699FF;
+}
+
+.btn.btn-light.btn-hover-danger:hover {
+  color: #FFFFFF;
+  background-color: #F64E60;
+}
+
+.svg-icon.svg-icon-primary {
+  color: #3699FF;
+}
+
+.svg-icon.svg-icon-danger {
+  color: #F64E60;
+}
+
+.btn:hover .svg-icon.svg-icon-primary,
+.btn:hover .svg-icon.svg-icon-danger {
+  color: #FFFFFF;
+}
+
+.svg-icon.svg-icon-md {
+  font-size: 1rem;
+}
+
+/* Styles pour les onglets */
+.nav-tabs.nav-tabs-line {
+  border-bottom: 1px solid #E4E6EF;
+}
+
+.nav-tabs.nav-tabs-line .nav-item {
+  margin-bottom: -1px;
+}
+
+.nav-tabs.nav-tabs-line .nav-link {
+  border: 0;
+  border-bottom: 1px solid transparent;
+  color: #7E8299;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.nav-tabs.nav-tabs-line .nav-link:hover,
+.nav-tabs.nav-tabs-line .nav-link.active {
+  color: #3699FF;
+  border-bottom: 2px solid #3699FF;
+  background-color: transparent;
+}
+
+.nav-tabs.nav-tabs-line.nav-tabs-line-2x .nav-link.active {
+  border-bottom-width: 3px;
+}
+
+/* Styles pour la modal de confirmation de suppression */
+.delete-confirmation-modal .modal-content {
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 0 50px 0 rgba(82, 63, 105, 0.15);
+}
+
+.delete-confirmation-modal .modal-header {
+  padding: 2rem 2rem 0;
+}
+
+.delete-confirmation-modal .modal-body {
+  padding: 1.75rem 2rem;
+}
+
+.delete-confirmation-modal .modal-footer {
+  padding: 0 2rem 2rem;
+}
+
+.delete-confirmation-modal .icon-warning {
+  width: 70px;
+  height: 70px;
+  background: rgba(255, 168, 0, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.delete-confirmation-modal .btn {
+  padding: 0.65rem 1.25rem;
+  border-radius: 0.42rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.delete-confirmation-modal .btn-light {
+  background-color: #F3F6F9;
+  border-color: transparent;
+  color: #7E8299;
+}
+
+.delete-confirmation-modal .btn-light:hover {
+  background-color: #E4E6EF;
+  color: #3F4254;
+}
+
+.delete-confirmation-modal .btn-danger {
+  background-color: #F64E60;
+  border-color: #F64E60;
+}
+
+.delete-confirmation-modal .btn-danger:hover {
+  background-color: #EE2D41;
+  border-color: #EE2D41;
+}
+
+/* Styles pour la table */
+.table.table-head-custom thead tr {
+  background-color: #F3F6F9;
+}
+
+.table.table-head-custom thead th {
+  font-weight: 600;
+  color: #3F4254;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  padding: 1rem;
+  border-top: 0;
+  vertical-align: middle;
+}
+
+.table.table-vertical-center td {
+  vertical-align: middle;
+  padding: 1rem;
+  border-top: 1px solid #EBEDF3;
+}
+
+/* Styles pour la pagination */
+.pagination {
+  margin-bottom: 0;
+  padding: 1rem;
+}
+
+.pagination .page-item .page-link {
+  margin: 0 0.2rem;
+  border-radius: 0.42rem;
+  padding: 0.65rem 1rem;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #7E8299;
+  background-color: transparent;
+  border: 0;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.pagination .page-item.active .page-link {
+  color: #FFFFFF;
+  background-color: #3699FF;
+}
+
+/* Styles pour les formulaires */
+.form-control {
+  height: calc(1.5em + 1.3rem + 2px);
+  padding: 0.65rem 1rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #3F4254;
+  background-color: #ffffff;
+  border: 1px solid #E4E6EF;
+  border-radius: 0.42rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+  border-color: #3699FF;
+  box-shadow: none;
+}
+
+textarea.form-control {
+  height: auto;
+}
+
+/* Styles pour la card */
+.card.card-custom {
+  box-shadow: 0px 0px 30px 0px rgba(82, 63, 105, 0.05);
+  border: 0;
+}
+
+.card.card-custom > .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 70px;
+  padding: 0 2.25rem;
+  background-color: transparent;
+}
+
+.card.card-custom > .card-header .card-title {
+  margin: 0;
+}
+
+.card-label {
+  font-size: 1.275rem;
+  font-weight: 600;
+  color: #181C32;
+}
+
+/* Styles pour les modals */
+.modal-content {
+  border: 0;
+  border-radius: 0.42rem;
+}
+
+.modal-header {
+  background-color: #F3F6F9;
+  border-bottom: 1px solid #EBEDF3;
+}
+
+.modal-title {
+  color: #181C32;
+  font-weight: 600;
+}
+
+/* Styles pour les états de chargement */
+.loading-overlay {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 0.42rem;
+}

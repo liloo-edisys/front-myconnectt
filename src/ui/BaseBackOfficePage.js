@@ -36,6 +36,7 @@ import Statistiques from "./components/backoffice/statistiques/statistiques";
 import ChatPage from "./components/backoffice/ChatPage/ChatPage";
 import DelayedMessage from "./components/backoffice/delayedMessage/DelayedMessage";
 import { ParentBubble } from "./components/backoffice/ChatPage/parentBubble/ParentBubble";
+import FaqManagement  from "./components/backoffice/faqManagement/faqManagement";
 
 export default function BaseBackOfficePage(props) {
   const dispatch = useDispatch();
@@ -89,6 +90,7 @@ export default function BaseBackOfficePage(props) {
         <ContentRoute path="/decline/client" component={Declinaisons} />
         <ContentRoute path="/statistiques" component={Statistiques} />
         <ContentRoute path="/delayedMessage" component={DelayedMessage} />
+        <ContentRoute path="/faqManagement" component={FaqManagement} />
         <ContentRoute
           path="/remuneration-elements"
           component={RemunerationElements}
