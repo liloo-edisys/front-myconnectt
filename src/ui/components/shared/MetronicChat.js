@@ -28,7 +28,7 @@ const MetronicChat = () => {
     const fetchFAQs = async () => {
       try {
         const response = await axios.get(
-          "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Message/Faq",
+          "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Faq",
           {
             headers: {
               accept: "text/plain",
