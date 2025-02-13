@@ -5,37 +5,41 @@ import {
 } from "../../../business/actions/shared/NotificationsActions";
 import "./styles.scss";
 
-import { Modal, Button } from "react-bootstrap";
-
-export function UserNotificationPopup(props) {
-  const { notif, userDetails, dispatch, closePopup } = props;
+export function UserNotificationPopup({ notif, userDetails, dispatch, closePopup }) {
   if (!notif.readed) setNotifRead(notif.id, userDetails.tenantID, dispatch);
 
   return (
-    <Modal show={true} onHide={closePopup} className="notifications_modal">
-      {notif?.subject ? (
-        <div style={{ border: "1px solid #2e63a7", borderRadius: 5 }}>
-          <Modal.Header closeButton>
-            <Modal.Title>
-              <span dangerouslySetInnerHTML={{ __html: notif.subject }}></span>
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <span dangerouslySetInnerHTML={{ __html: notif.body }}></span>
-          </Modal.Body>
+    <div className="notifications_popup">
+      <div className="notification-container">
+        <div className="notification-header">
+          <div className="notification-title">
+            <div className="notification-icon">
+              <i className="fas fa-bell"></i>
+            </div>
+            <span
+              dangerouslySetInnerHTML={{
+                __html: notif?.subject || notif?.title,
+              }}
+            />
+          </div>
+          <button
+            type="button"
+            className="close-button"
+            onClick={closePopup}
+            aria-label="Close"
+          >
+            <i className="fas fa-times"></i>
+          </button>
         </div>
-      ) : (
-        <div style={{ border: "1px solid #2e63a7", borderRadius: 5 }}>
-          <Modal.Header closeButton>
-            <Modal.Title>
-              <span dangerouslySetInnerHTML={{ __html: notif.title }}></span>
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <span dangerouslySetInnerHTML={{ __html: notif.message }}></span>
-          </Modal.Body>
+        <div className="notification-body">
+          <span
+            dangerouslySetInnerHTML={{
+              __html: notif?.body || notif?.message,
+            }}
+          />
         </div>
-      )}
-    </Modal>
+        <div className="notification-progress"></div>
+      </div>
+    </div>
   );
 }

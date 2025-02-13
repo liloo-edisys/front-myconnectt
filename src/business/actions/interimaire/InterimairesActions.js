@@ -506,12 +506,11 @@ export const removeOneDocument = (body, step, dispatch) => {
     .catch(err => console.log(err));
 };
 
-export const setSignalRInterimaire = (
-  authToken,
-  dispatch,
-  setSelectedNotif
-) => {
-  const connection = new HubConnectionBuilder()
+let connection = null;
+
+export const setSignalRInterimaire = (authToken, dispatch, setSelectedNotif) => {
+  // Create new connection if not exists
+  connection = new HubConnectionBuilder()
     .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/interimaire", {
       accessTokenFactory: () => authToken
     })
@@ -522,6 +521,7 @@ export const setSignalRInterimaire = (
     .start()
     .then(() => {
       console.log("SignalR connection established.");
+      
       connection.on("SendNotification", notif => {
         dispatch({
           type: actionTypes.PUSH_NEW_NOTIF,
@@ -529,33 +529,45 @@ export const setSignalRInterimaire = (
         });
         setSelectedNotif(notif);
       });
+
       connection.on("SendDelayedMessage", notif => {
         dispatch({
           type: actionTypes.PUSH_NEW_NOTIF,
           payload: notif
         });
-        // dispatch({
-        //   type: actionTypes.GET_NOTIFICATIONS,
-        //   payload: notif
-        // });
         setSelectedNotif(notif);
       });
+
       connection.on("UpdatePropositions", count => {
         dispatch({
           type: INCREMENT_COUNT_PROPOSITIONS,
           payload: count
         });
-        console.log("UpdatePropositions ---------> ", count);
       });
+
       connection.on("UpdateApplications", count => {
         dispatch({
           type: INCREMENT_COUNT_APPLICATIONS,
           payload: count
         });
       });
-      
     })
     .catch(e => console.log("Connection with SignalR failed: ", e.message));
+    
+  return connection;
+};
+
+export const stopSignalRConnection = async () => {
+  try {
+    if (connection && connection.state === 'Connected') {
+      await connection.stop();
+      console.log('SignalR connection closed successfully');
+      connection = null;
+    }
+  } catch (err) {
+    console.error('Error closing SignalR connection:', err);
+    throw err;
+  }
 };
 
 export const getContractList = (body, dispatch) => {
