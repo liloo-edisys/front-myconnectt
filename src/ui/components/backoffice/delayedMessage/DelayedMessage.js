@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import { makeStyles } from "@material-ui/styles";
 import BootstrapTable from "react-bootstrap-table-next";
 import axios from "axios";
 import { Modal } from "react-bootstrap";
@@ -11,100 +10,92 @@ import AccessTimeIcon from "@material-ui/icons/AccessTime";
 import EmailIcon from "@material-ui/icons/Email";
 import GroupIcon from "@material-ui/icons/Group";
 
-const useStyles = makeStyles(() => ({
-  container: {
-    padding: "20px",
-    backgroundColor: "#fff",
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px",
-  },
-  typeSelect: {
-    width: "250px",
-  },
-  table: {
-    "& .table": {
-      backgroundColor: "#fff",
-      borderSpacing: "0 8px",
-      borderCollapse: "separate",
-    },
-    "& th": {
-      backgroundColor: "#f3f6f9",
-      border: "none",
-      color: "#6c757d",
-      fontWeight: 500,
-      padding: "12px 16px",
-      fontSize: "0.875rem",
-    },
-    "& td": {
-      border: "none",
-      padding: "12px 16px",
-      fontSize: "0.875rem",
-      backgroundColor: "#fff",
-      verticalAlign: "middle",
-    },
-  },
-  viewButton: {
-    textTransform: "none",
-    minWidth: "auto",
-    backgroundColor: "#e8f0fe",
-    color: "#3699ff",
-    padding: "6px 12px",
-    "&:hover": {
-      backgroundColor: "#d4e4fc",
-    },
-  },
-  radioGroup: {
-    marginBottom: "1rem",
-  },
-  radio: {
-    marginRight: "1rem",
-  },
-}));
-
 const api = process.env.REACT_APP_WEBAPI_URL;
 
-const delayTypes = [
-  { value: 1, label: "Tous les intérimaires" },
-  { value: 2, label: "Intérimaires spécifiques" },
-  { value: 3, label: "Tous les clients" },
-  { value: 4, label: "Clients spécifiques" },
-];
+const DelayType = {
+  AllApplicants: 1,
+  SpecifiqApplicants: 2,
+  AllClients: 3,
+  SpecifiqClients: 4,
+};
 
-const customStyles = {
-  control: (base) => ({
-    ...base,
-    minHeight: 38,
-  }),
-  menu: (base) => ({
-    ...base,
-    zIndex: 9999,
-  }),
+const MessageFilter = ({ onFilterChange }) => {
+  const [selectedType, setSelectedType] = useState(DelayType.AllApplicants); // Par défaut: Tous les intérimaires
+
+  const filterGroups = {
+    interimaires: {
+      label: "Intérimaires",
+      options: [
+        { value: DelayType.AllApplicants, label: "Tous les intérimaires" },
+        {
+          value: DelayType.SpecifiqApplicants,
+          label: "Intérimaires spécifiques",
+        },
+      ],
+    },
+    clients: {
+      label: "Clients",
+      options: [
+        { value: DelayType.AllClients, label: "Tous les clients" },
+        { value: DelayType.SpecifiqClients, label: "Clients spécifiques" },
+      ],
+    },
+  };
+
+  const handleRadioChange = (value) => {
+    setSelectedType(value);
+    onFilterChange(value);
+  };
+
+  return (
+    <div className="d-flex gap-5">
+      {Object.entries(filterGroups).map(([groupKey, group]) => (
+        <div key={groupKey} className="mr-14">
+          <h3 className="font-weight-bold mb-2" style={{ fontSize: "1.1rem" }}>
+            {group.label}
+          </h3>
+          <div className="d-flex flex-column gap-2">
+            {group.options.map((option) => (
+              <div key={option.value} className="form-check">
+                <input
+                  type="radio"
+                  className="form-check-input"
+                  id={`radio-${option.value}`}
+                  name="messageTypeFilter"
+                  checked={selectedType === option.value}
+                  onChange={() => handleRadioChange(option.value)}
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`radio-${option.value}`}
+                  style={{ fontSize: "0.9rem" }}
+                >
+                  {option.label}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 };
 
 const MessagesList = () => {
-  const classes = useStyles();
   const editor = useRef(null);
-
-  // États pour la liste des messages
   const [messages, setMessages] = useState([]);
-  const [selectedType, setSelectedType] = useState(delayTypes[0]);
+  const [selectedTypes, setSelectedTypes] = useState([DelayType.AllApplicants]); // Initialiser avec Tous les intérimaires
   const [loading, setLoading] = useState(false);
-
-  // États pour le modal de nouveau message
   const [showNewMessageModal, setShowNewMessageModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState(null);
+
+  // États pour le nouveau message
   const [messageType, setMessageType] = useState("temp");
   const [sendToAll, setSendToAll] = useState(false);
   const [selectedRecipients, setSelectedRecipients] = useState([]);
   const [newMessageSubject, setNewMessageSubject] = useState("");
   const [content, setContent] = useState("");
-
-  // États pour le modal de visualisation
-  const [showViewModal, setShowViewModal] = useState(false);
-  const [selectedMessage, setSelectedMessage] = useState(null);
 
   const config = {
     readonly: false,
@@ -124,14 +115,17 @@ const MessagesList = () => {
     ],
   };
 
-  const DelayType = {
-    AllApplicants: 1,
-    SpecifiqApplicants: 2,
-    AllClients: 3,
-    SpecifiqClients: 4,
+  const customStyles = {
+    control: (base) => ({
+      ...base,
+      minHeight: 38,
+    }),
+    menu: (base) => ({
+      ...base,
+      zIndex: 9999,
+    }),
   };
 
-  // Configuration des colonnes avec la fonction de visualisation
   const columns = [
     {
       dataField: "creationDate",
@@ -151,7 +145,6 @@ const MessagesList = () => {
       text: "Destinataires",
       headerStyle: { width: "25%" },
       formatter: (cell, row) => {
-        // Gestion selon le delayType
         switch (row.delayType) {
           case DelayType.AllApplicants:
             return "Tous les intérimaires";
@@ -176,16 +169,16 @@ const MessagesList = () => {
       headerStyle: { width: "35%" },
       formatter: (cell) => (
         <div
-          className="max-h-24 overflow-hidden"
+          className="text-truncate"
+          style={{ maxHeight: "48px", overflow: "hidden" }}
           dangerouslySetInnerHTML={{ __html: cell }}
         />
       ),
     },
-
     {
       dataField: "actions",
       text: "Actions",
-      headerStyle: { width: "20%" },
+      headerStyle: { width: "10%" },
       formatter: (cell, row) => (
         <button
           className="btn btn-primary btn-sm"
@@ -197,24 +190,27 @@ const MessagesList = () => {
     },
   ];
 
-  const handleViewMessage = (message) => {
-    setSelectedMessage(message);
-    setShowViewModal(true);
-  };
-
-  // Gestion du changement de type
-  const handleTypeChange = (type) => {
-    setSelectedType(type);
-  };
-
-  // Chargement des messages
-  const fetchMessages = async (type) => {
+  const fetchMessages = async (types) => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `${api}api/Message/DelayedMessage/Type/${type}`
+      if (types.length === 0) {
+        setMessages([]);
+        setLoading(false);
+        return;
+      }
+
+      const messagesPromises = types.map((type) =>
+        axios.get(`${api}api/Message/DelayedMessage/Type/${type}`)
       );
-      setMessages(response.data || []);
+
+      const responses = await Promise.all(messagesPromises);
+      const allMessages = responses.flatMap((response) => response.data || []);
+
+      const uniqueMessages = [
+        ...new Map(allMessages.map((item) => [item.id, item])).values(),
+      ];
+
+      setMessages(uniqueMessages);
     } catch (error) {
       console.error("Erreur lors du chargement des messages:", error);
       setMessages([]);
@@ -223,12 +219,9 @@ const MessagesList = () => {
   };
 
   useEffect(() => {
-    if (selectedType) {
-      fetchMessages(selectedType.value);
-    }
-  }, [selectedType]);
+    fetchMessages(selectedTypes);
+  }, [selectedTypes]);
 
-  // Gestion des intérimaires
   const loadApplicants = async (inputValue) => {
     if (!inputValue) return [];
 
@@ -257,7 +250,6 @@ const MessagesList = () => {
     }
   };
 
-  // Gestion des clients
   const loadClients = async (inputValue) => {
     if (!inputValue) return [];
 
@@ -289,7 +281,11 @@ const MessagesList = () => {
   const debouncedLoadApplicants = debounce(loadApplicants, 500);
   const debouncedLoadClients = debounce(loadClients, 500);
 
-  // Gestion du formulaire
+  const handleViewMessage = (message) => {
+    setSelectedMessage(message);
+    setShowViewModal(true);
+  };
+
   const resetNewMessageForm = () => {
     setMessageType("temp");
     setSendToAll(false);
@@ -327,57 +323,53 @@ const MessagesList = () => {
       await axios.post(endpoint, messageData);
       setShowNewMessageModal(false);
       resetNewMessageForm();
-      fetchMessages(selectedType.value);
+      fetchMessages(selectedTypes);
     } catch (error) {
       console.error("Erreur lors de l'envoi du message:", error);
     }
   };
 
   return (
-    <div className={classes.container}>
-      {/* En-tête avec sélection du type et bouton nouveau message */}
-      <div className={classes.header}>
-        <div className={classes.typeSelect}>
-          <select
-            className="form-control"
-            value={selectedType?.value || ""}
-            onChange={(e) => {
-              const type = delayTypes.find(
-                (t) => t.value === parseInt(e.target.value)
-              );
-              handleTypeChange(type);
-            }}
-          >
-            {delayTypes.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
+    <div className="p-4">
+      {/* Header avec filtres et bouton nouveau message */}
+      <div className="card mb-4">
+        <div className="card-body">
+          <div className="d-flex justify-content-between align-items-start">
+            <MessageFilter
+              onFilterChange={(type) => {
+                setSelectedTypes([type]);
+              }}
+            />
+            <button
+              className="btn btn-primary ms-auto"
+              onClick={() => setShowNewMessageModal(true)}
+            >
+              <FormattedMessage
+                id="MESSAGE.NEW"
+                defaultMessage="Nouveau message"
+              />
+            </button>
+          </div>
         </div>
-        <button
-          className="btn btn-primary"
-          onClick={() => setShowNewMessageModal(true)}
-        >
-          <FormattedMessage id="MESSAGE.NEW" defaultMessage="Nouveau message" />
-        </button>
       </div>
 
       {/* Table des messages */}
-      <div className={classes.table}>
-        <BootstrapTable
-          keyField="accountID"
-          data={messages}
-          columns={columns}
-          bordered={false}
-          classes="table"
-          noDataIndication={
-            loading ? "Chargement..." : "Aucun message disponible"
-          }
-        />
+      <div className="card">
+        <div className="card-body">
+          <BootstrapTable
+            keyField="id"
+            data={messages}
+            columns={columns}
+            bordered={false}
+            classes="table"
+            noDataIndication={
+              loading ? "Chargement..." : "Aucun message disponible"
+            }
+          />
+        </div>
       </div>
 
-      {/* Modal de création de nouveau message */}
+      {/* Modal Nouveau Message */}
       <Modal
         size="xl"
         show={showNewMessageModal}
@@ -398,12 +390,13 @@ const MessagesList = () => {
         <Modal.Body>
           <div className="form-group mb-4">
             <div className="d-flex justify-content-between mb-4">
-              <div className="flex flex-col space-y-2">
-                <label className="inline-flex items-center">
+              <div className="d-flex">
+                <div className="form-check me-4">
                   <input
                     type="radio"
+                    className="form-check-input"
+                    id="radio-temp"
                     name="messageType"
-                    className="form-radio text-blue-500 h-5 w-5"
                     checked={messageType === "temp"}
                     onChange={() => {
                       setMessageType("temp");
@@ -411,13 +404,16 @@ const MessagesList = () => {
                       setSelectedRecipients([]);
                     }}
                   />
-                  <span className="ml-2">Intérimaires</span>
-                </label>
-                <label className="inline-flex items-center ml-6">
+                  <label className="form-check-label" htmlFor="radio-temp">
+                    Intérimaires
+                  </label>
+                </div>
+                <div className="form-check">
                   <input
                     type="radio"
+                    className="form-check-input"
+                    id="radio-client"
                     name="messageType"
-                    className="form-radio text-blue-500 h-5 w-5"
                     checked={messageType === "client"}
                     onChange={() => {
                       setMessageType("client");
@@ -425,23 +421,25 @@ const MessagesList = () => {
                       setSelectedRecipients([]);
                     }}
                   />
-                  <span className="ml-2">Clients</span>
-                </label>
+                  <label className="form-check-label" htmlFor="radio-client">
+                    Clients
+                  </label>
+                </div>
               </div>
-              <div>
-                <label className="checkbox checkbox-lg checkbox-primary flex-shrink-0">
-                  <input
-                    type="checkbox"
-                    checked={sendToAll}
-                    onChange={(e) => {
-                      setSendToAll(e.target.checked);
-                      if (e.target.checked) {
-                        setSelectedRecipients([]);
-                      }
-                    }}
-                  />
-                  <span></span>
-                  &nbsp;&nbsp;
+              <div className="form-check">
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  id="sendToAll"
+                  checked={sendToAll}
+                  onChange={(e) => {
+                    setSendToAll(e.target.checked);
+                    if (e.target.checked) {
+                      setSelectedRecipients([]);
+                    }
+                  }}
+                />
+                <label className="form-check-label" htmlFor="sendToAll">
                   {messageType === "temp" ? (
                     <FormattedMessage
                       id="MESSAGE.SEND_TO_ALL_TEMP"
@@ -458,7 +456,7 @@ const MessagesList = () => {
             </div>
 
             {!sendToAll && (
-              <div>
+              <div className="form-group">
                 <label>
                   <FormattedMessage
                     id="MESSAGE.RECIPIENT"
@@ -519,7 +517,7 @@ const MessagesList = () => {
         </Modal.Body>
         <Modal.Footer>
           <button
-            className="btn btn-light-primary mr-2"
+            className="btn btn-light me-2"
             onClick={() => {
               setShowNewMessageModal(false);
               resetNewMessageForm();
@@ -527,10 +525,7 @@ const MessagesList = () => {
           >
             <FormattedMessage id="BUTTON.CANCEL" defaultMessage="Annuler" />
           </button>
-          <button
-            onClick={handleNewMessage}
-            className="btn btn-primary btn-shadow"
-          >
+          <button onClick={handleNewMessage} className="btn btn-primary">
             <FormattedMessage id="BUTTON.SEND" defaultMessage="Envoyer" />
           </button>
         </Modal.Footer>
@@ -542,24 +537,14 @@ const MessagesList = () => {
         onHide={() => setShowViewModal(false)}
         size="lg"
         aria-labelledby="view-message-modal"
-        className="fade"
       >
-        <div className="bg-white rounded shadow-lg overflow-hidden">
+        <div className="modal-content">
           {/* Header */}
-          <Modal.Header
-            className="py-4 px-5"
-            style={{
-              backgroundColor: "#007bff", // Couleur unie
-              color: "white",
-            }}
-          >
+          <Modal.Header className="bg-primary text-white py-4 px-5">
             <div className="w-100">
               {/* Date */}
               <div className="d-flex align-items-center mb-2">
-                <AccessTimeIcon
-                  className="mr-2"
-                  style={{ fontSize: 20, color: "white" }}
-                />
+                <AccessTimeIcon className="me-2" style={{ fontSize: 20 }} />
                 <span style={{ fontSize: "14px", fontWeight: "300" }}>
                   {selectedMessage?.creationDate
                     ? new Date(selectedMessage.creationDate).toLocaleDateString(
@@ -576,8 +561,8 @@ const MessagesList = () => {
 
               {/* Sujet */}
               <h4
-                className="mb-0 font-weight-bold text-uppercase"
-                style={{ fontSize: "18px" }}
+                className="mb-0 text-uppercase"
+                style={{ fontSize: "18px", fontWeight: "600" }}
               >
                 {selectedMessage?.subject || "Sans sujet"}
               </h4>
@@ -588,13 +573,13 @@ const MessagesList = () => {
           <Modal.Body className="px-5 py-4">
             <div className="mb-4 d-flex align-items-center text-secondary">
               <GroupIcon
-                className="mr-2"
+                className="me-2"
                 style={{ fontSize: 20, color: "#6c757d" }}
               />
               <span>
-                {selectedMessage?.delayType === 1
+                {selectedMessage?.delayType === DelayType.AllApplicants
                   ? "Tous les intérimaires"
-                  : selectedMessage?.delayType === 3
+                  : selectedMessage?.delayType === DelayType.AllClients
                   ? "Tous les clients"
                   : selectedMessage?.destinataire?.length > 0
                   ? selectedMessage.destinataire.join(", ")
@@ -602,20 +587,15 @@ const MessagesList = () => {
               </span>
             </div>
             <div
-              className="prose max-w-none"
+              className="message-content"
               dangerouslySetInnerHTML={{ __html: selectedMessage?.body }}
             />
           </Modal.Body>
 
           {/* Footer */}
-          <Modal.Footer className="bg-light py-3 px-4 border-top">
+          <Modal.Footer className="bg-light py-3 px-4">
             <button
-              className="btn btn-primary px-4 py-2"
-              style={{
-                backgroundColor: "#007bff",
-                borderRadius: "8px",
-                color: "white",
-              }}
+              className="btn btn-primary px-4"
               onClick={() => setShowViewModal(false)}
             >
               <FormattedMessage id="BUTTON.CLOSE" defaultMessage="Fermer" />
