@@ -134,6 +134,19 @@ const MessagesList = () => {
   // Configuration des colonnes avec la fonction de visualisation
   const columns = [
     {
+      dataField: "creationDate",
+      text: "Date",
+      headerStyle: { width: "20%" },
+      formatter: (cell) => {
+        const date = new Date(cell);
+        return date.toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+      },
+    },
+    {
       dataField: "subject",
       text: "Sujet",
       headerStyle: { width: "20%" },
@@ -149,19 +162,7 @@ const MessagesList = () => {
         />
       ),
     },
-    {
-      dataField: "creationDate",
-      text: "Date",
-      headerStyle: { width: "20%" },
-      formatter: (cell) => {
-        const date = new Date(cell);
-        return date.toLocaleDateString("fr-FR", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        });
-      },
-    },
+    
     {
       dataField: "destinataire",
       text: "Destinataires",
