@@ -129,13 +129,6 @@ const FaqManagement = () => {
 
   const columns = [
     {
-      dataField: "id",
-      text: "ID",
-      sort: true,
-      headerClasses: "text-center",
-      classes: "text-center",
-    },
-    {
       dataField: "question",
       text: "Question",
       sort: true,
@@ -216,8 +209,11 @@ const FaqManagement = () => {
             data={faqs}
             columns={columns}
             pagination={paginationFactory()}
-            noDataIndication="Aucune FAQ disponible"
+            noDataIndication={
+              loading ? "Chargement..." : "Aucune FAQ disponible"
+            }
             loading={loading}
+            bordered={false}
           />
         </Card.Body>
       </Card>

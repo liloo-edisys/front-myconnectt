@@ -147,23 +147,6 @@ const MessagesList = () => {
       },
     },
     {
-      dataField: "subject",
-      text: "Sujet",
-      headerStyle: { width: "20%" },
-    },
-    {
-      dataField: "body",
-      text: "Contenu",
-      headerStyle: { width: "35%" },
-      formatter: (cell) => (
-        <div
-          className="max-h-24 overflow-hidden"
-          dangerouslySetInnerHTML={{ __html: cell }}
-        />
-      ),
-    },
-    
-    {
       dataField: "destinataire",
       text: "Destinataires",
       headerStyle: { width: "25%" },
@@ -182,6 +165,23 @@ const MessagesList = () => {
         }
       },
     },
+    {
+      dataField: "subject",
+      text: "Sujet",
+      headerStyle: { width: "20%" },
+    },
+    {
+      dataField: "body",
+      text: "Contenu",
+      headerStyle: { width: "35%" },
+      formatter: (cell) => (
+        <div
+          className="max-h-24 overflow-hidden"
+          dangerouslySetInnerHTML={{ __html: cell }}
+        />
+      ),
+    },
+
     {
       dataField: "actions",
       text: "Actions",
