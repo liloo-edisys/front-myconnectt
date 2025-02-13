@@ -7,7 +7,7 @@ import JoditEditor from "jodit-react";
 import { FormattedMessage } from "react-intl";
 import debounce from "debounce-promise";
 import AccessTimeIcon from "@material-ui/icons/AccessTime";
-import EmailIcon from "@material-ui/icons/Email";
+import paginationFactory from "react-bootstrap-table2-paginator";
 import GroupIcon from "@material-ui/icons/Group";
 
 const api = process.env.REACT_APP_WEBAPI_URL;
@@ -362,6 +362,7 @@ const MessagesList = () => {
             columns={columns}
             bordered={false}
             classes="table"
+            pagination={paginationFactory()}
             noDataIndication={
               loading ? "Chargement..." : "Aucun message disponible"
             }
