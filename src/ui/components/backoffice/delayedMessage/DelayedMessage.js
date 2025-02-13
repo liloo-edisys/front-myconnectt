@@ -409,7 +409,7 @@ const MessagesList = () => {
                     Intérimaires
                   </label>
                 </div>
-                <div className="form-check">
+                <div className="form-check ml-8">
                   <input
                     type="radio"
                     className="form-check-input"
