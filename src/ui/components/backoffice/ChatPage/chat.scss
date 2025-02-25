@@ -536,3 +536,17 @@
 .MuiSvgIcon-root {
   font-size: 20px !important;
 }
+.unread-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #0D6EFD;
+  margin-left: 8px;
+}
+
+.mail-item {
+  .mail-content {
+    flex: 1;
+    min-width: 0;
+  }
+}
