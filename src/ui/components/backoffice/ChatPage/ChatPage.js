@@ -1,15 +1,7 @@
 import React, { useState, useEffect } from "react";
-import {
-  Search,
-  Send,
-  Add,
-  AccountCircle,
-  Close,
-  MoreVert,
-  InsertEmoticon,
-  AttachFile,
-} from "@material-ui/icons";
+import { Search, Send, Add, MoreVert } from "@material-ui/icons";
 import ProfileModal from "./profile/ProfileModal";
+import UserSelectionModal from "./profile/UserSelectionModal";
 import { chatService, messageUtils } from "./chatService";
 
 const ChatPage = () => {
@@ -17,6 +9,9 @@ const ChatPage = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isUserSelectionModalOpen, setIsUserSelectionModalOpen] = useState(
+    false
+  );
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -57,13 +52,41 @@ const ChatPage = () => {
 
     setLoading(true);
     try {
-      const messageData = messageUtils.formatChatRequest(
-        newMessage,
-        selectedChat
+      // Récupérer le chat sélectionné
+      const currentChat = chats?.find(
+        (c) => Number(c?.id) === Number(selectedChat)
       );
-      console.log("messageData --------> ", messageData);
 
-      // await chatService.sendBackofficeMessage(messageData);
+      if (!currentChat) {
+        throw new Error("Conversation non trouvée");
+      }
+
+      // Vérifier si c'est un groupe
+      if (currentChat.isGroup) {
+        // Utiliser la fonction existante pour envoyer un message à un groupe
+        const messageData = {
+          chatID: selectedChat,
+          message: newMessage.trim(),
+        };
+
+        await chatService.sendMessageToGroup(messageData);
+      } else {
+        // Pour une conversation individuelle, utiliser l'endpoint existant
+        // Récupérer l'utilisateur avec chatUserRole: 1 (l'administrateur)
+        const adminUser = getOtherUser(currentChat);
+
+        if (!adminUser || !adminUser.id) {
+          throw new Error("Destinataire non trouvé");
+        }
+
+        // Préparer les données du message avec l'ID de l'admin comme destinataire
+        const messageData = messageUtils.formatChatRequest(
+          newMessage,
+          adminUser.id
+        );
+        await chatService.sendBackofficeMessage(messageData);
+      }
+
       await loadChats();
       setNewMessage("");
     } catch (err) {
@@ -147,8 +170,11 @@ const ChatPage = () => {
   };
 
   const getOtherUser = (chat) => {
-    const otherUser = chat?.users?.find((u) => u?.id !== currentUserId);
-    return otherUser || chat?.users[0]; // Fallback au premier utilisateur si aucun autre trouvé
+    // Cherche l'utilisateur avec chatUserRole: 1
+    const adminUser = chat?.users?.find((u) => u?.chatUserRole === 1);
+
+    // Si trouvé, retourne cet utilisateur, sinon fallback au premier utilisateur
+    return adminUser || chat?.users[0];
   };
 
   const getLastMessage = (chat) => {
@@ -169,6 +195,69 @@ const ChatPage = () => {
   const selectedChatData = chats.find(
     (chat) => Number(chat?.id) === Number(selectedChat)
   );
+
+  const handleSelectUsers = (selectedData) => {
+    setIsUserSelectionModalOpen(false);
+
+    if (!selectedData.isGroup && selectedData.users.length === 1) {
+      // Créer une discussion statique pour un seul utilisateur
+      const selectedUser = selectedData.users[0];
+
+      // Générer un ID temporaire unique pour cette conversation
+      const tempChatId = Date.now();
+
+      // Créer un nouvel objet de conversation avec structure compatible
+      const newChat = {
+        id: tempChatId,
+        isGroup: false,
+        groupName: null,
+        users: [
+          // L'utilisateur sélectionné avec le rôle admin (1)
+          {
+            id: selectedUser.id,
+            userName: selectedUser.name,
+            chatUserRole: 1, // Pour que getOtherUser() fonctionne correctement
+          },
+          // L'utilisateur actuel
+          {
+            id: currentUserId,
+            userName: "Vous", // Ou récupérer le vrai nom si disponible
+            chatUserRole: 2,
+          },
+        ],
+        messages: [], // Pas de messages initiaux
+      };
+
+      // Ajouter la nouvelle conversation à la liste
+      setChats((prevChats) => [newChat, ...prevChats]);
+
+      // Sélectionner automatiquement cette nouvelle conversation
+      handleChatSelect(tempChatId);
+    } else {
+      // Pour les groupes, continuer avec le code existant qui fait des appels API
+      selectedData.users.forEach(async (user) => {
+        try {
+          const userID = localStorage.getItem("userId");
+          const createGroupData = messageUtils.formatCreateGroup(
+            selectedData.groupName || user.name,
+            Number(userID),
+            [user.id],
+            selectedData.isGroup // true pour groupe, false pour 1:1
+          );
+
+          const groupResult = await chatService.createGroup(createGroupData);
+          if (groupResult && groupResult.data) {
+            const chatId = groupResult.data.id || groupResult.data.chatID;
+            await loadChats();
+            handleChatSelect(chatId);
+          }
+        } catch (err) {
+          setError("Erreur lors de la création d'une nouvelle conversation");
+          console.error("Error creating new chat:", err);
+        }
+      });
+    }
+  };
 
   // Fonction pour générer une couleur d'avatar basée sur le nom
   const generateAvatarColor = (name) => {
@@ -216,7 +305,14 @@ const ChatPage = () => {
         <div className="col-md-4 col-lg-3 border-end h-100 bg-white">
           <div className="d-flex flex-column h-100">
             <div className="d-flex justify-content-between align-items-center p-3 border-bottom">
-              <h5 className="mb-0 fw-bold">Conversations</h5>
+              <h5 className="mb-0 fw-bold mr-4">Conversations</h5>
+              <button
+                className="btn btn-sm btn-primary rounded-circle"
+                onClick={() => setIsUserSelectionModalOpen(true)}
+                title="Nouvelle conversation"
+              >
+                <Add fontSize="small" />
+              </button>
             </div>
 
             <div className="position-relative p-3 border-bottom">
@@ -259,14 +355,15 @@ const ChatPage = () => {
                   const hasUnread = chat.messages?.some(
                     (m) => !m?.isRead && m?.byUserID !== currentUserId
                   );
-                  const chatName =
-                    otherUser?.userName || chat?.groupName || "Discussion";
+                  const chatName = chat.isGroup
+                    ? chat?.groupName || "Groupe"
+                    : otherUser?.userName || "Discussion";
                   const avatarColor = generateAvatarColor(chatName);
 
                   return (
                     <div
                       key={chat?.id}
-                      className={`d-flex align-items-center p-3 border-bottom chat-item ${
+                      className={`d-flex  p-3 border-bottom chat-item ${
                         Number(selectedChat) === Number(chat?.id)
                           ? "bg-light"
                           : ""
@@ -277,10 +374,11 @@ const ChatPage = () => {
                         <div
                           className="rounded-circle text-white d-flex align-items-center justify-content-center"
                           style={{
-                            width: "45px",
-                            height: "45px",
+                            width: "35px",
+                            height: "35px",
                             backgroundColor: avatarColor,
-                            fontSize: "18px",
+                            fontSize: "14px",
+                            marginRight: "10px",
                           }}
                         >
                           {chatName.charAt(0).toUpperCase()}
@@ -293,7 +391,7 @@ const ChatPage = () => {
                           </span>
                         )}
                       </div>
-                      <div className="flex-grow-1 overflow-hidden">
+                      <div className="overflow-hidden">
                         <div className="d-flex justify-content-between align-items-center mb-1">
                           <span
                             className={`${
@@ -303,9 +401,9 @@ const ChatPage = () => {
                             {chatName}
                           </span>
                           <small
-                            className={`text-nowrap ms-2 ${
+                            className={`text-nowrap ms-2  ${
                               hasUnread ? "text-dark fw-bold" : "text-muted"
-                            }`}
+                            } `}
                           >
                             {lastMessage
                               ? new Date(
@@ -335,7 +433,7 @@ const ChatPage = () => {
         <div className="col-md-8 col-lg-9 d-flex flex-column h-100">
           {selectedChat ? (
             <>
-              <div className="border-bottom bg-white p-3 d-flex justify-content-between align-items-center shadow-sm">
+              <div className="border-bottom bg-white p-3 d-flex justify-content-between shadow-sm">
                 {selectedChatData && (
                   <div className="d-flex">
                     <div
@@ -358,12 +456,12 @@ const ChatPage = () => {
                         .toUpperCase()}
                     </div>
                     <div>
-                      <div className="fw-bold">
+                      <div className="fw-bold ml-3">
                         {selectedChatData.isGroup
                           ? selectedChatData.groupName
                           : getOtherUser(selectedChatData)?.userName}
                       </div>
-                      <div className="text-muted small">
+                      <div className="text-muted small ml-3">
                         {selectedChatData.isGroup
                           ? `${selectedChatData.users?.length ||
                               0} participants`
@@ -398,73 +496,88 @@ const ChatPage = () => {
                     <p className="small">Envoyez un message pour commencer</p>
                   </div>
                 ) : (
-                  selectedChatData?.messages?.map((msg, index) => {
-                    // Vérifier si l'ID de l'expéditeur correspond à l'ID utilisateur actuel
-                    const isSentByCurrentUser =
-                      Number(msg?.byUserID) === Number(currentUserId);
-                    const showAvatar =
-                      index === 0 ||
-                      selectedChatData?.messages[index - 1]?.byUserID !==
-                        msg?.byUserID;
+                  // Inverser l'ordre des messages en utilisant slice().reverse()
+                  [...selectedChatData?.messages]
+                    .reverse()
+                    .map((msg, index, reversedArray) => {
+                      // Trouver l'expéditeur du message
+                      const messageSender = selectedChatData?.users?.find(
+                        (user) => Number(user.id) === Number(msg?.byUserID)
+                      );
 
-                    return (
-                      <div
-                        key={msg.id}
-                        className={`d-flex ${
-                          isSentByCurrentUser ? "justify-content-end" : ""
-                        } mb-3`}
-                      >
-                        {!isSentByCurrentUser && showAvatar && (
-                          <div className="me-2 align-self-end">
+                      // Vérifier si le message est envoyé par un utilisateur avec chatUserRole: 1
+                      const isSentByAdmin = messageSender?.chatUserRole === 1;
+
+                      // Pour l'avatar, nous devons vérifier le message suivant dans l'ordre inversé
+                      // ce qui correspond à l'index + 1 dans le tableau inversé
+                      const showAvatar =
+                        index === reversedArray.length - 1 ||
+                        reversedArray[index + 1]?.byUserID !== msg?.byUserID;
+
+                      return (
+                        <div
+                          key={msg.id}
+                          className={`d-flex ${
+                            !isSentByAdmin ? "justify-content-end" : ""
+                          } mb-3`}
+                        >
+                          {isSentByAdmin && showAvatar && (
+                            <div className="me-2 align-self-end">
+                              <div
+                                className="rounded-circle text-white d-flex align-items-center justify-content-center"
+                                style={{
+                                  width: "32px",
+                                  height: "32px",
+                                  backgroundColor: generateAvatarColor(
+                                    getOtherUser(selectedChatData)?.userName
+                                  ),
+                                  fontSize: "14px",
+                                }}
+                              >
+                                {(
+                                  getOtherUser(selectedChatData)?.userName ||
+                                  "?"
+                                )
+                                  .charAt(0)
+                                  .toUpperCase()}
+                              </div>
+                            </div>
+                          )}
+                          {isSentByAdmin && !showAvatar && (
                             <div
-                              className="rounded-circle text-white d-flex align-items-center justify-content-center"
+                              style={{ width: "32px" }}
+                              className="me-2"
+                            ></div>
+                          )}
+                          <div style={{ maxWidth: "75%" }}>
+                            <div
+                              className={`p-3 rounded-3 shadow-sm ${
+                                !isSentByAdmin
+                                  ? "bg-primary text-white"
+                                  : "bg-white"
+                              }`}
                               style={{
-                                width: "32px",
-                                height: "32px",
-                                backgroundColor: generateAvatarColor(
-                                  getOtherUser(selectedChatData)?.userName
-                                ),
-                                fontSize: "14px",
+                                borderRadius: !isSentByAdmin
+                                  ? "18px 18px 4px 18px"
+                                  : "18px 18px 18px 4px",
                               }}
                             >
-                              {(getOtherUser(selectedChatData)?.userName || "?")
-                                .charAt(0)
-                                .toUpperCase()}
+                              {msg?.message}
+                            </div>
+                            <div
+                              className={`text-muted small mt-1 ${
+                                !isSentByAdmin ? "text-end" : ""
+                              }`}
+                            >
+                              {new Date(msg?.sentAt).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
                             </div>
                           </div>
-                        )}
-                        {!isSentByCurrentUser && !showAvatar && (
-                          <div style={{ width: "32px" }} className="me-2"></div>
-                        )}
-                        <div style={{ maxWidth: "75%" }}>
-                          <div
-                            className={`p-3 rounded-3 shadow-sm ${
-                              isSentByCurrentUser
-                                ? "bg-primary text-white"
-                                : "bg-white"
-                            }`}
-                            style={{
-                              borderRadius: isSentByCurrentUser
-                                ? "18px 18px 4px 18px"
-                                : "18px 18px 18px 4px",
-                            }}
-                          >
-                            {msg?.message}
-                          </div>
-                          <div
-                            className={`text-muted small mt-1 ${
-                              isSentByCurrentUser ? "text-end" : ""
-                            }`}
-                          >
-                            {new Date(msg?.sentAt).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </div>
                         </div>
-                      </div>
-                    );
-                  })
+                      );
+                    })
                 )}
               </div>
 
@@ -507,18 +620,24 @@ const ChatPage = () => {
                   <br />
                   ou créez-en une nouvelle
                 </p>
-                <button
+                {/* <button
                   className="btn btn-primary"
                   onClick={() => setIsProfileModalOpen(true)}
                 >
                   <Add className="me-1" fontSize="small" /> Nouvelle
                   conversation
-                </button>
+                </button> */}
               </div>
             </div>
           )}
         </div>
       </div>
+
+      <UserSelectionModal
+        isOpen={isUserSelectionModalOpen}
+        onClose={() => setIsUserSelectionModalOpen(false)}
+        onSelectUsers={handleSelectUsers}
+      />
 
       <ProfileModal
         isOpen={isProfileModalOpen}
