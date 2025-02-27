@@ -3,35 +3,45 @@ import { Search, Send, Add, MoreVert } from "@material-ui/icons";
 import ProfileModal from "./profile/ProfileModal";
 import UserSelectionModal from "./profile/UserSelectionModal";
 import { chatService, messageUtils } from "./chatService";
+import { shallowEqual, useSelector } from "react-redux";
 
 const ChatPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedChat, setSelectedChat] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isUserSelectionModalOpen, setIsUserSelectionModalOpen] = useState(
-    false
-  );
+  const [isUserSelectionModalOpen, setIsUserSelectionModalOpen] = useState(false);
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  // Récupérer l'ID de l'utilisateur depuis le localStorage
   const [currentUserId, setCurrentUserId] = useState(null);
 
+  // Récupérer l'utilisateur depuis Redux
+  const { user } = useSelector(
+    (state) => ({
+      user: state.auth.user,
+    }),
+    shallowEqual
+  );
+
+  // Mettre à jour currentUserId quand user change
   useEffect(() => {
-    // Récupérer l'ID utilisateur du localStorage
-    const userID = localStorage.getItem("userId");
-    // Convertir en nombre car les IDs dans vos messages sont numériques
-    setCurrentUserId(userID ? Number(userID) : null);
-    console.log("User ID from localStorage:", userID);
-  }, []);
+    if (user?.userID) {
+      setCurrentUserId(Number(user.userID));
+      console.log("User ID from Redux:", user.userID);
+    } else {
+      // Fallback à localStorage si user.userID n'est pas disponible
+      const localStorageUserID = localStorage.getItem("userId");
+      setCurrentUserId(localStorageUserID ? Number(localStorageUserID) : null);
+      console.log("User ID from localStorage:", localStorageUserID);
+    }
+  }, [user]);
 
   const loadChats = async () => {
     try {
       setLoading(true);
       const { data } = await chatService.getChats();
       setChats(data);
-      console.log("Chats loaded:", data);
     } catch (err) {
       setError("Erreur lors du chargement des conversations");
       console.error("Error loading chats:", err);
@@ -100,38 +110,37 @@ const ChatPage = () => {
   const handleChatSelect = async (chatId) => {
     // Convertir chatId en nombre pour assurer la compatibilité
     setSelectedChat(Number(chatId));
-    console.log("Chat sélectionné:", chatId);
 
     const chat = chats?.find((c) => Number(c?.id) === Number(chatId));
-    console.log("Chat trouvé:", chat);
+    if (!chat) return;
 
-    if (chat) {
-      const unreadMessages = chat?.messages?.filter((msg) => !msg?.isRead);
-      for (const msg of unreadMessages) {
-        try {
-          await chatService.markMessageAsRead({
-            to: chatId,
-            messageID: msg?.id,
-          });
-        } catch (err) {
-          console.error("Error marking message as read:", err);
-        }
+    // Marquer les messages non lus comme lus
+    const unreadMessages = chat?.messages?.filter((msg) => !msg?.isRead);
+    for (const msg of unreadMessages) {
+      try {
+        await chatService.markMessageAsRead({
+          chatID: chatId,
+          messageID: msg?.id,
+        });
+      } catch (err) {
+        console.error("Error marking message as read:", err);
       }
     }
   };
 
   const handleProfileSelect = async (profile) => {
     setIsProfileModalOpen(false);
-
-    // Afficher un état de chargement
     setLoading(true);
 
     try {
-      // Récupérer l'ID utilisateur connecté
-      const userID = localStorage.getItem("userId");
+      // Utiliser l'ID utilisateur depuis Redux si disponible, sinon depuis localStorage
+      const userID = user?.userID || localStorage.getItem("userId");
+      
+      if (!userID) {
+        throw new Error("Utilisateur non identifié");
+      }
 
       // Créer d'abord un groupe pour cette conversation
-      // Le isGroup est à false car c'est une conversation 1:1
       const createGroupData = messageUtils.formatCreateGroup(
         profile.name, // Nom du groupe = nom du service
         Number(userID), // L'utilisateur actuel comme master
@@ -174,18 +183,21 @@ const ChatPage = () => {
     const adminUser = chat?.users?.find((u) => u?.chatUserRole === 1);
 
     // Si trouvé, retourne cet utilisateur, sinon fallback au premier utilisateur
-    return adminUser || chat?.users[0];
+    return adminUser || chat?.users?.[0];
   };
 
   const getLastMessage = (chat) => {
-    return chat?.messages[chat?.messages?.length - 1];
+    if (!chat?.messages || !chat.messages.length) return null;
+    return chat.messages[chat.messages.length - 1];
   };
 
   const filteredChats = chats?.filter((chat) => {
+    if (!chat) return false;
+    
     const otherUser = getOtherUser(chat);
     return (
       otherUser?.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      chat?.messages?.some((m) =>
+      chat.messages?.some((m) =>
         m?.message?.toLowerCase().includes(searchQuery.toLowerCase())
       )
     );
@@ -200,6 +212,12 @@ const ChatPage = () => {
     setIsUserSelectionModalOpen(false);
 
     if (!selectedData.isGroup && selectedData.users.length === 1) {
+      // Vérifier que l'ID utilisateur est disponible
+      if (!currentUserId) {
+        setError("Impossible de créer une conversation: utilisateur non identifié");
+        return;
+      }
+
       // Créer une discussion statique pour un seul utilisateur
       const selectedUser = selectedData.users[0];
 
@@ -221,7 +239,7 @@ const ChatPage = () => {
           // L'utilisateur actuel
           {
             id: currentUserId,
-            userName: "Vous", // Ou récupérer le vrai nom si disponible
+            userName: user?.fullName || "Vous", // Utiliser le nom complet si disponible
             chatUserRole: 2,
           },
         ],
@@ -237,7 +255,13 @@ const ChatPage = () => {
       // Pour les groupes, continuer avec le code existant qui fait des appels API
       selectedData.users.forEach(async (user) => {
         try {
-          const userID = localStorage.getItem("userId");
+          // Utiliser l'ID utilisateur depuis Redux si disponible, sinon depuis localStorage
+          const userID = currentUserId || localStorage.getItem("userId");
+          
+          if (!userID) {
+            throw new Error("Utilisateur non identifié");
+          }
+          
           const createGroupData = messageUtils.formatCreateGroup(
             selectedData.groupName || user.name,
             Number(userID),
@@ -261,6 +285,8 @@ const ChatPage = () => {
 
   // Fonction pour générer une couleur d'avatar basée sur le nom
   const generateAvatarColor = (name) => {
+    if (!name) return "#4361ee"; // Couleur par défaut si pas de nom
+    
     const colors = [
       "#4361ee",
       "#3a0ca3",
@@ -273,7 +299,7 @@ const ChatPage = () => {
       "#b5179e",
       "#3f37c9",
     ];
-    const charCode = name?.charCodeAt(0) || 0;
+    const charCode = name.charCodeAt(0) || 0;
     return colors[charCode % colors.length];
   };
 
@@ -353,7 +379,7 @@ const ChatPage = () => {
                   const otherUser = getOtherUser(chat);
                   const lastMessage = getLastMessage(chat);
                   const hasUnread = chat.messages?.some(
-                    (m) => !m?.isRead && m?.byUserID !== currentUserId
+                    (m) => !m?.isRead && Number(m?.byUserID) !== Number(currentUserId)
                   );
                   const chatName = chat.isGroup
                     ? chat?.groupName || "Groupe"
@@ -363,7 +389,7 @@ const ChatPage = () => {
                   return (
                     <div
                       key={chat?.id}
-                      className={`d-flex  p-3 border-bottom chat-item ${
+                      className={`d-flex p-3 border-bottom chat-item ${
                         Number(selectedChat) === Number(chat?.id)
                           ? "bg-light"
                           : ""
@@ -384,11 +410,7 @@ const ChatPage = () => {
                           {chatName.charAt(0).toUpperCase()}
                         </div>
                         {hasUnread && (
-                          <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle">
-                            <span className="visually-hidden">
-                              Nouveau message
-                            </span>
-                          </span>
+                          <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
                         )}
                       </div>
                       <div className="overflow-hidden">
@@ -401,9 +423,9 @@ const ChatPage = () => {
                             {chatName}
                           </span>
                           <small
-                            className={`text-nowrap ms-2  ${
+                            className={`text-nowrap ms-2 ${
                               hasUnread ? "text-dark fw-bold" : "text-muted"
-                            } `}
+                            }`}
                           >
                             {lastMessage
                               ? new Date(
@@ -476,7 +498,6 @@ const ChatPage = () => {
                   </button>
                 </div>
               </div>
-
               <div
                 className="flex-grow-1 overflow-auto p-3 bg-light messages-container"
                 style={{
@@ -496,91 +517,113 @@ const ChatPage = () => {
                     <p className="small">Envoyez un message pour commencer</p>
                   </div>
                 ) : (
-                  // Inverser l'ordre des messages en utilisant slice().reverse()
-                  [...selectedChatData?.messages]
-                    .reverse()
-                    .map((msg, index, reversedArray) => {
-                      // Trouver l'expéditeur du message
-                      const messageSender = selectedChatData?.users?.find(
-                        (user) => Number(user.id) === Number(msg?.byUserID)
-                      );
+                  // Vérifier d'abord si messages existe et est un tableau avant de faire reverse()
+                  (selectedChatData?.messages &&
+                  Array.isArray(selectedChatData.messages)
+                    ? [...selectedChatData.messages].reverse()
+                    : []
+                  ).map((msg, index, reversedArray) => {
+                    // Trouver l'expéditeur du message
+                    const messageSender = selectedChatData?.users?.find(
+                      (user) => Number(user.id) === Number(msg?.byUserID)
+                    );
 
-                      // Vérifier si le message est envoyé par un utilisateur avec chatUserRole: 1
-                      const isSentByAdmin = messageSender?.chatUserRole === 1;
+                    // Vérifier si le message provient de l'utilisateur actuel
+                    const isFromCurrentUser =
+                      Number(msg?.byUserID) === Number(currentUserId);
 
-                      // Pour l'avatar, nous devons vérifier le message suivant dans l'ordre inversé
-                      // ce qui correspond à l'index + 1 dans le tableau inversé
-                      const showAvatar =
-                        index === reversedArray.length - 1 ||
-                        reversedArray[index + 1]?.byUserID !== msg?.byUserID;
+                    // Pour l'avatar, vérifier si le message suivant est du même expéditeur
+                    const showAvatar =
+                      index === reversedArray.length - 1 ||
+                      reversedArray[index + 1]?.byUserID !== msg?.byUserID;
 
-                      return (
-                        <div
-                          key={msg.id}
-                          className={`d-flex ${
-                            !isSentByAdmin ? "justify-content-end" : ""
-                          } mb-3`}
-                        >
-                          {isSentByAdmin && showAvatar && (
-                            <div className="me-2 align-self-end">
-                              <div
-                                className="rounded-circle text-white d-flex align-items-center justify-content-center"
-                                style={{
-                                  width: "32px",
-                                  height: "32px",
-                                  backgroundColor: generateAvatarColor(
-                                    getOtherUser(selectedChatData)?.userName
-                                  ),
-                                  fontSize: "14px",
-                                }}
-                              >
-                                {(
-                                  getOtherUser(selectedChatData)?.userName ||
-                                  "?"
-                                )
-                                  .charAt(0)
-                                  .toUpperCase()}
-                              </div>
-                            </div>
-                          )}
-                          {isSentByAdmin && !showAvatar && (
+                    return (
+                      <div
+                        key={msg.id}
+                        className={`d-flex ${
+                          isFromCurrentUser ? "justify-content-end" : ""
+                        } mb-3`}
+                      >
+                        {/* Avatar pour messages reçus (à gauche) */}
+                        {!isFromCurrentUser && showAvatar && (
+                          <div className="me-2 align-self-end">
                             <div
-                              style={{ width: "32px" }}
-                              className="me-2"
-                            ></div>
-                          )}
-                          <div style={{ maxWidth: "75%" }}>
-                            <div
-                              className={`p-3 rounded-3 shadow-sm ${
-                                !isSentByAdmin
-                                  ? "bg-primary text-white"
-                                  : "bg-white"
-                              }`}
+                              className="rounded-circle text-white d-flex align-items-center justify-content-center"
                               style={{
-                                borderRadius: !isSentByAdmin
-                                  ? "18px 18px 4px 18px"
-                                  : "18px 18px 18px 4px",
+                                width: "32px",
+                                height: "32px",
+                                backgroundColor: generateAvatarColor(
+                                  messageSender?.userName || "?"
+                                ),
+                                fontSize: "14px",
                               }}
                             >
-                              {msg?.message}
-                            </div>
-                            <div
-                              className={`text-muted small mt-1 ${
-                                !isSentByAdmin ? "text-end" : ""
-                              }`}
-                            >
-                              {new Date(msg?.sentAt).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
+                              {(messageSender?.userName || "?")
+                                .charAt(0)
+                                .toUpperCase()}
                             </div>
                           </div>
+                        )}
+                        {!isFromCurrentUser && !showAvatar && (
+                          <div style={{ width: "32px" }} className="me-2"></div>
+                        )}
+
+                        {/* Contenu du message */}
+                        <div style={{ maxWidth: "75%" }}>
+                          <div
+                            className={`p-3 rounded-3 shadow-sm ${
+                              isFromCurrentUser
+                                ? "bg-primary text-white"
+                                : "bg-white"
+                            }`}
+                            style={{
+                              borderRadius: isFromCurrentUser
+                                ? "18px 18px 4px 18px"
+                                : "18px 18px 18px 4px",
+                            }}
+                          >
+                            {msg?.message}
+                          </div>
+                          <div
+                            className={`text-muted small mt-1 ${
+                              isFromCurrentUser ? "text-end" : ""
+                            }`}
+                          >
+                            {new Date(msg?.sentAt).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </div>
                         </div>
-                      );
-                    })
+
+                        {/* Avatar pour messages envoyés (à droite) */}
+                        {isFromCurrentUser && showAvatar && (
+                          <div className="ms-2 align-self-end">
+                            <div
+                              className="rounded-circle text-white d-flex align-items-center justify-content-center"
+                              style={{
+                                width: "32px",
+                                height: "32px",
+                                backgroundColor: generateAvatarColor(
+                                  messageSender?.userName || "?"
+                                ),
+                                fontSize: "14px",
+                              }}
+                            >
+                              {(messageSender?.userName || "?")
+                                .charAt(0)
+                                .toUpperCase()}
+                            </div>
+                          </div>
+                        )}
+                        {isFromCurrentUser && !showAvatar && (
+                          <div style={{ width: "32px" }} className="ms-2"></div>
+                        )}
+                      </div>
+                    );
+                  })
                 )}
               </div>
-
               <div className="border-top bg-white p-3">
                 <form onSubmit={handleSendMessage}>
                   <div className="input-group">
@@ -620,13 +663,6 @@ const ChatPage = () => {
                   <br />
                   ou créez-en une nouvelle
                 </p>
-                {/* <button
-                  className="btn btn-primary"
-                  onClick={() => setIsProfileModalOpen(true)}
-                >
-                  <Add className="me-1" fontSize="small" /> Nouvelle
-                  conversation
-                </button> */}
               </div>
             </div>
           )}
