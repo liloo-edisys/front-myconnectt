@@ -11,6 +11,7 @@ const MetronicChat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showFaq, setShowFaq] = useState(true);
   const [faqData, setFaqData] = useState([]);
+  const [currentSuggestions, setCurrentSuggestions] = useState([]);
   const [messages, setMessages] = useState([
     {
       id: "welcome",
@@ -18,11 +19,88 @@ const MetronicChat = () => {
         "👋 Bonjour! Je suis là pour répondre à vos questions. Voici les sujets fréquemment abordés :",
       type: "bot",
       timestamp: new Date(),
+      suggestions: [],
     },
   ]);
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef(null);
+  
+  // Function to detect and render links in message content
+  const renderMessageContent = (content) => {
+    // Check if content is a URL only
+    const urlRegex = /^(https?:\/\/[^\s]+)$/;
+    if (urlRegex.test(content)) {
+      return (
+        <a 
+          href={content} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="message-link"
+          onClick={(e) => {
+            e.stopPropagation();
+            window.open(content, '_blank', 'noopener,noreferrer');
+          }}
+        >
+          {content}
+        </a>
+      );
+    }
+    
+    // For mixed content or text with URLs
+    const urlsInTextRegex = /(https?:\/\/[^\s]+)/g;
+    
+    // If no URLs in the text, return as is
+    if (!urlsInTextRegex.test(content)) {
+      return content;
+    }
+    
+    // Create array to hold parts of the message (text and links)
+    const parts = [];
+    
+    // Find all URLs in the content
+    let lastIndex = 0;
+    let match;
+    let index = 0;
+    
+    // Use regex to find all matches
+    const regex = /(https?:\/\/[^\s]+)/g;
+    
+    // For each match, add the text before it and the link
+    while ((match = regex.exec(content)) !== null) {
+      // Add text before the match
+      if (match.index > lastIndex) {
+        parts.push(content.substring(lastIndex, match.index));
+      }
+      
+      // Add the link
+      parts.push(
+        <a 
+          key={index++} 
+          href={match[0]} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="message-link"
+          onClick={(e) => {
+            e.stopPropagation();
+            window.open(match[0], '_blank', 'noopener,noreferrer');
+          }}
+        >
+          {match[0]}
+        </a>
+      );
+      
+      // Update lastIndex to the end of this match
+      lastIndex = regex.lastIndex;
+    }
+    
+    // Add any remaining text after the last URL
+    if (lastIndex < content.length) {
+      parts.push(content.substring(lastIndex));
+    }
+    
+    return parts;
+  };
 
   useEffect(() => {
     const fetchFAQs = async () => {
@@ -46,6 +124,7 @@ const MetronicChat = () => {
               "Désolé, je n'ai pas pu charger les questions fréquentes. Veuillez réessayer plus tard.",
             type: "bot",
             timestamp: new Date(),
+            suggestions: [],
           },
         ]);
       } finally {
@@ -78,8 +157,11 @@ const MetronicChat = () => {
     });
   };
 
-  const handleQuestionClick = async (question, answer) => {
+  const handleQuestionClick = async (question, answer, slaves = []) => {
+    // Hide the main FAQ list when a question is selected
     setShowFaq(false);
+    
+    // Add the user's question to the messages
     setMessages((prev) => [
       ...prev,
       {
@@ -87,11 +169,14 @@ const MetronicChat = () => {
         content: question,
         type: "user",
         timestamp: new Date(),
+        suggestions: [],
       },
     ]);
 
+    // Simulate typing
     await simulateTyping(answer);
 
+    // Add the bot's answer to the messages, including any slave FAQs as suggestions
     setMessages((prev) => [
       ...prev,
       {
@@ -99,8 +184,12 @@ const MetronicChat = () => {
         content: answer,
         type: "bot",
         timestamp: new Date(),
+        suggestions: slaves,
       },
     ]);
+
+    // Update current suggestions
+    setCurrentSuggestions(slaves);
   };
 
   const toggleChat = () => {
@@ -145,21 +234,39 @@ const MetronicChat = () => {
 
         <div className="messages-container">
           {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`message-wrapper ${
-                msg.type === "user" ? "outgoing" : "incoming"
-              }`}
-            >
-              <div className="message">
-                <div className="message-content">{msg.content}</div>
-                <div className="message-time">
-                  {msg.timestamp.toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+            <div key={msg.id}>
+              <div
+                className={`message-wrapper ${
+                  msg.type === "user" ? "outgoing" : "incoming"
+                }`}
+              >
+                <div className="message">
+                  <div className="message-content">{renderMessageContent(msg.content)}</div>
+                  <div className="message-time">
+                    {msg.timestamp.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
                 </div>
               </div>
+              
+              {/* Render suggestions (slave FAQs) below bot messages */}
+              {msg.type === "bot" && msg.suggestions && msg.suggestions.length > 0 && (
+                <div className="suggestion-buttons">
+                  {msg.suggestions.map((slave) => (
+                    <button
+                      key={slave.id}
+                      onClick={() => 
+                        handleQuestionClick(slave.question, slave.answer, slave.slaves)
+                      }
+                      className="suggestion-button"
+                    >
+                      {slave.question}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
 
@@ -181,7 +288,9 @@ const MetronicChat = () => {
               {faqData.map((faq) => (
                 <button
                   key={faq.id}
-                  onClick={() => handleQuestionClick(faq.question, faq.answer)}
+                  onClick={() => 
+                    handleQuestionClick(faq.question, faq.answer, faq.slaves)
+                  }
                   className="faq-button"
                 >
                   {faq.question}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Close, Save } from '@material-ui/icons';
+import { Modal } from '@material-ui/core';
 
 export const EditModal = ({ show, question, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -56,13 +57,13 @@ export const EditModal = ({ show, question, onClose, onSave }) => {
     }));
   };
 
-  if (!show) return null;
-
   return (
-    <div className="modal fade show d-block" tabIndex="-1" role="dialog">
-      <div className="modal-backdrop fade show" onClick={onClose}></div>
-      
-      <div className="modal-dialog modal-lg">
+    <Modal
+      open={show}
+      onClose={onClose}
+      aria-labelledby="edit-faq-modal"
+    >
+      <div className="modal-dialog modal-lg" style={{ margin: '50px auto' }}>
         <div className="modal-content border-0 shadow">
           <div className="modal-header bg-light py-3 px-4 border-bottom border-2">
             <h5 className="modal-title fw-bold fs-4 text-primary">Modifier la FAQ</h5>
@@ -138,6 +139,6 @@ export const EditModal = ({ show, question, onClose, onSave }) => {
           </form>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 };

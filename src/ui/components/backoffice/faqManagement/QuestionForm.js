@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Add } from '@material-ui/icons';
-import { styles } from './styles';
+import React, { useState } from "react";
+import { Add } from "@material-ui/icons";
+import { styles } from "./styles";
 
 export const QuestionForm = ({ onAdd }) => {
   const [questionText, setQuestionText] = useState("");
@@ -36,7 +36,7 @@ export const QuestionForm = ({ onAdd }) => {
 
   return (
     <div className={styles.sidebar}>
-      <h4 className="mb-4">Ajouter une question</h4>
+      <h4 className="mb-4 text-center">Ajouter une question</h4>
       <div className="mb-3">
         <input
           type="text"
