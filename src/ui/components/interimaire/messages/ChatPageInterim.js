@@ -53,17 +53,16 @@ const ChatPageInterim = () => {
 
   useEffect(() => {
     loadChats();
-    const interval = setInterval(loadChats, 30000);
+    const interval = setInterval(loadChats, 15000);
     return () => clearInterval(interval);
   }, []);
 
   // Fonction dédiée à la vérification de l'expéditeur
   const isMessageFromCurrentUser = (msg) => {
     if (!msg || !interimaire?.userID) return false;
-    
+
     // Vérification stricte avec conversions en nombre
     const result = Number(msg.byUserID) === Number(interimaire.userID);
-    console.log(`Message ${msg.id} from ${msg.byUserID}, current user: ${interimaire.userID}, match: ${result}`);
     return result;
   };
 
@@ -124,18 +123,11 @@ const ChatPageInterim = () => {
     console.log("Chat trouvé:", chat);
 
     if (chat) {
-      // Log des messages pour vérification
-      console.log("Messages dans cette conversation:", chat.messages);
-      
-      // Log des utilisateurs pour vérification
-      console.log("Utilisateurs dans cette conversation:", chat.users);
-      
       // Vérifier l'utilisateur actuel dans cette conversation
       const currentUserInChat = chat.users.find(
-        u => Number(u.id) === Number(interimaire?.userID)
+        (u) => Number(u.id) === Number(interimaire?.userID)
       );
-      console.log("Utilisateur actuel dans cette conversation:", currentUserInChat);
-      
+
       // Marquer les messages non lus comme lus
       const unreadMessages = chat?.messages?.filter((msg) => !msg?.isRead);
       for (const msg of unreadMessages) {
@@ -203,15 +195,50 @@ const ChatPageInterim = () => {
   };
 
   const getOtherUser = (chat) => {
-    // Cherche l'utilisateur avec chatUserRole: 1
-    const adminUser = chat?.users?.find((u) => u?.chatUserRole === 1);
+    // Find all users in the chat who are not the current user
+    const otherUsers = chat?.users?.filter(
+      (user) => Number(user.id) !== Number(currentUserId)
+    );
 
-    // Si trouvé, retourne cet utilisateur, sinon fallback au premier utilisateur
-    return adminUser || chat?.users[0];
+    // If there are no other users or the filter returned empty, use a fallback
+    if (!otherUsers || otherUsers.length === 0) {
+      return chat?.users[0]; // Fallback to first user
+    }
+
+    // Check if any of the other users have sent messages to the current user
+    const messagesFromOthers = chat?.messages?.filter(
+      (msg) => Number(msg.byUserID) !== Number(currentUserId)
+    );
+
+    if (messagesFromOthers && messagesFromOthers.length > 0) {
+      // Get the ID of the most recent sender who is not the current user
+      const mostRecentSenderId = messagesFromOthers[0].byUserID;
+
+      // Find this user in the otherUsers list
+      const sender = otherUsers.find(
+        (user) => Number(user.id) === Number(mostRecentSenderId)
+      );
+
+      // Return the sender if found, otherwise return first other user
+      return sender || otherUsers[0];
+    }
+
+    // If no messages from others, return the first other user
+    return otherUsers[0];
   };
 
   const getLastMessage = (chat) => {
-    return chat?.messages[chat?.messages?.length - 1];
+    if (!chat?.messages || chat.messages.length === 0) {
+      return null;
+    }
+
+    // Sort messages by sentAt date (newest first)
+    const sortedMessages = [...chat.messages].sort((a, b) => {
+      return new Date(b.sentAt) - new Date(a.sentAt);
+    });
+
+    // Return the first message in the sorted array (the newest one)
+    return sortedMessages[0];
   };
 
   const filteredChats = chats?.filter((chat) => {
@@ -348,13 +375,13 @@ const ChatPageInterim = () => {
           <div className="d-flex flex-column h-100">
             <div className="d-flex justify-content-between align-items-center p-3 border-bottom">
               <h5 className="mb-0 fw-bold mr-4">Conversations</h5>
-              <button
+              {/* <button
                 className="btn btn-sm btn-primary rounded-circle"
                 onClick={() => setIsUserSelectionModalOpen(true)}
                 title="Nouvelle conversation"
               >
                 <Add fontSize="small" />
-              </button>
+              </button> */}
             </div>
 
             <div className="position-relative p-3 border-bottom">
@@ -425,13 +452,13 @@ const ChatPageInterim = () => {
                         >
                           {chatName.charAt(0).toUpperCase()}
                         </div>
-                        {hasUnread && (
+                        {/* {hasUnread && (
                           <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle">
                             <span className="visually-hidden">
                               Nouveau message
                             </span>
                           </span>
-                        )}
+                        )} */}
                       </div>
                       <div className="overflow-hidden">
                         <div className="d-flex justify-content-between align-items-center mb-1">
@@ -442,7 +469,7 @@ const ChatPageInterim = () => {
                           >
                             {chatName}
                           </span>
-                          <small
+                          {/* <small
                             className={`text-nowrap ms-2  ${
                               hasUnread ? "text-dark fw-bold" : "text-muted"
                             } `}
@@ -452,7 +479,7 @@ const ChatPageInterim = () => {
                                   lastMessage?.sentAt
                                 ).toLocaleDateString()
                               : ""}
-                          </small>
+                          </small> */}
                         </div>
                         <p
                           className={`mb-0 text-truncate ${
@@ -684,7 +711,6 @@ const ChatPageInterim = () => {
                 <p className="mb-4">
                   Sélectionnez une conversation pour commencer à discuter
                   <br />
-                  ou créez-en une nouvelle
                 </p>
               </div>
             </div>

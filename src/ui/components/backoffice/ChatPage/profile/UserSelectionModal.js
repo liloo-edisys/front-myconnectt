@@ -9,15 +9,18 @@ const UserSelectionModal = ({
   onClose,
   onSelectUsers,
   currentUserId,
+  initialTab = null,
 }) => {
-  // État pour gérer les onglets (intérimaires/clients)
-  const [tabValue, setTabValue] = useState(0);
+  // État pour gérer les onglets (intérimaires/clients/canaux)
+  const [tabValue, setTabValue] = useState(initialTab === 'group' ? 2 : 0);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [selectedAccounts, setSelectedAccounts] = useState([]);
   const [groupName, setGroupName] = useState("");
-  const [isCreatingGroup, setIsCreatingGroup] = useState(false);
+  const [isCreatingGroup, setIsCreatingGroup] = useState(initialTab === 'group');
+  const [channelMode, setChannelMode] = useState(initialTab === 'group');
 
   // API URL from environment variables
   const API_URL =
@@ -35,13 +38,12 @@ const UserSelectionModal = ({
 
   // Surveiller si plusieurs utilisateurs sont sélectionnés pour activer le mode groupe
   useEffect(() => {
-    if (selectedUsers.length > 1) {
+    if (selectedUsers.length > 1 || tabValue === 2) {
       setIsCreatingGroup(true);
     } else {
-      setIsCreatingGroup(false);
-      setGroupName("");
+      setIsCreatingGroup(selectedUsers.length > 1 || channelMode);
     }
-  }, [selectedUsers]);
+  }, [selectedUsers, tabValue, channelMode]);
 
   // Fonction pour rechercher des utilisateurs
   const searchUsers = useCallback(
@@ -126,67 +128,123 @@ const UserSelectionModal = ({
   const handleTabChange = (newValue) => {
     setTabValue(newValue);
     setSelectedUsers([]);
+    setSelectedAccounts([]);
     setSearchQuery("");
     setUsers([]);
+    
+    // Si on sélectionne l'onglet Canaux, activer le mode groupe par défaut
+    if (newValue === 2) {
+      setChannelMode(true);
+      setIsCreatingGroup(true);
+    } else {
+      setChannelMode(false);
+      setIsCreatingGroup(false);
+    }
+    
     setGroupName("");
-    setIsCreatingGroup(false);
   };
 
   // Gestion de la sélection d'utilisateurs
   const handleToggleUser = (userId) => {
-    setSelectedUsers((prev) => {
-      if (prev.includes(userId)) {
-        return prev.filter((id) => id !== userId);
-      } else {
-        return [...prev, userId];
-      }
-    });
+    if (tabValue === 0) {
+      // Pour les intérimaires
+      setSelectedUsers((prev) => {
+        if (prev.includes(userId)) {
+          return prev.filter((id) => id !== userId);
+        } else {
+          return [...prev, userId];
+        }
+      });
+    } else {
+      // Pour les clients
+      setSelectedAccounts((prev) => {
+        if (prev.includes(userId)) {
+          return prev.filter((id) => id !== userId);
+        } else {
+          return [...prev, userId];
+        }
+      });
+    }
   };
 
-  // Fonction pour créer un groupe de discussion
-  const createChatGroup = async () => {
+  // Fonction pour créer un canal avec le nouveau format de données
+  const createChannel = async () => {
     try {
       setLoading(true);
 
-      // Préparer les données pour la création du groupe
-      const toUsers = selectedUsers.map((userId) => ({
-        userID: userId,
-        enumChatUserRole: 2, // Rôle par défaut pour les membres
-      }));
-
-      const groupData = {
-        groupName: groupName || "Nouveau groupe",
-        chatID: 0,
-        chatMasterID: null, // Utilisation du currentUserId passé en prop
-        toUsers: toUsers,
-        isGroup: true,
+      // Préparer les données pour la création du canal selon le nouveau format
+      // S'assurer que nous avons bien les tableaux d'IDs et non leur taille
+      const channelData = {
+        name: groupName || "Nouveau canal",
+        chatMasterID: currentUserId || 0,
+        usersID: selectedUsers, // Envoyer directement le tableau d'IDs des intérimaires
+        accountsID: selectedAccounts // Envoyer directement le tableau d'IDs des clients
       };
 
-      // Utiliser le service existant pour créer le groupe
-      const response = await chatService.createGroup(groupData);
+      console.log("Création de canal avec les données:", channelData);
+
+      // Appel à l'API pour créer le canal
+      const response = await axios.post(`${API_URL}api/Chat/channel`, channelData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': '*/*'
+        }
+      });
 
       return response.data;
     } catch (error) {
-      console.error("Erreur lors de la création du groupe:", error);
+      console.error("Erreur lors de la création du canal:", error);
       throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  // Gestion de la validation et création du chat/groupe
+  // Gestion de la validation et création du chat/groupe/canal
   const handleConfirm = async () => {
     try {
       let result;
 
-      if (isCreatingGroup) {
+      if (channelMode) {
+        // Si on crée un canal
+        if (!groupName) {
+          alert("Veuillez entrer un nom pour le canal");
+          return;
+        }
+
+        result = await createChannel();
+        // Notifier le composant parent avec les informations du canal créé
+        onSelectUsers({
+          isGroup: true,
+          users: selectedUsers.map((id) => {
+            const user = users.find((u) => u.id === id);
+            return { id, name: user?.name || "Utilisateur" };
+          }),
+          groupName,
+          groupId: result?.id || result?.chatID || null,
+        });
+      } else if (isCreatingGroup) {
         // Si plusieurs utilisateurs sont sélectionnés, créer un groupe
         if (!groupName) {
           alert("Veuillez entrer un nom pour le groupe");
           return;
         }
 
-        result = await createChatGroup();
+        // Utiliser l'ancienne fonction de création de groupe
+        const groupData = {
+          groupName: groupName || "Nouveau groupe",
+          chatID: 0,
+          chatMasterID: currentUserId, 
+          toUsers: selectedUsers.map(userId => ({
+            userID: userId,
+            enumChatUserRole: 2
+          })),
+          isGroup: true,
+        };
+        
+        const response = await chatService.createGroup(groupData);
+        result = response.data;
+        
         // Notifier le composant parent avec les informations du groupe créé
         onSelectUsers({
           isGroup: true,
@@ -199,7 +257,8 @@ const UserSelectionModal = ({
         });
       } else {
         // Si un seul utilisateur est sélectionné, créer une discussion sans API
-        const selectedUser = users.find((user) => user.id === selectedUsers[0]);
+        const selectedUsersList = tabValue === 0 ? selectedUsers : selectedAccounts;
+        const selectedUser = users.find((user) => user.id === selectedUsersList[0]);
 
         // Ajouter statiquement à la liste des discussions
         onSelectUsers({
@@ -260,6 +319,26 @@ const UserSelectionModal = ({
     return colors[charCode % colors.length];
   };
 
+  // Déterminer les utilisateurs sélectionnés en fonction de l'onglet actif
+  const getSelectedUsersCount = () => {
+    if (tabValue === 0) {
+      return selectedUsers.length;
+    } else if (tabValue === 1) {
+      return selectedAccounts.length;
+    } else {
+      return selectedUsers.length + selectedAccounts.length;
+    }
+  };
+
+  // Déterminer si le bouton de confirmation doit être désactivé
+  const isConfirmDisabled = () => {
+    if (channelMode || isCreatingGroup) {
+      return getSelectedUsersCount() === 0 || !groupName || loading;
+    } else {
+      return getSelectedUsersCount() === 0 || loading;
+    }
+  };
+
   return (
     <Modal
       open={isOpen}
@@ -287,7 +366,9 @@ const UserSelectionModal = ({
         {/* Header - Simple et minimaliste */}
         <div className="pb-3 mb-3 border-bottom">
           <h5 className="mb-0 text-center">
-            {isCreatingGroup
+            {channelMode
+              ? "Créer un canal"
+              : isCreatingGroup
               ? "Créer un groupe de discussion"
               : `Sélectionner des ${
                   tabValue === 0 ? "intérimaires" : "clients"
@@ -295,7 +376,7 @@ const UserSelectionModal = ({
           </h5>
         </div>
 
-        {/* Tabs - Style épuré et moderne */}
+        {/* Tabs - Style épuré et moderne avec un nouvel onglet pour les canaux */}
         <div className="d-flex mb-3">
           <button
             className={`flex-fill py-3 btn ${
@@ -323,10 +404,23 @@ const UserSelectionModal = ({
             <Business fontSize="small" className="me-2" />
             Clients
           </button>
+          <button
+            className={`flex-fill py-3 btn ${
+              tabValue === 2
+                ? "text-primary fw-bold border-0 border-bottom border-primary border-3"
+                : "text-secondary border-0 border-bottom"
+            }`}
+            onClick={() => handleTabChange(2)}
+            style={{ borderRadius: 0 }}
+            disabled={loading}
+          >
+            <Group fontSize="small" className="me-2" />
+            Canaux
+          </button>
         </div>
 
-        {/* Champ de nom de groupe (apparaît uniquement quand plusieurs utilisateurs sont sélectionnés) */}
-        {isCreatingGroup && (
+        {/* Champ de nom de groupe/canal */}
+        {(isCreatingGroup || channelMode) && (
           <div className="mb-3">
             <div className="input-group">
               <span className="input-group-text bg-light border-end-0">
@@ -335,12 +429,23 @@ const UserSelectionModal = ({
               <input
                 type="text"
                 className="form-control bg-light border-start-0"
-                placeholder="Nom du groupe..."
+                placeholder={channelMode ? "Nom du canal..." : "Nom du groupe..."}
                 value={groupName}
                 onChange={handleGroupNameChange}
                 required
               />
             </div>
+          </div>
+        )}
+
+        {/* Afficher des instructions pour les canaux */}
+        {tabValue === 2 && (
+          <div className="alert alert-info mb-3" role="alert">
+            <small>
+              <i className="bi bi-info-circle me-2"></i>
+              Dans un canal, vous pouvez ajouter à la fois des intérimaires et des clients. 
+              Utilisez les onglets ci-dessus pour rechercher et sélectionner différents types d'utilisateurs.
+            </small>
           </div>
         )}
 
@@ -358,7 +463,7 @@ const UserSelectionModal = ({
               className="form-control bg-light border-start-0"
               style={{ borderRadius: "0 8px 8px 0" }}
               placeholder={`Rechercher des ${
-                tabValue === 0 ? "intérimaires" : "clients"
+                tabValue === 0 ? "intérimaires" : tabValue === 1 ? "clients" : "utilisateurs"
               }...`}
               value={searchQuery}
               onChange={handleSearchChange}
@@ -367,11 +472,11 @@ const UserSelectionModal = ({
         </div>
 
         {/* Compteur de sélection (visible quand des utilisateurs sont sélectionnés) */}
-        {selectedUsers.length > 0 && (
+        {getSelectedUsersCount() > 0 && (
           <div className="mb-3 px-2">
             <span className="badge bg-primary text-white rounded-pill px-3 py-2">
-              {selectedUsers.length}{" "}
-              {selectedUsers.length > 1
+              {getSelectedUsersCount()}{" "}
+              {getSelectedUsersCount() > 1
                 ? "utilisateurs sélectionnés"
                 : "utilisateur sélectionné"}
             </span>
@@ -386,61 +491,79 @@ const UserSelectionModal = ({
             </div>
           ) : users.length > 0 ? (
             <div className="px-4">
-              {users.map((user) => (
-                <div
-                  key={user.id}
-                  className={`py-3 d-flex align-items-center hover-bg-light mb-2 rounded ${
-                    selectedUsers.includes(user.id) ? "bg-light" : ""
-                  }`}
-                  onClick={() => handleToggleUser(user.id)}
-                  style={{
-                    cursor: "pointer",
-                    transition: "background-color 0.15s ease",
-                  }}
-                  onMouseOver={(e) => {
-                    if (!selectedUsers.includes(user.id)) {
-                      e.currentTarget.style.backgroundColor = "#f8f9fa";
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    if (!selectedUsers.includes(user.id)) {
-                      e.currentTarget.style.backgroundColor = "transparent";
-                    }
-                  }}
-                >
-                  <div className="ms-3">
-                    <div
-                      className="rounded-circle text-white d-flex align-items-center justify-content-center"
-                      style={{
-                        width: "40px",
-                        height: "40px",
-                        backgroundColor: getAvatarColor(user.name),
-                        fontSize: "16px",
-                      }}
-                    >
-                      {getInitials(user.name)}
+              {users.map((user) => {
+                // Vérifier la sélection en fonction de l'onglet actif
+                const isSelected = tabValue === 0 
+                  ? selectedUsers.includes(user.id)
+                  : selectedAccounts.includes(user.id);
+                
+                return (
+                  <div
+                    key={user.id}
+                    className={`py-3 d-flex align-items-center hover-bg-light mb-2 rounded ${
+                      isSelected ? "bg-light" : ""
+                    }`}
+                    onClick={() => handleToggleUser(user.id)}
+                    style={{
+                      cursor: "pointer",
+                      transition: "background-color 0.15s ease",
+                    }}
+                    onMouseOver={(e) => {
+                      if (!isSelected) {
+                        e.currentTarget.style.backgroundColor = "#f8f9fa";
+                      }
+                    }}
+                    onMouseOut={(e) => {
+                      if (!isSelected) {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }
+                    }}
+                  >
+                    <div className="ms-3">
+                      <div
+                        className="rounded-circle text-white d-flex align-items-center justify-content-center"
+                        style={{
+                          width: "40px",
+                          height: "40px",
+                          backgroundColor: getAvatarColor(user.name),
+                          fontSize: "16px",
+                        }}
+                      >
+                        {getInitials(user.name)}
+                      </div>
+                    </div>
+                    <div className="flex-grow-1 ms-3">
+                      <div className="fw-medium">{user.name}</div>
+                      <small className="text-muted">{user.role}</small>
+                    </div>
+                    <div className="me-3">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleToggleUser(user.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        id={`user-check-${user.id}`}
+                        style={{
+                          width: "14px",
+                          height: "14px",
+                          cursor: "pointer",
+                        }}
+                      />
                     </div>
                   </div>
-                  <div className="flex-grow-1 ms-3">
-                    <div className="fw-medium">{user.name}</div>
-                  </div>
-                  <div className="me-3">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      checked={selectedUsers.includes(user.id)}
-                      onChange={() => handleToggleUser(user.id)}
-                      onClick={(e) => e.stopPropagation()}
-                      id={`user-check-${user.id}`}
-                      style={{
-                        width: "14px",
-                        height: "14px",
-                        cursor: "pointer",
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
+            </div>
+          ) : tabValue === 2 && !searchQuery.trim() ? (
+            <div className="text-center text-muted py-5">
+              <div className="mb-3">
+                <i className="bi bi-hash" style={{ fontSize: "2rem" }}></i>
+              </div>
+              <p>
+                Les canaux sont des espaces de discussion thématiques. Nommez votre canal et 
+                ajoutez-y des membres en utilisant les onglets Intérimaires et Clients.
+              </p>
             </div>
           ) : searchQuery.trim() ? (
             <div className="text-center text-muted py-5">
@@ -448,7 +571,7 @@ const UserSelectionModal = ({
                 <i className="bi bi-search" style={{ fontSize: "2rem" }}></i>
               </div>
               <p>
-                Aucun {tabValue === 0 ? "intérimaire" : "client"} trouvé avec
+                Aucun {tabValue === 0 ? "intérimaire" : tabValue === 1 ? "client" : "utilisateur"} trouvé avec
                 ces critères.
               </p>
             </div>
@@ -459,7 +582,7 @@ const UserSelectionModal = ({
               </div>
               <p>
                 Commencez à taper pour rechercher des{" "}
-                {tabValue === 0 ? "intérimaires" : "clients"}.
+                {tabValue === 0 ? "intérimaires" : tabValue === 1 ? "clients" : "utilisateurs"}.
               </p>
             </div>
           )}
@@ -467,7 +590,7 @@ const UserSelectionModal = ({
 
         {/* Footer - Design plus professionnel */}
         <div className="pt-3 mt-3 border-top d-flex justify-content-between align-items-center">
-          {loading && selectedUsers.length > 0 ? (
+          {loading && getSelectedUsersCount() > 0 ? (
             <div
               className="spinner-border spinner-border-sm text-primary"
               role="status"
@@ -476,8 +599,10 @@ const UserSelectionModal = ({
             </div>
           ) : (
             <span className="text-muted">
-              {selectedUsers.length === 0
+              {getSelectedUsersCount() === 0
                 ? "Aucune sélection"
+                : channelMode
+                ? "Mode canal"
                 : isCreatingGroup
                 ? "Mode groupe"
                 : "Conversation individuelle"}
@@ -496,13 +621,9 @@ const UserSelectionModal = ({
               type="button"
               className="btn btn-primary px-4"
               onClick={handleConfirm}
-              disabled={
-                selectedUsers.length === 0 ||
-                (isCreatingGroup && !groupName) ||
-                loading
-              }
+              disabled={isConfirmDisabled()}
             >
-              {isCreatingGroup ? "Créer le groupe" : "Confirmer"}
+              {channelMode ? "Créer le canal" : isCreatingGroup ? "Créer le groupe" : "Confirmer"}
             </button>
           </div>
         </div>

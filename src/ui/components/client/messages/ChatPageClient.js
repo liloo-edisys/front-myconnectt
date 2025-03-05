@@ -56,7 +56,7 @@ const ChatPageInterim = () => {
 
   useEffect(() => {
     loadChats();
-    const interval = setInterval(loadChats, 30000);
+    const interval = setInterval(loadChats, 15000);
     return () => clearInterval(interval);
   }, []);
 
@@ -123,7 +123,7 @@ const ChatPageInterim = () => {
       // Log des messages et utilisateurs pour débogage
       console.log("Messages dans cette conversation:", chat.messages);
       console.log("Utilisateurs dans cette conversation:", chat.users);
-      
+
       const unreadMessages = chat?.messages?.filter((msg) => !msg?.isRead);
       for (const msg of unreadMessages) {
         try {
@@ -147,7 +147,7 @@ const ChatPageInterim = () => {
     try {
       // Utiliser l'ID utilisateur depuis Redux si disponible, sinon depuis localStorage
       const userID = user?.userID || localStorage.getItem("userId");
-      
+
       if (!userID) {
         throw new Error("Utilisateur non connecté");
       }
@@ -192,15 +192,50 @@ const ChatPageInterim = () => {
   };
 
   const getOtherUser = (chat) => {
-    // Cherche l'utilisateur avec chatUserRole: 1
-    const adminUser = chat?.users?.find((u) => u?.chatUserRole === 1);
+    // Find all users in the chat who are not the current user
+    const otherUsers = chat?.users?.filter(
+      (user) => Number(user.id) !== Number(currentUserId)
+    );
 
-    // Si trouvé, retourne cet utilisateur, sinon fallback au premier utilisateur
-    return adminUser || chat?.users[0];
+    // If there are no other users or the filter returned empty, use a fallback
+    if (!otherUsers || otherUsers.length === 0) {
+      return chat?.users[0]; // Fallback to first user
+    }
+
+    // Check if any of the other users have sent messages to the current user
+    const messagesFromOthers = chat?.messages?.filter(
+      (msg) => Number(msg.byUserID) !== Number(currentUserId)
+    );
+
+    if (messagesFromOthers && messagesFromOthers.length > 0) {
+      // Get the ID of the most recent sender who is not the current user
+      const mostRecentSenderId = messagesFromOthers[0].byUserID;
+
+      // Find this user in the otherUsers list
+      const sender = otherUsers.find(
+        (user) => Number(user.id) === Number(mostRecentSenderId)
+      );
+
+      // Return the sender if found, otherwise return first other user
+      return sender || otherUsers[0];
+    }
+
+    // If no messages from others, return the first other user
+    return otherUsers[0];
   };
 
   const getLastMessage = (chat) => {
-    return chat?.messages[chat?.messages?.length - 1];
+    if (!chat?.messages || chat.messages.length === 0) {
+      return null;
+    }
+
+    // Sort messages by sentAt date (newest first)
+    const sortedMessages = [...chat.messages].sort((a, b) => {
+      return new Date(b.sentAt) - new Date(a.sentAt);
+    });
+
+    // Return the first message in the sorted array (the newest one)
+    return sortedMessages[0];
   };
 
   const filteredChats = chats?.filter((chat) => {
@@ -227,7 +262,9 @@ const ChatPageInterim = () => {
 
       // Vérifier que l'utilisateur actuel est bien identifié
       if (!currentUserId) {
-        setError("Impossible de créer une conversation: utilisateur non identifié");
+        setError(
+          "Impossible de créer une conversation: utilisateur non identifié"
+        );
         return;
       }
 
@@ -267,11 +304,11 @@ const ChatPageInterim = () => {
         try {
           // Utiliser l'ID utilisateur depuis Redux si disponible, sinon depuis localStorage
           const userID = user?.userID || localStorage.getItem("userId");
-          
+
           if (!userID) {
             throw new Error("Utilisateur non connecté");
           }
-          
+
           const createGroupData = messageUtils.formatCreateGroup(
             selectedData.groupName || user.name,
             Number(userID),
@@ -387,7 +424,9 @@ const ChatPageInterim = () => {
                   const otherUser = getOtherUser(chat);
                   const lastMessage = getLastMessage(chat);
                   const hasUnread = chat.messages?.some(
-                    (m) => !m?.isRead && Number(m?.byUserID) !== Number(currentUserId)
+                    (m) =>
+                      !m?.isRead &&
+                      Number(m?.byUserID) !== Number(currentUserId)
                   );
                   const chatName = chat.isGroup
                     ? chat?.groupName || "Groupe"
@@ -417,35 +456,32 @@ const ChatPageInterim = () => {
                         >
                           {chatName.charAt(0).toUpperCase()}
                         </div>
-                        {hasUnread && (
+                        {/* {hasUnread && (
                           <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle">
                             <span className="visually-hidden">
                               Nouveau message
                             </span>
                           </span>
-                        )}
+                        )} */}
                       </div>
                       <div className="overflow-hidden">
-                        <div className="d-flex justify-content-between align-items-center mb-1">
-                          <span
-                            className={`${
-                              hasUnread ? "fw-bold" : "fw-medium"
-                            } text-truncate`}
-                          >
+                        <div className="d-flex align-items-center mb-1">
+                          <span className="fw-medium text-truncate flex-grow-1">
                             {chatName}
                           </span>
-                          <small
-                            className={`text-nowrap ms-2  ${
+                          {/* <small
+                            className={`text-nowrap ms-2 ${
                               hasUnread ? "text-dark fw-bold" : "text-muted"
-                            } `}
+                            }`}
                           >
                             {lastMessage
                               ? new Date(
                                   lastMessage?.sentAt
                                 ).toLocaleDateString()
                               : ""}
-                          </small>
+                          </small> */}
                         </div>
+
                         <p
                           className={`mb-0 text-truncate ${
                             hasUnread ? "fw-semibold text-dark" : "text-muted"
@@ -680,7 +716,7 @@ const ChatPageInterim = () => {
                 <p className="mb-4">
                   Sélectionnez une conversation pour commencer à discuter
                   <br />
-                  ou créez-en une nouvelle
+                   
                 </p>
               </div>
             </div>

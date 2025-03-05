@@ -70,7 +70,6 @@ export default function BaseInterimairePage(props) {
         <ContentRoute path="/certificates" component={UnderConstruction} />
         <ContentRoute path="/messages" component={ChatPageInterim} />
         <ContentRoute path="/cra" component={HoursStatement} />
-
         <ContentRoute path={`/contact`}>
           {({ history, match }) => (
             <EmailContactModal
