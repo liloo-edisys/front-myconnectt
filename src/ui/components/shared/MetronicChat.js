@@ -25,80 +25,80 @@ const MetronicChat = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef(null);
-  
+
   // Function to detect and render links in message content
   const renderMessageContent = (content) => {
     // Check if content is a URL only
     const urlRegex = /^(https?:\/\/[^\s]+)$/;
     if (urlRegex.test(content)) {
       return (
-        <a 
-          href={content} 
-          target="_blank" 
+        <a
+          href={content}
+          target="_blank"
           rel="noopener noreferrer"
           className="message-link"
           onClick={(e) => {
             e.stopPropagation();
-            window.open(content, '_blank', 'noopener,noreferrer');
+            window.open(content, "_blank", "noopener,noreferrer");
           }}
         >
           {content}
         </a>
       );
     }
-    
+
     // For mixed content or text with URLs
     const urlsInTextRegex = /(https?:\/\/[^\s]+)/g;
-    
+
     // If no URLs in the text, return as is
     if (!urlsInTextRegex.test(content)) {
       return content;
     }
-    
+
     // Create array to hold parts of the message (text and links)
     const parts = [];
-    
+
     // Find all URLs in the content
     let lastIndex = 0;
     let match;
     let index = 0;
-    
+
     // Use regex to find all matches
     const regex = /(https?:\/\/[^\s]+)/g;
-    
+
     // For each match, add the text before it and the link
     while ((match = regex.exec(content)) !== null) {
       // Add text before the match
       if (match.index > lastIndex) {
         parts.push(content.substring(lastIndex, match.index));
       }
-      
+
       // Add the link
       parts.push(
-        <a 
-          key={index++} 
-          href={match[0]} 
-          target="_blank" 
+        <a
+          key={index++}
+          href={match[0]}
+          target="_blank"
           rel="noopener noreferrer"
           className="message-link"
           onClick={(e) => {
             e.stopPropagation();
-            window.open(match[0], '_blank', 'noopener,noreferrer');
+            window.open(match[0], "_blank", "noopener,noreferrer");
           }}
         >
           {match[0]}
         </a>
       );
-      
+
       // Update lastIndex to the end of this match
       lastIndex = regex.lastIndex;
     }
-    
+
     // Add any remaining text after the last URL
     if (lastIndex < content.length) {
       parts.push(content.substring(lastIndex));
     }
-    
+
     return parts;
   };
 
@@ -160,7 +160,7 @@ const MetronicChat = () => {
   const handleQuestionClick = async (question, answer, slaves = []) => {
     // Hide the main FAQ list when a question is selected
     setShowFaq(false);
-    
+
     // Add the user's question to the messages
     setMessages((prev) => [
       ...prev,
@@ -241,7 +241,9 @@ const MetronicChat = () => {
                 }`}
               >
                 <div className="message">
-                  <div className="message-content">{renderMessageContent(msg.content)}</div>
+                  <div className="message-content">
+                    {renderMessageContent(msg.content)}
+                  </div>
                   <div className="message-time">
                     {msg.timestamp.toLocaleTimeString([], {
                       hour: "2-digit",
@@ -250,23 +252,29 @@ const MetronicChat = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Render suggestions (slave FAQs) below bot messages */}
-              {msg.type === "bot" && msg.suggestions && msg.suggestions.length > 0 && (
-                <div className="suggestion-buttons">
-                  {msg.suggestions.map((slave) => (
-                    <button
-                      key={slave.id}
-                      onClick={() => 
-                        handleQuestionClick(slave.question, slave.answer, slave.slaves)
-                      }
-                      className="suggestion-button"
-                    >
-                      {slave.question}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {msg.type === "bot" &&
+                msg.suggestions &&
+                msg.suggestions.length > 0 && (
+                  <div className="suggestion-buttons">
+                    {msg.suggestions.map((slave) => (
+                      <button
+                        key={slave.id}
+                        onClick={() =>
+                          handleQuestionClick(
+                            slave.question,
+                            slave.answer,
+                            slave.slaves
+                          )
+                        }
+                        className="suggestion-button"
+                      >
+                        {slave.question}
+                      </button>
+                    ))}
+                  </div>
+                )}
             </div>
           ))}
 
@@ -288,7 +296,7 @@ const MetronicChat = () => {
               {faqData.map((faq) => (
                 <button
                   key={faq.id}
-                  onClick={() => 
+                  onClick={() =>
                     handleQuestionClick(faq.question, faq.answer, faq.slaves)
                   }
                   className="faq-button"
