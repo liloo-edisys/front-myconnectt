@@ -1,54 +1,122 @@
 import React, { useState, useEffect } from "react";
 import { Search, Send, Add, MoreVert } from "@material-ui/icons";
-import ProfileModal from "./profile/ProfileModal";
-import UserSelectionModal from "./profile/UserSelectionModal";
 import { chatService, messageUtils } from "./chatService";
 import { shallowEqual, useSelector } from "react-redux";
 
-const ChatPageInterim = () => {
+const ChatPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedChat, setSelectedChat] = useState(null);
   const [newMessage, setNewMessage] = useState("");
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isUserSelectionModalOpen, setIsUserSelectionModalOpen] = useState(
-    false
-  );
   const [chats, setChats] = useState([]);
+  const [channel, setChannel] = useState([]);
+  const [flattenedChannels, setFlattenedChannels] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  // Récupérer l'ID de l'utilisateur depuis le localStorage
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [isChannelModalOpen, setIsChannelModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("messages"); // "messages" ou "channels"
 
-  const { user, mission } = useSelector(
+  // Récupérer l'utilisateur depuis Redux
+  const { user } = useSelector(
     (state) => ({
       user: state.auth.user,
-      mission: state.missionsReducerData.mission,
     }),
     shallowEqual
   );
 
-  // Utiliser l'ID utilisateur depuis Redux si disponible, sinon depuis localStorage
+  // Fonction pour créer une liste plate à partir de la structure hiérarchique des canaux
+  const flattenChannels = (channels, level = 0, parentName = "") => {
+    if (!channels || !Array.isArray(channels)) return [];
+
+    let result = [];
+
+    channels.forEach((channel) => {
+      // Ajouter les informations du niveau et du parent
+      const channelWithLevel = {
+        ...channel,
+        level,
+        parentName,
+        displayName:
+          level > 0 ? `${parentName} / ${channel.name}` : channel.name,
+      };
+
+      // Ajouter le canal courant
+      result.push(channelWithLevel);
+
+      // Récursivement ajouter les sous-canaux
+      if (channel.slaves && channel.slaves.length > 0) {
+        const subChannels = flattenChannels(
+          channel.slaves,
+          level + 1,
+          level === 0 ? channel.name : `${parentName} / ${channel.name}`
+        );
+        result = [...result, ...subChannels];
+      }
+    });
+
+    return result;
+  };
+
+  // Mettre à jour currentUserId quand user change
   useEffect(() => {
     if (user?.userID) {
       setCurrentUserId(Number(user.userID));
       console.log("User ID from Redux:", user.userID);
     } else {
-      // Récupérer l'ID utilisateur du localStorage comme fallback
-      const userID = localStorage.getItem("userId");
-      setCurrentUserId(userID ? Number(userID) : null);
-      console.log("User ID from localStorage:", userID);
+      // Fallback à localStorage si user.userID n'est pas disponible
+      const localStorageUserID = localStorage.getItem("userId");
+      setCurrentUserId(localStorageUserID ? Number(localStorageUserID) : null);
+      console.log("User ID from localStorage:", localStorageUserID);
     }
   }, [user]);
+
+  // Mettre à jour les canaux aplatis lorsque les canaux sont chargés
+  useEffect(() => {
+    if (channel && channel.length > 0) {
+      const allChannels = flattenChannels(channel);
+      setFlattenedChannels(allChannels);
+    }
+  }, [channel]);
 
   const loadChats = async () => {
     try {
       setLoading(true);
-      const { data } = await chatService.getChats();
-      setChats(data);
-      console.log("Chats loaded:", data);
+      const response = await chatService.getChats();
+
+      // Vérifier si la réponse existe et contient des données
+      if (response && response.data) {
+        setChats(response.data);
+      } else {
+        // Si pas de réponse ou données vides, initialiser avec un tableau vide
+        setChats([]);
+      }
     } catch (err) {
       setError("Erreur lors du chargement des conversations");
       console.error("Error loading chats:", err);
+      // En cas d'erreur, initialiser également avec un tableau vide
+      setChats([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadChannel = async () => {
+    try {
+      setLoading(true);
+      const response = await chatService.getChannel();
+
+      // Vérifier si la réponse existe et contient des données
+      if (response && response.data) {
+        setChannel(response.data);
+      } else {
+        // Si pas de réponse ou données vides, initialiser avec un tableau vide
+        setChannel([]);
+      }
+    } catch (err) {
+      setError("Erreur lors du chargement des canaux");
+      console.error("Error loading channels:", err);
+      // En cas d'erreur, initialiser également avec un tableau vide
+      setChannel([]);
     } finally {
       setLoading(false);
     }
@@ -56,9 +124,10 @@ const ChatPageInterim = () => {
 
   useEffect(() => {
     loadChats();
-    const interval = setInterval(loadChats, 15000);
-    return () => clearInterval(interval);
+    loadChannel();
   }, []);
+
+  // Fonction pour gérer la création d'un canal
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -66,42 +135,59 @@ const ChatPageInterim = () => {
 
     setLoading(true);
     try {
-      // Récupérer le chat sélectionné
-      const currentChat = chats?.find(
-        (c) => Number(c?.id) === Number(selectedChat)
+      // Vérifier d'abord si le chat sélectionné est un canal
+      const selectedChannelData = flattenedChannels.find(
+        (chan) => Number(chan.id) === Number(selectedChat)
       );
 
-      if (!currentChat) {
-        throw new Error("Conversation non trouvée");
-      }
-
-      // Vérifier si c'est un groupe
-      if (currentChat.isGroup) {
-        // Utiliser la fonction existante pour envoyer un message à un groupe
+      if (selectedChannelData) {
+        // Envoyer un message au canal
         const messageData = {
           chatID: selectedChat,
           message: newMessage.trim(),
         };
 
-        await chatService.sendMessageToGroup(messageData);
+        await chatService.sendMessageToChannel(messageData);
+        await loadChannel(); // Recharger les canaux après envoi
       } else {
-        // Pour une conversation individuelle, utiliser l'endpoint existant
-        // Récupérer l'utilisateur avec chatUserRole: 1 (l'administrateur)
-        const adminUser = getOtherUser(currentChat);
+        // Récupérer le chat sélectionné
+        const currentChat = chats?.find(
+          (c) => Number(c?.id) === Number(selectedChat)
+        );
 
-        if (!adminUser || !adminUser.id) {
-          throw new Error("Destinataire non trouvé");
+        if (!currentChat) {
+          throw new Error("Conversation non trouvée");
         }
 
-        // Préparer les données du message avec l'ID de l'admin comme destinataire
-        const messageData = messageUtils.formatChatRequest(
-          newMessage,
-          adminUser.id
-        );
-        await chatService.sendUserToBackoffice(messageData);
+        // Vérifier si c'est un groupe
+        if (currentChat.isGroup) {
+          // Utiliser la fonction existante pour envoyer un message à un groupe
+          const messageData = {
+            chatID: selectedChat,
+            message: newMessage.trim(),
+          };
+
+          await chatService.sendMessageToGroup(messageData);
+        } else {
+          // Pour une conversation individuelle, utiliser l'endpoint existant
+          // Récupérer l'utilisateur avec chatUserRole: 1 (l'administrateur)
+          const adminUser = getOtherUser(currentChat);
+
+          if (!adminUser || !adminUser.id) {
+            throw new Error("Destinataire non trouvé");
+          }
+
+          // Préparer les données du message avec l'ID de l'admin comme destinataire
+          const messageData = messageUtils.formatChatRequest(
+            newMessage,
+            adminUser.id
+          );
+          await chatService.sendUserToBackoffice(messageData);
+        }
+
+        await loadChats();
       }
 
-      await loadChats();
       setNewMessage("");
     } catch (err) {
       setError("Erreur lors de l'envoi du message");
@@ -114,114 +200,42 @@ const ChatPageInterim = () => {
   const handleChatSelect = async (chatId) => {
     // Convertir chatId en nombre pour assurer la compatibilité
     setSelectedChat(Number(chatId));
-    console.log("Chat sélectionné:", chatId);
 
-    const chat = chats?.find((c) => Number(c?.id) === Number(chatId));
-    console.log("Chat trouvé:", chat);
+    // Vérifier d'abord si c'est un canal
+    const selectedChannelData = flattenedChannels.find(
+      (chan) => Number(chan.id) === Number(chatId)
+    );
 
-    if (chat) {
-      // Log des messages et utilisateurs pour débogage
-      console.log("Messages dans cette conversation:", chat.messages);
-      console.log("Utilisateurs dans cette conversation:", chat.users);
-
-      const unreadMessages = chat?.messages?.filter((msg) => !msg?.isRead);
-      for (const msg of unreadMessages) {
-        try {
-          await chatService.markMessageAsRead({
-            chatID: chatId,
-            messageID: msg?.id,
-          });
-        } catch (err) {
-          console.error("Error marking message as read:", err);
-        }
-      }
+    if (selectedChannelData) {
+      // Si c'est un canal, pas besoin de marquer comme lu pour l'instant
+      // Pourriez ajouter cette fonctionnalité plus tard si nécessaire
+      return;
     }
-  };
 
-  const handleProfileSelect = async (profile) => {
-    setIsProfileModalOpen(false);
+    // Sinon, c'est un chat normal
+    const chat = chats?.find((c) => Number(c?.id) === Number(chatId));
+    if (!chat) return;
 
-    // Afficher un état de chargement
-    setLoading(true);
-
-    try {
-      // Utiliser l'ID utilisateur depuis Redux si disponible, sinon depuis localStorage
-      const userID = user?.userID || localStorage.getItem("userId");
-
-      if (!userID) {
-        throw new Error("Utilisateur non connecté");
+    // Marquer les messages non lus comme lus
+    const unreadMessages = chat?.messages?.filter((msg) => !msg?.isRead);
+    for (const msg of unreadMessages) {
+      try {
+        await chatService.markMessageAsRead({
+          chatID: chatId,
+          messageID: msg?.id,
+        });
+      } catch (err) {
+        console.error("Error marking message as read:", err);
       }
-
-      // Créer d'abord un groupe pour cette conversation
-      // Le isGroup est à false car c'est une conversation 1:1
-      const createGroupData = messageUtils.formatCreateGroup(
-        profile.name, // Nom du groupe = nom du service
-        Number(userID), // L'utilisateur actuel comme master
-        [profile.id], // Le profil sélectionné comme destinataire
-        false // Pas un groupe, juste une conversation 1:1
-      );
-
-      // Créer la conversation
-      const groupResult = await chatService.createGroup(createGroupData);
-
-      if (groupResult && groupResult.data) {
-        const chatId = groupResult.data.id || groupResult.data.chatID;
-
-        // Envoyer un premier message pour initialiser la conversation
-        const messageData = messageUtils.formatGroupMessage(
-          chatId,
-          "Bonjour, je souhaite discuter avec votre service."
-        );
-
-        await chatService.sendBackofficeMessage(messageData);
-
-        // Recharger les conversations
-        await loadChats();
-
-        // Sélectionner automatiquement la nouvelle conversation
-        handleChatSelect(chatId);
-      } else {
-        throw new Error("Impossible de créer la conversation");
-      }
-    } catch (err) {
-      setError("Erreur lors de la création d'une nouvelle conversation");
-      console.error("Error creating new chat:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
   const getOtherUser = (chat) => {
-    // Find all users in the chat who are not the current user
-    const otherUsers = chat?.users?.filter(
-      (user) => Number(user.id) !== Number(currentUserId)
-    );
+    // Cherche l'utilisateur avec chatUserRole: 1
+    const adminUser = chat?.users?.find((u) => u?.chatUserRole === 1);
 
-    // If there are no other users or the filter returned empty, use a fallback
-    if (!otherUsers || otherUsers.length === 0) {
-      return chat?.users[0]; // Fallback to first user
-    }
-
-    // Check if any of the other users have sent messages to the current user
-    const messagesFromOthers = chat?.messages?.filter(
-      (msg) => Number(msg.byUserID) !== Number(currentUserId)
-    );
-
-    if (messagesFromOthers && messagesFromOthers.length > 0) {
-      // Get the ID of the most recent sender who is not the current user
-      const mostRecentSenderId = messagesFromOthers[0].byUserID;
-
-      // Find this user in the otherUsers list
-      const sender = otherUsers.find(
-        (user) => Number(user.id) === Number(mostRecentSenderId)
-      );
-
-      // Return the sender if found, otherwise return first other user
-      return sender || otherUsers[0];
-    }
-
-    // If no messages from others, return the first other user
-    return otherUsers[0];
+    // Si trouvé, retourne cet utilisateur, sinon fallback au premier utilisateur
+    return adminUser || chat?.users?.[0];
   };
 
   const getLastMessage = (chat) => {
@@ -238,100 +252,59 @@ const ChatPageInterim = () => {
     return sortedMessages[0];
   };
 
+  // Filtrer les chats en fonction de l'onglet actif et de la recherche
   const filteredChats = chats?.filter((chat) => {
+    if (!chat) return false;
+
+    // Filtrer d'abord par type (message individuel ou canal/groupe)
+    const isChannel = chat.isGroup;
+    if (
+      (activeTab === "messages" && isChannel) ||
+      (activeTab === "channels" && !isChannel)
+    ) {
+      return false;
+    }
+
+    // Ensuite filtrer par recherche
     const otherUser = getOtherUser(chat);
+    const name = chat.isGroup ? chat.groupName : otherUser?.userName;
     return (
-      otherUser?.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      chat?.messages?.some((m) =>
+      name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      chat.messages?.some((m) =>
         m?.message?.toLowerCase().includes(searchQuery.toLowerCase())
       )
     );
   });
 
-  // Trouver le chat sélectionné avec une conversion numérique
-  const selectedChatData = chats.find(
-    (chat) => Number(chat?.id) === Number(selectedChat)
-  );
+  // Obtenir les données du chat ou du canal sélectionné
+  const getSelectedData = () => {
+    // Vérifier d'abord si c'est un canal
+    const selectedChannelData = flattenedChannels.find(
+      (chan) => Number(chan.id) === Number(selectedChat)
+    );
 
-  const handleSelectUsers = (selectedData) => {
-    setIsUserSelectionModalOpen(false);
-
-    if (!selectedData.isGroup && selectedData.users.length === 1) {
-      // Créer une discussion statique pour un seul utilisateur
-      const selectedUser = selectedData.users[0];
-
-      // Vérifier que l'utilisateur actuel est bien identifié
-      if (!currentUserId) {
-        setError(
-          "Impossible de créer une conversation: utilisateur non identifié"
-        );
-        return;
-      }
-
-      // Générer un ID temporaire unique pour cette conversation
-      const tempChatId = Date.now();
-
-      // Créer un nouvel objet de conversation avec structure compatible
-      const newChat = {
-        id: tempChatId,
-        isGroup: false,
-        groupName: null,
-        users: [
-          // L'utilisateur sélectionné avec le rôle admin (1)
-          {
-            id: selectedUser.id,
-            userName: selectedUser.name,
-            chatUserRole: 1, // Pour que getOtherUser() fonctionne correctement
-          },
-          // L'utilisateur actuel
-          {
-            id: currentUserId,
-            userName: user?.fullName || "Vous", // Utiliser le nom complet si disponible
-            chatUserRole: 2,
-          },
-        ],
-        messages: [], // Pas de messages initiaux
+    if (selectedChannelData) {
+      return {
+        isChannel: true,
+        data: selectedChannelData,
       };
-
-      // Ajouter la nouvelle conversation à la liste
-      setChats((prevChats) => [newChat, ...prevChats]);
-
-      // Sélectionner automatiquement cette nouvelle conversation
-      handleChatSelect(tempChatId);
-    } else {
-      // Pour les groupes, continuer avec le code existant qui fait des appels API
-      selectedData.users.forEach(async (user) => {
-        try {
-          // Utiliser l'ID utilisateur depuis Redux si disponible, sinon depuis localStorage
-          const userID = user?.userID || localStorage.getItem("userId");
-
-          if (!userID) {
-            throw new Error("Utilisateur non connecté");
-          }
-
-          const createGroupData = messageUtils.formatCreateGroup(
-            selectedData.groupName || user.name,
-            Number(userID),
-            [user.id],
-            selectedData.isGroup // true pour groupe, false pour 1:1
-          );
-
-          const groupResult = await chatService.createGroup(createGroupData);
-          if (groupResult && groupResult.data) {
-            const chatId = groupResult.data.id || groupResult.data.chatID;
-            await loadChats();
-            handleChatSelect(chatId);
-          }
-        } catch (err) {
-          setError("Erreur lors de la création d'une nouvelle conversation");
-          console.error("Error creating new chat:", err);
-        }
-      });
     }
+
+    // Sinon, c'est un chat normal
+    const selectedChatData = chats.find(
+      (chat) => Number(chat?.id) === Number(selectedChat)
+    );
+
+    return {
+      isChannel: false,
+      data: selectedChatData,
+    };
   };
 
   // Fonction pour générer une couleur d'avatar basée sur le nom
   const generateAvatarColor = (name) => {
+    if (!name) return "#4361ee"; // Couleur par défaut si pas de nom
+
     const colors = [
       "#4361ee",
       "#3a0ca3",
@@ -344,9 +317,14 @@ const ChatPageInterim = () => {
       "#b5179e",
       "#3f37c9",
     ];
-    const charCode = name?.charCodeAt(0) || 0;
+    const charCode = name.charCodeAt(0) || 0;
     return colors[charCode % colors.length];
   };
+
+  // Obtenir les données sélectionnées (chat ou canal)
+  const selectedData = getSelectedData();
+  const selectedChatData = selectedData.isChannel ? null : selectedData.data;
+  const selectedChannelData = selectedData.isChannel ? selectedData.data : null;
 
   return (
     <div
@@ -377,12 +355,31 @@ const ChatPageInterim = () => {
           <div className="d-flex flex-column h-100">
             <div className="d-flex justify-content-between align-items-center p-3 border-bottom">
               <h5 className="mb-0 fw-bold mr-4">Conversations</h5>
+            </div>
+
+            {/* Onglets Messages/Canaux */}
+            <div className="d-flex border-bottom">
               <button
-                className="btn btn-sm btn-primary rounded-circle"
-                onClick={() => setIsUserSelectionModalOpen(true)}
-                title="Nouvelle conversation"
+                className={`btn flex-grow-1 rounded-0 py-2 ${
+                  activeTab === "messages"
+                    ? "btn-light border-bottom border-primary border-3"
+                    : "btn-white"
+                }`}
+                onClick={() => setActiveTab("messages")}
               >
-                <Add fontSize="small" />
+                <i className="bi bi-chat me-2"></i>
+                Messages
+              </button>
+              <button
+                className={`btn flex-grow-1 rounded-0 py-2 ${
+                  activeTab === "channels"
+                    ? "btn-light border-bottom border-primary border-3"
+                    : "btn-white"
+                }`}
+                onClick={() => setActiveTab("channels")}
+              >
+                <i className="bi bi-hash me-2"></i>
+                Canaux
               </button>
             </div>
 
@@ -394,7 +391,9 @@ const ChatPageInterim = () => {
                 <input
                   type="text"
                   className="form-control bg-light border-start-0"
-                  placeholder="Rechercher..."
+                  placeholder={`Rechercher des ${
+                    activeTab === "messages" ? "conversations" : "canaux"
+                  }...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -402,14 +401,134 @@ const ChatPageInterim = () => {
             </div>
 
             <div className="overflow-auto flex-grow-1 chat-list">
-              {loading && chats?.length === 0 ? (
+              {loading &&
+              (chats?.length === 0 ||
+                (activeTab === "channels" &&
+                  flattenedChannels.length === 0)) ? (
                 <div className="d-flex justify-content-center align-items-center h-100">
                   <div
                     className="spinner-border text-primary"
                     role="status"
                   ></div>
                 </div>
+              ) : activeTab === "channels" ? (
+                // Affichage des canaux (structure hiérarchique)
+                flattenedChannels.length === 0 ? (
+                  <div className="text-center text-muted p-4">
+                    <div className="mb-3">
+                      <i
+                        className="bi bi-hash"
+                        style={{ fontSize: "2rem" }}
+                      ></i>
+                    </div>
+                    <p>Aucun canal trouvé</p>
+                    <button
+                      className="btn btn-sm btn-outline-primary mt-2"
+                      onClick={() => setIsChannelModalOpen(true)}
+                    >
+                      <i className="bi bi-plus-circle me-1"></i>
+                      Nouveau canal
+                    </button>
+                  </div>
+                ) : (
+                  flattenedChannels
+                    .filter(
+                      (chan) =>
+                        chan.name
+                          .toLowerCase()
+                          .includes(searchQuery.toLowerCase()) ||
+                        chan.displayName
+                          .toLowerCase()
+                          .includes(searchQuery.toLowerCase())
+                    )
+                    .map((chan) => {
+                      const lastMessage =
+                        chan.messages && chan.messages.length > 0
+                          ? chan.messages[chan.messages.length - 1]
+                          : null;
+
+                      const participantsCount =
+                        (chan.users?.length || 0) +
+                        (chan.accounts?.length || 0);
+
+                      // Calcul des messages non lus
+                      const hasUnread = chan.messages?.some(
+                        (m) =>
+                          !m?.isRead &&
+                          Number(m?.byUserID) !== Number(currentUserId)
+                      );
+
+                      return (
+                        <div
+                          key={chan.id}
+                          className={`d-flex p-3 border-bottom chat-item ${
+                            Number(selectedChat) === Number(chan.id)
+                              ? "bg-light"
+                              : ""
+                          }`}
+                          onClick={() => handleChatSelect(chan.id)}
+                          style={{
+                            paddingLeft: `${chan.level * 16 + 16}px`,
+                            backgroundColor:
+                              chan.level > 0 ? "#f8f9fa" : "white",
+                          }}
+                        >
+                          <div className="position-relative me-3">
+                            <div
+                              className="rounded-circle text-white d-flex align-items-center justify-content-center"
+                              style={{
+                                width: "35px",
+                                height: "35px",
+                                backgroundColor: generateAvatarColor(chan.name),
+                                fontSize: "14px",
+                              }}
+                            >
+                              {chan.level > 0 ? "⤷" : "#"}
+                            </div>
+                            {hasUnread && (
+                              <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+                            )}
+                          </div>
+                          <div className="overflow-hidden">
+                            <div className="d-flex justify-content-between align-items-center mb-1">
+                              <span
+                                className={`${
+                                  hasUnread ? "fw-bold" : "fw-medium"
+                                } text-truncate`}
+                              >
+                                {chan.name}
+                                {chan.level > 0 && (
+                                  <span className="text-muted ms-2 small">
+                                    <i className="bi bi-arrow-return-right me-1"></i>
+                                    {chan.parentName}
+                                  </span>
+                                )}
+                              </span>
+                              <small className="text-nowrap ms-2 text-muted">
+                                {participantsCount > 0
+                                  ? `${participantsCount} participants`
+                                  : ""}
+                              </small>
+                            </div>
+                            <p
+                              className={`mb-0 text-truncate ${
+                                hasUnread
+                                  ? "fw-semibold text-dark"
+                                  : "text-muted"
+                              }`}
+                              style={{ fontSize: "0.85rem" }}
+                            >
+                              {lastMessage
+                                ? lastMessage.message
+                                : "Pas de message"}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })
+                )
               ) : filteredChats?.length === 0 ? (
+                // Affichage si pas de conversations trouvées
                 <div className="text-center text-muted p-4">
                   <div className="mb-3">
                     <i
@@ -420,6 +539,7 @@ const ChatPageInterim = () => {
                   <p>Aucune conversation trouvée</p>
                 </div>
               ) : (
+                // Affichage des conversations
                 filteredChats?.map((chat) => {
                   const otherUser = getOtherUser(chat);
                   const lastMessage = getLastMessage(chat);
@@ -436,7 +556,7 @@ const ChatPageInterim = () => {
                   return (
                     <div
                       key={chat?.id}
-                      className={`d-flex  p-3 border-bottom chat-item ${
+                      className={`d-flex p-3 border-bottom chat-item ${
                         Number(selectedChat) === Number(chat?.id)
                           ? "bg-light"
                           : ""
@@ -454,22 +574,24 @@ const ChatPageInterim = () => {
                             marginRight: "10px",
                           }}
                         >
-                          {chatName.charAt(0).toUpperCase()}
+                          {chat.isGroup
+                            ? "#"
+                            : chatName.charAt(0).toUpperCase()}
                         </div>
-                        {/* {hasUnread && (
-                          <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle">
-                            <span className="visually-hidden">
-                              Nouveau message
-                            </span>
-                          </span>
-                        )} */}
+                        {hasUnread && (
+                          <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+                        )}
                       </div>
                       <div className="overflow-hidden">
-                        <div className="d-flex align-items-center mb-1">
-                          <span className="fw-medium text-truncate flex-grow-1">
+                        <div className="d-flex justify-content-between align-items-center mb-1">
+                          <span
+                            className={`${
+                              hasUnread ? "fw-bold" : "fw-medium"
+                            } text-truncate`}
+                          >
                             {chatName}
                           </span>
-                          {/* <small
+                          <small
                             className={`text-nowrap ms-2 ${
                               hasUnread ? "text-dark fw-bold" : "text-muted"
                             }`}
@@ -479,9 +601,8 @@ const ChatPageInterim = () => {
                                   lastMessage?.sentAt
                                 ).toLocaleDateString()
                               : ""}
-                          </small> */}
+                          </small>
                         </div>
-
                         <p
                           className={`mb-0 text-truncate ${
                             hasUnread ? "fw-semibold text-dark" : "text-muted"
@@ -504,7 +625,8 @@ const ChatPageInterim = () => {
           {selectedChat ? (
             <>
               <div className="border-bottom bg-white p-3 d-flex justify-content-between shadow-sm">
-                {selectedChatData && (
+                {selectedChannelData ? (
+                  // En-tête pour un canal
                   <div className="d-flex">
                     <div
                       className="rounded-circle text-white d-flex align-items-center justify-content-center me-2"
@@ -512,33 +634,78 @@ const ChatPageInterim = () => {
                         width: "25px",
                         height: "25px",
                         backgroundColor: generateAvatarColor(
-                          selectedChatData?.groupName ||
-                            getOtherUser(selectedChatData)?.userName
+                          selectedChannelData.name
                         ),
                       }}
                     >
-                      {(
-                        selectedChatData?.groupName ||
-                        getOtherUser(selectedChatData)?.userName ||
-                        "?"
-                      )
-                        .charAt(0)
-                        .toUpperCase()}
+                      <span>#</span>
                     </div>
                     <div>
-                      <div className="fw-bold ml-3">
-                        {selectedChatData.isGroup
-                          ? selectedChatData.groupName
-                          : getOtherUser(selectedChatData)?.userName}
-                      </div>
                       <div className="text-muted small ml-3">
-                        {selectedChatData.isGroup
-                          ? `${selectedChatData.users?.length ||
-                              0} participants`
-                          : "En ligne"}
+                        {selectedChannelData.level > 0
+                          ? selectedChannelData.parentName
+                          : ""}
+                        {selectedChannelData.level > 0 &&
+                          (selectedChannelData.users?.length || 0) +
+                            (selectedChannelData.accounts?.length || 0) >
+                            0 &&
+                          " • "}
+                        {(selectedChannelData.users?.length || 0) +
+                          (selectedChannelData.accounts?.length || 0) >
+                        0
+                          ? `${(selectedChannelData.users?.length || 0) +
+                              (selectedChannelData.accounts?.length ||
+                                0)} participant${
+                              (selectedChannelData.users?.length || 0) +
+                                (selectedChannelData.accounts?.length || 0) >
+                              1
+                                ? "s"
+                                : ""
+                            }`
+                          : ""}
                       </div>
                     </div>
                   </div>
+                ) : (
+                  selectedChatData && (
+                    // En-tête pour une conversation
+                    <div className="d-flex">
+                      <div
+                        className="rounded-circle text-white d-flex align-items-center justify-content-center me-2"
+                        style={{
+                          width: "25px",
+                          height: "25px",
+                          backgroundColor: generateAvatarColor(
+                            selectedChatData?.groupName ||
+                              getOtherUser(selectedChatData)?.userName
+                          ),
+                        }}
+                      >
+                        {selectedChatData.isGroup
+                          ? "#"
+                          : (
+                              selectedChatData?.groupName ||
+                              getOtherUser(selectedChatData)?.userName ||
+                              "?"
+                            )
+                              .charAt(0)
+                              .toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="fw-bold ml-3">
+                          {selectedChatData.isGroup
+                            ? selectedChatData.groupName
+                            : getOtherUser(selectedChatData)?.userName}
+                        </div>
+                        <div className="text-muted small ml-3">
+                          {selectedChatData.isGroup
+                            ? `${selectedChatData.users?.length ||
+                                0} participants`
+                            : "En ligne"}
+                        </div>
+                      </div>
+                    </div>
+                  )
                 )}
                 <div>
                   <button className="btn btn-light rounded-circle">
@@ -554,128 +721,210 @@ const ChatPageInterim = () => {
                     "linear-gradient(rgba(240, 240, 250, 0.9), rgba(240, 240, 250, 0.9)), url(\"data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23dcdcef' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")",
                 }}
               >
-                {selectedChatData?.messages?.length === 0 ? (
-                  <div className="d-flex flex-column align-items-center justify-content-center h-100 text-muted">
-                    <div className="mb-3">
-                      <i
-                        className="bi bi-chat"
-                        style={{ fontSize: "3rem" }}
-                      ></i>
+                {/* Affichage des messages selon le type (canal ou conversation) */}
+                {selectedChannelData ? (
+                  // Affichage des messages de canal
+                  selectedChannelData.messages?.length === 0 ? (
+                    <div className="d-flex flex-column align-items-center justify-content-center h-100 text-muted">
+                      <div className="mb-3">
+                        <i
+                          className="bi bi-hash"
+                          style={{ fontSize: "3rem" }}
+                        ></i>
+                      </div>
+                      <p>Pas de messages dans ce canal</p>
+                      <p className="small">Envoyez un message pour commencer</p>
                     </div>
-                    <p>Pas de messages dans cette conversation</p>
-                    <p className="small">Envoyez un message pour commencer</p>
-                  </div>
-                ) : (
-                  // Inverser l'ordre des messages en utilisant slice().reverse()
-                  [...selectedChatData?.messages]
-                    .reverse()
-                    .map((msg, index, reversedArray) => {
-                      // Vérifier explicitement si le message provient de l'utilisateur actuel
-                      // En convertissant les deux en nombres pour une comparaison fiable
-                      const isFromCurrentUser =
-                        Number(msg?.byUserID) === Number(currentUserId);
-
-                      // Trouver l'expéditeur du message
-                      const messageSender = selectedChatData?.users?.find(
-                        (user) => Number(user.id) === Number(msg?.byUserID)
+                  ) : (
+                    // Affichage des messages du canal
+                    (selectedChannelData.messages &&
+                    Array.isArray(selectedChannelData.messages)
+                      ? [...selectedChannelData.messages].sort(
+                          (a, b) => new Date(a.sentAt) - new Date(b.sentAt)
+                        )
+                      : []
+                    ).map((msg) => {
+                      // Trouver l'expéditeur du message parmi les utilisateurs ou comptes
+                      const isUser = Boolean(
+                        selectedChannelData.users?.find(
+                          (u) => Number(u.id) === Number(msg.byUserID)
+                        )
                       );
 
-                      // Pour l'avatar, vérifier si le message suivant est du même expéditeur
-                      const showAvatar =
-                        index === reversedArray.length - 1 ||
-                        reversedArray[index + 1]?.byUserID !== msg?.byUserID;
+                      const messageSender = isUser
+                        ? selectedChannelData.users?.find(
+                            (u) => Number(u.id) === Number(msg.byUserID)
+                          )
+                        : selectedChannelData.accounts?.find(
+                            (a) => Number(a.id) === Number(msg.byUserID)
+                          );
+
+                      const senderName = isUser
+                        ? messageSender?.userName || "Inconnu"
+                        : messageSender?.accountName || "Entreprise";
+
+                      // Vérifier si le message provient de l'utilisateur actuel
 
                       return (
-                        <div
-                          key={msg.id}
-                          className={`d-flex ${
-                            isFromCurrentUser ? "justify-content-end" : ""
-                          } mb-3`}
-                        >
-                          {/* Avatar pour messages reçus (à gauche) */}
-                          {!isFromCurrentUser && showAvatar && (
-                            <div className="me-2 align-self-end">
-                              <div
-                                className="rounded-circle text-white d-flex align-items-center justify-content-center"
-                                style={{
-                                  width: "32px",
-                                  height: "32px",
-                                  backgroundColor: generateAvatarColor(
-                                    messageSender?.userName || "?"
-                                  ),
-                                  fontSize: "14px",
-                                }}
-                              >
-                                {(messageSender?.userName || "?")
-                                  .charAt(0)
-                                  .toUpperCase()}
-                              </div>
-                            </div>
-                          )}
-                          {!isFromCurrentUser && !showAvatar && (
+                        <div key={msg.id} className="mb-3">
+                          <div className="d-flex align-items-start">
                             <div
-                              style={{ width: "32px" }}
-                              className="me-2"
-                            ></div>
-                          )}
-
-                          {/* Contenu du message */}
-                          <div style={{ maxWidth: "75%" }}>
-                            <div
-                              className={`p-3 rounded-3 shadow-sm ${
-                                isFromCurrentUser
-                                  ? "bg-primary text-white"
-                                  : "bg-white"
-                              }`}
+                              className="rounded-circle text-white d-flex align-items-center justify-content-center me-2"
                               style={{
-                                borderRadius: isFromCurrentUser
-                                  ? "18px 18px 4px 18px"
-                                  : "18px 18px 18px 4px",
+                                width: "32px",
+                                height: "32px",
+                                backgroundColor: generateAvatarColor(
+                                  senderName
+                                ),
+                                fontSize: "14px",
                               }}
                             >
-                              {msg?.message}
+                              {senderName.charAt(0).toUpperCase()}
                             </div>
-                            <div
-                              className={`text-muted small mt-1 ${
-                                isFromCurrentUser ? "text-end" : ""
-                              }`}
-                            >
-                              {new Date(msg?.sentAt).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </div>
-                          </div>
-
-                          {/* Avatar pour messages envoyés (à droite) */}
-                          {isFromCurrentUser && showAvatar && (
-                            <div className="ms-2 align-self-end">
-                              <div
-                                className="rounded-circle text-white d-flex align-items-center justify-content-center"
-                                style={{
-                                  width: "32px",
-                                  height: "32px",
-                                  backgroundColor: generateAvatarColor(
-                                    messageSender?.userName || "?"
-                                  ),
-                                  fontSize: "14px",
-                                }}
-                              >
-                                {(messageSender?.userName || "?")
-                                  .charAt(0)
-                                  .toUpperCase()}
+                            <div>
+                              <div className="d-flex align-items-center">
+                                <span className="fw-bold">{senderName}</span>
+                                <small className="text-muted ms-2">
+                                  {new Date(msg.sentAt).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </small>
+                              </div>
+                              <div className="p-2 rounded-3 bg-white mt-1">
+                                {msg.message}
                               </div>
                             </div>
-                          )}
-                          {isFromCurrentUser && !showAvatar && (
-                            <div
-                              style={{ width: "32px" }}
-                              className="ms-2"
-                            ></div>
-                          )}
+                          </div>
                         </div>
                       );
                     })
+                  )
+                ) : selectedChatData?.messages?.length === 0 ? (
+                  // Message d'accueil pour une conversation vide
+                  <div className="d-flex flex-column align-items-center justify-content-center h-100 text-muted">
+                    <div className="mb-3">
+                      <i
+                        className={`bi ${
+                          selectedChatData?.isGroup ? "bi-hash" : "bi-chat"
+                        }`}
+                        style={{ fontSize: "3rem" }}
+                      ></i>
+                    </div>
+                    <p>
+                      Pas de messages dans{" "}
+                      {selectedChatData?.isGroup
+                        ? "ce canal"
+                        : "cette conversation"}
+                    </p>
+                    <p className="small">Envoyez un message pour commencer</p>
+                  </div>
+                ) : (
+                  // Affichage des messages de conversation
+                  (selectedChatData?.messages &&
+                  Array.isArray(selectedChatData.messages)
+                    ? [...selectedChatData.messages].reverse()
+                    : []
+                  ).map((msg, index, reversedArray) => {
+                    // Trouver l'expéditeur du message
+                    const messageSender = selectedChatData?.users?.find(
+                      (user) => Number(user.id) === Number(msg?.byUserID)
+                    );
+
+                    // Vérifier si le message provient de l'utilisateur actuel
+                    const isFromCurrentUser =
+                      Number(msg?.byUserID) === Number(currentUserId);
+
+                    // Pour l'avatar, vérifier si le message suivant est du même expéditeur
+                    const showAvatar =
+                      index === reversedArray.length - 1 ||
+                      reversedArray[index + 1]?.byUserID !== msg?.byUserID;
+
+                    return (
+                      <div
+                        key={msg.id}
+                        className={`d-flex ${
+                          isFromCurrentUser ? "justify-content-end" : ""
+                        } mb-3`}
+                      >
+                        {/* Avatar pour messages reçus (à gauche) */}
+                        {!isFromCurrentUser && showAvatar && (
+                          <div className="me-2 align-self-end">
+                            <div
+                              className="rounded-circle text-white d-flex align-items-center justify-content-center"
+                              style={{
+                                width: "32px",
+                                height: "32px",
+                                backgroundColor: generateAvatarColor(
+                                  messageSender?.userName || "?"
+                                ),
+                                fontSize: "14px",
+                              }}
+                            >
+                              {(messageSender?.userName || "?")
+                                .charAt(0)
+                                .toUpperCase()}
+                            </div>
+                          </div>
+                        )}
+                        {!isFromCurrentUser && !showAvatar && (
+                          <div style={{ width: "32px" }} className="me-2"></div>
+                        )}
+
+                        {/* Contenu du message */}
+                        <div style={{ maxWidth: "75%" }}>
+                          <div
+                            className={`p-3 rounded-3 shadow-sm ${
+                              isFromCurrentUser
+                                ? "bg-primary text-white"
+                                : "bg-white"
+                            }`}
+                            style={{
+                              borderRadius: isFromCurrentUser
+                                ? "18px 18px 4px 18px"
+                                : "18px 18px 18px 4px",
+                            }}
+                          >
+                            {msg?.message}
+                          </div>
+                          <div
+                            className={`text-muted small mt-1 ${
+                              isFromCurrentUser ? "text-end" : ""
+                            }`}
+                          >
+                            {new Date(msg?.sentAt).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Avatar pour messages envoyés (à droite) */}
+                        {isFromCurrentUser && showAvatar && (
+                          <div className="ms-2 align-self-end">
+                            <div
+                              className="rounded-circle text-white d-flex align-items-center justify-content-center"
+                              style={{
+                                width: "32px",
+                                height: "32px",
+                                backgroundColor: generateAvatarColor(
+                                  messageSender?.userName || "?"
+                                ),
+                                fontSize: "14px",
+                              }}
+                            >
+                              {(messageSender?.userName || "?")
+                                .charAt(0)
+                                .toUpperCase()}
+                            </div>
+                          </div>
+                        )}
+                        {isFromCurrentUser && !showAvatar && (
+                          <div style={{ width: "32px" }} className="ms-2"></div>
+                        )}
+                      </div>
+                    );
+                  })
                 )}
               </div>
 
@@ -710,33 +959,22 @@ const ChatPageInterim = () => {
                   className="mb-4"
                   style={{ fontSize: "4rem", opacity: "0.3" }}
                 >
-                  <i className="bi bi-chat-square-dots"></i>
+                  <i
+                    className={`bi ${
+                      activeTab === "messages"
+                        ? "bi-chat-square-dots"
+                        : "bi-hash-square"
+                    }`}
+                  ></i>
                 </div>
                 <h5>Bienvenue dans votre messagerie</h5>
-                <p className="mb-4">
-                  Sélectionnez une conversation pour commencer à discuter
-                  <br />
-                   
-                </p>
               </div>
             </div>
           )}
         </div>
       </div>
-
-      <UserSelectionModal
-        isOpen={isUserSelectionModalOpen}
-        onClose={() => setIsUserSelectionModalOpen(false)}
-        onSelectUsers={handleSelectUsers}
-      />
-
-      <ProfileModal
-        isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
-        onSelectProfile={handleProfileSelect}
-      />
     </div>
   );
 };
 
-export default ChatPageInterim;
+export default ChatPage;

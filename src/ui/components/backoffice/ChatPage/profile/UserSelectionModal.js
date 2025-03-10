@@ -12,15 +12,17 @@ const UserSelectionModal = ({
   initialTab = null,
 }) => {
   // État pour gérer les onglets (intérimaires/clients/canaux)
-  const [tabValue, setTabValue] = useState(initialTab === 'group' ? 2 : 0);
+  const [tabValue, setTabValue] = useState(initialTab === "group" ? 2 : 0);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const [groupName, setGroupName] = useState("");
-  const [isCreatingGroup, setIsCreatingGroup] = useState(initialTab === 'group');
-  const [channelMode, setChannelMode] = useState(initialTab === 'group');
+  const [isCreatingGroup, setIsCreatingGroup] = useState(
+    initialTab === "group"
+  );
+  const [channelMode, setChannelMode] = useState(initialTab === "group");
 
   // API URL from environment variables
   const API_URL =
@@ -131,7 +133,7 @@ const UserSelectionModal = ({
     setSelectedAccounts([]);
     setSearchQuery("");
     setUsers([]);
-    
+
     // Si on sélectionne l'onglet Canaux, activer le mode groupe par défaut
     if (newValue === 2) {
       setChannelMode(true);
@@ -140,7 +142,7 @@ const UserSelectionModal = ({
       setChannelMode(false);
       setIsCreatingGroup(false);
     }
-    
+
     setGroupName("");
   };
 
@@ -178,18 +180,22 @@ const UserSelectionModal = ({
         name: groupName || "Nouveau canal",
         chatMasterID: currentUserId || 0,
         usersID: selectedUsers, // Envoyer directement le tableau d'IDs des intérimaires
-        accountsID: selectedAccounts // Envoyer directement le tableau d'IDs des clients
+        accountsID: selectedAccounts, // Envoyer directement le tableau d'IDs des clients
       };
 
       console.log("Création de canal avec les données:", channelData);
 
       // Appel à l'API pour créer le canal
-      const response = await axios.post(`${API_URL}api/Chat/channel`, channelData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': '*/*'
+      const response = await axios.post(
+        `${API_URL}api/Chat/channel`,
+        channelData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "*/*",
+          },
         }
-      });
+      );
 
       return response.data;
     } catch (error) {
@@ -234,17 +240,17 @@ const UserSelectionModal = ({
         const groupData = {
           groupName: groupName || "Nouveau groupe",
           chatID: 0,
-          chatMasterID: currentUserId, 
-          toUsers: selectedUsers.map(userId => ({
+          chatMasterID: currentUserId,
+          toUsers: selectedUsers.map((userId) => ({
             userID: userId,
-            enumChatUserRole: 2
+            enumChatUserRole: 2,
           })),
           isGroup: true,
         };
-        
+
         const response = await chatService.createGroup(groupData);
         result = response.data;
-        
+
         // Notifier le composant parent avec les informations du groupe créé
         onSelectUsers({
           isGroup: true,
@@ -257,8 +263,11 @@ const UserSelectionModal = ({
         });
       } else {
         // Si un seul utilisateur est sélectionné, créer une discussion sans API
-        const selectedUsersList = tabValue === 0 ? selectedUsers : selectedAccounts;
-        const selectedUser = users.find((user) => user.id === selectedUsersList[0]);
+        const selectedUsersList =
+          tabValue === 0 ? selectedUsers : selectedAccounts;
+        const selectedUser = users.find(
+          (user) => user.id === selectedUsersList[0]
+        );
 
         // Ajouter statiquement à la liste des discussions
         onSelectUsers({
@@ -404,19 +413,6 @@ const UserSelectionModal = ({
             <Business fontSize="small" className="me-2" />
             Clients
           </button>
-          <button
-            className={`flex-fill py-3 btn ${
-              tabValue === 2
-                ? "text-primary fw-bold border-0 border-bottom border-primary border-3"
-                : "text-secondary border-0 border-bottom"
-            }`}
-            onClick={() => handleTabChange(2)}
-            style={{ borderRadius: 0 }}
-            disabled={loading}
-          >
-            <Group fontSize="small" className="me-2" />
-            Canaux
-          </button>
         </div>
 
         {/* Champ de nom de groupe/canal */}
@@ -429,7 +425,9 @@ const UserSelectionModal = ({
               <input
                 type="text"
                 className="form-control bg-light border-start-0"
-                placeholder={channelMode ? "Nom du canal..." : "Nom du groupe..."}
+                placeholder={
+                  channelMode ? "Nom du canal..." : "Nom du groupe..."
+                }
                 value={groupName}
                 onChange={handleGroupNameChange}
                 required
@@ -443,8 +441,9 @@ const UserSelectionModal = ({
           <div className="alert alert-info mb-3" role="alert">
             <small>
               <i className="bi bi-info-circle me-2"></i>
-              Dans un canal, vous pouvez ajouter à la fois des intérimaires et des clients. 
-              Utilisez les onglets ci-dessus pour rechercher et sélectionner différents types d'utilisateurs.
+              Dans un canal, vous pouvez ajouter à la fois des intérimaires et
+              des clients. Utilisez les onglets ci-dessus pour rechercher et
+              sélectionner différents types d'utilisateurs.
             </small>
           </div>
         )}
@@ -463,7 +462,11 @@ const UserSelectionModal = ({
               className="form-control bg-light border-start-0"
               style={{ borderRadius: "0 8px 8px 0" }}
               placeholder={`Rechercher des ${
-                tabValue === 0 ? "intérimaires" : tabValue === 1 ? "clients" : "utilisateurs"
+                tabValue === 0
+                  ? "intérimaires"
+                  : tabValue === 1
+                  ? "clients"
+                  : "utilisateurs"
               }...`}
               value={searchQuery}
               onChange={handleSearchChange}
@@ -493,10 +496,11 @@ const UserSelectionModal = ({
             <div className="px-4">
               {users.map((user) => {
                 // Vérifier la sélection en fonction de l'onglet actif
-                const isSelected = tabValue === 0 
-                  ? selectedUsers.includes(user.id)
-                  : selectedAccounts.includes(user.id);
-                
+                const isSelected =
+                  tabValue === 0
+                    ? selectedUsers.includes(user.id)
+                    : selectedAccounts.includes(user.id);
+
                 return (
                   <div
                     key={user.id}
@@ -561,8 +565,9 @@ const UserSelectionModal = ({
                 <i className="bi bi-hash" style={{ fontSize: "2rem" }}></i>
               </div>
               <p>
-                Les canaux sont des espaces de discussion thématiques. Nommez votre canal et 
-                ajoutez-y des membres en utilisant les onglets Intérimaires et Clients.
+                Les canaux sont des espaces de discussion thématiques. Nommez
+                votre canal et ajoutez-y des membres en utilisant les onglets
+                Intérimaires et Clients.
               </p>
             </div>
           ) : searchQuery.trim() ? (
@@ -571,8 +576,13 @@ const UserSelectionModal = ({
                 <i className="bi bi-search" style={{ fontSize: "2rem" }}></i>
               </div>
               <p>
-                Aucun {tabValue === 0 ? "intérimaire" : tabValue === 1 ? "client" : "utilisateur"} trouvé avec
-                ces critères.
+                Aucun{" "}
+                {tabValue === 0
+                  ? "intérimaire"
+                  : tabValue === 1
+                  ? "client"
+                  : "utilisateur"}{" "}
+                trouvé avec ces critères.
               </p>
             </div>
           ) : (
@@ -582,7 +592,12 @@ const UserSelectionModal = ({
               </div>
               <p>
                 Commencez à taper pour rechercher des{" "}
-                {tabValue === 0 ? "intérimaires" : tabValue === 1 ? "clients" : "utilisateurs"}.
+                {tabValue === 0
+                  ? "intérimaires"
+                  : tabValue === 1
+                  ? "clients"
+                  : "utilisateurs"}
+                .
               </p>
             </div>
           )}
@@ -623,7 +638,11 @@ const UserSelectionModal = ({
               onClick={handleConfirm}
               disabled={isConfirmDisabled()}
             >
-              {channelMode ? "Créer le canal" : isCreatingGroup ? "Créer le groupe" : "Confirmer"}
+              {channelMode
+                ? "Créer le canal"
+                : isCreatingGroup
+                ? "Créer le groupe"
+                : "Confirmer"}
             </button>
           </div>
         </div>

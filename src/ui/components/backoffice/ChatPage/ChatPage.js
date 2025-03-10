@@ -4,6 +4,7 @@ import ProfileModal from "./profile/ProfileModal";
 import UserSelectionModal from "./profile/UserSelectionModal";
 import ChannelCreationModal from "./profile/ChannelCreationModal";
 import { chatService, messageUtils } from "./chatService";
+import signalRService from "./signalrServices";
 import { shallowEqual, useSelector } from "react-redux";
 
 const ChatPage = () => {
@@ -501,6 +502,21 @@ const ChatPage = () => {
   const selectedData = getSelectedData();
   const selectedChatData = selectedData.isChannel ? null : selectedData.data;
   const selectedChannelData = selectedData.isChannel ? selectedData.data : null;
+
+  useEffect(() => {
+
+    // Set up interval to refresh every 15 seconds
+    const interval = setInterval(() => {
+      if (!loading) {
+        console.log("Refreshing chats and channels...");
+        loadChats();
+        loadChannel();
+      }
+    }, 15000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div
@@ -1216,6 +1232,7 @@ const ChatPage = () => {
         onClose={() => setIsChannelModalOpen(false)}
         onCreateChannel={handleCreateChannel}
         currentUserId={currentUserId}
+        load={loadChannel}
       />
     </div>
   );

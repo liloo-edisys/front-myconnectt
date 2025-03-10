@@ -52,17 +52,17 @@ class SignalRService {
     });
 
     // Gestionnaire d'événements de reconnexion
-    this.connection.onreconnecting(error => {
+    this.connection.onreconnecting((error) => {
       console.log("SignalR reconnecting:", error);
       this.connected = false;
     });
 
-    this.connection.onreconnected(connectionId => {
+    this.connection.onreconnected((connectionId) => {
       console.log("SignalR reconnected with ID:", connectionId);
       this.connected = true;
     });
 
-    this.connection.onclose(error => {
+    this.connection.onclose((error) => {
       console.log("SignalR connection closed:", error);
       this.connected = false;
       this.connectPromise = null;
@@ -88,7 +88,9 @@ class SignalRService {
         });
 
         // Vérifier que les handlers sont bien enregistrés
-        console.log(`Registered ${this.messageHandlers.length} message handlers`);
+        console.log(
+          `Registered ${this.messageHandlers.length} message handlers`
+        );
 
         this.connectPromise = null;
         return this.connection;
@@ -106,39 +108,43 @@ class SignalRService {
   // Traiter les messages dans différents formats possibles
   processMessage(message) {
     console.log("Processing SignalR message:", message);
-    
+
     let messageData;
-    
+
     // Format avec type et arguments (comme dans votre exemple)
-    if (message.type === 1 && message.arguments && message.arguments.length > 0) {
+    if (
+      message.type === 1 &&
+      message.arguments &&
+      message.arguments.length > 0
+    ) {
       messageData = message.arguments[0];
       console.log("Extracted message data from arguments:", messageData);
-    } 
+    }
     // Format direct (objet message)
     else if (message.id && message.message) {
       messageData = message;
       console.log("Message in direct format:", messageData);
-    } 
+    }
     // Message déjà sous forme d'objet simple
-    else if (typeof message === 'object') {
+    else if (typeof message === "object") {
       messageData = message;
       console.log("Using message as is:", messageData);
-    } 
+    }
     // Autre format inconnu
     else {
       console.warn("Unknown message format:", message);
       messageData = { rawMessage: message };
     }
-    
+
     // Tenter de décrypter si un message chiffré est présent
     if (messageData && messageData.message) {
       this.decryptMessage(messageData)
-        .then(decryptedMessage => {
+        .then((decryptedMessage) => {
           console.log("Successfully decrypted message:", decryptedMessage);
           messageData.decryptedContent = decryptedMessage;
           this.notifyMessageReceived(messageData);
         })
-        .catch(err => {
+        .catch((err) => {
           console.error("Failed to decrypt message:", err);
           this.notifyMessageReceived(messageData);
         });
@@ -147,7 +153,128 @@ class SignalRService {
     }
   }
 
-  // Le reste de votre code...
+  /**
+   * Decrypt message content using axios
+   * @param {Object} messageData - Message data with encrypted content
+   * @returns {Promise<string>} - Decrypted message content
+   */
+  async decryptMessage(messageData) {
+    if (!messageData || !messageData.message) {
+      return "No message content";
+    }
+
+    try {
+      // Get token from localStorage or other storage mechanism
+      const token = localStorage.getItem("token");
+
+      console.log("Attempting to decrypt message:", messageData.message);
+
+      // Prepare axios request to decrypt the message
+      const response = await axios({
+        method: "post",
+        url: `${process.env.REACT_APP_WEBAPI_URL}api/chat/decrypt`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          encryptedMessage: messageData.message,
+          chatID: messageData.chatID,
+        },
+      });
+
+      // Log the response for debugging
+      console.log("Decryption response:", response.data);
+
+      // Return the decrypted message from the response
+      return (
+        response.data.decryptedMessage || "Decryption returned empty result"
+      );
+    } catch (error) {
+      console.error("Message decryption error:", error);
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error(
+          "Server responded with:",
+          error.response.status,
+          error.response.data
+        );
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error("No response received:", error.request);
+      } else {
+        // Something happened in setting up the request
+        console.error("Error setting up request:", error.message);
+      }
+      return `[Encrypted: ${messageData.message}]`;
+    }
+  }
+
+  /**
+   * Disconnect SignalR
+   */
+  disconnect() {
+    if (this.connection) {
+      this.connected = false;
+      this.connection.stop();
+      this.connection = null;
+      this.messageHandlers = [];
+      console.log("SignalR disconnected");
+    }
+  }
+
+  /**
+   * Add message handler
+   * @param {Function} handler - Message handler function
+   */
+  addMessageHandler(handler) {
+    if (handler && typeof handler === "function") {
+      this.messageHandlers.push(handler);
+      console.log(
+        `Message handler added. Total handlers: ${this.messageHandlers.length}`
+      );
+    }
+  }
+
+  /**
+   * Remove message handler
+   * @param {Function} handler - Message handler to remove
+   */
+  removeMessageHandler(handler) {
+    const initialCount = this.messageHandlers.length;
+    this.messageHandlers = this.messageHandlers.filter((h) => h !== handler);
+    const removedCount = initialCount - this.messageHandlers.length;
+    console.log(
+      `Removed ${removedCount} message handler(s). Remaining: ${this.messageHandlers.length}`
+    );
+  }
+
+  /**
+   * Notify all handlers of received message
+   * @param {Object} message - Message object
+   */
+  notifyMessageReceived(message) {
+    console.log(
+      `Notifying ${this.messageHandlers.length} handlers about message:`,
+      message
+    );
+    this.messageHandlers.forEach((handler) => {
+      try {
+        handler(message);
+      } catch (error) {
+        console.error("Error in message handler:", error);
+      }
+    });
+  }
+
+  /**
+   * Check if connected
+   * @returns {boolean}
+   */
+  isConnected() {
+    return this.connected;
+  }
 }
 
 // Create and export singleton instance

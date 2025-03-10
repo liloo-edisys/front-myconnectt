@@ -2,12 +2,14 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Modal } from "@material-ui/core";
 import { Search, Person, Business, Label } from "@material-ui/icons";
 import axios from "axios";
+import { chatService } from "../chatService";
 
 const ChannelCreationModal = ({
   isOpen,
   onClose,
   onCreateChannel,
   currentUserId,
+  loadChannels,
 }) => {
   // État pour gérer les onglets (intérimaires/clients)
   const [targetType, setTargetType] = useState("users"); // "users" pour intérimaires, "accounts" pour clients
@@ -16,6 +18,7 @@ const ChannelCreationModal = ({
   const [searchResults, setSearchResults] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [channelName, setChannelName] = useState("");
+  const [channel, setChannel] = useState([]);
 
   // API URL from environment variables
   const API_URL =
@@ -154,7 +157,7 @@ const ChannelCreationModal = ({
       // Préparer les données pour la création du canal
       const channelData = {
         name: channelName.trim(),
-        chatMasterID: currentUserId || 0,
+        chatMasterID: null,
         usersID: targetType === "users" ? selectedIds : [],
         accountsID: targetType === "accounts" ? selectedIds : [],
       };
@@ -163,7 +166,7 @@ const ChannelCreationModal = ({
 
       // Appel à l'API pour créer le canal
       const response = await axios.post(
-        `${API_URL}api/Chat/channel`,
+        `${API_URL}api/Chat/create/channel`,
         channelData,
         {
           headers: {
@@ -189,10 +192,10 @@ const ChannelCreationModal = ({
         });
       }
 
-      // Fermer le modal
+      loadChannels();
       onClose();
     } catch (error) {
-      console.error("Erreur lors de la création du canal:", error);
+      console.log("Erreur lors de la création du canal:", error);
       alert("Une erreur est survenue lors de la création du canal");
     } finally {
       setLoading(false);
