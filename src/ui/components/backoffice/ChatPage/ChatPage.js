@@ -130,16 +130,6 @@ const ChatPage = () => {
     }
   };
 
-  useEffect(() => {
-    loadChats();
-    loadChannel();
-    // const interval = setInterval(() => {
-    //   loadChats();
-    //   loadChannel();
-    // }, 15000);
-    // return () => clearInterval(interval);
-  }, []);
-
   // Fonction pour gérer la création d'un canal
   const handleCreateChannel = async (channelData) => {
     console.log("Canal créé:", channelData);
@@ -179,7 +169,7 @@ const ChatPage = () => {
       );
 
       if (selectedChannelData) {
-        // Envoyer un message au canal
+        // Envoyer un message au canal avec sendMessageToChannel
         const messageData = {
           chatID: selectedChat,
           message: newMessage.trim(),
@@ -504,7 +494,8 @@ const ChatPage = () => {
   const selectedChannelData = selectedData.isChannel ? selectedData.data : null;
 
   useEffect(() => {
-
+    loadChats();
+    loadChannel();
     // Set up interval to refresh every 15 seconds
     const interval = setInterval(() => {
       if (!loading) {
@@ -512,7 +503,7 @@ const ChatPage = () => {
         loadChats();
         loadChannel();
       }
-    }, 15000);
+    }, 7000);
 
     // Clean up interval on component unmount
     return () => clearInterval(interval);

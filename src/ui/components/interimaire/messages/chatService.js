@@ -9,6 +9,10 @@ export const chatService = {
     return axios.get(`${API_URL}api/Chat/all`);
   },
 
+  getChannel: () => {
+    return axios.get(`${API_URL}api/Chat/channels`);
+  },
+
   // Envoyer un message de l'admin vers un utilisateur
   sendBackofficeMessage: (data) => {
     return axios.post(`${API_URL}api/Chat/backoffice/to/user`, data);
@@ -17,6 +21,10 @@ export const chatService = {
   // Envoyer un message utilisateur vers l'admin
   sendUserToBackoffice: (data) => {
     return axios.post(`${API_URL}api/Chat/user/to/backoffice`, data);
+  },
+
+  sendUserToChannel: (data) => {
+    return axios.post(`${API_URL}api/Chat/message/to/channel`, data);
   },
 
   // Envoyer un message à un utilisateur spécifique

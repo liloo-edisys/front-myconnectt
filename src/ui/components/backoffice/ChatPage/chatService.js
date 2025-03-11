@@ -34,6 +34,11 @@ export const chatService = {
     return axios.post(`${API_URL}api/Chat/message/to/users`, data);
   },
 
+  // Envoyer un message à une canal
+  sendMessageToChannel: (data) => {
+    return axios.post(`${API_URL}api/Chat/message/to/channel`, data);
+  },
+
   // Créer un nouveau groupe
   createGroup: (data) => {
     return axios.post(`${API_URL}api/Chat/create/group`, data);
