@@ -196,9 +196,13 @@ const ChannelCreationModal = ({
       onClose();
     } catch (error) {
       console.log("Erreur lors de la création du canal:", error);
-      alert("Une erreur est survenue lors de la création du canal");
+      loadChannels();
+      onClose();
+      // alert("Une erreur est survenue lors de la création du canal");
     } finally {
       setLoading(false);
+      onClose();
+      loadChannels();
     }
   };
 

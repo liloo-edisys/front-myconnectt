@@ -403,23 +403,6 @@ const ChatPage = () => {
           <div className="d-flex flex-column h-100">
             <div className="d-flex justify-content-between align-items-center p-3 border-bottom">
               <h5 className="mb-0 fw-bold mr-4">Conversations</h5>
-              <button
-                className="btn btn-sm btn-primary rounded-circle"
-                onClick={() => {
-                  if (activeTab === "channels") {
-                    setIsChannelModalOpen(true);
-                  } else {
-                    setIsUserSelectionModalOpen(true);
-                  }
-                }}
-                title={
-                  activeTab === "channels"
-                    ? "Nouveau canal"
-                    : "Nouvelle conversation"
-                }
-              >
-                <Add fontSize="small" />
-              </button>
             </div>
 
             {/* Onglets Messages/Canaux */}
@@ -540,6 +523,7 @@ const ChatPage = () => {
                               style={{
                                 width: "35px",
                                 height: "35px",
+                                marginRight: "10px",
                                 backgroundColor: generateAvatarColor(
                                   chan.name || "Channel"
                                 ),
@@ -548,12 +532,12 @@ const ChatPage = () => {
                             >
                               {chan.level > 0 ? "⤷" : "#"}
                             </div>
-                            {hasUnread && (
+                            {/* {hasUnread && (
                               <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                            )}
+                            )} */}
                           </div>
                           <div className="overflow-hidden">
-                            <div className="d-flex justify-content-between align-items-center mb-1">
+                            <div className="d-flex  mb-1">
                               <span
                                 className={`${
                                   hasUnread ? "fw-bold" : "fw-medium"
@@ -567,13 +551,13 @@ const ChatPage = () => {
                                   </span>
                                 )}
                               </span>
-                              <small className="text-nowrap ms-2 text-muted">
+                              {/* <small className="text-nowrap ms-2 text-muted">
                                 {participantsCount > 0
                                   ? `${participantsCount} participant${
                                       participantsCount > 1 ? "s" : ""
                                     }`
                                   : ""}
-                              </small>
+                              </small> */}
                             </div>
                             <p
                               className={`mb-0 text-truncate ${
@@ -615,7 +599,7 @@ const ChatPage = () => {
                   );
                   const chatName = chat.isGroup
                     ? chat?.groupName || "Groupe"
-                    : otherUser?.userName || "Discussion";
+                    : "Admin";
                   const avatarColor = generateAvatarColor(chatName);
 
                   return (
@@ -643,30 +627,20 @@ const ChatPage = () => {
                             ? "#"
                             : chatName.charAt(0).toUpperCase()}
                         </div>
-                        {hasUnread && (
+                        {/* {hasUnread && (
                           <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                        )}
+                        )} */}
                       </div>
                       <div className="overflow-hidden">
-                        <div className="d-flex justify-content-between align-items-center mb-1">
-                          <span
-                            className={`${
-                              hasUnread ? "fw-bold" : "fw-medium"
-                            } text-truncate`}
-                          >
-                            {chatName}
-                          </span>
-                          <small
-                            className={`text-nowrap ms-2 ${
-                              hasUnread ? "text-dark fw-bold" : "text-muted"
-                            }`}
-                          >
+                        <div className="d-flex justify-content-between align-items-center mb-1 w-100">
+                          <span >{chatName}</span>
+                          {/* <small>
                             {lastMessage
                               ? new Date(
                                   lastMessage?.sentAt
                                 ).toLocaleDateString()
                               : ""}
-                          </small>
+                          </small> */}
                         </div>
                         <p
                           className={`mb-0 text-truncate ${

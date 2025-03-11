@@ -479,18 +479,19 @@ const ChatPage = () => {
                               style={{
                                 width: "35px",
                                 height: "35px",
+                                marginRight: "10px",
                                 backgroundColor: generateAvatarColor(chan.name),
                                 fontSize: "14px",
                               }}
                             >
                               {chan.level > 0 ? "⤷" : "#"}
                             </div>
-                            {hasUnread && (
+                            {/* {hasUnread && (
                               <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                            )}
+                            )} */}
                           </div>
                           <div className="overflow-hidden">
-                            <div className="d-flex justify-content-between align-items-center mb-1">
+                            <div className="d-flex mb-1">
                               <span
                                 className={`${
                                   hasUnread ? "fw-bold" : "fw-medium"
@@ -504,11 +505,11 @@ const ChatPage = () => {
                                   </span>
                                 )}
                               </span>
-                              <small className="text-nowrap ms-2 text-muted">
+                              {/* <small className="text-nowrap ms-2 text-muted">
                                 {participantsCount > 0
                                   ? `${participantsCount} participants`
                                   : ""}
-                              </small>
+                              </small> */}
                             </div>
                             <p
                               className={`mb-0 text-truncate ${
@@ -550,7 +551,7 @@ const ChatPage = () => {
                   );
                   const chatName = chat.isGroup
                     ? chat?.groupName || "Groupe"
-                    : otherUser?.userName || "Discussion";
+                    : otherUser?.userName || "Admin";
                   const avatarColor = generateAvatarColor(chatName);
 
                   return (
@@ -578,12 +579,12 @@ const ChatPage = () => {
                             ? "#"
                             : chatName.charAt(0).toUpperCase()}
                         </div>
-                        {hasUnread && (
+                        {/* {hasUnread && (
                           <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                        )}
+                        )} */}
                       </div>
                       <div className="overflow-hidden">
-                        <div className="d-flex justify-content-between align-items-center mb-1">
+                        <div className="d-flex  mb-1">
                           <span
                             className={`${
                               hasUnread ? "fw-bold" : "fw-medium"
@@ -591,7 +592,7 @@ const ChatPage = () => {
                           >
                             {chatName}
                           </span>
-                          <small
+                          {/* <small
                             className={`text-nowrap ms-2 ${
                               hasUnread ? "text-dark fw-bold" : "text-muted"
                             }`}
@@ -601,7 +602,7 @@ const ChatPage = () => {
                                   lastMessage?.sentAt
                                 ).toLocaleDateString()
                               : ""}
-                          </small>
+                          </small> */}
                         </div>
                         <p
                           className={`mb-0 text-truncate ${
@@ -733,7 +734,6 @@ const ChatPage = () => {
                         ></i>
                       </div>
                       <p>Pas de messages dans ce canal</p>
-                      <p className="small">Envoyez un message pour commencer</p>
                     </div>
                   ) : (
                     // Affichage des messages du canal
@@ -817,7 +817,6 @@ const ChatPage = () => {
                         ? "ce canal"
                         : "cette conversation"}
                     </p>
-                    <p className="small">Envoyez un message pour commencer</p>
                   </div>
                 ) : (
                   // Affichage des messages de conversation
@@ -929,27 +928,40 @@ const ChatPage = () => {
               </div>
 
               <div className="border-top bg-white p-3">
-                <form onSubmit={handleSendMessage}>
-                  <div className="input-group">
-                    <input
-                      type="text"
-                      className="form-control bg-light border-0"
-                      placeholder="Écrivez un message..."
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      disabled={loading}
-                    />
-                    <button
-                      type="submit"
-                      className={`btn ${
-                        newMessage.trim() ? "btn-primary" : "btn-secondary"
-                      }`}
-                      disabled={loading || !newMessage?.trim()}
-                    >
-                      <Send fontSize="small" />
-                    </button>
+                {/* Vérifier si la conversation sélectionnée est un canal */}
+                {selectedChat &&
+                flattenedChannels.some(
+                  (chan) => Number(chan.id) === Number(selectedChat)
+                ) ? (
+                  // Afficher un message indicatif pour les canaux
+                  <div className="text-center text-muted py-2">
+                    <i className="bi bi-info-circle me-2"></i>
+                    Vous ne pouvez pas envoyer de messages dans ce canal.
                   </div>
-                </form>
+                ) : (
+                  // Afficher le formulaire d'envoi de message pour les conversations normales
+                  <form onSubmit={handleSendMessage}>
+                    <div className="input-group">
+                      <input
+                        type="text"
+                        className="form-control bg-light border-0"
+                        placeholder="Écrivez un message..."
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        disabled={loading}
+                      />
+                      <button
+                        type="submit"
+                        className={`btn ${
+                          newMessage.trim() ? "btn-primary" : "btn-secondary"
+                        }`}
+                        disabled={loading || !newMessage?.trim()}
+                      >
+                        <Send fontSize="small" />
+                      </button>
+                    </div>
+                  </form>
+                )}
               </div>
             </>
           ) : (

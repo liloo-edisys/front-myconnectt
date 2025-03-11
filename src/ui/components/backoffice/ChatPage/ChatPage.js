@@ -681,16 +681,17 @@ const ChatPage = () => {
                                 height: "35px",
                                 backgroundColor: generateAvatarColor(chan.name),
                                 fontSize: "14px",
+                                marginRight: "10px",
                               }}
                             >
                               {chan.level > 0 ? "⤷" : "#"}
                             </div>
-                            {hasUnread && (
+                            {/* {hasUnread && (
                               <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                            )}
+                            )} */}
                           </div>
                           <div className="overflow-hidden">
-                            <div className="d-flex justify-content-between align-items-center mb-1">
+                            <div className="d-flex  mb-1">
                               <span
                                 className={`${
                                   hasUnread ? "fw-bold" : "fw-medium"
@@ -704,11 +705,11 @@ const ChatPage = () => {
                                   </span>
                                 )}
                               </span>
-                              <small className="text-nowrap ms-2 text-muted">
+                              {/* <small className="text-nowrap ms-2 text-muted">
                                 {participantsCount > 0
                                   ? `${participantsCount} participants`
                                   : ""}
-                              </small>
+                              </small> */}
                             </div>
                             <p
                               className={`mb-0 text-truncate ${
@@ -785,20 +786,14 @@ const ChatPage = () => {
                             ? "#"
                             : chatName.charAt(0).toUpperCase()}
                         </div>
-                        {hasUnread && (
+                        {/* {hasUnread && (
                           <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                        )}
+                        )} */}
                       </div>
                       <div className="overflow-hidden">
-                        <div className="d-flex justify-content-between align-items-center mb-1">
-                          <span
-                            className={`${
-                              hasUnread ? "fw-bold" : "fw-medium"
-                            } text-truncate`}
-                          >
-                            {chatName}
-                          </span>
-                          <small
+                        <div className="d-flex  mb-1">
+                          <span>{chatName}</span>
+                          {/* <small
                             className={`text-nowrap ms-2 ${
                               hasUnread ? "text-dark fw-bold" : "text-muted"
                             }`}
@@ -808,7 +803,7 @@ const ChatPage = () => {
                                   lastMessage?.sentAt
                                 ).toLocaleDateString()
                               : ""}
-                          </small>
+                          </small> */}
                         </div>
                         <p
                           className={`mb-0 text-truncate ${
