@@ -56,7 +56,7 @@ export function UserNotificationsDropdownMobile() {
     setSelectedNotif(null);
   };
 
-  console.log(" --- notifs --- ", notifs);
+  // console.log(" --- notifs --- ", notifs);
   
 
   return (

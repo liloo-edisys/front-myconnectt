@@ -710,6 +710,7 @@
   "TEXT.LIST.AVENANTS": "Liste des avenants.",
   "TEXT.TYPE": "Type",
   "TEXT.USERS.MANAGEMENT": "Gestion des utilisateurs",
+  "TEXT.MESSAGE.PROFIL": "Gestion des profils de messagerie",
   "TEXT.USERS.LIST": "Liste des utilisateurs",
   "MESSAGE.USERS.TOTALCOUNT": "Total de {totalCount} utilisateur(s)",
   "TEXT.PASSWORD": "Mot de passe",

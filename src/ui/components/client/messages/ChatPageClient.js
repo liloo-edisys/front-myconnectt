@@ -1,20 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Search, Send, Add, MoreVert } from "@material-ui/icons";
-import ProfileModal from "./profile/ProfileModal";
-import UserSelectionModal from "./profile/UserSelectionModal";
-import ChannelCreationModal from "./profile/ChannelCreationModal";
 import { chatService, messageUtils } from "./chatService";
-import signalRService from "./signalrServices";
 import { shallowEqual, useSelector } from "react-redux";
 
 const ChatPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedChat, setSelectedChat] = useState(null);
   const [newMessage, setNewMessage] = useState("");
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isUserSelectionModalOpen, setIsUserSelectionModalOpen] = useState(
-    false
-  );
   const [chats, setChats] = useState([]);
   const [channel, setChannel] = useState([]);
   const [flattenedChannels, setFlattenedChannels] = useState([]);
@@ -130,32 +122,12 @@ const ChatPage = () => {
     }
   };
 
+  useEffect(() => {
+    loadChats();
+    loadChannel();
+  }, []);
+
   // Fonction pour gérer la création d'un canal
-  const handleCreateChannel = async (channelData) => {
-    console.log("Canal créé:", channelData);
-    setLoading(true);
-
-    try {
-      // Recharger les canaux et les chats
-      await loadChannel();
-      await loadChats();
-
-      // Sélectionner le nouveau canal si vous avez son ID
-      if (channelData.id) {
-        handleChatSelect(channelData.id);
-      }
-
-      // Basculer vers l'onglet "Canaux" si ce n'est pas déjà le cas
-      if (activeTab !== "channels") {
-        setActiveTab("channels");
-      }
-    } catch (err) {
-      setError("Erreur lors du chargement des conversations");
-      console.error("Error after channel creation:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -169,7 +141,7 @@ const ChatPage = () => {
       );
 
       if (selectedChannelData) {
-        // Envoyer un message au canal avec sendMessageToChannel
+        // Envoyer un message au canal
         const messageData = {
           chatID: selectedChat,
           message: newMessage.trim(),
@@ -210,7 +182,7 @@ const ChatPage = () => {
             newMessage,
             adminUser.id
           );
-          await chatService.sendBackofficeMessage(messageData);
+          await chatService.sendUserToBackoffice(messageData);
         }
 
         await loadChats();
@@ -255,56 +227,6 @@ const ChatPage = () => {
       } catch (err) {
         console.error("Error marking message as read:", err);
       }
-    }
-  };
-
-  const handleProfileSelect = async (profile) => {
-    setIsProfileModalOpen(false);
-    setLoading(true);
-
-    try {
-      // Utiliser l'ID utilisateur depuis Redux si disponible, sinon depuis localStorage
-      const userID = user?.userID || localStorage.getItem("userId");
-
-      if (!userID) {
-        throw new Error("Utilisateur non identifié");
-      }
-
-      // Créer d'abord un groupe pour cette conversation
-      const createGroupData = messageUtils.formatCreateGroup(
-        profile.name, // Nom du groupe = nom du service
-        Number(userID), // L'utilisateur actuel comme master
-        [profile.id], // Le profil sélectionné comme destinataire
-        false // Pas un groupe, juste une conversation 1:1
-      );
-
-      // Créer la conversation
-      const groupResult = await chatService.createGroup(createGroupData);
-
-      if (groupResult && groupResult.data) {
-        const chatId = groupResult.data.id || groupResult.data.chatID;
-
-        // Envoyer un premier message pour initialiser la conversation
-        const messageData = messageUtils.formatGroupMessage(
-          chatId,
-          "Bonjour, je souhaite discuter avec votre service."
-        );
-
-        await chatService.sendBackofficeMessage(messageData);
-
-        // Recharger les conversations
-        await loadChats();
-
-        // Sélectionner automatiquement la nouvelle conversation
-        handleChatSelect(chatId);
-      } else {
-        throw new Error("Impossible de créer la conversation");
-      }
-    } catch (err) {
-      setError("Erreur lors de la création d'une nouvelle conversation");
-      console.error("Error creating new chat:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -379,95 +301,6 @@ const ChatPage = () => {
     };
   };
 
-  const handleSelectUsers = (selectedData) => {
-    setIsUserSelectionModalOpen(false);
-
-    if (!selectedData.isGroup && selectedData.users.length === 1) {
-      // Vérifier que l'ID utilisateur est disponible
-      if (!currentUserId) {
-        setError(
-          "Impossible de créer une conversation: utilisateur non identifié"
-        );
-        return;
-      }
-
-      // Créer une discussion statique pour un seul utilisateur
-      const selectedUser = selectedData.users[0];
-
-      // Générer un ID temporaire unique pour cette conversation
-      const tempChatId = Date.now();
-
-      // Créer un nouvel objet de conversation avec structure compatible
-      const newChat = {
-        id: tempChatId,
-        isGroup: false,
-        groupName: null,
-        users: [
-          // L'utilisateur sélectionné avec le rôle admin (1)
-          {
-            id: selectedUser.id,
-            userName: selectedUser.name,
-            chatUserRole: 1, // Pour que getOtherUser() fonctionne correctement
-          },
-          // L'utilisateur actuel
-          {
-            id: currentUserId,
-            userName: user?.fullName || "Vous", // Utiliser le nom complet si disponible
-            chatUserRole: 2,
-          },
-        ],
-        messages: [], // Pas de messages initiaux
-      };
-
-      // Ajouter la nouvelle conversation à la liste
-      setChats((prevChats) => [newChat, ...prevChats]);
-
-      // Sélectionner automatiquement cette nouvelle conversation
-      handleChatSelect(tempChatId);
-
-      // Basculer sur l'onglet Messages si ce n'est pas déjà le cas
-      if (activeTab !== "messages") {
-        setActiveTab("messages");
-      }
-    } else {
-      // Pour les groupes, continuer avec le code existant qui fait des appels API
-      selectedData.users.forEach(async (user) => {
-        try {
-          // Utiliser l'ID utilisateur depuis Redux si disponible, sinon depuis localStorage
-          const userID = currentUserId || localStorage.getItem("userId");
-
-          if (!userID) {
-            throw new Error("Utilisateur non identifié");
-          }
-
-          const createGroupData = messageUtils.formatCreateGroup(
-            selectedData.groupName || user.name,
-            Number(userID),
-            [user.id],
-            selectedData.isGroup // true pour groupe, false pour 1:1
-          );
-
-          const groupResult = await chatService.createGroup(createGroupData);
-          if (groupResult && groupResult.data) {
-            const chatId = groupResult.data.id || groupResult.data.chatID;
-            await loadChats();
-            handleChatSelect(chatId);
-
-            // Basculer sur l'onglet approprié
-            if (selectedData.isGroup && activeTab !== "channels") {
-              setActiveTab("channels");
-            } else if (!selectedData.isGroup && activeTab !== "messages") {
-              setActiveTab("messages");
-            }
-          }
-        } catch (err) {
-          setError("Erreur lors de la création d'une nouvelle conversation");
-          console.error("Error creating new chat:", err);
-        }
-      });
-    }
-  };
-
   // Fonction pour générer une couleur d'avatar basée sur le nom
   const generateAvatarColor = (name) => {
     if (!name) return "#4361ee"; // Couleur par défaut si pas de nom
@@ -492,22 +325,6 @@ const ChatPage = () => {
   const selectedData = getSelectedData();
   const selectedChatData = selectedData.isChannel ? null : selectedData.data;
   const selectedChannelData = selectedData.isChannel ? selectedData.data : null;
-
-  useEffect(() => {
-    loadChats();
-    loadChannel();
-    // Set up interval to refresh every 15 seconds
-    const interval = setInterval(() => {
-      if (!loading) {
-        console.log("Refreshing chats and channels...");
-        loadChats();
-        loadChannel();
-      }
-    }, 7000);
-
-    // Clean up interval on component unmount
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div
@@ -538,23 +355,6 @@ const ChatPage = () => {
           <div className="d-flex flex-column h-100">
             <div className="d-flex justify-content-between align-items-center p-3 border-bottom">
               <h5 className="mb-0 fw-bold mr-4">Conversations</h5>
-              <button
-                className="btn btn-sm btn-primary rounded-circle"
-                onClick={() => {
-                  if (activeTab === "channels") {
-                    setIsChannelModalOpen(true);
-                  } else {
-                    setIsUserSelectionModalOpen(true);
-                  }
-                }}
-                title={
-                  activeTab === "channels"
-                    ? "Nouveau canal"
-                    : "Nouvelle conversation"
-                }
-              >
-                <Add fontSize="small" />
-              </button>
             </div>
 
             {/* Onglets Messages/Canaux */}
@@ -679,9 +479,9 @@ const ChatPage = () => {
                               style={{
                                 width: "35px",
                                 height: "35px",
+                                marginRight: "10px",
                                 backgroundColor: generateAvatarColor(chan.name),
                                 fontSize: "14px",
-                                marginRight: "10px",
                               }}
                             >
                               {chan.level > 0 ? "⤷" : "#"}
@@ -691,7 +491,7 @@ const ChatPage = () => {
                             )} */}
                           </div>
                           <div className="overflow-hidden">
-                            <div className="d-flex  mb-1">
+                            <div className="d-flex mb-1">
                               <span
                                 className={`${
                                   hasUnread ? "fw-bold" : "fw-medium"
@@ -738,13 +538,6 @@ const ChatPage = () => {
                     ></i>
                   </div>
                   <p>Aucune conversation trouvée</p>
-                  <button
-                    className="btn btn-sm btn-outline-primary mt-2"
-                    onClick={() => setIsUserSelectionModalOpen(true)}
-                  >
-                    <i className="bi bi-plus-circle me-1"></i>
-                    Nouvelle conversation
-                  </button>
                 </div>
               ) : (
                 // Affichage des conversations
@@ -758,7 +551,7 @@ const ChatPage = () => {
                   );
                   const chatName = chat.isGroup
                     ? chat?.groupName || "Groupe"
-                    : otherUser?.userName || "Discussion";
+                    : otherUser?.userName || "Admin";
                   const avatarColor = generateAvatarColor(chatName);
 
                   return (
@@ -792,7 +585,13 @@ const ChatPage = () => {
                       </div>
                       <div className="overflow-hidden">
                         <div className="d-flex  mb-1">
-                          <span>{chatName}</span>
+                          <span
+                            className={`${
+                              hasUnread ? "fw-bold" : "fw-medium"
+                            } text-truncate`}
+                          >
+                            {chatName}
+                          </span>
                           {/* <small
                             className={`text-nowrap ms-2 ${
                               hasUnread ? "text-dark fw-bold" : "text-muted"
@@ -935,7 +734,6 @@ const ChatPage = () => {
                         ></i>
                       </div>
                       <p>Pas de messages dans ce canal</p>
-                      <p className="small">Envoyez un message pour commencer</p>
                     </div>
                   ) : (
                     // Affichage des messages du canal
@@ -945,7 +743,7 @@ const ChatPage = () => {
                           (a, b) => new Date(a.sentAt) - new Date(b.sentAt)
                         )
                       : []
-                    ).map((msg, index) => {
+                    ).map((msg) => {
                       // Trouver l'expéditeur du message parmi les utilisateurs ou comptes
                       const isUser = Boolean(
                         selectedChannelData.users?.find(
@@ -966,8 +764,6 @@ const ChatPage = () => {
                         : messageSender?.accountName || "Entreprise";
 
                       // Vérifier si le message provient de l'utilisateur actuel
-                      const isFromCurrentUser =
-                        Number(msg.byUserID) === Number(currentUserId);
 
                       return (
                         <div key={msg.id} className="mb-3">
@@ -1021,7 +817,6 @@ const ChatPage = () => {
                         ? "ce canal"
                         : "cette conversation"}
                     </p>
-                    <p className="small">Envoyez un message pour commencer</p>
                   </div>
                 ) : (
                   // Affichage des messages de conversation
@@ -1133,27 +928,40 @@ const ChatPage = () => {
               </div>
 
               <div className="border-top bg-white p-3">
-                <form onSubmit={handleSendMessage}>
-                  <div className="input-group">
-                    <input
-                      type="text"
-                      className="form-control bg-light border-0"
-                      placeholder="Écrivez un message..."
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      disabled={loading}
-                    />
-                    <button
-                      type="submit"
-                      className={`btn ${
-                        newMessage.trim() ? "btn-primary" : "btn-secondary"
-                      }`}
-                      disabled={loading || !newMessage?.trim()}
-                    >
-                      <Send fontSize="small" />
-                    </button>
+                {/* Vérifier si la conversation sélectionnée est un canal */}
+                {selectedChat &&
+                flattenedChannels.some(
+                  (chan) => Number(chan.id) === Number(selectedChat)
+                ) ? (
+                  // Afficher un message indicatif pour les canaux
+                  <div className="text-center text-muted py-2">
+                    <i className="bi bi-info-circle me-2"></i>
+                    Vous ne pouvez pas envoyer de messages dans ce canal.
                   </div>
-                </form>
+                ) : (
+                  // Afficher le formulaire d'envoi de message pour les conversations normales
+                  <form onSubmit={handleSendMessage}>
+                    <div className="input-group">
+                      <input
+                        type="text"
+                        className="form-control bg-light border-0"
+                        placeholder="Écrivez un message..."
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        disabled={loading}
+                      />
+                      <button
+                        type="submit"
+                        className={`btn ${
+                          newMessage.trim() ? "btn-primary" : "btn-secondary"
+                        }`}
+                        disabled={loading || !newMessage?.trim()}
+                      >
+                        <Send fontSize="small" />
+                      </button>
+                    </div>
+                  </form>
+                )}
               </div>
             </>
           ) : (
@@ -1172,54 +980,11 @@ const ChatPage = () => {
                   ></i>
                 </div>
                 <h5>Bienvenue dans votre messagerie</h5>
-                <p className="mb-4">
-                  Sélectionnez{" "}
-                  {activeTab === "messages" ? "une conversation" : "un canal"}{" "}
-                  pour commencer à discuter
-                  <br />
-                </p>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => {
-                    if (activeTab === "channels") {
-                      setIsChannelModalOpen(true);
-                    } else {
-                      setIsUserSelectionModalOpen(true);
-                    }
-                  }}
-                >
-                  <i className="bi bi-plus-circle me-2"></i>
-                  {activeTab === "messages"
-                    ? "Nouvelle conversation"
-                    : "Nouveau canal"}
-                </button>
               </div>
             </div>
           )}
         </div>
       </div>
-
-      <UserSelectionModal
-        isOpen={isUserSelectionModalOpen}
-        onClose={() => setIsUserSelectionModalOpen(false)}
-        onSelectUsers={handleSelectUsers}
-        initialTab={activeTab === "channels" ? "group" : "individual"}
-        currentUserId={currentUserId}
-      />
-
-      <ProfileModal
-        isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
-        onSelectProfile={handleProfileSelect}
-      />
-
-      <ChannelCreationModal
-        isOpen={isChannelModalOpen}
-        onClose={() => setIsChannelModalOpen(false)}
-        onCreateChannel={handleCreateChannel}
-        currentUserId={currentUserId}
-        load={loadChannel}
-      />
     </div>
   );
 };

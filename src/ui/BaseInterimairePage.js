@@ -13,18 +13,18 @@ import InterimaireApplicationsContainer from "./containers/InterimaireApplicatio
 import InterimaireFavoritesContainer from "./containers/InterimaireFavoritesContainer";
 import ProfileWizzard from "./components/interimaire/profile/profileForms/ProfileWizzard";
 import { shallowEqual, useSelector } from "react-redux";
-import Chat from "./components/interimaire/signalr/Chat";
+import ChatPageInterim from "./components/interimaire/messages/ChatPageInterim";
 import Contracts from "./components/interimaire/missions/contracts";
 
 import EmailContactModal from "./components/client/Email/EmailContactModal";
 import Documents from "./components/interimaire/missions/documents";
 import HoursStatement from "./components/interimaire/hours-statement/HoursStatement";
-import MetronicChat from './components/shared/MetronicChat';
+import MetronicChat from "./components/shared/MetronicChat";
 
 export default function BaseInterimairePage(props) {
   let { user } = useSelector(
     ({ auth, user }) => ({
-      user: user.user
+      user: user.user,
     }),
     shallowEqual
   );
@@ -39,7 +39,9 @@ export default function BaseInterimairePage(props) {
 
         <ContentRoute
           path="/int-profile-edit"
-          component={props => <ProfileWizzard userDetails={user} {...props} />}
+          component={(props) => (
+            <ProfileWizzard userDetails={user} {...props} />
+          )}
         />
         {/*<ContentRoute path="/int-dashboard" component={DashboardPage} />*/}
         <ContentRoute path="/int-dashboard" component={DashboardPage} />
@@ -66,9 +68,8 @@ export default function BaseInterimairePage(props) {
         <ContentRoute path="/rhs" component={UnderConstruction} />
         <ContentRoute path="/bulletins" component={UnderConstruction} />
         <ContentRoute path="/certificates" component={UnderConstruction} />
-        <ContentRoute path="/chat" component={Chat} />
+        <ContentRoute path="/messages" component={ChatPageInterim} />
         <ContentRoute path="/cra" component={HoursStatement} />
-
         <ContentRoute path={`/contact`}>
           {({ history, match }) => (
             <EmailContactModal
