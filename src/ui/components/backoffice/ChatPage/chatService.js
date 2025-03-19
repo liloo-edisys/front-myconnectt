@@ -1,4 +1,3 @@
-// services/chatService.js
 import axios from "axios";
 
 const API_URL = process.env.REACT_APP_WEBAPI_URL;
@@ -12,6 +11,41 @@ export const chatService = {
   // Récupérer toutes les channels
   getChannel: () => {
     return axios.get(`${API_URL}api/Chat/channels`);
+  },
+
+  getChannelTags: () => {
+    return axios.get(`${API_URL}api/Chat/channel/tags`);
+  },
+
+  getSpecificChat: async (chatId) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/chats/${chatId}`);
+      return response;
+    } catch (error) {
+      console.error("Error fetching specific chat:", error);
+      throw error;
+    }
+  },
+
+  // Fonction pour récupérer un canal spécifique par ID
+  getSpecificChannel: async (channelId) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/channels/${channelId}`);
+      return response;
+    } catch (error) {
+      console.error("Error fetching specific channel:", error);
+      throw error;
+    }
+  },
+
+  // Récupérer les messages d'un chat spécifique
+  getChatMessages: (chatId) => {
+    return axios.get(`${API_URL}api/Chat/${chatId}/messages`);
+  },
+
+  // Récupérer les messages d'un channel spécifique
+  getChannelMessages: (channelId) => {
+    return axios.get(`${API_URL}api/Chat/channel/messages/${channelId}`);
   },
 
   // Envoyer un message de l'admin vers un utilisateur
@@ -45,8 +79,8 @@ export const chatService = {
   },
 
   // Créer un nouveau channel
-  createGroup: (data) => {
-    return axios.post(`${API_URL}api/Chat/create/channel`, data);
+  createChannel: (data) => {
+    return axios.post(`${API_URL}api/Chat/channel`, data);
   },
 
   // Mettre à jour les utilisateurs d'un chat

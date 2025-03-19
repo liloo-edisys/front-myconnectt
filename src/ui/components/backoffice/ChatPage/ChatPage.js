@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Search, Send, Add, MoreVert } from "@material-ui/icons";
 import ProfileModal from "./profile/ProfileModal";
 import UserSelectionModal from "./profile/UserSelectionModal";
 import ChannelCreationModal from "./profile/ChannelCreationModal";
+import TagSuggestions from "./profile/TagSuggestions";
 import { chatService, messageUtils } from "./chatService";
 import signalRService from "./signalrServices";
 import { shallowEqual, useSelector } from "react-redux";
+import { useHistory, useParams } from "react-router-dom";
 
 const ChatPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,6 +26,126 @@ const ChatPage = () => {
   const [isChannelModalOpen, setIsChannelModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("messages"); // "messages" ou "channels"
 
+  const [showTagSuggestions, setShowTagSuggestions] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState(0);
+  const [allTags, setAllTags] = useState([]); // Ajout de la déclaration manquante
+  const [isLoadingTags, setIsLoadingTags] = useState(false); // Ajout de la déclaration manquante
+  const [tagsError, setTagsError] = useState(null);
+
+  //channel params
+  const history = useHistory();
+  const { channelId } = useParams();
+
+  // Références
+  const messageInputRef = useRef(null);
+  const channelOptionsRef = useRef(null);
+
+  const [channelMessages, setChannelMessages] = useState([]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+
+  useEffect(() => {
+    if (channelId && chats.length > 0) {
+      // Si un ID est présent dans l'URL et que les chats sont chargés
+      handleChatSelect(channelId);
+    }
+  }, [channelId, chats]);
+
+  // Dans loadTags, assurez-vous de bien tracer les erreurs
+  const loadTags = async () => {
+    console.log("Loading tags...");
+    setIsLoadingTags(true);
+    setTagsError(null);
+
+    try {
+      const response = await chatService.getChannelTags();
+      console.log("API response:", response);
+
+      if (response && response.data) {
+        // Passer les données brutes au composant TagSuggestions
+        setAllTags(response.data);
+      } else {
+        console.warn("No data in response or unexpected format");
+        setAllTags([]);
+      }
+    } catch (err) {
+      console.error("Error loading tags:", err);
+      setTagsError("Impossible de charger les suggestions de tags");
+      setAllTags([]);
+    } finally {
+      setIsLoadingTags(false);
+    }
+  };
+
+  // Utilisez useEffect pour charger les tags au montage du composant
+  useEffect(() => {
+    loadTags();
+  }, []); // Le tableau vide signifie que cela ne s'exécute qu'une fois au montage
+
+  // Ajoutez également une fonction pour recharger les tags lors du changement de canal
+  useEffect(() => {
+    if (selectedChat) {
+      loadTags();
+    }
+  }, [selectedChat]);
+
+  const convertMarkdownLinks = (text) => {
+    // Regex pour trouver les liens markdown comme [texte](url)
+    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+
+    // Remplacer tous les liens markdown par des liens HTML
+    return text.replace(
+      linkRegex,
+      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+    );
+  };
+
+  // Et dans la partie d'affichage de votre message, utilisez quelque chose comme:
+
+  const handleMessageChange = (e) => {
+    const { value, selectionStart } = e.target;
+    setNewMessage(value);
+    setCursorPosition(selectionStart);
+
+    // Vérifier si le caractère à la position actuelle ou précédente est #
+    const isPreviousCharHash = value.charAt(selectionStart - 1) === "#";
+
+    // Vérifier s'il y a un # avant le curseur sans espace entre les deux
+    const textBeforeCursor = value.substring(0, selectionStart);
+    const lastHashIndex = textBeforeCursor.lastIndexOf("#");
+    const noSpaceBetween =
+      lastHashIndex !== -1 &&
+      !textBeforeCursor.substring(lastHashIndex + 1).includes(" ");
+
+    // Activer les suggestions si on vient de taper # ou si on est en train de taper après un #
+    if (isPreviousCharHash || noSpaceBetween) {
+      if (!showTagSuggestions) {
+        console.log("Showing tag suggestions");
+        loadTags(); // Recharger les tags à chaque fois qu'on ouvre le modal
+      }
+      setShowTagSuggestions(true);
+    } else {
+      setShowTagSuggestions(false);
+    }
+  };
+
+  // Ajoutez cette fonction pour gérer la sélection d'un tag
+  // Dans ChatPage.js, modifiez la fonction handleSelectTag
+  const handleSelectTag = (updatedMessage) => {
+    // Le composant TagSuggestions va maintenant nous envoyer le message complet mis à jour
+    // avec le lien markdown déjà inséré
+    setNewMessage(updatedMessage);
+
+    // Focus sur l'input et placer le curseur à la fin
+    setTimeout(() => {
+      if (messageInputRef.current) {
+        messageInputRef.current.focus();
+        // Placer le curseur à la fin du message
+        const length = updatedMessage.length;
+        messageInputRef.current.setSelectionRange(length, length);
+        setCursorPosition(length);
+      }
+    }, 0);
+  };
   // Récupérer l'utilisateur depuis Redux
   const { user } = useSelector(
     (state) => ({
@@ -176,6 +298,7 @@ const ChatPage = () => {
         };
 
         await chatService.sendMessageToChannel(messageData);
+        setNewMessage("");
         await loadChannel(); // Recharger les canaux après envoi
       } else {
         // Récupérer le chat sélectionné
@@ -196,6 +319,7 @@ const ChatPage = () => {
           };
 
           await chatService.sendMessageToGroup(messageData);
+          setNewMessage("");
         } else {
           // Pour une conversation individuelle, utiliser l'endpoint existant
           // Récupérer l'utilisateur avec chatUserRole: 1 (l'administrateur)
@@ -211,6 +335,7 @@ const ChatPage = () => {
             adminUser.id
           );
           await chatService.sendBackofficeMessage(messageData);
+          setNewMessage("");
         }
 
         await loadChats();
@@ -227,36 +352,210 @@ const ChatPage = () => {
 
   const handleChatSelect = async (chatId) => {
     // Convertir chatId en nombre pour assurer la compatibilité
-    setSelectedChat(Number(chatId));
+    const numericChatId = Number(chatId);
+    setSelectedChat(numericChatId);
+    console.log(" ------------ Chat sélectionné ------------ ", chatId);
+
+    // Rediriger vers l'URL avec l'ID de la discussion
+    // Nous utilisons history de react-router pour naviguer
+    history.push(`/messages/${numericChatId}`);
 
     // Vérifier d'abord si c'est un canal
     const selectedChannelData = flattenedChannels.find(
-      (chan) => Number(chan.id) === Number(chatId)
+      (chan) => Number(chan.id) === numericChatId
     );
 
     if (selectedChannelData) {
-      // Si c'est un canal, pas besoin de marquer comme lu pour l'instant
-      // Pourriez ajouter cette fonctionnalité plus tard si nécessaire
+      // Si c'est un canal, charger les messages via le nouvel endpoint
+      try {
+        setLoadingMessages(true);
+        const messagesResponse = await chatService.getChannelMessages(
+          numericChatId
+        );
+
+        console.log("Messages du canal récupérés:", messagesResponse.data);
+
+        if (
+          messagesResponse &&
+          messagesResponse.data &&
+          messagesResponse.data.messages
+        ) {
+          // La réponse contient un objet avec un tableau messages, on extrait ce tableau
+          setChannelMessages(messagesResponse.data.messages);
+        } else if (
+          messagesResponse &&
+          messagesResponse.data &&
+          Array.isArray(messagesResponse.data)
+        ) {
+          // La réponse est directement un tableau de messages
+          setChannelMessages(messagesResponse.data);
+        } else {
+          console.log("Format de réponse inattendu:", messagesResponse);
+          setChannelMessages([]);
+        }
+      } catch (error) {
+        console.error(
+          "Erreur lors du chargement des messages du canal:",
+          error
+        );
+        setError("Impossible de charger les messages du canal");
+        setChannelMessages([]);
+      } finally {
+        setLoadingMessages(false);
+      }
       return;
     }
 
+    // Réinitialiser les messages du canal si ce n'est pas un canal
+    setChannelMessages([]);
+
     // Sinon, c'est un chat normal
-    const chat = chats?.find((c) => Number(c?.id) === Number(chatId));
+    const chat = chats?.find((c) => Number(c?.id) === numericChatId);
     if (!chat) return;
 
     // Marquer les messages non lus comme lus
     const unreadMessages = chat?.messages?.filter((msg) => !msg?.isRead);
-    for (const msg of unreadMessages) {
-      try {
-        await chatService.markMessageAsRead({
-          chatID: chatId,
-          messageID: msg?.id,
-        });
-      } catch (err) {
-        console.error("Error marking message as read:", err);
+    if (unreadMessages && Array.isArray(unreadMessages)) {
+      for (const msg of unreadMessages) {
+        try {
+          await chatService.markMessageAsRead({
+            chatID: numericChatId,
+            messageID: msg?.id,
+          });
+        } catch (err) {
+          console.error("Error marking message as read:", err);
+        }
       }
     }
   };
+
+  // Fonction utilitaire pour mettre à jour les canaux imbriqués
+  const updateNestedChannel = (channels, targetId, messages) => {
+    if (!channels || !Array.isArray(channels)) return channels;
+
+    return channels.map((chan) => {
+      if (Number(chan.id) === Number(targetId)) {
+        return { ...chan, messages };
+      }
+
+      if (chan.slaves && Array.isArray(chan.slaves)) {
+        const updatedSlaves = updateNestedChannel(
+          chan.slaves,
+          targetId,
+          messages
+        );
+        return { ...chan, slaves: updatedSlaves };
+      }
+
+      return chan;
+    });
+  };
+  const tryLoadSpecificChatById = async (specificId) => {
+    try {
+      // Vérifier d'abord si c'est un canal
+      const channelResponse = await chatService.getSpecificChannel(specificId);
+      if (channelResponse && channelResponse.data) {
+        // C'est un canal
+        const newChannelData = channelResponse.data;
+
+        // Ajouter ce canal à la liste des canaux
+        setChannel((prevChannels) => {
+          // Vérifier si le canal existe déjà
+          const channelExists = prevChannels.some(
+            (chan) => Number(chan.id) === Number(specificId)
+          );
+          if (channelExists) {
+            return prevChannels;
+          }
+          return [...prevChannels, newChannelData];
+        });
+
+        // Sélectionner le canal
+        handleChatSelect(specificId);
+        return;
+      }
+
+      // Si ce n'est pas un canal, essayer de charger comme chat
+      const chatResponse = await chatService.getSpecificChat(specificId);
+      if (chatResponse && chatResponse.data) {
+        // C'est un chat
+        const newChatData = chatResponse.data;
+
+        // Ajouter ce chat à la liste des chats
+        setChats((prevChats) => {
+          // Vérifier si le chat existe déjà
+          const chatExists = prevChats.some(
+            (chat) => Number(chat?.id) === Number(specificId)
+          );
+          if (chatExists) {
+            return prevChats;
+          }
+          return [...prevChats, newChatData];
+        });
+
+        // Sélectionner le chat
+        handleChatSelect(specificId);
+        return;
+      }
+
+      // Si on arrive ici, c'est que ni chat ni canal n'a été trouvé
+      setError(`Aucune discussion trouvée avec l'ID ${specificId}`);
+    } catch (err) {
+      console.error(
+        "Erreur lors du chargement de la discussion spécifique:",
+        err
+      );
+      setError(`Impossible de charger la discussion avec l'ID ${specificId}`);
+    }
+  };
+
+  useEffect(() => {
+    if (channelId) {
+      // Si un ID est présent dans l'URL
+      const loadSpecificChat = async () => {
+        try {
+          setLoading(true);
+          // Essayer de charger les chats d'abord
+          await loadChats();
+          await loadChannel();
+
+          // Attendre un court instant pour que les données soient bien chargées
+          setTimeout(() => {
+            // Vérifier si c'est un chat ou un canal
+            const foundChat = chats.find(
+              (chat) => Number(chat?.id) === Number(channelId)
+            );
+            const foundChannel = flattenedChannels.find(
+              (chan) => Number(chan.id) === Number(channelId)
+            );
+
+            if (foundChat || foundChannel) {
+              // Si on a trouvé une correspondance, sélectionner cette discussion
+              handleChatSelect(channelId);
+            } else {
+              // Si pas trouvé, on peut essayer de faire une requête spécifique pour cet ID
+              console.log(
+                "Chat/Channel non trouvé dans les données existantes, tentative de chargement spécifique..."
+              );
+              // Note: Vous pourriez avoir besoin d'implémenter une fonction dans chatService
+              // pour charger une conversation spécifique par ID
+              tryLoadSpecificChatById(channelId);
+            }
+          }, 300);
+        } catch (err) {
+          console.error(
+            "Erreur lors du chargement de la discussion spécifique:",
+            err
+          );
+          setError("Impossible de charger cette discussion");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadSpecificChat();
+    }
+  }, [channelId]);
 
   const handleProfileSelect = async (profile) => {
     setIsProfileModalOpen(false);
@@ -348,9 +647,11 @@ const ChatPage = () => {
     const name = chat.isGroup ? chat.groupName : otherUser?.userName;
     return (
       name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      chat.messages?.some((m) =>
-        m?.message?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      (chat.messages &&
+        Array.isArray(chat.messages) &&
+        chat.messages.some((m) =>
+          m?.message?.toLowerCase().includes(searchQuery.toLowerCase())
+        ))
     );
   });
 
@@ -503,11 +804,25 @@ const ChatPage = () => {
         loadChats();
         loadChannel();
       }
-    }, 7000);
+    }, 40000);
 
     // Clean up interval on component unmount
     return () => clearInterval(interval);
   }, []);
+
+  const [currentChatMasterID, setCurrentChatMasterID] = useState(null);
+
+  // Premier bouton - sans chatMasterID
+  const handleOpenChannelModal = () => {
+    setCurrentChatMasterID(null); // Réinitialiser à null
+    setIsChannelModalOpen(true);
+  };
+
+  // Second bouton - avec chatMasterID
+  const handleOpenChannelForChild = (id) => {
+    setCurrentChatMasterID(id); // Définir l'ID
+    setIsChannelModalOpen(true);
+  };
 
   return (
     <div
@@ -515,7 +830,7 @@ const ChatPage = () => {
       style={{ backgroundColor: "#f8f9fa" }}
     >
       {/* Notification d'erreur */}
-      {error && (
+      {/* {error && (
         <div
           className="alert alert-danger position-absolute top-0 start-50 translate-middle-x mt-4 d-flex justify-content-between align-items-center shadow-sm"
           style={{ zIndex: 1030, maxWidth: "90%" }}
@@ -530,7 +845,7 @@ const ChatPage = () => {
             onClick={() => setError(null)}
           ></button>
         </div>
-      )}
+      )} */}
 
       <div className="row h-100 g-0" style={{ height: "calc(100vh - 56px)" }}>
         {/* Sidebar */}
@@ -542,7 +857,7 @@ const ChatPage = () => {
                 className="btn btn-sm btn-primary rounded-circle"
                 onClick={() => {
                   if (activeTab === "channels") {
-                    setIsChannelModalOpen(true);
+                    handleOpenChannelModal();
                   } else {
                     setIsUserSelectionModalOpen(true);
                   }
@@ -631,6 +946,8 @@ const ChatPage = () => {
                     </button>
                   </div>
                 ) : (
+                  // Dans la partie où vous affichez les canaux
+                  // Dans la partie où vous affichez les canaux
                   flattenedChannels
                     .filter(
                       (chan) =>
@@ -652,11 +969,41 @@ const ChatPage = () => {
                         (chan.accounts?.length || 0);
 
                       // Calcul des messages non lus
-                      const hasUnread = chan.messages?.some(
-                        (m) =>
-                          !m?.isRead &&
-                          Number(m?.byUserID) !== Number(currentUserId)
-                      );
+                      const hasUnread =
+                        chan.messages &&
+                        Array.isArray(chan.messages) &&
+                        chan.messages.some(
+                          (m) =>
+                            !m?.isRead &&
+                            Number(m?.byUserID) !== Number(currentUserId)
+                        );
+
+                      // Styles adaptés pour tous les niveaux hiérarchiques
+                      const isRootLevel = chan.level === 0;
+                      const indentation = chan.level * 16 + 16;
+
+                      // Calculer une teinte de gris plus claire en fonction du niveau
+                      // Plus le niveau est profond, plus la teinte est claire
+                      const bgColorIntensity = 248 + chan.level * 2; // Limite à 255
+                      const bgColor = isRootLevel
+                        ? "white"
+                        : `rgb(${bgColorIntensity}, ${bgColorIntensity}, ${bgColorIntensity})`;
+
+                      // Obtenir une bordure de couleur différente selon le niveau
+                      const borderColors = [
+                        "#6c757d",
+                        "#8a94a0",
+                        "#adb5bd",
+                        "#ced4da",
+                        "#dee2e6",
+                      ];
+                      const borderColor =
+                        borderColors[
+                          Math.min(chan.level - 1, borderColors.length - 1)
+                        ];
+                      const borderStyle = isRootLevel
+                        ? "none"
+                        : `3px solid ${borderColor}`;
 
                       return (
                         <div
@@ -668,9 +1015,10 @@ const ChatPage = () => {
                           }`}
                           onClick={() => handleChatSelect(chan.id)}
                           style={{
-                            paddingLeft: `${chan.level * 16 + 16}px`,
-                            backgroundColor:
-                              chan.level > 0 ? "#f8f9fa" : "white",
+                            paddingLeft: `${indentation}px`,
+                            backgroundColor: bgColor,
+                            borderLeft: borderStyle,
+                            transition: "all 0.2s ease",
                           }}
                         >
                           <div className="position-relative me-3">
@@ -679,37 +1027,45 @@ const ChatPage = () => {
                               style={{
                                 width: "35px",
                                 height: "35px",
-                                backgroundColor: generateAvatarColor(chan.name),
+                                backgroundColor: isRootLevel
+                                  ? generateAvatarColor(chan.name)
+                                  : `rgba(108, 117, 125, ${0.8 -
+                                      chan.level * 0.1})`,
                                 fontSize: "14px",
                                 marginRight: "10px",
                               }}
                             >
-                              {chan.level > 0 ? "⤷" : "#"}
+                              {isRootLevel
+                                ? "#"
+                                : "└" + "─".repeat(Math.min(chan.level, 3))}
                             </div>
-                            {/* {hasUnread && (
+                            {hasUnread && (
                               <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                            )} */}
+                            )}
                           </div>
                           <div className="overflow-hidden">
-                            <div className="d-flex  mb-1">
+                            <div className="d-flex mb-1">
                               <span
                                 className={`${
-                                  hasUnread ? "fw-bold" : "fw-medium"
+                                  hasUnread
+                                    ? "fw-bold"
+                                    : isRootLevel
+                                    ? "fw-medium"
+                                    : "fw-normal"
                                 } text-truncate`}
                               >
                                 {chan.name}
-                                {chan.level > 0 && (
-                                  <span className="text-muted ms-2 small">
-                                    <i className="bi bi-arrow-return-right me-1"></i>
-                                    {chan.parentName}
+                                {!isRootLevel && (
+                                  <span className="text-muted ms-2 small d-inline-block">
+                                    <i className="bi bi-diagram-3 me-1"></i>
+                                    {/* Afficher le dernier segment du chemin parent */}
+                                    {chan.parentName
+                                      .split("/")
+                                      .pop()
+                                      .trim()}
                                   </span>
                                 )}
                               </span>
-                              {/* <small className="text-nowrap ms-2 text-muted">
-                                {participantsCount > 0
-                                  ? `${participantsCount} participants`
-                                  : ""}
-                              </small> */}
                             </div>
                             <p
                               className={`mb-0 text-truncate ${
@@ -719,11 +1075,27 @@ const ChatPage = () => {
                               }`}
                               style={{ fontSize: "0.85rem" }}
                             >
+                              {chan.level > 0 && (
+                                <span
+                                  className="badge bg-secondary bg-opacity-25 text-dark me-2"
+                                  style={{ fontSize: "0.7rem" }}
+                                >
+                                  Niveau {chan.level}
+                                </span>
+                              )}
                               {lastMessage
                                 ? lastMessage.message
                                 : "Pas de message"}
                             </p>
                           </div>
+                          {/* Afficher un indicateur de sous-canaux s'il en existe */}
+                          {chan.slaves && chan.slaves.length > 0 && (
+                            <div className="ms-auto align-self-center">
+                              <span className="badge bg-secondary rounded-pill">
+                                {chan.slaves.length}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       );
                     })
@@ -910,7 +1282,10 @@ const ChatPage = () => {
                   )
                 )}
                 <div>
-                  <button className="btn btn-light rounded-circle">
+                  <button
+                    className="btn btn-light rounded-circle"
+                    onClick={() => handleOpenChannelForChild(selectedChat)}
+                  >
                     <MoreVert fontSize="small" />
                   </button>
                 </div>
@@ -926,7 +1301,14 @@ const ChatPage = () => {
                 {/* Affichage des messages selon le type (canal ou conversation) */}
                 {selectedChannelData ? (
                   // Affichage des messages de canal
-                  selectedChannelData.messages?.length === 0 ? (
+                  loadingMessages ? (
+                    <div className="d-flex flex-column align-items-center justify-content-center h-100">
+                      <div
+                        className="spinner-border text-primary"
+                        role="status"
+                      ></div>
+                    </div>
+                  ) : channelMessages.length === 0 ? (
                     <div className="d-flex flex-column align-items-center justify-content-center h-100 text-muted">
                       <div className="mb-3">
                         <i
@@ -938,71 +1320,70 @@ const ChatPage = () => {
                       <p className="small">Envoyez un message pour commencer</p>
                     </div>
                   ) : (
-                    // Affichage des messages du canal
-                    (selectedChannelData.messages &&
-                    Array.isArray(selectedChannelData.messages)
-                      ? [...selectedChannelData.messages].sort(
-                          (a, b) => new Date(a.sentAt) - new Date(b.sentAt)
-                        )
-                      : []
-                    ).map((msg, index) => {
-                      // Trouver l'expéditeur du message parmi les utilisateurs ou comptes
-                      const isUser = Boolean(
-                        selectedChannelData.users?.find(
-                          (u) => Number(u.id) === Number(msg.byUserID)
-                        )
-                      );
+                    // Affichage des messages du canal récupérés via l'API
+                    [...channelMessages]
+                      .sort((a, b) => new Date(a.sentAt) - new Date(b.sentAt))
+                      .map((msg, index) => {
+                        // Afficher les détails du message pour déboguer
+                        console.log("Traitement du message:", msg);
 
-                      const messageSender = isUser
-                        ? selectedChannelData.users?.find(
+                        // Vérifier si le message provient de l'utilisateur actuel
+                        const isFromCurrentUser =
+                          Number(msg.byUserID) === Number(currentUserId);
+
+                        // Trouver l'information sur l'expéditeur (peut être manquante)
+                        // On utilise une approche défensive avec des valeurs par défaut
+                        let senderName = isFromCurrentUser
+                          ? "Vous"
+                          : "Utilisateur";
+
+                        // Si possible, essayer de trouver les informations sur l'expéditeur
+                        if (selectedData.data && selectedData.data.users) {
+                          const messageSender = selectedData.data.users.find(
                             (u) => Number(u.id) === Number(msg.byUserID)
-                          )
-                        : selectedChannelData.accounts?.find(
-                            (a) => Number(a.id) === Number(msg.byUserID)
                           );
+                          if (messageSender && messageSender.userName) {
+                            senderName = messageSender.userName;
+                          }
+                        }
 
-                      const senderName = isUser
-                        ? messageSender?.userName || "Inconnu"
-                        : messageSender?.accountName || "Entreprise";
-
-                      // Vérifier si le message provient de l'utilisateur actuel
-                      const isFromCurrentUser =
-                        Number(msg.byUserID) === Number(currentUserId);
-
-                      return (
-                        <div key={msg.id} className="mb-3">
-                          <div className="d-flex align-items-start">
-                            <div
-                              className="rounded-circle text-white d-flex align-items-center justify-content-center me-2"
-                              style={{
-                                width: "32px",
-                                height: "32px",
-                                backgroundColor: generateAvatarColor(
-                                  senderName
-                                ),
-                                fontSize: "14px",
-                              }}
-                            >
-                              {senderName.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <div className="d-flex align-items-center">
-                                <span className="fw-bold">{senderName}</span>
-                                <small className="text-muted ms-2">
-                                  {new Date(msg.sentAt).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
-                                </small>
+                        return (
+                          <div key={msg.id} className="mb-3">
+                            <div className="d-flex align-items-start">
+                              <div
+                                className="rounded-circle text-white d-flex align-items-center justify-content-center me-2"
+                                style={{
+                                  width: "32px",
+                                  height: "32px",
+                                  backgroundColor: generateAvatarColor(
+                                    senderName
+                                  ),
+                                  fontSize: "14px",
+                                }}
+                              >
+                                {senderName.charAt(0).toUpperCase()}
                               </div>
-                              <div className="p-2 rounded-3 bg-white mt-1">
-                                {msg.message}
+                              <div>
+                                <div className="d-flex align-items-center">
+                                  <span className="fw-bold">{senderName}</span>
+                                  <small className="text-muted ms-2">
+                                    {new Date(msg.sentAt).toLocaleTimeString(
+                                      [],
+                                      {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      }
+                                    )}
+                                  </small>
+                                </div>
+                                <div className="p-2 rounded-3 bg-white mt-1">
+                                  {msg.message}
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })
+                        );
+                      })
                   )
                 ) : selectedChatData?.messages?.length === 0 ? (
                   // Message d'accueil pour une conversation vide
@@ -1089,7 +1470,12 @@ const ChatPage = () => {
                                 : "18px 18px 18px 4px",
                             }}
                           >
-                            {msg?.message}
+                            <div
+                              className="message-content"
+                              dangerouslySetInnerHTML={{
+                                __html: convertMarkdownLinks(msg.message),
+                              }}
+                            />
                           </div>
                           <div
                             className={`text-muted small mt-1 ${
@@ -1132,28 +1518,47 @@ const ChatPage = () => {
                 )}
               </div>
 
-              <div className="border-top bg-white p-3">
-                <form onSubmit={handleSendMessage}>
-                  <div className="input-group">
-                    <input
-                      type="text"
-                      className="form-control bg-light border-0"
-                      placeholder="Écrivez un message..."
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      disabled={loading}
-                    />
-                    <button
-                      type="submit"
-                      className={`btn ${
-                        newMessage.trim() ? "btn-primary" : "btn-secondary"
-                      }`}
-                      disabled={loading || !newMessage?.trim()}
-                    >
-                      <Send fontSize="small" />
-                    </button>
-                  </div>
-                </form>
+              <div className="input-group position-relative">
+                {/* Intégration du composant TagSuggestions avec les bonnes props */}
+                <TagSuggestions
+                  message={newMessage}
+                  cursorPosition={cursorPosition}
+                  onSelectTag={handleSelectTag}
+                  isVisible={showTagSuggestions}
+                  setIsVisible={setShowTagSuggestions}
+                  tags={allTags}
+                  isLoading={isLoadingTags}
+                  error={tagsError}
+                />
+
+                <input
+                  ref={messageInputRef}
+                  type="text"
+                  className="form-control bg-light border-0"
+                  placeholder="Écrivez un message... (utilisez # pour les mentions)"
+                  value={newMessage}
+                  onChange={handleMessageChange}
+                  onKeyDown={(e) => {
+                    // Empêcher la propagation des touches fléchées lorsque les suggestions sont visibles
+                    if (
+                      showTagSuggestions &&
+                      ["ArrowUp", "ArrowDown", "Enter"].includes(e.key)
+                    ) {
+                      e.stopPropagation();
+                    }
+                  }}
+                  disabled={loading}
+                />
+                <button
+                  type="submit"
+                  className={`btn ${
+                    newMessage.trim() ? "btn-primary" : "btn-secondary"
+                  }`}
+                  disabled={loading || !newMessage?.trim()}
+                  onClick={handleSendMessage}
+                >
+                  <Send fontSize="small" />
+                </button>
               </div>
             </>
           ) : (
@@ -1219,6 +1624,7 @@ const ChatPage = () => {
         onCreateChannel={handleCreateChannel}
         currentUserId={currentUserId}
         load={loadChannel}
+        chatMasterID={currentChatMasterID}
       />
     </div>
   );

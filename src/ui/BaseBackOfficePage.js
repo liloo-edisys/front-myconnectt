@@ -112,9 +112,10 @@ export default function BaseBackOfficePage(props) {
         <ContentRoute path="/customers" component={CustomersContainer} />
         <ContentRoute path="/setting" component={Setting} />
         <ContentRoute path="/messages" component={ChatPage} />
+        <ContentRoute path="/messages/:channelId" component={ChatPage} />
         <Redirect to="error/error-v1" />
       </Switch>
-      {location.pathname !== "/messages" && <ParentBubble />}
+      {/* {location.pathname !== "/messages" && <ParentBubble />} */}
     </Suspense>
   );
 }
