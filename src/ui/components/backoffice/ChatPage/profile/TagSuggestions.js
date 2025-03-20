@@ -293,60 +293,55 @@ const TagSuggestions = ({
   };
 
   // Fonction pour sélectionner un tag
-  // Fonction pour sélectionner un tag
-  // Fonction pour sélectionner un tag
-const handleSelectTag = (tag) => {
-  // Trouver le nœud correspondant pour obtenir son ID
-  const allNodes = [...filteredTags];
-  
-  // Fonction pour aplatir la hiérarchie et trouver tous les nœuds
-  const flattenHierarchy = (nodes) => {
-    let result = [];
-    nodes.forEach(node => {
-      result.push(node);
-      if (node.filteredChildren && node.filteredChildren.length > 0) {
-        result = [...result, ...flattenHierarchy(node.filteredChildren)];
+  const handleSelectTag = (tag) => {
+    const allNodes = [...filteredTags];
+
+    const flattenHierarchy = (nodes) => {
+      let result = [];
+      nodes.forEach((node) => {
+        result.push(node);
+        if (node.filteredChildren && node.filteredChildren.length > 0) {
+          result = [...result, ...flattenHierarchy(node.filteredChildren)];
+        }
+      });
+      return result;
+    };
+
+    const flatNodes = flattenHierarchy(allNodes);
+    const selectedNode = flatNodes.find((node) => node.path === tag);
+
+    if (selectedNode) {
+      // Créer le format de lien markdown COMPLET
+      const urlBase = window.location.origin;
+      const tagLink = `[${selectedNode.name}](${urlBase}/messages/${selectedNode.chatID})`;
+
+      // Trouver l'index du dernier # avant le curseur
+      const textBeforeCursor = message.substring(0, cursorPosition);
+      const lastHashIndex = textBeforeCursor.lastIndexOf("#");
+
+      if (lastHashIndex === -1) {
+        console.warn("No # found before cursor");
+        return;
       }
-    });
-    return result;
-  };
-  
-  const flatNodes = flattenHierarchy(allNodes);
-  const selectedNode = flatNodes.find(node => node.path === tag);
-  
-  if (selectedNode) {
-    // Créer le format de lien markdown
-    const urlBase = window.location.origin; // URL de base de votre application
-    const tagLink = `[${selectedNode.name}](${urlBase}/messages/${selectedNode.chatID})`;
-    
-    // Trouver l'index du dernier # avant le curseur
-    const textBeforeCursor = message.substring(0, cursorPosition);
-    const lastHashIndex = textBeforeCursor.lastIndexOf("#");
 
-    if (lastHashIndex === -1) {
-      console.warn("No # found before cursor");
-      return;
+      // Remplacer le texte entre # et le curseur par le lien markdown COMPLET
+      const textBeforeHash = message.substring(0, lastHashIndex);
+      const textAfterCursor = message.substring(cursorPosition);
+
+      // Construire le nouveau message avec le lien markdown
+      const updatedMessage = `${textBeforeHash}${tagLink} ${textAfterCursor}`;
+
+      // Passer le message mis à jour à la fonction de rappel
+      onSelectTag(updatedMessage);
+      setIsVisible(false);
+
+      console.log("Tag inséré comme lien markdown:", tagLink);
+    } else {
+      // Comportement par défaut si le nœud n'est pas trouvé
+      onSelectTag(tag);
+      setIsVisible(false);
     }
-
-    // Remplacer le texte entre # et le curseur par le lien markdown
-    const textBeforeHash = message.substring(0, lastHashIndex);
-    const textAfterCursor = message.substring(cursorPosition);
-
-    // Construire le nouveau message avec le lien markdown
-    const updatedMessage = `${textBeforeHash}${tagLink} ${textAfterCursor}`;
-    
-    // Passer le message mis à jour à la fonction de rappel
-    onSelectTag(updatedMessage);
-    setIsVisible(false);
-    
-    // Log pour débogage
-    console.log("Tag inséré comme lien:", tagLink);
-  } else {
-    // Comportement par défaut si le nœud n'est pas trouvé
-    onSelectTag(tag);
-    setIsVisible(false);
-  }
-};
+  };
 
   // Ajouter un écouteur d'événements pour les touches fléchées
   useEffect(() => {

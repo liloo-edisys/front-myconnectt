@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Search, Send, Add, MoreVert } from "@material-ui/icons";
 import ProfileModal from "./profile/ProfileModal";
 import UserSelectionModal from "./profile/UserSelectionModal";
@@ -89,14 +89,18 @@ const ChatPage = () => {
   }, [selectedChat]);
 
   const convertMarkdownLinks = (text) => {
-    // Regex pour trouver les liens markdown comme [texte](url)
     const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
 
-    // Remplacer tous les liens markdown par des liens HTML
-    return text.replace(
-      linkRegex,
-      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
-    );
+    return text.replace(linkRegex, (match, text, url) => {
+      // Si l'URL contient '/messages/', c'est un lien interne
+      if (url.includes("/messages/")) {
+        // On ajoute la classe 'internal-link' pour l'identifier facilement
+        return `<a href="${url}" class="internal-link" data-internal="true">#${text}</a>`;
+      }
+
+      // Comportement par défaut pour les autres liens (liens externes)
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer">#${text}</a>`;
+    });
   };
 
   // Et dans la partie d'affichage de votre message, utilisez quelque chose comme:
@@ -283,8 +287,31 @@ const ChatPage = () => {
     e.preventDefault();
     if (!newMessage?.trim() || !selectedChat) return;
 
-    setLoading(true);
+    // Pas de loading général pour ne pas perturber l'UX
+    // setLoading(true); -> supprimé pour éviter d'affecter l'UX
+
+    // Conserver une copie du message pour pouvoir l'ajouter optimistiquement
+    const messageContent = newMessage.trim();
+
     try {
+      // Transformer les tags #Tag en liens markdown
+      const transformedMessage = newMessage.replace(
+        /#(\w+)/g,
+        (match, tagName) => {
+          // Rechercher le tag correspondant dans la liste complète des tags
+          const matchingTag = allTags.find(
+            (tag) => tag.name.toLowerCase() === tagName.toLowerCase()
+          );
+
+          return matchingTag
+            ? `[${tagName}](${window.location.origin}/messages/${matchingTag.chatID})`
+            : match;
+        }
+      );
+
+      // Vider le champ de message immédiatement pour améliorer la réactivité
+      setNewMessage("");
+
       // Vérifier d'abord si le chat sélectionné est un canal
       const selectedChannelData = flattenedChannels.find(
         (chan) => Number(chan.id) === Number(selectedChat)
@@ -294,12 +321,38 @@ const ChatPage = () => {
         // Envoyer un message au canal avec sendMessageToChannel
         const messageData = {
           chatID: selectedChat,
-          message: newMessage.trim(),
+          message: transformedMessage.trim(),
         };
 
         await chatService.sendMessageToChannel(messageData);
-        setNewMessage("");
-        await loadChannel(); // Recharger les canaux après envoi
+
+        // Récupérer les messages mis à jour sans indicateur de chargement
+        try {
+          // Pas d'indicateur de chargement pour préserver l'UX
+          const messagesResponse = await chatService.getChannelMessages(
+            selectedChat
+          );
+
+          if (
+            messagesResponse &&
+            messagesResponse.data &&
+            messagesResponse.data.messages
+          ) {
+            setChannelMessages(messagesResponse.data.messages);
+          } else if (
+            messagesResponse &&
+            messagesResponse.data &&
+            Array.isArray(messagesResponse.data)
+          ) {
+            setChannelMessages(messagesResponse.data);
+          }
+        } catch (error) {
+          console.error(
+            "Erreur lors de la récupération des messages du canal après envoi:",
+            error
+          );
+          // On ne montre pas d'erreur pour préserver l'UX
+        }
       } else {
         // Récupérer le chat sélectionné
         const currentChat = chats?.find(
@@ -315,11 +368,10 @@ const ChatPage = () => {
           // Utiliser la fonction existante pour envoyer un message à un groupe
           const messageData = {
             chatID: selectedChat,
-            message: newMessage.trim(),
+            message: transformedMessage.trim(),
           };
 
           await chatService.sendMessageToGroup(messageData);
-          setNewMessage("");
         } else {
           // Pour une conversation individuelle, utiliser l'endpoint existant
           // Récupérer l'utilisateur avec chatUserRole: 1 (l'administrateur)
@@ -331,103 +383,273 @@ const ChatPage = () => {
 
           // Préparer les données du message avec l'ID de l'admin comme destinataire
           const messageData = messageUtils.formatChatRequest(
-            newMessage,
+            transformedMessage,
             adminUser.id
           );
           await chatService.sendBackofficeMessage(messageData);
-          setNewMessage("");
         }
 
-        await loadChats();
-      }
+        // Récupérer les messages mis à jour pour le chat normal
+        try {
+          // Pas d'indicateur de chargement pour préserver l'UX
+          const messagesResponse = await chatService.getChatMessages(
+            selectedChat
+          );
 
-      setNewMessage("");
+          if (messagesResponse && messagesResponse.data) {
+            // Mettre à jour le chat dans la liste des chats avec les nouveaux messages
+            const updatedChats = chats.map((c) => {
+              if (Number(c.id) === Number(selectedChat)) {
+                // S'assurer que le format des données est cohérent
+                const updatedMessages = Array.isArray(messagesResponse.data)
+                  ? messagesResponse.data
+                  : messagesResponse.data.messages || [];
+
+                return {
+                  ...c,
+                  messages: updatedMessages,
+                };
+              }
+              return c;
+            });
+
+            // Mettre à jour la liste complète des chats
+            setChats(updatedChats);
+          }
+        } catch (error) {
+          console.error(
+            "Erreur lors de la récupération des messages après envoi:",
+            error
+          );
+          // On ne montre pas d'erreur pour préserver l'UX
+        }
+      }
     } catch (err) {
+      console.error("Erreur lors de l'envoi du message:", err);
+      // Afficher une erreur de manière non intrusive (toast ou notification)
       setError("Erreur lors de l'envoi du message");
-      console.error("Error sending message:", err);
-    } finally {
-      setLoading(false);
+
+      // Si l'envoi échoue, remettre le message dans le champ de saisie
+      setNewMessage(messageContent);
     }
   };
 
-  const handleChatSelect = async (chatId) => {
-    // Convertir chatId en nombre pour assurer la compatibilité
-    const numericChatId = Number(chatId);
-    setSelectedChat(numericChatId);
-    console.log(" ------------ Chat sélectionné ------------ ", chatId);
+  const handleChatSelect = useCallback(
+    async (chatId) => {
+      // Convertir chatId en nombre pour assurer la compatibilité
+      const numericChatId = Number(chatId);
 
-    // Rediriger vers l'URL avec l'ID de la discussion
-    // Nous utilisons history de react-router pour naviguer
-    history.push(`/messages/${numericChatId}`);
+      // Si le chat est déjà sélectionné, pas besoin de refaire toute la procédure
+      if (Number(selectedChat) === numericChatId) {
+        return; // Sortir de la fonction tôt si c'est le même chat
+      }
 
-    // Vérifier d'abord si c'est un canal
-    const selectedChannelData = flattenedChannels.find(
-      (chan) => Number(chan.id) === numericChatId
-    );
+      // Mise à jour de la sélection
+      setSelectedChat(numericChatId);
+      console.log(" ------------ Chat sélectionné ------------ ", chatId);
 
-    if (selectedChannelData) {
-      // Si c'est un canal, charger les messages via le nouvel endpoint
+      // Rediriger vers l'URL avec l'ID de la discussion
+      // Nous utilisons history de react-router pour naviguer sans rechargement
+      history.push(`/messages/${numericChatId}`);
+
+      // Vérifier d'abord si c'est un canal
+      const selectedChannelData = flattenedChannels.find(
+        (chan) => Number(chan.id) === numericChatId
+      );
+
+      // Si c'est un canal et que l'onglet n'est pas "channels", changer l'onglet
+      if (selectedChannelData && activeTab !== "channels") {
+        setActiveTab("channels");
+      }
+
+      // Si ce n'est pas un canal et que l'onglet n'est pas "messages", changer l'onglet
+      if (!selectedChannelData && activeTab !== "messages") {
+        setActiveTab("messages");
+      }
+
+      // Mettre à jour le titre du document pour refléter la conversation actuelle
+      if (selectedChannelData) {
+        // Format pour les canaux : "Canal: [Nom du canal]"
+        document.title = `Canal: ${selectedChannelData.name}`;
+      } else {
+        // Pour les chats, on attend de récupérer les infos
+        const chat = chats?.find((c) => Number(c?.id) === numericChatId);
+        if (chat) {
+          const otherUser = getOtherUser(chat);
+          const chatName = chat.isGroup
+            ? chat?.groupName || "Groupe"
+            : otherUser?.userName || "Discussion";
+          // Format pour les conversations : "Chat avec: [Nom]"
+          document.title = `Chat avec: ${chatName}`;
+        }
+      }
+
+      if (selectedChannelData) {
+        // Si c'est un canal, charger les messages via l'endpoint des canaux
+        try {
+          setLoadingMessages(true);
+          const messagesResponse = await chatService.getChannelMessages(
+            numericChatId
+          );
+
+          console.log("Messages du canal récupérés:", messagesResponse.data);
+
+          if (
+            messagesResponse &&
+            messagesResponse.data &&
+            messagesResponse.data.messages
+          ) {
+            // La réponse contient un objet avec un tableau messages, on extrait ce tableau
+            setChannelMessages(messagesResponse.data.messages);
+          } else if (
+            messagesResponse &&
+            messagesResponse.data &&
+            Array.isArray(messagesResponse.data)
+          ) {
+            // La réponse est directement un tableau de messages
+            setChannelMessages(messagesResponse.data);
+          } else {
+            console.log("Format de réponse inattendu:", messagesResponse);
+            setChannelMessages([]);
+          }
+        } catch (error) {
+          console.error(
+            "Erreur lors du chargement des messages du canal:",
+            error
+          );
+          setError("Impossible de charger les messages du canal");
+          setChannelMessages([]);
+        } finally {
+          setLoadingMessages(false);
+        }
+        return;
+      }
+
+      // Réinitialiser les messages du canal si ce n'est pas un canal
+      setChannelMessages([]);
+
+      // Récupérer les informations de base sur la conversation
+      const chat = chats?.find((c) => Number(c?.id) === numericChatId);
+      if (!chat) return;
+
+      // Charger les messages via l'API pour les discussions normales
       try {
         setLoadingMessages(true);
-        const messagesResponse = await chatService.getChannelMessages(
+        console.log(
+          "Chargement des messages pour la discussion:",
           numericChatId
         );
 
-        console.log("Messages du canal récupérés:", messagesResponse.data);
+        const messagesResponse = await chatService.getChatMessages(
+          numericChatId
+        );
 
-        if (
-          messagesResponse &&
-          messagesResponse.data &&
-          messagesResponse.data.messages
-        ) {
-          // La réponse contient un objet avec un tableau messages, on extrait ce tableau
-          setChannelMessages(messagesResponse.data.messages);
-        } else if (
-          messagesResponse &&
-          messagesResponse.data &&
-          Array.isArray(messagesResponse.data)
-        ) {
-          // La réponse est directement un tableau de messages
-          setChannelMessages(messagesResponse.data);
-        } else {
-          console.log("Format de réponse inattendu:", messagesResponse);
-          setChannelMessages([]);
+        if (messagesResponse && messagesResponse.data) {
+          console.log(
+            "Messages de discussion récupérés:",
+            messagesResponse.data
+          );
+
+          // Mettre à jour le chat dans la liste des chats avec les nouveaux messages
+          const updatedChats = chats.map((c) => {
+            if (Number(c.id) === numericChatId) {
+              // S'assurer que le format des données est cohérent
+              const updatedMessages = Array.isArray(messagesResponse.data)
+                ? messagesResponse.data
+                : messagesResponse.data.messages || [];
+
+              return {
+                ...c,
+                messages: updatedMessages,
+              };
+            }
+            return c;
+          });
+
+          // Mettre à jour la liste complète des chats
+          setChats(updatedChats);
         }
       } catch (error) {
         console.error(
-          "Erreur lors du chargement des messages du canal:",
+          "Erreur lors du chargement des messages de la discussion:",
           error
         );
-        setError("Impossible de charger les messages du canal");
-        setChannelMessages([]);
+        setError("Impossible de charger les messages de la discussion");
       } finally {
         setLoadingMessages(false);
       }
-      return;
-    }
 
-    // Réinitialiser les messages du canal si ce n'est pas un canal
-    setChannelMessages([]);
-
-    // Sinon, c'est un chat normal
-    const chat = chats?.find((c) => Number(c?.id) === numericChatId);
-    if (!chat) return;
-
-    // Marquer les messages non lus comme lus
-    const unreadMessages = chat?.messages?.filter((msg) => !msg?.isRead);
-    if (unreadMessages && Array.isArray(unreadMessages)) {
-      for (const msg of unreadMessages) {
-        try {
-          await chatService.markMessageAsRead({
-            chatID: numericChatId,
-            messageID: msg?.id,
-          });
-        } catch (err) {
-          console.error("Error marking message as read:", err);
+      // Marquer les messages non lus comme lus
+      const unreadMessages = chat?.messages?.filter((msg) => !msg?.isRead);
+      if (unreadMessages && Array.isArray(unreadMessages)) {
+        for (const msg of unreadMessages) {
+          try {
+            await chatService.markMessageAsRead({
+              chatID: numericChatId,
+              messageID: msg?.id,
+            });
+          } catch (err) {
+            console.error("Error marking message as read:", err);
+          }
         }
       }
-    }
-  };
+    },
+    [
+      flattenedChannels,
+      chats,
+      history,
+      setError,
+      selectedChat,
+      activeTab,
+      getOtherUser,
+      setChats,
+    ]
+  );
+
+  useEffect(() => {
+    const handleLinkClick = (e) => {
+      // Vérifier si le clic est sur un lien interne
+      if (
+        e.target.tagName === "A" &&
+        e.target.classList.contains("internal-link")
+      ) {
+        e.preventDefault(); // Empêcher le comportement par défaut (rechargement de la page)
+
+        // Extraire l'ID de chat/canal de l'URL
+        const href = e.target.getAttribute("href");
+        const match = href.match(/\/messages\/(\d+)/);
+
+        if (match && match[1]) {
+          const chatId = Number(match[1]);
+
+          // Vérifier d'abord si c'est un canal
+          const isChannel = flattenedChannels.some(
+            (chan) => Number(chan.id) === chatId
+          );
+
+          // Si c'est un canal, activer l'onglet "channels"
+          if (isChannel && activeTab !== "channels") {
+            setActiveTab("channels");
+          }
+
+          // Mettre à jour l'URL sans recharger la page en utilisant history
+          history.push(`/messages/${chatId}`);
+
+          // Sélectionner le chat immédiatement (ce qui charge aussi les messages)
+          handleChatSelect(chatId);
+        }
+      }
+    };
+
+    // Ajouter l'écouteur d'événements à TOUS les conteneurs de messages
+    // pour couvrir à la fois les messages de canal et de chat normal
+    document.addEventListener("click", handleLinkClick, true);
+
+    // Nettoyage
+    return () => {
+      document.removeEventListener("click", handleLinkClick, true);
+    };
+  }, [flattenedChannels, activeTab, history, handleChatSelect]); //
 
   // Fonction utilitaire pour mettre à jour les canaux imbriqués
   const updateNestedChannel = (channels, targetId, messages) => {
@@ -1214,7 +1436,10 @@ const ChatPage = () => {
                     >
                       <span>#</span>
                     </div>
-                    <div>
+                    <div style={{ marginRight: "8px" }}>
+                      <h5 className="mb-0 fw-bold">
+                        {selectedChannelData.name}
+                      </h5>
                       <div className="text-muted small ml-3">
                         {selectedChannelData.level > 0
                           ? selectedChannelData.parentName
@@ -1266,11 +1491,11 @@ const ChatPage = () => {
                               .toUpperCase()}
                       </div>
                       <div>
-                        <div className="fw-bold ml-3">
+                        <h5 className="fw-bold mb-0">
                           {selectedChatData.isGroup
                             ? selectedChatData.groupName
                             : getOtherUser(selectedChatData)?.userName}
-                        </div>
+                        </h5>
                         <div className="text-muted small ml-3">
                           {selectedChatData.isGroup
                             ? `${selectedChatData.users?.length ||
@@ -1377,7 +1602,12 @@ const ChatPage = () => {
                                   </small>
                                 </div>
                                 <div className="p-2 rounded-3 bg-white mt-1">
-                                  {msg.message}
+                                  <div
+                                    className="message-content"
+                                    dangerouslySetInnerHTML={{
+                                      __html: convertMarkdownLinks(msg.message),
+                                    }}
+                                  />
                                 </div>
                               </div>
                             </div>
@@ -1470,12 +1700,7 @@ const ChatPage = () => {
                                 : "18px 18px 18px 4px",
                             }}
                           >
-                            <div
-                              className="message-content"
-                              dangerouslySetInnerHTML={{
-                                __html: convertMarkdownLinks(msg.message),
-                              }}
-                            />
+                            {msg.message}
                           </div>
                           <div
                             className={`text-muted small mt-1 ${
@@ -1488,30 +1713,6 @@ const ChatPage = () => {
                             })}
                           </div>
                         </div>
-
-                        {/* Avatar pour messages envoyés (à droite) */}
-                        {isFromCurrentUser && showAvatar && (
-                          <div className="ms-2 align-self-end">
-                            <div
-                              className="rounded-circle text-white d-flex align-items-center justify-content-center"
-                              style={{
-                                width: "32px",
-                                height: "32px",
-                                backgroundColor: generateAvatarColor(
-                                  messageSender?.userName || "?"
-                                ),
-                                fontSize: "14px",
-                              }}
-                            >
-                              {(messageSender?.userName || "?")
-                                .charAt(0)
-                                .toUpperCase()}
-                            </div>
-                          </div>
-                        )}
-                        {isFromCurrentUser && !showAvatar && (
-                          <div style={{ width: "32px" }} className="ms-2"></div>
-                        )}
                       </div>
                     );
                   })
