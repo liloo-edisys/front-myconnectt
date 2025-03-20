@@ -167,7 +167,7 @@ export function UserNotificationsDropdown() {
           className="btn btn-icon btn-lg mr-1 pulse pulse-primary"
           id="kt_quick_notifications_toggle"
         >
-          <Link to="/contact" className="svg-icon svg-icon-xl svg-icon-primary">
+          <Link to="/messages" className="svg-icon svg-icon-xl svg-icon-primary">
             <OverlayTrigger
               placement="bottom"
               overlay={
