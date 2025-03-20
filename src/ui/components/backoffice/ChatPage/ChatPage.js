@@ -573,7 +573,7 @@ const ChatPage = () => {
       // Mettre à jour le titre du document pour refléter la conversation actuelle
       if (selectedChannelData) {
         // Format pour les canaux : "Canal: [Nom du canal]"
-        document.title = `Canal: ${selectedChannelData.name}`;
+        // document.title = `Canal: ${selectedChannelData.name}`;
       } else {
         // Pour les chats, on attend de récupérer les infos
         const chat = chats?.find((c) => Number(c?.id) === Number(chatId));
@@ -583,7 +583,7 @@ const ChatPage = () => {
             ? chat?.groupName || "Groupe"
             : otherUser?.userName || "Discussion";
           // Format pour les conversations : "Chat avec: [Nom]"
-          document.title = `Chat avec: ${chatName}`;
+          // document.title = `Chat avec: ${chatName}`;
         }
       }
 
