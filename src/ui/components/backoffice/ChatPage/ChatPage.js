@@ -43,6 +43,8 @@ const ChatPage = () => {
   const [channelMessages, setChannelMessages] = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
 
+  const [temporaryChats, setTemporaryChats] = useState([]);
+
   useEffect(() => {
     if (channelId && chats.length > 0) {
       // Si un ID est présent dans l'URL et que les chats sont chargés
@@ -219,30 +221,58 @@ const ChatPage = () => {
 
       // Vérifier si la réponse existe et contient des données
       if (response && response.data) {
-        setChats(response.data);
+        // Combiner les chats de l'API avec les chats temporaires
+        // En évitant les doublons basés sur l'ID
+        const apiChats = response.data || [];
+
+        // Conserver uniquement les chats temporaires dont l'ID ne figure pas dans l'API
+        // (car ils sont marqués avec un préfixe 'temp_', il n'y aura pas de conflit)
+        const combinedChats = [...temporaryChats, ...apiChats];
+
+        setChats(combinedChats);
       } else {
-        // Si pas de réponse ou données vides, initialiser avec un tableau vide
-        setChats([]);
+        // Si pas de réponse ou données vides, utiliser uniquement les chats temporaires
+        setChats([...temporaryChats]);
       }
     } catch (err) {
       setError("Erreur lors du chargement des conversations");
       console.error("Error loading chats:", err);
-      // En cas d'erreur, initialiser également avec un tableau vide
-      setChats([]);
+      // En cas d'erreur, conserver au moins les chats temporaires
+      setChats([...temporaryChats]);
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    // Sauvegarder les chats temporaires dans le localStorage
+    if (temporaryChats.length > 0) {
+      localStorage.setItem("temporaryChats", JSON.stringify(temporaryChats));
+    }
+  }, [temporaryChats]);
+
+  // Ajouter un useEffect pour charger les chats temporaires au démarrage
+  useEffect(() => {
+    const savedTemporaryChats = localStorage.getItem("temporaryChats");
+    if (savedTemporaryChats) {
+      try {
+        const parsedChats = JSON.parse(savedTemporaryChats);
+        setTemporaryChats(parsedChats);
+      } catch (e) {
+        console.error("Erreur lors du chargement des chats temporaires:", e);
+      }
+    }
+  }, []);
+
   const loadChannel = async () => {
     try {
       setLoading(true);
-      console.log("Chargement des canaux...");
+      // console.log("Chargement des canaux...");
       const response = await chatService.getChannel();
 
       // Vérifier si la réponse existe et contient des données
       if (response && response.data) {
-        console.log("Canaux chargés avec succès:", response.data);
+        // console.log("Canaux chargés avec succès:", response.data);
         setChannel(response.data);
 
         // Mettre à jour également les canaux aplatis
@@ -303,15 +333,18 @@ const ChatPage = () => {
     e.preventDefault();
     if (!newMessage?.trim() || !selectedChat) return;
 
-    // Pas de loading général pour ne pas perturber l'UX
-    // setLoading(true); -> supprimé pour éviter d'affecter l'UX
-
     // Conserver une copie du message pour pouvoir l'ajouter optimistiquement
     const messageContent = newMessage.trim();
 
+    // Vider le champ de message immédiatement pour améliorer la réactivité
+    setNewMessage("");
+
+    // Vérifier si c'est un chat temporaire (ID commence par "temp_")
+    const isTemporaryChat = String(selectedChat).startsWith("temp_");
+
     try {
       // Transformer les tags #Tag en liens markdown
-      const transformedMessage = newMessage.replace(
+      const transformedMessage = messageContent.replace(
         /#(\w+)/g,
         (match, tagName) => {
           // Rechercher le tag correspondant dans la liste complète des tags
@@ -325,8 +358,44 @@ const ChatPage = () => {
         }
       );
 
-      // Vider le champ de message immédiatement pour améliorer la réactivité
-      setNewMessage("");
+      if (isTemporaryChat) {
+        // Pour les chats temporaires, on simule l'envoi en ajoutant le message localement
+        const newMsg = {
+          id: `temp_msg_${Date.now()}`,
+          message: transformedMessage,
+          sentAt: new Date().toISOString(),
+          byUserID: currentUserId,
+          isRead: true,
+        };
+
+        // Mettre à jour les chats temporaires et la liste des chats
+        const updatedTemporaryChats = temporaryChats.map((chat) => {
+          if (chat.id === selectedChat) {
+            return {
+              ...chat,
+              messages: [...(chat.messages || []), newMsg],
+            };
+          }
+          return chat;
+        });
+
+        setTemporaryChats(updatedTemporaryChats);
+
+        // Mettre également à jour la liste principale des chats
+        setChats((prevChats) =>
+          prevChats.map((chat) => {
+            if (chat.id === selectedChat) {
+              return {
+                ...chat,
+                messages: [...(chat.messages || []), newMsg],
+              };
+            }
+            return chat;
+          })
+        );
+
+        return; // Sortir tôt, pas besoin d'appeler l'API
+      }
 
       // Vérifier d'abord si le chat sélectionné est un canal
       const selectedChannelData = flattenedChannels.find(
@@ -337,14 +406,13 @@ const ChatPage = () => {
         // Envoyer un message au canal avec sendMessageToChannel
         const messageData = {
           chatID: selectedChat,
-          message: transformedMessage.trim(),
+          message: transformedMessage,
         };
 
         await chatService.sendMessageToChannel(messageData);
 
         // Récupérer les messages mis à jour sans indicateur de chargement
         try {
-          // Pas d'indicateur de chargement pour préserver l'UX
           const messagesResponse = await chatService.getChannelMessages(
             selectedChat
           );
@@ -384,7 +452,7 @@ const ChatPage = () => {
           // Utiliser la fonction existante pour envoyer un message à un groupe
           const messageData = {
             chatID: selectedChat,
-            message: transformedMessage.trim(),
+            message: transformedMessage,
           };
 
           await chatService.sendMessageToGroup(messageData);
@@ -407,7 +475,6 @@ const ChatPage = () => {
 
         // Récupérer les messages mis à jour pour le chat normal
         try {
-          // Pas d'indicateur de chargement pour préserver l'UX
           const messagesResponse = await chatService.getChatMessages(
             selectedChat
           );
@@ -442,7 +509,7 @@ const ChatPage = () => {
       }
     } catch (err) {
       console.error("Erreur lors de l'envoi du message:", err);
-      // Afficher une erreur de manière non intrusive (toast ou notification)
+      // Afficher une erreur de manière non intrusive
       setError("Erreur lors de l'envoi du message");
 
       // Si l'envoi échoue, remettre le message dans le champ de saisie
@@ -452,25 +519,45 @@ const ChatPage = () => {
 
   const handleChatSelect = useCallback(
     async (chatId) => {
-      // Convertir chatId en nombre pour assurer la compatibilité
-      const numericChatId = Number(chatId);
+      // Convertir chatId en valeur pour compatibilité (sans Number() pour les chats temporaires)
+      const chatIdValue = String(chatId);
+      const isTemporaryChat = chatIdValue.startsWith("temp_");
 
       // Si le chat est déjà sélectionné, pas besoin de refaire toute la procédure
-      if (Number(selectedChat) === numericChatId) {
+      if (String(selectedChat) === chatIdValue) {
         return; // Sortir de la fonction tôt si c'est le même chat
       }
 
       // Mise à jour de la sélection
-      setSelectedChat(numericChatId);
+      setSelectedChat(chatIdValue);
       console.log(" ------------ Chat sélectionné ------------ ", chatId);
 
       // Rediriger vers l'URL avec l'ID de la discussion
-      // Nous utilisons history de react-router pour naviguer sans rechargement
-      history.push(`/messages/${numericChatId}`);
+      history.push(`/messages/${chatIdValue}`);
+
+      // Pour les chats temporaires, activer toujours l'onglet "messages"
+      if (isTemporaryChat && activeTab !== "messages") {
+        setActiveTab("messages");
+
+        // Réinitialiser les messages du canal
+        setChannelMessages([]);
+
+        // Mettre à jour le titre du document pour un chat temporaire
+        const tempChat = temporaryChats.find((chat) => chat.id === chatIdValue);
+        if (tempChat) {
+          const otherUser = getOtherUser(tempChat);
+          document.title = `Chat temporaire avec: ${otherUser?.userName ||
+            "Utilisateur"}`;
+        }
+
+        return; // Pas besoin d'aller plus loin pour les chats temporaires
+      }
+
+      // À partir d'ici, c'est un chat normal ou un canal (pas temporaire)
 
       // Vérifier d'abord si c'est un canal
       const selectedChannelData = flattenedChannels.find(
-        (chan) => Number(chan.id) === numericChatId
+        (chan) => Number(chan.id) === Number(chatId)
       );
 
       // Si c'est un canal et que l'onglet n'est pas "channels", changer l'onglet
@@ -489,7 +576,7 @@ const ChatPage = () => {
         document.title = `Canal: ${selectedChannelData.name}`;
       } else {
         // Pour les chats, on attend de récupérer les infos
-        const chat = chats?.find((c) => Number(c?.id) === numericChatId);
+        const chat = chats?.find((c) => Number(c?.id) === Number(chatId));
         if (chat) {
           const otherUser = getOtherUser(chat);
           const chatName = chat.isGroup
@@ -505,7 +592,7 @@ const ChatPage = () => {
         try {
           setLoadingMessages(true);
           const messagesResponse = await chatService.getChannelMessages(
-            numericChatId
+            Number(chatId)
           );
 
           console.log("Messages du canal récupérés:", messagesResponse.data);
@@ -544,20 +631,17 @@ const ChatPage = () => {
       // Réinitialiser les messages du canal si ce n'est pas un canal
       setChannelMessages([]);
 
-      // Récupérer les informations de base sur la conversation
-      const chat = chats?.find((c) => Number(c?.id) === numericChatId);
+      // Sinon, c'est un chat normal
+      const chat = chats?.find((c) => Number(c?.id) === Number(chatId));
       if (!chat) return;
 
       // Charger les messages via l'API pour les discussions normales
       try {
         setLoadingMessages(true);
-        console.log(
-          "Chargement des messages pour la discussion:",
-          numericChatId
-        );
+        console.log("Chargement des messages pour la discussion:", chatId);
 
         const messagesResponse = await chatService.getChatMessages(
-          numericChatId
+          Number(chatId)
         );
 
         if (messagesResponse && messagesResponse.data) {
@@ -568,7 +652,7 @@ const ChatPage = () => {
 
           // Mettre à jour le chat dans la liste des chats avec les nouveaux messages
           const updatedChats = chats.map((c) => {
-            if (Number(c.id) === numericChatId) {
+            if (Number(c.id) === Number(chatId)) {
               // S'assurer que le format des données est cohérent
               const updatedMessages = Array.isArray(messagesResponse.data)
                 ? messagesResponse.data
@@ -601,7 +685,7 @@ const ChatPage = () => {
         for (const msg of unreadMessages) {
           try {
             await chatService.markMessageAsRead({
-              chatID: numericChatId,
+              chatID: Number(chatId),
               messageID: msg?.id,
             });
           } catch (err) {
@@ -613,6 +697,7 @@ const ChatPage = () => {
     [
       flattenedChannels,
       chats,
+      temporaryChats,
       history,
       setError,
       selectedChat,
@@ -934,13 +1019,15 @@ const ChatPage = () => {
       const selectedUser = selectedData.users[0];
 
       // Générer un ID temporaire unique pour cette conversation
-      const tempChatId = Date.now();
+      // Utilisez un préfixe pour distinguer facilement les IDs temporaires
+      const tempChatId = `temp_${Date.now()}`;
 
       // Créer un nouvel objet de conversation avec structure compatible
       const newChat = {
         id: tempChatId,
         isGroup: false,
         groupName: null,
+        isTemporary: true, // Marquer comme temporaire pour préservation lors du rechargement
         users: [
           // L'utilisateur sélectionné avec le rôle admin (1)
           {
@@ -951,14 +1038,17 @@ const ChatPage = () => {
           // L'utilisateur actuel
           {
             id: currentUserId,
-            userName: user?.fullName || "", // Utiliser le nom complet si disponible
+            userName: user?.fullName || "Vous", // Utiliser le nom complet si disponible
             chatUserRole: 2,
           },
         ],
         messages: [], // Pas de messages initiaux
       };
 
-      // Ajouter la nouvelle conversation à la liste
+      // Ajouter aux chats temporaires
+      setTemporaryChats((prevTempChats) => [...prevTempChats, newChat]);
+
+      // Ajouter également à la liste des chats normaux
       setChats((prevChats) => [newChat, ...prevChats]);
 
       // Sélectionner automatiquement cette nouvelle conversation
@@ -969,41 +1059,8 @@ const ChatPage = () => {
         setActiveTab("messages");
       }
     } else {
-      // Pour les groupes, continuer avec le code existant qui fait des appels API
-      selectedData.users.forEach(async (user) => {
-        try {
-          // Utiliser l'ID utilisateur depuis Redux si disponible, sinon depuis localStorage
-          const userID = currentUserId || localStorage.getItem("userId");
-
-          if (!userID) {
-            throw new Error("Utilisateur non identifié");
-          }
-
-          const createGroupData = messageUtils.formatCreateGroup(
-            selectedData.groupName || user.name,
-            Number(userID),
-            [user.id],
-            selectedData.isGroup // true pour groupe, false pour 1:1
-          );
-
-          const groupResult = await chatService.createGroup(createGroupData);
-          if (groupResult && groupResult.data) {
-            const chatId = groupResult.data.id || groupResult.data.chatID;
-            await loadChats();
-            handleChatSelect(chatId);
-
-            // Basculer sur l'onglet approprié
-            if (selectedData.isGroup && activeTab !== "channels") {
-              setActiveTab("channels");
-            } else if (!selectedData.isGroup && activeTab !== "messages") {
-              setActiveTab("messages");
-            }
-          }
-        } catch (err) {
-          setError("Erreur lors de la création d'une nouvelle conversation");
-          console.error("Error creating new chat:", err);
-        }
-      });
+      // Pour les groupes ou plusieurs utilisateurs, afficher un message d'erreur
+      setError("La création de groupes n'est pas supportée dans cette version");
     }
   };
 
@@ -1034,15 +1091,27 @@ const ChatPage = () => {
 
   useEffect(() => {
     loadChats();
-    loadChannel();
     // Set up interval to refresh every 15 seconds
     const interval = setInterval(() => {
       if (!loading) {
         console.log("Refreshing chats and channels...");
         loadChats();
-        loadChannel();
       }
     }, 40000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    loadChannel();
+    // Set up interval to refresh every 15 seconds
+    const interval = setInterval(() => {
+      if (!loading) {
+        console.log("Refreshing chats and channels...");
+        loadChannel();
+      }
+    }, 10000);
 
     // Clean up interval on component unmount
     return () => clearInterval(interval);
