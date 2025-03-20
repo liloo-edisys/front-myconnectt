@@ -25,14 +25,15 @@ import { Calendar } from "./components/client/calendar";
 import { HoursStatement } from "./components/client/hours-statement";
 import CustomerOrderPage from "./components/client/customer-order/CustomerOrderPage";
 import Reciepts from "./components/client/missions/reciepts/Reciepts";
-import MetronicChat from './components/shared/MetronicChat';
+import MetronicChat from "./components/shared/MetronicChat";
+import ChatPageClient from "./components/client/messages/ChatPageClient";
 
 export default function BasePage(props) {
   const dispatch = useDispatch();
   const { user, mission } = useSelector(
-    state => ({
+    (state) => ({
       user: state.auth.user,
-      mission: state.missionsReducerData.mission
+      mission: state.missionsReducerData.mission,
     }),
     shallowEqual
   );
@@ -76,7 +77,7 @@ export default function BasePage(props) {
 
         <ContentRoute
           path="/mission-create"
-          component={props => (
+          component={(props) => (
             <MissionWizardForm
               userDetails={user}
               mission={mission}
@@ -99,9 +100,10 @@ export default function BasePage(props) {
           path="/customer-order/:missionId"
           component={CustomerOrderPage}
         />
+        <ContentRoute path="/messages" component={ChatPageClient} />
         <Redirect to="error/error-v1" />
       </Switch>
-      <MetronicChat/>
+      <MetronicChat />
     </Suspense>
   );
 }
