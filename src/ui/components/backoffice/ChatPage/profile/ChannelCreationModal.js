@@ -35,20 +35,20 @@ const ChannelCreationModal = ({
       alert("Veuillez entrer un nom pour le canal");
       return;
     }
-  
+
     // Activer les états de chargement
     setLoading(true);
     setCreating(true);
-  
+
     try {
       // Préparer les données pour la création du canal
       const channelData = {
         name: channelName.trim(),
         chatMasterID: chatMasterID || null,
       };
-  
+
       console.log("Création de canal avec les données:", channelData);
-  
+
       // Appel à l'API pour créer le canal
       const response = await axios.post(
         `${API_URL}api/Chat/channel`,
@@ -60,9 +60,9 @@ const ChannelCreationModal = ({
           },
         }
       );
-  
+
       console.log("Réponse de création:", response.data);
-  
+
       // Notifier le composant parent avec les informations du canal créé
       if (response.data) {
         const newChannelData = {
@@ -77,16 +77,16 @@ const ChannelCreationModal = ({
             };
           }),
         };
-        
+
         // Attendre que le composant parent ait reçu les informations
         await onCreateChannel(newChannelData);
-        
+
         // Puis appeler loadChannels de manière asynchrone
         if (typeof loadChannels === "function") {
           await loadChannels();
         }
       }
-      
+
       // Fermer le modal une fois tout terminé
       onClose();
     } catch (error) {
@@ -182,16 +182,23 @@ const ChannelCreationModal = ({
           </div>
         )}
 
-        {/* Titre du modal */}
-        <div className="pb-3 mb-3 border-bottom">
-          <h5 className="mb-0 text-center">Créer un nouveau canal</h5>
-        </div>
+        {chatMasterID === null ? (
+          <h5 className="mb-0 text-center">Créer un nouveau dossier</h5>
+        ) : (
+          <h5 className="mb-0 text-center">Créer un sous-dossier</h5>
+        )}
 
         {/* Nom du canal */}
         <div className="mb-4">
-          <label htmlFor="channel-name" className="form-label fw-medium">
-            Nom du canal
-          </label>
+          {chatMasterID === null ? (
+            <label htmlFor="channel-name" className="form-label fw-medium">
+              Nom du dossier
+            </label>
+          ) : (
+            <label htmlFor="channel-name" className="form-label fw-medium">
+              Nom du sous-dossier
+            </label>
+          )}
           <div className="input-group">
             <span className="input-group-text bg-light border-end-0">
               <Label fontSize="small" style={{ color: "#6c757d" }} />
@@ -222,6 +229,7 @@ const ChannelCreationModal = ({
           <button
             type="button"
             className="btn btn-primary px-4"
+            style={{ marginLeft: "8px" }}
             onClick={handleCreateChannel}
             disabled={!channelName.trim() || loading || creating}
           >
@@ -235,7 +243,7 @@ const ChannelCreationModal = ({
                 Création...
               </>
             ) : (
-              "Créer le canal"
+              "Créer"
             )}
           </button>
         </div>
