@@ -17,6 +17,10 @@ export const chatService = {
     return axios.get(`${API_URL}api/Chat/channel/tags`);
   },
 
+  getAllAdmin: () => {
+    return axios.get(`${API_URL}api/User/backoffice`);
+  },
+
   getSpecificChat: async (chatId) => {
     try {
       const response = await axios.get(`${API_URL}/api/chats/${chatId}`);

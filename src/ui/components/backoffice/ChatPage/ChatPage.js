@@ -45,6 +45,33 @@ const ChatPage = () => {
 
   const [temporaryChats, setTemporaryChats] = useState([]);
 
+  const [adminList, setAdminList] = useState([]);
+  const [loadingAdmins, setLoadingAdmins] = useState(false);
+
+  const loadAdmins = async () => {
+    try {
+      setLoadingAdmins(true);
+      const response = await chatService.getAllAdmin();
+
+      if (response && response.data) {
+        setAdminList(response.data);
+      } else {
+        console.warn("Aucun administrateur trouvé");
+        setAdminList([]);
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des administrateurs:", error);
+      setAdminList([]);
+    } finally {
+      setLoadingAdmins(false);
+    }
+  };
+
+  // Charger les admins au montage du composant
+  useEffect(() => {
+    loadAdmins();
+  }, []);
+
   useEffect(() => {
     if (channelId && chats.length > 0) {
       // Si un ID est présent dans l'URL et que les chats sont chargés
@@ -1168,7 +1195,7 @@ const ChatPage = () => {
                 }}
                 title={
                   activeTab === "channels"
-                    ? "Nouveau canal"
+                    ? "Nouveau dossier"
                     : "Nouvelle conversation"
                 }
               >
@@ -1198,7 +1225,7 @@ const ChatPage = () => {
                 onClick={() => setActiveTab("channels")}
               >
                 <i className="bi bi-hash me-2"></i>
-                Canaux
+                Dossiers
               </button>
             </div>
 
@@ -1240,13 +1267,13 @@ const ChatPage = () => {
                         style={{ fontSize: "2rem" }}
                       ></i>
                     </div>
-                    <p>Aucun canal trouvé</p>
+                    <p>Aucun dossier trouvé</p>
                     <button
                       className="btn btn-sm btn-outline-primary mt-2"
                       onClick={() => setIsChannelModalOpen(true)}
                     >
                       <i className="bi bi-plus-circle me-1"></i>
-                      Nouveau canal
+                      Nouveau dossier
                     </button>
                   </div>
                 ) : (
@@ -1666,15 +1693,33 @@ const ChatPage = () => {
                                   backgroundColor: generateAvatarColor(
                                     senderName
                                   ),
+                                  color: "#b8b8b8",
                                   fontSize: "14px",
+                                  marginRight: "8px",
                                 }}
                               >
-                                {senderName.charAt(0).toUpperCase()}
+                                <span className="text-muted ">
+                                  {senderName.charAt(0).toUpperCase()}
+                                </span>
                               </div>
                               <div>
-                                <div className="d-flex align-items-center">
-                                  <span className="fw-bold">{senderName}</span>
-                                  <small className="text-muted ms-2">
+                                <div className="d-flex ">
+                                  <span className="fw-bold">
+                                    {(() => {
+                                      const admin = adminList.find(
+                                        (admin) =>
+                                          Number(admin.id) ===
+                                          Number(msg.byUserID)
+                                      );
+                                      return admin
+                                        ? `${admin.firstname} ${admin.lastname}`
+                                        : senderName;
+                                    })()}
+                                  </span>
+                                  <small
+                                    className="text-muted "
+                                    style={{ marginLeft: "8px", font: "black" }}
+                                  >
                                     {new Date(msg.sentAt).toLocaleTimeString(
                                       [],
                                       {
@@ -1884,7 +1929,7 @@ const ChatPage = () => {
                   <i className="bi bi-plus-circle me-2"></i>
                   {activeTab === "messages"
                     ? "Nouvelle conversation"
-                    : "Nouveau canal"}
+                    : "Nouveau dossier"}
                 </button>
               </div>
             </div>
