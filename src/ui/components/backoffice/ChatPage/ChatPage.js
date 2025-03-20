@@ -5,7 +5,6 @@ import UserSelectionModal from "./profile/UserSelectionModal";
 import ChannelCreationModal from "./profile/ChannelCreationModal";
 import TagSuggestions from "./profile/TagSuggestions";
 import { chatService, messageUtils } from "./chatService";
-import signalRService from "./signalrServices";
 import { shallowEqual, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 
@@ -81,13 +80,13 @@ const ChatPage = () => {
 
   // Dans loadTags, assurez-vous de bien tracer les erreurs
   const loadTags = async () => {
-    console.log("Loading tags...");
+    // console.log("Loading tags...");
     setIsLoadingTags(true);
     setTagsError(null);
 
     try {
       const response = await chatService.getChannelTags();
-      console.log("API response:", response);
+      // console.log("API response:", response);
 
       if (response && response.data) {
         // Passer les données brutes au composant TagSuggestions
@@ -152,7 +151,7 @@ const ChatPage = () => {
     // Activer les suggestions si on vient de taper # ou si on est en train de taper après un #
     if (isPreviousCharHash || noSpaceBetween) {
       if (!showTagSuggestions) {
-        console.log("Showing tag suggestions");
+        // console.log("Showing tag suggestions");
         loadTags(); // Recharger les tags à chaque fois qu'on ouvre le modal
       }
       setShowTagSuggestions(true);
@@ -224,12 +223,12 @@ const ChatPage = () => {
   useEffect(() => {
     if (user?.userID) {
       setCurrentUserId(Number(user.userID));
-      console.log("User ID from Redux:", user.userID);
+      // console.log("User ID from Redux:", user.userID);
     } else {
       // Fallback à localStorage si user.userID n'est pas disponible
       const localStorageUserID = localStorage.getItem("userId");
       setCurrentUserId(localStorageUserID ? Number(localStorageUserID) : null);
-      console.log("User ID from localStorage:", localStorageUserID);
+      // console.log("User ID from localStorage:", localStorageUserID);
     }
   }, [user]);
 
@@ -328,7 +327,7 @@ const ChatPage = () => {
 
   // Fonction pour gérer la création d'un canal
   const handleCreateChannel = async (channelData) => {
-    console.log("Canal créé:", channelData);
+    // console.log("Canal créé:", channelData);
     setLoading(true);
 
     try {
@@ -557,7 +556,7 @@ const ChatPage = () => {
 
       // Mise à jour de la sélection
       setSelectedChat(chatIdValue);
-      console.log(" ------------ Chat sélectionné ------------ ", chatId);
+      // console.log(" ------------ Chat sélectionné ------------ ", chatId);
 
       // Rediriger vers l'URL avec l'ID de la discussion
       history.push(`/messages/${chatIdValue}`);
@@ -622,7 +621,7 @@ const ChatPage = () => {
             Number(chatId)
           );
 
-          console.log("Messages du canal récupérés:", messagesResponse.data);
+          // console.log("Messages du canal récupérés:", messagesResponse.data);
 
           if (
             messagesResponse &&
@@ -665,17 +664,17 @@ const ChatPage = () => {
       // Charger les messages via l'API pour les discussions normales
       try {
         setLoadingMessages(true);
-        console.log("Chargement des messages pour la discussion:", chatId);
+        // console.log("Chargement des messages pour la discussion:", chatId);
 
         const messagesResponse = await chatService.getChatMessages(
           Number(chatId)
         );
 
         if (messagesResponse && messagesResponse.data) {
-          console.log(
-            "Messages de discussion récupérés:",
-            messagesResponse.data
-          );
+          // console.log(
+          //   "Messages de discussion récupérés:",
+          //   messagesResponse.data
+          // );
 
           // Mettre à jour le chat dans la liste des chats avec les nouveaux messages
           const updatedChats = chats.map((c) => {
@@ -1121,7 +1120,7 @@ const ChatPage = () => {
     // Set up interval to refresh every 15 seconds
     const interval = setInterval(() => {
       if (!loading) {
-        console.log("Refreshing chats and channels...");
+        // console.log("Refreshing chats and channels...");
         loadChats();
       }
     }, 40000);
@@ -1135,7 +1134,7 @@ const ChatPage = () => {
     // Set up interval to refresh every 15 seconds
     const interval = setInterval(() => {
       if (!loading) {
-        console.log("Refreshing chats and channels...");
+        // console.log("Refreshing chats and channels...");
         loadChannel();
       }
     }, 10000);
@@ -1660,7 +1659,7 @@ const ChatPage = () => {
                       .sort((a, b) => new Date(a.sentAt) - new Date(b.sentAt))
                       .map((msg, index) => {
                         // Afficher les détails du message pour déboguer
-                        console.log("Traitement du message:", msg);
+                        // console.log("Traitement du message:", msg);
 
                         // Vérifier si le message provient de l'utilisateur actuel
                         const isFromCurrentUser =
@@ -1706,6 +1705,13 @@ const ChatPage = () => {
                                 <div className="d-flex ">
                                   <span className="fw-bold">
                                     {(() => {
+                                      if (
+                                        Number(user?.userID) ===
+                                        Number(msg.byUserID)
+                                      ) {
+                                        return "Vous";
+                                      }
+
                                       const admin = adminList.find(
                                         (admin) =>
                                           Number(admin.id) ===
