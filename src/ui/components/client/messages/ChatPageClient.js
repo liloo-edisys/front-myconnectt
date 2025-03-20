@@ -437,7 +437,7 @@ const ChatPage = () => {
                         } mb-3`}
                       >
                         {/* Avatar pour messages reçus (à gauche) */}
-                        {!isFromCurrentUser && showAvatar && (
+                        {/* {!isFromCurrentUser && showAvatar && (
                           <div className="me-2 align-self-end">
                             <div
                               className="rounded-circle text-white d-flex align-items-center justify-content-center"
@@ -458,7 +458,7 @@ const ChatPage = () => {
                         )}
                         {!isFromCurrentUser && !showAvatar && (
                           <div style={{ width: "32px" }} className="me-2"></div>
-                        )}
+                        )} */}
 
                         {/* Contenu du message */}
                         <div style={{ maxWidth: "75%" }}>
@@ -489,7 +489,7 @@ const ChatPage = () => {
                         </div>
 
                         {/* Avatar pour messages envoyés (à droite) */}
-                        {isFromCurrentUser && showAvatar && (
+                        {/* {isFromCurrentUser && showAvatar && (
                           <div className="ms-2 align-self-end">
                             <div
                               className="rounded-circle text-white d-flex align-items-center justify-content-center"
@@ -510,7 +510,7 @@ const ChatPage = () => {
                         )}
                         {isFromCurrentUser && !showAvatar && (
                           <div style={{ width: "32px" }} className="ms-2"></div>
-                        )}
+                        )} */}
                       </div>
                     );
                   })
