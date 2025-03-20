@@ -1132,10 +1132,7 @@ const ChatPage = () => {
   };
 
   return (
-    <div
-      className="container-fluid vh-100 p-0"
-      style={{ backgroundColor: "#f8f9fa" }}
-    >
+    <div className="container-fluid  p-0" style={{ height: "85vh" }}>
       {/* Notification d'erreur */}
       {/* {error && (
         <div
@@ -1805,47 +1802,51 @@ const ChatPage = () => {
                 )}
               </div>
 
-              <div className="input-group position-relative">
-                {/* Intégration du composant TagSuggestions avec les bonnes props */}
-                <TagSuggestions
-                  message={newMessage}
-                  cursorPosition={cursorPosition}
-                  onSelectTag={handleSelectTag}
-                  isVisible={showTagSuggestions}
-                  setIsVisible={setShowTagSuggestions}
-                  tags={allTags}
-                  isLoading={isLoadingTags}
-                  error={tagsError}
-                />
+              <div className="border-top bg-white p-3 position-sticky bottom-0">
+                <form onSubmit={handleSendMessage}>
+                  <div className="input-group position-relative">
+                    {/* Intégration du composant TagSuggestions avec les bonnes props */}
+                    <TagSuggestions
+                      message={newMessage}
+                      cursorPosition={cursorPosition}
+                      onSelectTag={handleSelectTag}
+                      isVisible={showTagSuggestions}
+                      setIsVisible={setShowTagSuggestions}
+                      tags={allTags}
+                      isLoading={isLoadingTags}
+                      error={tagsError}
+                    />
 
-                <input
-                  ref={messageInputRef}
-                  type="text"
-                  className="form-control bg-light border-0"
-                  placeholder="Écrivez un message... (utilisez # pour les mentions)"
-                  value={newMessage}
-                  onChange={handleMessageChange}
-                  onKeyDown={(e) => {
-                    // Empêcher la propagation des touches fléchées lorsque les suggestions sont visibles
-                    if (
-                      showTagSuggestions &&
-                      ["ArrowUp", "ArrowDown", "Enter"].includes(e.key)
-                    ) {
-                      e.stopPropagation();
-                    }
-                  }}
-                  disabled={loading}
-                />
-                <button
-                  type="submit"
-                  className={`btn ${
-                    newMessage.trim() ? "btn-primary" : "btn-secondary"
-                  }`}
-                  disabled={loading || !newMessage?.trim()}
-                  onClick={handleSendMessage}
-                >
-                  <Send fontSize="small" />
-                </button>
+                    <input
+                      ref={messageInputRef}
+                      type="text"
+                      className="form-control bg-light border-0"
+                      placeholder="Écrivez un message... (utilisez # pour les mentions)"
+                      value={newMessage}
+                      onChange={handleMessageChange}
+                      onKeyDown={(e) => {
+                        // Empêcher la propagation des touches fléchées lorsque les suggestions sont visibles
+                        if (
+                          showTagSuggestions &&
+                          ["ArrowUp", "ArrowDown", "Enter"].includes(e.key)
+                        ) {
+                          e.stopPropagation();
+                        }
+                      }}
+                      disabled={loading}
+                    />
+                    <button
+                      type="submit"
+                      className={`btn ${
+                        newMessage.trim() ? "btn-primary" : "btn-secondary"
+                      }`}
+                      disabled={loading || !newMessage?.trim()}
+                      onClick={handleSendMessage}
+                    >
+                      <Send fontSize="small" />
+                    </button>
+                  </div>
+                </form>
               </div>
             </>
           ) : (

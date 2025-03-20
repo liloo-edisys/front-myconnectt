@@ -213,8 +213,8 @@ const ChatPage = () => {
 
   return (
     <div
-      className="container-fluid vh-100 p-0"
-      style={{ backgroundColor: "#f8f9fa" }}
+      className="container-fluid p-0"
+      style={{ backgroundColor: "#f8f9fa", height: "85vh" }}
     >
       {/* Notification d'erreur */}
       {error && (
@@ -262,8 +262,10 @@ const ChatPage = () => {
                 // Affichage pendant le chargement
                 <div className="text-center text-muted p-4">
                   <div className="mb-3">
-                    <div className="spinner-border text-primary" role="status">
-                    </div>
+                    <div
+                      className="spinner-border text-primary"
+                      role="status"
+                    ></div>
                   </div>
                 </div>
               ) : filteredChats?.length === 0 ? (

@@ -376,8 +376,8 @@ const ChatPage = () => {
   }, []);
   return (
     <div
-      className="container-fluid vh-100 p-0"
-      style={{ backgroundColor: "#f8f9fa" }}
+      className="container-fluid p-0"
+      style={{ backgroundColor: "#f8f9fa", height: "85vh" }}
     >
       {/* Notification d'erreur */}
       {error && (
@@ -633,7 +633,7 @@ const ChatPage = () => {
                       </div>
                       <div className="overflow-hidden">
                         <div className="d-flex justify-content-between align-items-center mb-1 w-100">
-                          <span >{chatName}</span>
+                          <span>{chatName}</span>
                           {/* <small>
                             {lastMessage
                               ? new Date(
