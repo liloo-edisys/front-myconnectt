@@ -237,20 +237,33 @@ const ChatPage = () => {
   const loadChannel = async () => {
     try {
       setLoading(true);
+      console.log("Chargement des canaux...");
       const response = await chatService.getChannel();
 
       // Vérifier si la réponse existe et contient des données
       if (response && response.data) {
+        console.log("Canaux chargés avec succès:", response.data);
         setChannel(response.data);
+
+        // Mettre à jour également les canaux aplatis
+        const allChannels = flattenChannels(response.data);
+        setFlattenedChannels(allChannels);
+
+        return response.data; // Retourner les données pour utilisation éventuelle
       } else {
         // Si pas de réponse ou données vides, initialiser avec un tableau vide
+        console.log("Aucun canal trouvé");
         setChannel([]);
+        setFlattenedChannels([]);
+        return [];
       }
     } catch (err) {
       setError("Erreur lors du chargement des canaux");
       console.error("Error loading channels:", err);
       // En cas d'erreur, initialiser également avec un tableau vide
       setChannel([]);
+      setFlattenedChannels([]);
+      throw err; // Propager l'erreur pour gestion supérieure
     } finally {
       setLoading(false);
     }
@@ -262,23 +275,26 @@ const ChatPage = () => {
     setLoading(true);
 
     try {
-      // Recharger les canaux et les chats
+      // Appeler directement la fonction de chargement des canaux
       await loadChannel();
-      await loadChats();
 
-      // Sélectionner le nouveau canal si vous avez son ID
-      if (channelData.id) {
-        handleChatSelect(channelData.id);
-      }
+      // Attendre un court instant pour s'assurer que les données sont bien chargées
+      setTimeout(() => {
+        // Si nous avons l'ID du nouveau canal, le sélectionner automatiquement
+        if (channelData.id) {
+          handleChatSelect(channelData.id);
+        }
 
-      // Basculer vers l'onglet "Canaux" si ce n'est pas déjà le cas
-      if (activeTab !== "channels") {
-        setActiveTab("channels");
-      }
+        // Basculer vers l'onglet "Canaux" si ce n'est pas déjà le cas
+        if (activeTab !== "channels") {
+          setActiveTab("channels");
+        }
+
+        setLoading(false);
+      }, 300);
     } catch (err) {
       setError("Erreur lors du chargement des conversations");
       console.error("Error after channel creation:", err);
-    } finally {
       setLoading(false);
     }
   };
@@ -935,7 +951,7 @@ const ChatPage = () => {
           // L'utilisateur actuel
           {
             id: currentUserId,
-            userName: user?.fullName || "Vous", // Utiliser le nom complet si disponible
+            userName: user?.fullName || "", // Utiliser le nom complet si disponible
             chatUserRole: 2,
           },
         ],
@@ -1436,7 +1452,7 @@ const ChatPage = () => {
                     >
                       <span>#</span>
                     </div>
-                    <div style={{ marginRight: "8px" }}>
+                    <div style={{ marginLeft: "8px" }}>
                       <h5 className="mb-0 fw-bold">
                         {selectedChannelData.name}
                       </h5>
@@ -1474,6 +1490,7 @@ const ChatPage = () => {
                         style={{
                           width: "25px",
                           height: "25px",
+                          marginRight: "8px",
                           backgroundColor: generateAvatarColor(
                             selectedChatData?.groupName ||
                               getOtherUser(selectedChatData)?.userName

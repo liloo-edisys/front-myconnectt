@@ -35,20 +35,20 @@ const ChannelCreationModal = ({
       alert("Veuillez entrer un nom pour le canal");
       return;
     }
-
+  
     // Activer les états de chargement
     setLoading(true);
     setCreating(true);
-
+  
     try {
       // Préparer les données pour la création du canal
       const channelData = {
         name: channelName.trim(),
         chatMasterID: chatMasterID || null,
       };
-
+  
       console.log("Création de canal avec les données:", channelData);
-
+  
       // Appel à l'API pour créer le canal
       const response = await axios.post(
         `${API_URL}api/Chat/channel`,
@@ -60,12 +60,12 @@ const ChannelCreationModal = ({
           },
         }
       );
-
+  
       console.log("Réponse de création:", response.data);
-
+  
       // Notifier le composant parent avec les informations du canal créé
       if (response.data) {
-        onCreateChannel({
+        const newChannelData = {
           id: response.data.id || response.data.chatID,
           name: channelName,
           targetType,
@@ -76,25 +76,33 @@ const ChannelCreationModal = ({
               name: entity?.name || "Utilisateur",
             };
           }),
-        });
+        };
+        
+        // Attendre que le composant parent ait reçu les informations
+        await onCreateChannel(newChannelData);
+        
+        // Puis appeler loadChannels de manière asynchrone
+        if (typeof loadChannels === "function") {
+          await loadChannels();
+        }
       }
-
-      // Rafraîchir la liste des canaux et fermer le modal
-      if (typeof loadChannels === "function") {
-        loadChannels(); // Appeler la fonction si elle existe, sans await
-      }
-      console.log("Canaux rechargés, fermeture du modal...");
+      
+      // Fermer le modal une fois tout terminé
       onClose();
     } catch (error) {
       console.error("Erreur lors de la création du canal:", error);
+      // Même en cas d'erreur, essayer de recharger les canaux
       if (typeof loadChannels === "function") {
-        loadChannels();
+        try {
+          await loadChannels();
+        } catch (loadError) {
+          console.error("Erreur lors du rechargement des canaux:", loadError);
+        }
       }
       onClose();
     } finally {
       setLoading(false);
       setCreating(false);
-      onClose(); // Assurer que le modal se ferme dans tous les cas
     }
   };
 
