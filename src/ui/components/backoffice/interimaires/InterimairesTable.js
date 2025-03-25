@@ -105,6 +105,38 @@ function InterimairesTable(props) {
     { id: 5, name: "Code postal" },
   ];
 
+  function encoreUrl(str) {
+    let newUrl = "";
+    const len = str && str.length;
+    let url;
+    for (let i = 0; i < len; i++) {
+      let c = str.charAt(i);
+      let code = str.charCodeAt(i);
+
+      if (c === " ") {
+        newUrl += "+";
+      } else if (
+        (code < 48 && code !== 45 && code !== 46) ||
+        (code < 65 && code > 57) ||
+        (code > 90 && code < 97 && code !== 95) ||
+        code > 122
+      ) {
+        newUrl += "%" + code.toString(16);
+      } else {
+        newUrl += c;
+      }
+    }
+    if (newUrl.indexOf(".doc") > 0 || newUrl.indexOf(".docx") > 0) {
+      url = "https://view.officeapps.live.com/op/embed.aspx?src=" + newUrl;
+    } else {
+      url =
+        "https://docs.google.com/gview?url=" +
+        newUrl +
+        "&embedded=true&SameSite=None";
+    }
+    return url;
+  }
+
   const getData = () => {
     let body = {
       tenantID: user.tenantID,
@@ -238,6 +270,28 @@ function InterimairesTable(props) {
               <FormattedMessage id="BUTTON.DELETE" />
             </div>
           </a>
+          {row.primaryCurriculumVitaeUrl ? (
+            <a
+              className="btn btn-icon btn btn-light-primary mr-2 button-width"
+              href={`/document/display/${encoreUrl(
+                row.primaryCurriculumVitaeUrl
+              )}`}
+              target="_blank"
+            >
+              <div>
+                <FormattedMessage id="BUTTON.SHOW.CV" />
+              </div>
+            </a>
+          ) : (
+            <a
+              className="btn btn-icon btn btn-light-primary mr-2 button-width"
+              style={{ opacity: 0.50, cursor: "not-allowed" }}
+            >
+              <div>
+                <FormattedMessage id="BUTTON.SHOW.CV" />
+              </div>
+            </a>
+          )}
         </div>
       ),
     },

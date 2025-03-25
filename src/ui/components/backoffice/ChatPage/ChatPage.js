@@ -1207,7 +1207,7 @@ const ChatPage = () => {
               <button
                 className={`btn flex-grow-1 rounded-0 py-2 ${
                   activeTab === "messages"
-                    ? "btn-light border-bottom border-primary border-3"
+                    ? "btn-light text-white border-bottom bg-primary border-3"
                     : "btn-white"
                 }`}
                 onClick={() => setActiveTab("messages")}
@@ -1218,7 +1218,7 @@ const ChatPage = () => {
               <button
                 className={`btn flex-grow-1 rounded-0 py-2 ${
                   activeTab === "channels"
-                    ? "btn-light border-bottom border-primary border-3"
+                    ? "btn-light text-white border-bottom bg-primary border-3"
                     : "btn-white"
                 }`}
                 onClick={() => setActiveTab("channels")}
@@ -1405,14 +1405,6 @@ const ChatPage = () => {
                               }`}
                               style={{ fontSize: "0.85rem" }}
                             >
-                              {chan.level > 0 && (
-                                <span
-                                  className="badge bg-secondary bg-opacity-25 text-dark me-2"
-                                  style={{ fontSize: "0.7rem" }}
-                                >
-                                  Niveau {chan.level}
-                                </span>
-                              )}
                               {lastMessage
                                 ? lastMessage.message
                                 : "Pas de message"}
