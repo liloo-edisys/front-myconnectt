@@ -14,6 +14,7 @@ import paginationFactory, {
   PaginationProvider,
 } from "react-bootstrap-table2-paginator";
 import DatePicker from "react-datepicker";
+import CVModal from "./CVModal.js";
 
 function InterimairesTable(props) {
   const history = useHistory();
@@ -42,6 +43,7 @@ function InterimairesTable(props) {
   const [selectedPhone, setSelectedPhone] = useState("");
   const [selectedStatus, setSelectedStatus] = useState(0);
   const [selectedCreationDate, setSelectedCreationDate] = useState("");
+  const [isCvModalOpen, setIsCvModalOpen] = useState(false);
   const [toggleApplicantDeleteModal, setToggleApplicantDeleteModal] = useState(
     null
   );
@@ -67,6 +69,18 @@ function InterimairesTable(props) {
     jobTitleList: state.lists.jobTitles,
     companies: state.companies.companies,
   }));
+
+  const [urlCv, seturlCv] = useState();
+
+  const handleCvOpenModal = async (url) => {
+    await seturlCv(url);
+    setIsCvModalOpen(true);
+  };
+
+  const handleCloseCvModal = () => {
+    setIsCvModalOpen(false);
+  };
+
   const statusArray = [
     { id: 1, value: 1, name: intl.formatMessage({ id: "STATUS.REGISTERED" }) },
     {
@@ -273,9 +287,13 @@ function InterimairesTable(props) {
           {row.primaryCurriculumVitaeUrl ? (
             <a
               className="btn btn-icon btn btn-light-primary mr-2 button-width"
-              href={`/document/display/${encoreUrl(
-                row.primaryCurriculumVitaeUrl
-              )}`}
+              onClick={() =>
+                handleCvOpenModal(
+                  `/document/display/${encoreUrl(
+                    row.primaryCurriculumVitaeUrl
+                  )}`
+                )
+              }
               target="_blank"
             >
               <div>
@@ -285,7 +303,7 @@ function InterimairesTable(props) {
           ) : (
             <a
               className="btn btn-icon btn btn-light-primary mr-2 button-width"
-              style={{ opacity: 0.50, cursor: "not-allowed" }}
+              style={{ opacity: 0.5, cursor: "not-allowed" }}
             >
               <div>
                 <FormattedMessage id="BUTTON.SHOW.CV" />
@@ -613,6 +631,15 @@ function InterimairesTable(props) {
 
   return (
     <>
+      <CVModal
+        url={urlCv}
+        isOpen={isCvModalOpen}
+        onClose={handleCloseCvModal}
+        title={intl.formatMessage({
+          id: "CV.MODAL.TITLE",
+          defaultMessage: "Curriculum Vitae",
+        })}
+      />
       {toggleSourcingScopTalentModal && (
         <SourcingScopTalentModal
           onHide={() => {
