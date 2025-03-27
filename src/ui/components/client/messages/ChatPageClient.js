@@ -526,7 +526,6 @@ const ChatPage = () => {
                       placeholder="Écrivez un message..."
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
-                      disabled={loading}
                     />
                     <button
                       type="submit"

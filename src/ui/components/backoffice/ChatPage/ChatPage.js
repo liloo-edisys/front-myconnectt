@@ -7,6 +7,8 @@ import TagSuggestions from "./profile/TagSuggestions";
 import { chatService, messageUtils } from "./chatService";
 import { shallowEqual, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
+import signalRService from "./signalrServices"; // Assurez-vous que le chemin est correct
+import { useMessageHandler } from "./hooks/useMessageHandler";
 
 const ChatPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -27,8 +29,8 @@ const ChatPage = () => {
 
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [cursorPosition, setCursorPosition] = useState(0);
-  const [allTags, setAllTags] = useState([]); // Ajout de la déclaration manquante
-  const [isLoadingTags, setIsLoadingTags] = useState(false); // Ajout de la déclaration manquante
+  const [allTags, setAllTags] = useState([]);
+  const [isLoadingTags, setIsLoadingTags] = useState(false);
   const [tagsError, setTagsError] = useState(null);
 
   //channel params
@@ -325,7 +327,68 @@ const ChatPage = () => {
     }
   };
 
-  // Fonction pour gérer la création d'un canal
+  // Configuration de SignalR pour les mises à jour en temps réel
+  const handleSignalRMessage = useMessageHandler({
+    selectedChat,
+    chats,
+    loadChats,
+    loadChannel,
+    flattenChannels,
+    channel,
+    setFlattenedChannels,
+    setChannelMessages,
+    setChats,
+    updateNestedChannel,
+    handleChatSelect,
+    currentUserId,
+    user,
+  });
+
+  // Enregistrer le gestionnaire une seule fois
+  useEffect(() => {
+    if (currentUserId) {
+      console.log("Enregistrement du gestionnaire de messages");
+      signalRService.addMessageHandler(handleSignalRMessage);
+
+      return () => {
+        signalRService.removeMessageHandler(handleSignalRMessage);
+      };
+    }
+  }, [handleSignalRMessage, currentUserId]);
+
+  // Fonction utilitaire pour mettre à jour les canaux imbriqués
+  const updateNestedChannel = (channels, targetId, newMessage) => {
+    if (!channels || !Array.isArray(channels)) return channels;
+
+    return channels.map((chan) => {
+      if (Number(chan.id) === Number(targetId)) {
+        // Ajouter le message au canal si besoin
+        const messages = chan.messages || [];
+        const messageExists = messages.some((msg) => msg.id === newMessage.id);
+
+        if (!messageExists) {
+          return {
+            ...chan,
+            messages: [...messages, newMessage],
+          };
+        }
+        return chan;
+      }
+
+      if (chan.slaves && Array.isArray(chan.slaves)) {
+        const updatedSlaves = updateNestedChannel(
+          chan.slaves,
+          targetId,
+          newMessage
+        );
+        return { ...chan, slaves: updatedSlaves };
+      }
+
+      return chan;
+    });
+  };
+
+  // Fonction pour créer un canal
   const handleCreateChannel = async (channelData) => {
     // console.log("Canal créé:", channelData);
     setLoading(true);
@@ -499,39 +562,27 @@ const ChatPage = () => {
           await chatService.sendBackofficeMessage(messageData);
         }
 
-        // Récupérer les messages mis à jour pour le chat normal
-        try {
-          const messagesResponse = await chatService.getChatMessages(
-            selectedChat
-          );
+        // Maintenant on laisse SignalR gérer la mise à jour des messages plutôt que de recharger
+        // Comme avec SignalR, on peut avoir un délai, ajouter optimistiquement le message localement
+        const newMsg = {
+          id: `temp_msg_${Date.now()}`, // Sera remplacé par le vrai ID quand SignalR le recevra
+          message: transformedMessage,
+          sentAt: new Date().toISOString(),
+          byUserID: currentUserId,
+          isRead: true,
+        };
 
-          if (messagesResponse && messagesResponse.data) {
-            // Mettre à jour le chat dans la liste des chats avec les nouveaux messages
-            const updatedChats = chats.map((c) => {
-              if (Number(c.id) === Number(selectedChat)) {
-                // S'assurer que le format des données est cohérent
-                const updatedMessages = Array.isArray(messagesResponse.data)
-                  ? messagesResponse.data
-                  : messagesResponse.data.messages || [];
-
-                return {
-                  ...c,
-                  messages: updatedMessages,
-                };
-              }
-              return c;
-            });
-
-            // Mettre à jour la liste complète des chats
-            setChats(updatedChats);
-          }
-        } catch (error) {
-          console.error(
-            "Erreur lors de la récupération des messages après envoi:",
-            error
-          );
-          // On ne montre pas d'erreur pour préserver l'UX
-        }
+        setChats((prevChats) =>
+          prevChats.map((chat) => {
+            if (Number(chat.id) === Number(selectedChat)) {
+              return {
+                ...chat,
+                messages: [...(chat.messages || []), newMsg],
+              };
+            }
+            return chat;
+          })
+        );
       }
     } catch (err) {
       console.error("Erreur lors de l'envoi du message:", err);
@@ -733,6 +784,71 @@ const ChatPage = () => {
     ]
   );
 
+  // Ajoutez cet useEffect dans le composant ChatPage pour mettre en place le polling
+
+  useEffect(() => {
+    // Fonction pour charger les chats et mettre à jour les messages si un chat est sélectionné
+    const refreshChatsAndMessages = async () => {
+      try {
+        // Charger tous les chats
+        await loadChats();
+
+        // Si un chat est sélectionné, mettre à jour ses messages
+        if (selectedChat) {
+          // Vérifier d'abord si c'est un canal
+          const selectedChannelData = flattenedChannels.find(
+            (chan) => Number(chan.id) === Number(selectedChat)
+          );
+
+          if (selectedChannelData) {
+            // C'est un canal, charger les messages du canal
+            try {
+              const messagesResponse = await chatService.getChannelMessages(
+                Number(selectedChat)
+              );
+
+              if (
+                messagesResponse &&
+                messagesResponse.data &&
+                messagesResponse.data.messages
+              ) {
+                setChannelMessages(messagesResponse.data.messages);
+              } else if (
+                messagesResponse &&
+                messagesResponse.data &&
+                Array.isArray(messagesResponse.data)
+              ) {
+                setChannelMessages(messagesResponse.data);
+              }
+            } catch (error) {
+              console.error(
+                "Erreur lors de la mise à jour des messages du canal:",
+                error
+              );
+              // Ne pas afficher d'erreur pour ne pas perturber l'expérience utilisateur
+            }
+          } else {
+            // C'est un chat normal, pas un canal
+            // Ne rien faire ici car loadChats() a déjà mis à jour les messages
+            // pour les chats normaux, et nous ne voulons pas appeler getChatMessages
+            // à nouveau car cela marquerait tous les messages comme lus
+          }
+        }
+      } catch (err) {
+        console.error("Erreur lors de la mise à jour périodique:", err);
+      }
+    };
+
+    // Configurer l'intervalle pour rafraîchir les données toutes les 5 secondes
+    const intervalId = setInterval(refreshChatsAndMessages, 5000);
+
+    // Nettoyer l'intervalle lors du démontage du composant
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [selectedChat, flattenedChannels]); // Dépendances pour recréer l'intervalle si le chat sélectionné change
+
+  
   useEffect(() => {
     const handleLinkClick = (e) => {
       // Vérifier si le clic est sur un lien interne
@@ -778,27 +894,6 @@ const ChatPage = () => {
     };
   }, [flattenedChannels, activeTab, history, handleChatSelect]); //
 
-  // Fonction utilitaire pour mettre à jour les canaux imbriqués
-  const updateNestedChannel = (channels, targetId, messages) => {
-    if (!channels || !Array.isArray(channels)) return channels;
-
-    return channels.map((chan) => {
-      if (Number(chan.id) === Number(targetId)) {
-        return { ...chan, messages };
-      }
-
-      if (chan.slaves && Array.isArray(chan.slaves)) {
-        const updatedSlaves = updateNestedChannel(
-          chan.slaves,
-          targetId,
-          messages
-        );
-        return { ...chan, slaves: updatedSlaves };
-      }
-
-      return chan;
-    });
-  };
   const tryLoadSpecificChatById = async (specificId) => {
     try {
       // Vérifier d'abord si c'est un canal
@@ -1075,6 +1170,10 @@ const ChatPage = () => {
       setTemporaryChats((prevTempChats) => [...prevTempChats, newChat]);
 
       // Ajouter également à la liste des chats normaux
+      // Ajouter aux chats temporaires
+      setTemporaryChats((prevTempChats) => [...prevTempChats, newChat]);
+
+      // Ajouter également à la liste des chats normaux
       setChats((prevChats) => [newChat, ...prevChats]);
 
       // Sélectionner automatiquement cette nouvelle conversation
@@ -1115,32 +1214,16 @@ const ChatPage = () => {
   const selectedChatData = selectedData.isChannel ? null : selectedData.data;
   const selectedChannelData = selectedData.isChannel ? selectedData.data : null;
 
+  // Charger les données initiales au montage du composant
   useEffect(() => {
     loadChats();
-    // Set up interval to refresh every 15 seconds
-    const interval = setInterval(() => {
-      if (!loading) {
-        // console.log("Refreshing chats and channels...");
-        loadChats();
-      }
-    }, 40000);
-
-    // Clean up interval on component unmount
-    return () => clearInterval(interval);
+    // Pas d'interval ici, on utilise SignalR pour les mises à jour
   }, []);
 
+  // Charger les canaux une seule fois au montage
   useEffect(() => {
     loadChannel();
-    // Set up interval to refresh every 15 seconds
-    const interval = setInterval(() => {
-      if (!loading) {
-        // console.log("Refreshing chats and channels...");
-        loadChannel();
-      }
-    }, 10000);
-
-    // Clean up interval on component unmount
-    return () => clearInterval(interval);
+    // Pas d'interval ici, on utilise SignalR pour les mises à jour
   }, []);
 
   const [currentChatMasterID, setCurrentChatMasterID] = useState(null);
@@ -1480,9 +1563,9 @@ const ChatPage = () => {
                             ? "#"
                             : chatName.charAt(0).toUpperCase()}
                         </div>
-                        {/* {hasUnread && (
+                        {hasUnread && (
                           <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                        )} */}
+                        )}
                       </div>
                       <div className="overflow-hidden">
                         <div className="d-flex  mb-1">
@@ -1764,9 +1847,11 @@ const ChatPage = () => {
                   // Affichage des messages de conversation
                   (selectedChatData?.messages &&
                   Array.isArray(selectedChatData.messages)
-                    ? [...selectedChatData.messages].reverse()
+                    ? [...selectedChatData.messages].sort(
+                        (a, b) => new Date(a.sentAt) - new Date(b.sentAt)
+                      )
                     : []
-                  ).map((msg, index, reversedArray) => {
+                  ).map((msg, index, messages) => {
                     // Trouver l'expéditeur du message
                     const messageSender = selectedChatData?.users?.find(
                       (user) => Number(user.id) === Number(msg?.byUserID)
@@ -1778,8 +1863,8 @@ const ChatPage = () => {
 
                     // Pour l'avatar, vérifier si le message suivant est du même expéditeur
                     const showAvatar =
-                      index === reversedArray.length - 1 ||
-                      reversedArray[index + 1]?.byUserID !== msg?.byUserID;
+                      index === 0 ||
+                      messages[index - 1]?.byUserID !== msg?.byUserID;
 
                     return (
                       <div
@@ -1876,7 +1961,6 @@ const ChatPage = () => {
                           e.stopPropagation();
                         }
                       }}
-                      disabled={loading}
                     />
                     <button
                       type="submit"
