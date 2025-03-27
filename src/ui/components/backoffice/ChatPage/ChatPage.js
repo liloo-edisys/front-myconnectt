@@ -1333,7 +1333,7 @@ const ChatPage = () => {
                   type="text"
                   className="form-control bg-light border-start-0"
                   placeholder={`Rechercher des ${
-                    activeTab === "messages" ? "conversations" : "canaux"
+                    activeTab === "messages" ? "conversations" : "dossiers"
                   }...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
