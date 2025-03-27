@@ -848,7 +848,6 @@ const ChatPage = () => {
     };
   }, [selectedChat, flattenedChannels]); // Dépendances pour recréer l'intervalle si le chat sélectionné change
 
-  
   useEffect(() => {
     const handleLinkClick = (e) => {
       // Vérifier si le clic est sur un lien interne
@@ -1265,9 +1264,8 @@ const ChatPage = () => {
         <div className="col-md-4 col-lg-3 border-end h-100 bg-white">
           <div className="d-flex flex-column h-100">
             <div className="d-flex justify-content-between align-items-center p-3 border-bottom">
-              <h5 className="mb-0 fw-bold mr-4">Conversations</h5>
               <button
-                className="btn btn-sm btn-primary rounded-circle"
+                className="btn flex-grow-1 rounded-0 py-2 btn-light text-white border-bottom bg-primary border-3"
                 onClick={() => {
                   if (activeTab === "channels") {
                     handleOpenChannelModal();
@@ -1275,13 +1273,10 @@ const ChatPage = () => {
                     setIsUserSelectionModalOpen(true);
                   }
                 }}
-                title={
-                  activeTab === "channels"
-                    ? "Nouveau dossier"
-                    : "Nouvelle conversation"
-                }
               >
-                <Add fontSize="small" />
+                {activeTab === "channels"
+                  ? "Nouveau dossier"
+                  : "Nouveau message"}
               </button>
             </div>
 
