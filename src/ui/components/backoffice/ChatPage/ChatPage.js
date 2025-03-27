@@ -9,6 +9,7 @@ import { shallowEqual, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import signalRService from "./signalrServices"; // Assurez-vous que le chemin est correct
 import { useMessageHandler } from "./hooks/useMessageHandler";
+import { ExpandMore, ChevronRight } from "@material-ui/icons";
 
 const ChatPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,6 +34,8 @@ const ChatPage = () => {
   const [isLoadingTags, setIsLoadingTags] = useState(false);
   const [tagsError, setTagsError] = useState(null);
 
+  const [expandedChannels, setExpandedChannels] = useState({});
+
   //channel params
   const history = useHistory();
   const { channelId } = useParams();
@@ -48,6 +51,32 @@ const ChatPage = () => {
 
   const [adminList, setAdminList] = useState([]);
   const [loadingAdmins, setLoadingAdmins] = useState(false);
+
+  const toggleChannelExpansion = (channelId, event) => {
+    event.stopPropagation(); // Empêche le canal d'être sélectionné lors du clic sur le bouton d'expansion
+    setExpandedChannels((prev) => ({
+      ...prev,
+      [channelId]: !prev[channelId],
+    }));
+  };
+
+  // Fonction pour vérifier si un canal est un parent (a des enfants)
+  const hasChildren = (channel) => {
+    return channel.slaves && channel.slaves.length > 0;
+  };
+
+  // Fonction pour obtenir tous les IDs enfants d'un canal (récursif)
+  const getChildrenIds = (channel) => {
+    if (!hasChildren(channel)) return [];
+
+    let ids = [];
+    channel.slaves.forEach((slave) => {
+      ids.push(slave.id);
+      ids = [...ids, ...getChildrenIds(slave)];
+    });
+
+    return ids;
+  };
 
   const loadAdmins = async () => {
     try {
@@ -1354,29 +1383,48 @@ const ChatPage = () => {
                     </button>
                   </div>
                 ) : (
-                  // Dans la partie où vous affichez les canaux
-                  // Dans la partie où vous affichez les canaux
+                  // Filtrer pour n'afficher que les parents et les enfants visibles
                   flattenedChannels
-                    .filter(
-                      (chan) =>
+                    .filter((chan) => {
+                      // Filtrer par recherche si nécessaire
+                      const matchesSearch =
                         chan.name
                           .toLowerCase()
                           .includes(searchQuery.toLowerCase()) ||
-                        chan.displayName
-                          .toLowerCase()
-                          .includes(searchQuery.toLowerCase())
-                    )
+                        (chan.displayName &&
+                          chan.displayName
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()));
+
+                      if (searchQuery) return matchesSearch; // Si recherche active, afficher tous les résultats
+
+                      // Niveau 0 toujours affiché
+                      if (chan.level === 0) return true;
+
+                      // Pour les niveaux supérieurs, vérifier si le parent est déployé
+                      const parentSegments = chan.parentName.split("/");
+                      // Trouver le parent immédiat
+                      const immediateParentName = parentSegments[
+                        parentSegments.length - 1
+                      ].trim();
+                      const parentChannel = flattenedChannels.find(
+                        (c) =>
+                          c.name === immediateParentName &&
+                          c.level === chan.level - 1
+                      );
+
+                      // Afficher seulement si le parent est déployé
+                      return (
+                        parentChannel &&
+                        expandedChannels[parentChannel.id] !== false
+                      );
+                    })
                     .map((chan) => {
                       const lastMessage =
                         chan.messages && chan.messages.length > 0
                           ? chan.messages[chan.messages.length - 1]
                           : null;
 
-                      const participantsCount =
-                        (chan.users?.length || 0) +
-                        (chan.accounts?.length || 0);
-
-                      // Calcul des messages non lus
                       const hasUnread =
                         chan.messages &&
                         Array.isArray(chan.messages) &&
@@ -1386,116 +1434,148 @@ const ChatPage = () => {
                             Number(m?.byUserID) !== Number(currentUserId)
                         );
 
-                      // Styles adaptés pour tous les niveaux hiérarchiques
+                      // Vérifier si le canal a des enfants
+                      const hasChildren = chan.slaves && chan.slaves.length > 0;
+                      // État d'expansion du canal (par défaut déplié)
+                      const isExpanded = expandedChannels[chan.id] !== false;
+
+                      // Styles selon le niveau
                       const isRootLevel = chan.level === 0;
-                      const indentation = chan.level * 16 + 16;
-
-                      // Calculer une teinte de gris plus claire en fonction du niveau
-                      // Plus le niveau est profond, plus la teinte est claire
-                      const bgColorIntensity = 248 + chan.level * 2; // Limite à 255
-                      const bgColor = isRootLevel
-                        ? "white"
-                        : `rgb(${bgColorIntensity}, ${bgColorIntensity}, ${bgColorIntensity})`;
-
-                      // Obtenir une bordure de couleur différente selon le niveau
-                      const borderColors = [
-                        "#6c757d",
-                        "#8a94a0",
-                        "#adb5bd",
-                        "#ced4da",
-                        "#dee2e6",
-                      ];
-                      const borderColor =
-                        borderColors[
-                          Math.min(chan.level - 1, borderColors.length - 1)
-                        ];
-                      const borderStyle = isRootLevel
-                        ? "none"
-                        : `3px solid ${borderColor}`;
+                      const indentation = chan.level * 20; // 20px par niveau d'indentation
 
                       return (
                         <div
                           key={chan.id}
-                          className={`d-flex p-3 border-bottom chat-item ${
+                          className={`channel-item ${
                             Number(selectedChat) === Number(chan.id)
-                              ? "bg-light"
+                              ? "selected"
                               : ""
                           }`}
-                          onClick={() => handleChatSelect(chan.id)}
-                          style={{
-                            paddingLeft: `${indentation}px`,
-                            backgroundColor: bgColor,
-                            borderLeft: borderStyle,
-                            transition: "all 0.2s ease",
-                          }}
                         >
-                          <div className="position-relative me-3">
-                            <div
-                              className="rounded-circle text-white d-flex align-items-center justify-content-center"
-                              style={{
-                                width: "35px",
-                                height: "35px",
-                                backgroundColor: isRootLevel
-                                  ? generateAvatarColor(chan.name)
-                                  : `rgba(108, 117, 125, ${0.8 -
-                                      chan.level * 0.1})`,
-                                fontSize: "14px",
-                                marginRight: "10px",
-                              }}
-                            >
-                              {isRootLevel
-                                ? "#"
-                                : "└" + "─".repeat(Math.min(chan.level, 3))}
-                            </div>
-                            {hasUnread && (
-                              <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                            )}
-                          </div>
-                          <div className="overflow-hidden">
-                            <div className="d-flex mb-1">
-                              <span
-                                className={`${
-                                  hasUnread
-                                    ? "fw-bold"
-                                    : isRootLevel
-                                    ? "fw-medium"
-                                    : "fw-normal"
-                                } text-truncate`}
+                          <div
+                            className={`d-flex align-items-center p-2 ${
+                              Number(selectedChat) === Number(chan.id)
+                                ? "bg-light"
+                                : ""
+                            }`}
+                            style={{
+                              paddingLeft: `${indentation + 10}px`,
+                              cursor: "pointer",
+                            }}
+                          >
+                            {/* Bouton dropdown pour les canaux avec enfants */}
+                            {hasChildren && (
+                              <div
+                                className="me-2"
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Empêcher de sélectionner le canal
+                                  setExpandedChannels((prev) => ({
+                                    ...prev,
+                                    [chan.id]: !prev[chan.id], // Inverser l'état
+                                  }));
+                                }}
+                                style={{
+                                  width: "32px",
+                                  height: "32px",
+                                  cursor: "pointer",
+                                  borderRadius: "3px",
+                                  border: "1px solid #ffffff",
+                                  backgroundColor: "#ffffff",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  margin: "0 8px 0 0",
+                                }}
                               >
-                                {chan.name}
-                                {!isRootLevel && (
-                                  <span className="text-muted ms-2 small d-inline-block">
-                                    <i className="bi bi-diagram-3 me-1"></i>
-                                    {/* Afficher le dernier segment du chemin parent */}
-                                    {chan.parentName
-                                      .split("/")
-                                      .pop()
-                                      .trim()}
-                                  </span>
+                                {isExpanded ? (
+                                  <ExpandMore
+                                    style={{
+                                      fontSize: "24px",
+                                      color: "#56565f",
+                                    }}
+                                  />
+                                ) : (
+                                  <ChevronRight
+                                    style={{
+                                      fontSize: "24px",
+                                      color: "#56565f",
+                                    }}
+                                  />
                                 )}
-                              </span>
-                            </div>
-                            <p
-                              className={`mb-0 text-truncate ${
-                                hasUnread
-                                  ? "fw-semibold text-dark"
-                                  : "text-muted"
-                              }`}
-                              style={{ fontSize: "0.85rem" }}
+                              </div>
+                            )}
+
+                            {/* Espace réservé pour l'alignement si pas d'enfants */}
+                            {!hasChildren && (
+                              <div
+                                style={{ width: "32px", marginRight: "8px" }}
+                              ></div>
+                            )}
+
+                            {/* Contenu principal du canal */}
+                            <div
+                              className="d-flex align-items-center flex-grow-1"
+                              onClick={() => handleChatSelect(chan.id)}
                             >
-                              {lastMessage
-                                ? lastMessage.message
-                                : "Pas de message"}
-                            </p>
-                          </div>
-                          {/* Afficher un indicateur de sous-canaux s'il en existe */}
-                          {chan.slaves && chan.slaves.length > 0 && (
-                            <div className="ms-auto align-self-center">
-                              <span className="badge bg-secondary rounded-pill">
-                                {chan.slaves.length}
-                              </span>
+                              <div
+                                className="me-2 "
+                                style={{ marginRight: "6px" }}
+                              >
+                                <div
+                                  className="rounded-circle text-white d-flex align-items-center justify-content-center"
+                                  style={{
+                                    width: "35px",
+                                    height: "35px",
+                                    backgroundColor: generateAvatarColor(
+                                      chan.name
+                                    ),
+                                    fontSize: "14px",
+                                  }}
+                                >
+                                  {isRootLevel
+                                    ? "#"
+                                    : chan.name.charAt(0).toUpperCase()}
+                                </div>
+                              </div>
+
+                              <div className="flex-grow-1 overflow-hidden">
+                                <div className="fw-medium text-truncate">
+                                  {chan.name}
+                                </div>
+                                <p
+                                  className={`mb-0 text-truncate ${
+                                    hasUnread
+                                      ? "fw-semibold text-dark"
+                                      : "text-muted"
+                                  }`}
+                                  style={{ fontSize: "0.85rem" }}
+                                >
+                                  {lastMessage
+                                    ? lastMessage.message.length > 20
+                                      ? lastMessage.message.substring(0, 20) +
+                                        "..."
+                                      : lastMessage.message
+                                    : "Pas de message"}
+                                </p>
+                              </div>
+
+                              {/* Indicateur de messages non lus */}
+                              {/* {hasUnread && (
+                                <div className="ms-2">
+                                  <span className="badge rounded-pill bg-primary">
+                                    {
+                                      chan.messages.filter(
+                                        (m) =>
+                                          !m.isRead &&
+                                          Number(m.byUserID) !==
+                                            Number(currentUserId)
+                                      ).length
+                                    }
+                                  </span>
+                                </div>
+                              )} */}
                             </div>
-                          )}
+                          </div>
                         </div>
                       );
                     })
@@ -1551,7 +1631,6 @@ const ChatPage = () => {
                             height: "35px",
                             backgroundColor: avatarColor,
                             fontSize: "14px",
-                            marginRight: "10px",
                           }}
                         >
                           {chat.isGroup
@@ -1563,19 +1642,8 @@ const ChatPage = () => {
                         )}
                       </div>
                       <div className="overflow-hidden">
-                        <div className="d-flex  mb-1">
+                        <div className="d-flex mb-1">
                           <span>{chatName}</span>
-                          {/* <small
-                            className={`text-nowrap ms-2 ${
-                              hasUnread ? "text-dark fw-bold" : "text-muted"
-                            }`}
-                          >
-                            {lastMessage
-                              ? new Date(
-                                  lastMessage?.sentAt
-                                ).toLocaleDateString()
-                              : ""}
-                          </small> */}
                         </div>
                         <p
                           className={`mb-0 text-truncate ${
@@ -1772,29 +1840,23 @@ const ChatPage = () => {
                                 </span>
                               </div>
                               <div>
-                                <div className="d-flex ">
-                                  <span className="fw-bold">
-                                    {(() => {
-                                      if (
-                                        Number(user?.userID) ===
-                                        Number(msg.byUserID)
-                                      ) {
-                                        return "Vous";
-                                      }
-
-                                      const admin = adminList.find(
-                                        (admin) =>
-                                          Number(admin.id) ===
-                                          Number(msg.byUserID)
-                                      );
-                                      return admin
-                                        ? `${admin.firstname} ${admin.lastname}`
-                                        : senderName;
-                                    })()}
+                                <div className="">
+                                  <div className="p-2 rounded-3 bg-white mt-1">
+                                    <div
+                                      className="message-content"
+                                      dangerouslySetInnerHTML={{
+                                        __html: convertMarkdownLinks(
+                                          msg.message
+                                        ),
+                                      }}
+                                    />
+                                  </div>
+                                  <span className="text-muted">
+                                    {msg.byUserName}
                                   </span>
                                   <small
                                     className="text-muted "
-                                    style={{ marginLeft: "8px", font: "black" }}
+                                    style={{ marginLeft: "8px" }}
                                   >
                                     {new Date(msg.sentAt).toLocaleTimeString(
                                       [],
@@ -1804,14 +1866,6 @@ const ChatPage = () => {
                                       }
                                     )}
                                   </small>
-                                </div>
-                                <div className="p-2 rounded-3 bg-white mt-1">
-                                  <div
-                                    className="message-content"
-                                    dangerouslySetInnerHTML={{
-                                      __html: convertMarkdownLinks(msg.message),
-                                    }}
-                                  />
                                 </div>
                               </div>
                             </div>
