@@ -10,6 +10,7 @@ import { useHistory, useParams } from "react-router-dom";
 import signalRService from "./signalrServices"; // Assurez-vous que le chemin est correct
 import { useMessageHandler } from "./hooks/useMessageHandler";
 import { ExpandMore, ChevronRight } from "@material-ui/icons";
+import { use } from "react";
 
 const ChatPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -42,7 +43,6 @@ const ChatPage = () => {
 
   // Références
   const messageInputRef = useRef(null);
-  const channelOptionsRef = useRef(null);
 
   const [channelMessages, setChannelMessages] = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
@@ -51,14 +51,6 @@ const ChatPage = () => {
 
   const [adminList, setAdminList] = useState([]);
   const [loadingAdmins, setLoadingAdmins] = useState(false);
-
-  const toggleChannelExpansion = (channelId, event) => {
-    event.stopPropagation(); // Empêche le canal d'être sélectionné lors du clic sur le bouton d'expansion
-    setExpandedChannels((prev) => ({
-      ...prev,
-      [channelId]: !prev[channelId],
-    }));
-  };
 
   // Fonction pour vérifier si un canal est un parent (a des enfants)
   const hasChildren = (channel) => {
@@ -685,9 +677,6 @@ const ChatPage = () => {
         const chat = chats?.find((c) => Number(c?.id) === Number(chatId));
         if (chat) {
           const otherUser = getOtherUser(chat);
-          const chatName = chat.isGroup
-            ? chat?.groupName || "Groupe"
-            : otherUser?.userName || "Discussion";
           // Format pour les conversations : "Chat avec: [Nom]"
           // document.title = `Chat avec: ${chatName}`;
         }
@@ -1623,7 +1612,7 @@ const ChatPage = () => {
                       }`}
                       onClick={() => handleChatSelect(chat?.id)}
                     >
-                      <div className="position-relative me-3">
+                      <div className="position-relative me-3 ">
                         <div
                           className="rounded-circle text-white d-flex align-items-center justify-content-center"
                           style={{
@@ -1631,15 +1620,16 @@ const ChatPage = () => {
                             height: "35px",
                             backgroundColor: avatarColor,
                             fontSize: "14px",
+                            marginRight: "6px",
                           }}
                         >
                           {chat.isGroup
                             ? "#"
                             : chatName.charAt(0).toUpperCase()}
                         </div>
-                        {hasUnread && (
+                        {/* {hasUnread && (
                           <span className="position-absolute top-0 end-0 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                        )}
+                        )} */}
                       </div>
                       <div className="overflow-hidden">
                         <div className="d-flex mb-1">
@@ -1795,7 +1785,7 @@ const ChatPage = () => {
                     // Affichage des messages du canal récupérés via l'API
                     [...channelMessages]
                       .sort((a, b) => new Date(a.sentAt) - new Date(b.sentAt))
-                      .map((msg, index) => {
+                      .map((msg) => {
                         // Afficher les détails du message pour déboguer
                         // console.log("Traitement du message:", msg);
 
@@ -1841,7 +1831,7 @@ const ChatPage = () => {
                               </div>
                               <div>
                                 <div className="">
-                                  <div className="p-2 rounded-3 bg-white mt-1">
+                                  <div className="p-2 rounded-3  mt-1">
                                     <div
                                       className="message-content"
                                       dangerouslySetInnerHTML={{
@@ -1851,13 +1841,18 @@ const ChatPage = () => {
                                       }}
                                     />
                                   </div>
-                                  <span className="text-muted">
-                                    {msg.byUserName}
-                                  </span>
-                                  <small
-                                    className="text-muted "
-                                    style={{ marginLeft: "8px" }}
+                                  <span
+                                    className=""
+                                    style={{
+                                      fontSize: "0.8rem",
+                                      color: "#3165a7",
+                                      fontWeight: "semi-bold",
+                                    }}
                                   >
+                                    {msg.byUserID === user?.userID
+                                      ? "Vous"
+                                      : msg.byUserName}
+                                    ,{" "}
                                     {new Date(msg.sentAt).toLocaleTimeString(
                                       [],
                                       {
@@ -1865,7 +1860,7 @@ const ChatPage = () => {
                                         minute: "2-digit",
                                       }
                                     )}
-                                  </small>
+                                  </span>
                                 </div>
                               </div>
                             </div>
