@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Search, Send, Add, MoreVert } from "@material-ui/icons";
+import { Search, Send, MoreVert } from "@material-ui/icons";
 import ProfileModal from "./profile/ProfileModal";
 import UserSelectionModal from "./profile/UserSelectionModal";
 import ChannelCreationModal from "./profile/ChannelCreationModal";
@@ -7,10 +7,9 @@ import TagSuggestions from "./profile/TagSuggestions";
 import { chatService, messageUtils } from "./chatService";
 import { shallowEqual, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import signalRService from "./signalrServices"; // Assurez-vous que le chemin est correct
 import { useMessageHandler } from "./hooks/useMessageHandler";
+import { HubConnectionBuilder } from "@microsoft/signalr";
 import { ExpandMore, ChevronRight } from "@material-ui/icons";
-import { use } from "react";
 
 const ChatPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -51,6 +50,7 @@ const ChatPage = () => {
 
   const [adminList, setAdminList] = useState([]);
   const [loadingAdmins, setLoadingAdmins] = useState(false);
+    const { authToken } = useSelector((state) => state.auth);
 
   // Fonction pour vérifier si un canal est un parent (a des enfants)
   const hasChildren = (channel) => {
@@ -365,17 +365,24 @@ const ChatPage = () => {
     user,
   });
 
-  // Enregistrer le gestionnaire une seule fois
   useEffect(() => {
-    if (currentUserId) {
-      console.log("Enregistrement du gestionnaire de messages");
-      signalRService.addMessageHandler(handleSignalRMessage);
+    const connection = new HubConnectionBuilder()
+      .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/chat", {
+        accessTokenFactory: () => authToken,
+      })
+      .withAutomaticReconnect()
+      .build();
 
-      return () => {
-        signalRService.removeMessageHandler(handleSignalRMessage);
-      };
-    }
-  }, [handleSignalRMessage, currentUserId]);
+    connection
+      .start()
+      .then((result) => {
+        connection.on("UserToUser", (message) => {
+          console.log("UserToUser", message);
+          loadChats();
+        });
+      })
+      .catch((e) => console.log("Connection with SignalR failed: ", e));
+  }, []);
 
   // Fonction utilitaire pour mettre à jour les canaux imbriqués
   const updateNestedChannel = (channels, targetId, newMessage) => {

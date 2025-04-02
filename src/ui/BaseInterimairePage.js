@@ -15,7 +15,7 @@ import ProfileWizzard from "./components/interimaire/profile/profileForms/Profil
 import { shallowEqual, useSelector } from "react-redux";
 import ChatPageInterim from "./components/interimaire/messages/ChatPageInterim";
 import Contracts from "./components/interimaire/missions/contracts";
-
+import Chat from "./components/interimaire/signalr/Chat";
 import EmailContactModal from "./components/client/Email/EmailContactModal";
 import Documents from "./components/interimaire/missions/documents";
 import HoursStatement from "./components/interimaire/hours-statement/HoursStatement";
@@ -58,6 +58,10 @@ export default function BaseInterimairePage(props) {
         <ContentRoute
           path="/matching"
           component={InterimaireMatchingContainer}
+        />
+        <ContentRoute
+          path="/chat"
+          component={Chat}
         />
         <ContentRoute
           path="/propositions"

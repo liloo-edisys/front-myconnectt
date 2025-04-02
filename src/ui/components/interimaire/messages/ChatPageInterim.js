@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Search, Send, MoreVert } from "@material-ui/icons";
 import { chatService, messageUtils } from "./chatService";
 import { shallowEqual, useSelector } from "react-redux";
+import { HubConnectionBuilder } from "@microsoft/signalr";
 
 const ChatPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -11,6 +12,8 @@ const ChatPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
+
+  const { authToken } = useSelector((state) => state.auth);
 
   // Récupérer l'utilisateur depuis Redux
   const { user } = useSelector(
@@ -32,6 +35,25 @@ const ChatPage = () => {
       console.log("User ID from localStorage:", localStorageUserID);
     }
   }, [user]);
+
+  useEffect(() => {
+    const connection = new HubConnectionBuilder()
+      .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/chat", {
+        accessTokenFactory: () => authToken,
+      })
+      .withAutomaticReconnect()
+      .build();
+
+    connection
+      .start()
+      .then((result) => {
+        connection.on("UserToUser", (message) => {
+          console.log("UserToUser", message);
+          loadChats();
+        });
+      })
+      .catch((e) => console.log("Connection with SignalR failed: ", e));
+  }, []);
 
   const loadChats = async () => {
     try {
@@ -57,16 +79,6 @@ const ChatPage = () => {
 
   useEffect(() => {
     loadChats();
-    // Set up interval to refresh every 7 seconds
-    const interval = setInterval(() => {
-      if (!loading) {
-        console.log("Refreshing chats...");
-        loadChats();
-      }
-    }, 7000);
-
-    // Clean up interval on component unmount
-    return () => clearInterval(interval);
   }, []);
 
   const handleSendMessage = async (e) => {
