@@ -883,7 +883,6 @@ const UserInfoForm = () => {
                           className="spinner-border spinner-border-sm"
                           role="status"
                         >
-                          <span className="visually-hidden">Chargement...</span>
                         </div>
                       </div>
                     )}
@@ -928,7 +927,7 @@ const UserInfoForm = () => {
                                 <i className="fas fa-map-marker-alt"></i>
                               </div>
                               <div>
-                                <div>{suggestion.freeformAddress}</div>
+                                <div className="text-primary">{suggestion.freeformAddress}</div>
                                 <div className="small text-muted">
                                   {suggestion.localName},{" "}
                                   {suggestion.postalCode}, {suggestion.country}
