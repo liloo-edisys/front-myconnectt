@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useHistory } from "react-router-dom";
+import axios from "axios";
+import { FormattedMessage } from "react-intl";
 import { Link } from "react-router-dom";
-import axios from "axios"; // Importation d'axios
 
 const UserInfoForm = () => {
   // États
@@ -14,39 +15,45 @@ const UserInfoForm = () => {
     phone: "",
     email: "",
     address: "",
+    addressObject: null, // Pour stocker l'objet complet d'adresse
     nationality: "",
+    nationalityId: null, // Pour stocker l'ID du pays
     position: "",
-    skills: ""
+    skills: "",
   });
   const [errors, setErrors] = useState({});
   const [importedFile, setImportedFile] = useState(null);
+  const [cvIdTemporary, setCvIdTemporary] = useState(""); // Pour stocker l'ID du CV
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [uploading, setUploading] = useState(false); // État pour suivre le chargement
-  const [uploadError, setUploadError] = useState(null); // État pour les erreurs de chargement
-  const [selectedFileName, setSelectedFileName] = useState(""); // Pour afficher le nom du fichier
-  const [addressSuggestions, setAddressSuggestions] = useState([]); // Pour les suggestions d'adresse
-  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1); // Index de la suggestion sélectionnée
-  const [addressSearchLoading, setAddressSearchLoading] = useState(false); // Indicateur de chargement
-  const [locationLoading, setLocationLoading] = useState(false); // État pour indiquer si la géolocalisation est en cours
-  const [countries, setCountries] = useState([]); // Liste des pays/nationalités
-  const [filteredCountries, setFilteredCountries] = useState([]); // Liste filtrée pour la recherche
-  const [showCountryDropdown, setShowCountryDropdown] = useState(false); // Contrôle l'affichage du dropdown
-  const [selectedCountryIndex, setSelectedCountryIndex] = useState(-1); // Index du pays sélectionné
-  const [countrySearchLoading, setCountrySearchLoading] = useState(false); // Indicateur de chargement
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const [selectedFileName, setSelectedFileName] = useState("");
+  const [addressSuggestions, setAddressSuggestions] = useState([]);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const [addressSearchLoading, setAddressSearchLoading] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [countries, setCountries] = useState([]);
+  const [filteredCountries, setFilteredCountries] = useState([]);
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [selectedCountryIndex, setSelectedCountryIndex] = useState(-1);
+  const [countrySearchLoading, setCountrySearchLoading] = useState(false);
+  const [submitError, setSubmitError] = useState(null); // Pour les erreurs de soumission
+
+  // États pour les cases à cocher
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [legalAgeTerms, setLegalAgeTerms] = useState(false);
 
   // Références
-  const addressTimeoutRef = useRef(null); // Pour gérer le délai avant l'appel API
-  const addressInputRef = useRef(null); // Référence à l'input d'adresse
-  const addressSuggestionsRef = useRef(null); // Référence au conteneur des suggestions
-  const countryInputRef = useRef(null); // Référence à l'input de nationalité
-  const countryListRef = useRef(null); // Référence à la liste des pays
+  const addressTimeoutRef = useRef(null);
+  const addressInputRef = useRef(null);
+  const addressSuggestionsRef = useRef(null);
+  const countryInputRef = useRef(null);
+  const countryListRef = useRef(null);
 
   const history = useHistory();
 
   // Fonctions de traitement des données
-
-  // Fonction pour filtrer les pays en fonction de la recherche
-  const filterCountries = query => {
+  const filterCountries = (query) => {
     if (!query || query.length < 2) {
       setFilteredCountries([]);
       return;
@@ -59,7 +66,7 @@ const UserInfoForm = () => {
       .replace(/[\u0300-\u036f]/g, "");
 
     // Filtrage des pays
-    const filtered = countries.filter(country => {
+    const filtered = countries.filter((country) => {
       const normalizedName = country.frenchName
         .toLowerCase()
         .normalize("NFD")
@@ -71,11 +78,22 @@ const UserInfoForm = () => {
     setFilteredCountries(filtered.slice(0, 10));
   };
 
+  // Fonction pour gérer les changements des cases à cocher
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    if (name === "acceptTerms") {
+      setAcceptTerms(checked);
+    } else if (name === "legalAgeTerms") {
+      setLegalAgeTerms(checked);
+    }
+  };
+
   // Fonction pour sélectionner un pays
-  const selectCountry = country => {
+  const selectCountry = (country) => {
     setFormValues({
       ...formValues,
-      nationality: country.frenchName
+      nationality: country.frenchName,
+      nationalityId: country.id, // Stocker l'ID pour l'API
     });
     setShowCountryDropdown(false);
     setSelectedCountryIndex(-1);
@@ -87,10 +105,11 @@ const UserInfoForm = () => {
   };
 
   // Fonction pour sélectionner une adresse
-  const selectAddress = suggestion => {
+  const selectAddress = (suggestion) => {
     setFormValues({
       ...formValues,
-      address: suggestion.freeformAddress
+      address: suggestion.freeformAddress,
+      addressObject: suggestion, // Stocker l'objet complet
     });
     setAddressSuggestions([]);
     setSelectedSuggestionIndex(-1);
@@ -111,17 +130,18 @@ const UserInfoForm = () => {
         "",
         {
           headers: {
-            accept: "/"
-          }
+            accept: "/",
+          },
         }
       );
 
       console.log("Location response:", response.data);
 
-      if (response.data && response.data.freeformAddress) {
+      if (response.data) {
         setFormValues({
           ...formValues,
-          address: response.data.freeformAddress
+          address: response.data.freeformAddress,
+          addressObject: response.data, // Stocker l'objet complet
         });
       }
     } catch (error) {
@@ -138,7 +158,7 @@ const UserInfoForm = () => {
   };
 
   // Fonction pour envoyer le CV à l'API
-  const uploadCV = async file => {
+  const uploadCV = async (file) => {
     if (!file) return null;
 
     setUploading(true);
@@ -153,12 +173,18 @@ const UserInfoForm = () => {
         formData,
         {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
 
       console.log("CV upload response:", response.data);
+
+      // Si l'API retourne un ID pour le CV, le stocker
+      if (response.data && response.data.id) {
+        setCvIdTemporary(response.data.id);
+      }
+
       return response.data;
     } catch (error) {
       console.error("Erreur lors du chargement du CV:", error);
@@ -170,23 +196,23 @@ const UserInfoForm = () => {
   };
 
   // Fonction pour remplir le formulaire avec les données de l'API
-  const fillFormWithApiData = data => {
+  const fillFormWithApiData = (data) => {
     if (!data) return;
 
     // Mise à jour des valeurs du formulaire avec les données de l'API
-    setFormValues(prevValues => ({
+    setFormValues((prevValues) => ({
       ...prevValues,
       firstname: data.firstname || prevValues.firstname,
       lastname: data.lastname || prevValues.lastname,
       email: data.email || prevValues.email,
       phone: data.phonenumber || prevValues.phone,
       position: data.jobTitle || prevValues.position,
-      skills: data.skills ? data.skills.join(", ") : prevValues.skills
+      skills: data.skills ? data.skills.join(", ") : prevValues.skills,
     }));
   };
 
   // Fonction pour récupérer les suggestions d'adresses
-  const fetchAddressSuggestions = async query => {
+  const fetchAddressSuggestions = async (query) => {
     if (!query || query.length < 3) return;
 
     setAddressSearchLoading(true);
@@ -198,8 +224,8 @@ const UserInfoForm = () => {
         )}`,
         {
           headers: {
-            accept: "text/plain"
-          }
+            accept: "text/plain",
+          },
         }
       );
 
@@ -215,11 +241,11 @@ const UserInfoForm = () => {
   };
 
   // Gérer les changements de champs
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormValues({
       ...formValues,
-      [name]: value
+      [name]: value,
     });
 
     // Supprimer l'erreur si le champ est rempli
@@ -231,7 +257,7 @@ const UserInfoForm = () => {
   };
 
   // Gérer l'importation de fichier
-  const handleFileChange = e => {
+  const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
 
@@ -313,8 +339,8 @@ const UserInfoForm = () => {
           "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Country",
           {
             headers: {
-              accept: "/"
-            }
+              accept: "/",
+            },
           }
         );
 
@@ -337,7 +363,7 @@ const UserInfoForm = () => {
 
   // Effet pour fermer les suggestions lorsqu'on clique en dehors
   useEffect(() => {
-    const handleClickOutside = event => {
+    const handleClickOutside = (event) => {
       // Fermer la liste des adresses si on clique en dehors
       const addressContainer = document.getElementById("address-container");
       if (addressContainer && !addressContainer.contains(event.target)) {
@@ -404,6 +430,32 @@ const UserInfoForm = () => {
     }
   }, [selectedSuggestionIndex]);
 
+  // Effet similaire pour les suggestions de pays
+  useEffect(() => {
+    if (
+      selectedCountryIndex !== -1 &&
+      countryListRef.current &&
+      countryListRef.current.children[selectedCountryIndex]
+    ) {
+      const container = countryListRef.current;
+      const selectedElement = container.children[selectedCountryIndex];
+
+      if (selectedElement) {
+        if (
+          selectedElement.offsetTop + selectedElement.clientHeight >
+          container.scrollTop + container.clientHeight
+        ) {
+          container.scrollTop =
+            selectedElement.offsetTop +
+            selectedElement.clientHeight -
+            container.clientHeight;
+        } else if (selectedElement.offsetTop < container.scrollTop) {
+          container.scrollTop = selectedElement.offsetTop;
+        }
+      }
+    }
+  }, [selectedCountryIndex]);
+
   // Valider le CV et passer au formulaire
   const validateAndProceed = async () => {
     if (!importedFile) {
@@ -433,28 +485,76 @@ const UserInfoForm = () => {
   };
 
   // Gérer la soumission du formulaire
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitError(null);
+
+    // Vérifier si les conditions sont acceptées
+    if (!acceptTerms || !legalAgeTerms) {
+      setSubmitError(
+        "Vous devez accepter les conditions générales et certifier avoir l'âge légal pour continuer."
+      );
+      return;
+    }
 
     if (validateProfessionalInfo()) {
       try {
-        console.log("Données soumises:", {
-          personal: {
-            firstname: formValues.firstname,
-            lastname: formValues.lastname,
-            gender: formValues.gender,
-            phone: formValues.phone,
-            email: formValues.email,
-            address: formValues.address,
-            nationality: formValues.nationality
-          },
-          professional: {
-            position: formValues.position,
-            skills: formValues.skills
-          },
-          file: importedFile ? importedFile.name : null
-        });
+        // Préparation des données pour l'API selon le format requis
+        const requestData = {
+          tenantID: 1, // Fixé à 1 comme demandé
+          lastName: formValues.lastname,
+          firstName: formValues.firstname,
+          email: formValues.email,
+          mobilePhone: formValues.phone,
+          sexe:
+            formValues.gender === "M" ? 0 : formValues.gender === "F" ? 1 : 0, // Conversion
+          nationalityID:
+            formValues.nationalityId ||
+            countries.find((c) => c.frenchName === formValues.nationality)
+              ?.id ||
+            0,
+          localization: formValues.addressObject
+            ? {
+                postalCode: formValues.addressObject.postalCode || "",
+                countryCode: formValues.addressObject.countryCode || "",
+                country: formValues.addressObject.country || "",
+                localName: formValues.addressObject.localName || "",
+                freeformAddress: formValues.addressObject.freeformAddress || "",
+                position: formValues.addressObject.position || "",
+              }
+            : {
+                // Fallback si pas d'objet complet
+                freeformAddress: formValues.address,
+                postalCode: "",
+                countryCode: "",
+                country: "",
+                localName: "",
+                position: "",
+              },
+          jobTitle: formValues.position,
+          skills: formValues.skills
+            .split(",")
+            .map((skill) => skill.trim())
+            .filter(Boolean),
+          cV_ID_TEMPORARY:
+            cvIdTemporary || (importedFile ? importedFile.name : ""),
+        };
 
+        console.log("Données à envoyer à l'API:", requestData);
+
+        // Appel à l'API d'enregistrement
+        const response = await axios.post(
+          "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Applicant/Register",
+          requestData,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              accept: "*/*",
+            },
+          }
+        );
+
+        console.log("Réponse de l'API d'enregistrement:", response.data);
         setFormSubmitted(true);
 
         // Redirection vers /int-register
@@ -463,6 +563,22 @@ const UserInfoForm = () => {
         }, 1500);
       } catch (error) {
         console.error("Erreur lors de la soumission:", error);
+
+        // Affichage d'une erreur détaillée à l'utilisateur
+        let errorMessage =
+          "Une erreur est survenue lors de l'enregistrement de vos informations.";
+
+        if (error.response) {
+          // Erreur de réponse serveur (4xx, 5xx)
+          errorMessage += ` Erreur ${error.response.status}: ${error.response
+            .data?.message || error.response.statusText}`;
+        } else if (error.request) {
+          // Pas de réponse reçue
+          errorMessage +=
+            " Impossible de contacter le serveur. Vérifiez votre connexion internet.";
+        }
+
+        setSubmitError(errorMessage);
       }
     }
   };
@@ -485,26 +601,29 @@ const UserInfoForm = () => {
     return (
       <div className="container py-4">
         <h1 className="text-center mb-4 text-primary">
-          Formulaire d'informations utilisateur
+          Formulaire d'inscription
         </h1>
-
+        <p className="text-muted font-weight-bold text-center">
+          Inscrivez-vous pour créer votre compte MyConnectt et démarrer votre
+          recherche sans plus attendre
+        </p>
         <div className="card">
           <div className="card-body">
             <div
               className="border border-2 border-dashed rounded p-5 text-center mb-4"
               style={{ cursor: "pointer", transition: "all 0.2s ease" }}
               onClick={() => document.getElementById("file-upload").click()}
-              onDragOver={e => {
+              onDragOver={(e) => {
                 e.preventDefault();
                 e.currentTarget.style.backgroundColor = "#f8f9fa";
                 e.currentTarget.style.borderColor = "#0d6efd";
               }}
-              onDragLeave={e => {
+              onDragLeave={(e) => {
                 e.preventDefault();
                 e.currentTarget.style.backgroundColor = "transparent";
                 e.currentTarget.style.borderColor = "";
               }}
-              onDrop={e => {
+              onDrop={(e) => {
                 e.preventDefault();
                 e.currentTarget.style.backgroundColor = "transparent";
                 e.currentTarget.style.borderColor = "";
@@ -526,10 +645,11 @@ const UserInfoForm = () => {
                   <p className="mb-0">{selectedFileName}</p>
                   <button
                     className="btn btn-sm btn-outline-secondary mt-3"
-                    onClick={e => {
+                    onClick={(e) => {
                       e.stopPropagation(); // Empêcher d'ouvrir le sélecteur de fichier
                       setImportedFile(null);
                       setSelectedFileName("");
+                      setCvIdTemporary("");
                       document.getElementById("file-upload").value = "";
                     }}
                   >
@@ -555,6 +675,13 @@ const UserInfoForm = () => {
                 onChange={handleFileChange}
               />
             </div>
+            {selectedFileName && (
+              <p className="text-center mt-2 text-primary">
+                <small>
+                  <strong>Fichier sélectionné :</strong> {selectedFileName}
+                </small>
+              </p>
+            )}
 
             <div className="row">
               <div className="col-6">
@@ -582,6 +709,17 @@ const UserInfoForm = () => {
               </div>
             )}
           </div>
+          <div className="text-center mt-4">
+            <p className="mb-0 text-muted">
+              Vous avez déjà un compte ?{" "}
+              <Link
+                to="/auth/int-login"
+                className="text-primary font-weight-bold"
+              >
+                Se connecter
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -591,9 +729,12 @@ const UserInfoForm = () => {
   return (
     <div className="container py-4">
       <h1 className="text-center mb-4 text-primary">
-        Formulaire d'informations utilisateur
+        Formulaire d'inscription
       </h1>
-
+      <p className="text-muted font-weight-bold text-center">
+        Inscrivez-vous pour créer votre compte MyConnectt et démarrer votre
+        recherche sans plus attendre
+      </p>
       <div className="card">
         <div className="card-body">
           <div
@@ -604,14 +745,6 @@ const UserInfoForm = () => {
             ← Retour aux options
           </div>
           <div className="mb-4">
-            <button
-              className="btn btn-light border w-100 d-flex align-items-center justify-content-center"
-              onClick={() =>
-                document.getElementById("file-upload-form").click()
-              }
-            >
-              <span className="me-2">📄</span> Importer un CV (PDF uniquement)
-            </button>
             <input
               id="file-upload-form"
               type="file"
@@ -619,13 +752,6 @@ const UserInfoForm = () => {
               style={{ display: "none" }}
               onChange={handleFileChange}
             />
-            {selectedFileName && (
-              <p className="text-center mt-2 text-primary">
-                <small>
-                  <strong>Fichier sélectionné :</strong> {selectedFileName}
-                </small>
-              </p>
-            )}
           </div>
 
           <h2 className="mb-3">
@@ -633,57 +759,55 @@ const UserInfoForm = () => {
               ? "Informations personnelles"
               : "Informations professionnelles"}
           </h2>
+
+          {submitError && (
+            <div className="alert alert-danger" role="alert">
+              {submitError}
+            </div>
+          )}
           <form onSubmit={handleSubmit}>
             {/* Section Informations personnelles */}
             {showPersonal && (
               <div>
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label htmlFor="firstname" className="form-label">
-                        Prénom
-                      </label>
-                      <input
-                        type="text"
-                        className={`form-control ${
-                          errors.firstname ? "is-invalid" : ""
-                        }`}
-                        id="firstname"
-                        name="firstname"
-                        value={formValues.firstname}
-                        onChange={handleChange}
-                        placeholder="Votre prénom"
-                      />
-                      {errors.firstname && (
-                        <div className="invalid-feedback">
-                          {errors.firstname}
-                        </div>
-                      )}
-                    </div>
+                <div className="">
+                  <div className="mb-3">
+                    <label htmlFor="firstname" className="form-label">
+                      Prénom
+                    </label>
+                    <input
+                      type="text"
+                      className={`form-control ${
+                        errors.firstname ? "is-invalid" : ""
+                      }`}
+                      id="firstname"
+                      name="firstname"
+                      value={formValues.firstname}
+                      onChange={handleChange}
+                      placeholder="Votre prénom"
+                    />
+                    {errors.firstname && (
+                      <div className="invalid-feedback">{errors.firstname}</div>
+                    )}
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label htmlFor="lastname" className="form-label">
-                        Nom
-                      </label>
-                      <input
-                        type="text"
-                        className={`form-control ${
-                          errors.lastname ? "is-invalid" : ""
-                        }`}
-                        id="lastname"
-                        name="lastname"
-                        value={formValues.lastname}
-                        onChange={handleChange}
-                        placeholder="Votre nom"
-                      />
-                      {errors.lastname && (
-                        <div className="invalid-feedback">
-                          {errors.lastname}
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="lastname" className="form-label">
+                    Nom
+                  </label>
+                  <input
+                    type="text"
+                    className={`form-control ${
+                      errors.lastname ? "is-invalid" : ""
+                    }`}
+                    id="lastname"
+                    name="lastname"
+                    value={formValues.lastname}
+                    onChange={handleChange}
+                    placeholder="Votre nom"
+                  />
+                  {errors.lastname && (
+                    <div className="invalid-feedback">{errors.lastname}</div>
+                  )}
                 </div>
 
                 <div className="mb-3">
@@ -709,49 +833,43 @@ const UserInfoForm = () => {
                   )}
                 </div>
 
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label htmlFor="phone" className="form-label">
-                        Téléphone
-                      </label>
-                      <input
-                        type="tel"
-                        className={`form-control ${
-                          errors.phone ? "is-invalid" : ""
-                        }`}
-                        id="phone"
-                        name="phone"
-                        value={formValues.phone}
-                        onChange={handleChange}
-                        placeholder="Votre numéro de téléphone"
-                      />
-                      {errors.phone && (
-                        <div className="invalid-feedback">{errors.phone}</div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label htmlFor="email" className="form-label">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        className={`form-control ${
-                          errors.email ? "is-invalid" : ""
-                        }`}
-                        id="email"
-                        name="email"
-                        value={formValues.email}
-                        onChange={handleChange}
-                        placeholder="Votre email"
-                      />
-                      {errors.email && (
-                        <div className="invalid-feedback">{errors.email}</div>
-                      )}
-                    </div>
-                  </div>
+                <div className="mb-3">
+                  <label htmlFor="phone" className="form-label">
+                    Téléphone
+                  </label>
+                  <input
+                    type="tel"
+                    className={`form-control ${
+                      errors.phone ? "is-invalid" : ""
+                    }`}
+                    id="phone"
+                    name="phone"
+                    value={formValues.phone}
+                    onChange={handleChange}
+                    placeholder="Votre numéro de téléphone"
+                  />
+                  {errors.phone && (
+                    <div className="invalid-feedback">{errors.phone}</div>
+                  )}
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="email" className="form-label">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    className={`form-control ${
+                      errors.email ? "is-invalid" : ""
+                    }`}
+                    id="email"
+                    name="email"
+                    value={formValues.email}
+                    onChange={handleChange}
+                    placeholder="Votre email"
+                  />
+                  {errors.email && (
+                    <div className="invalid-feedback">{errors.email}</div>
+                  )}
                 </div>
 
                 <div className="mb-3">
@@ -792,7 +910,7 @@ const UserInfoForm = () => {
                         id="address"
                         name="address"
                         value={formValues.address}
-                        onChange={e => {
+                        onChange={(e) => {
                           // Persistez l'événement pour éviter l'erreur de réutilisation des événements synthétiques
                           e.persist();
 
@@ -818,7 +936,7 @@ const UserInfoForm = () => {
                             fetchAddressSuggestions(query);
                           }, 300);
                         }}
-                        onKeyDown={e => {
+                        onKeyDown={(e) => {
                           // Navigation avec les flèches dans les suggestions
                           if (addressSuggestions.length > 0) {
                             if (e.key === "ArrowDown") {
@@ -860,7 +978,8 @@ const UserInfoForm = () => {
                           onClick={() => {
                             setFormValues({
                               ...formValues,
-                              address: ""
+                              address: "",
+                              addressObject: null, // Réinitialiser l'objet d'adresse
                             });
                             setAddressSuggestions([]);
                             // Focus sur l'input après suppression
@@ -882,8 +1001,7 @@ const UserInfoForm = () => {
                         <div
                           className="spinner-border spinner-border-sm"
                           role="status"
-                        >
-                        </div>
+                        ></div>
                       </div>
                     )}
 
@@ -901,9 +1019,9 @@ const UserInfoForm = () => {
                         style={{
                           zIndex: 1000,
                           maxHeight: "200px",
-                          overflowY: "auto"
+                          overflowY: "auto",
                         }}
-                        onClick={e => e.stopPropagation()} // Empêche la propagation du clic
+                        onClick={(e) => e.stopPropagation()} // Empêche la propagation du clic
                       >
                         {addressSuggestions.map((suggestion, index) => (
                           <div
@@ -915,7 +1033,7 @@ const UserInfoForm = () => {
                             }`}
                             style={{
                               cursor: "pointer",
-                              transition: "background-color 0.2s ease"
+                              transition: "background-color 0.2s ease",
                             }}
                             onMouseEnter={() =>
                               setSelectedSuggestionIndex(index)
@@ -927,7 +1045,9 @@ const UserInfoForm = () => {
                                 <i className="fas fa-map-marker-alt"></i>
                               </div>
                               <div>
-                                <div className="text-primary">{suggestion.freeformAddress}</div>
+                                <div className="text-primary">
+                                  {suggestion.freeformAddress}
+                                </div>
                                 <div className="small text-muted">
                                   {suggestion.localName},{" "}
                                   {suggestion.postalCode}, {suggestion.country}
@@ -955,7 +1075,7 @@ const UserInfoForm = () => {
                         id="nationality"
                         name="nationality"
                         value={formValues.nationality}
-                        onChange={e => {
+                        onChange={(e) => {
                           // Capture de la valeur
                           const value = e.target.value;
 
@@ -980,7 +1100,7 @@ const UserInfoForm = () => {
                             setShowCountryDropdown(true);
                           }
                         }}
-                        onKeyDown={e => {
+                        onKeyDown={(e) => {
                           // Navigation avec les flèches dans les suggestions
                           if (
                             showCountryDropdown &&
@@ -1025,7 +1145,8 @@ const UserInfoForm = () => {
                           onClick={() => {
                             setFormValues({
                               ...formValues,
-                              nationality: ""
+                              nationality: "",
+                              nationalityId: null, // Réinitialiser l'ID
                             });
                             setShowCountryDropdown(false);
                             // Focus sur l'input après suppression
@@ -1065,9 +1186,9 @@ const UserInfoForm = () => {
                         style={{
                           zIndex: 1000,
                           maxHeight: "200px",
-                          overflowY: "auto"
+                          overflowY: "auto",
                         }}
-                        onClick={e => e.stopPropagation()} // Empêche la propagation du clic
+                        onClick={(e) => e.stopPropagation()} // Empêche la propagation du clic
                       >
                         {filteredCountries.map((country, index) => (
                           <div
@@ -1077,7 +1198,7 @@ const UserInfoForm = () => {
                             }`}
                             style={{
                               cursor: "pointer",
-                              transition: "background-color 0.2s ease"
+                              transition: "background-color 0.2s ease",
                             }}
                             onMouseEnter={() => setSelectedCountryIndex(index)}
                             onClick={() => selectCountry(country)}
@@ -1089,7 +1210,7 @@ const UserInfoForm = () => {
                                 </span>
                               </div>
                               <div>
-                                <div className=" text-primary">
+                                <div className="text-primary">
                                   {country.frenchName}
                                 </div>
                                 <div className="small text-muted">
@@ -1166,6 +1287,53 @@ const UserInfoForm = () => {
                   )}
                 </div>
 
+                {/* Cases à cocher pour les conditions et l'âge légal */}
+                <div className="row d-flex justify-content-center mb-4">
+                  <div className="form-group col-lg-12">
+                    <label className="checkbox">
+                      <input
+                        type="checkbox"
+                        name="acceptTerms"
+                        className="m-1"
+                        checked={acceptTerms}
+                        onChange={handleCheckboxChange}
+                      />
+                      <span />
+                      <div className="mr-1 ml-2 mt-3">
+                        <FormattedMessage id="AUTH.REGISTER.RGPD" />
+                        <span>
+                          <a
+                            href="https://myconnectt.fr/mentions-legales/"
+                            target="_blank"
+                            className="mr-1 ml-2 mt-3"
+                            rel="noopener noreferrer"
+                            style={{ textDecoration: "underline" }}
+                          >
+                            Lire +
+                          </a>
+                        </span>
+                      </div>
+                    </label>
+
+                    <label className="checkbox mt-3">
+                      <input
+                        type="checkbox"
+                        name="legalAgeTerms"
+                        className="m-1"
+                        checked={legalAgeTerms}
+                        onChange={handleCheckboxChange}
+                      />
+                      <span />
+                      <p className="mr-1 ml-2 mt-3">
+                        <FormattedMessage
+                          id="AUTH.REGISTER.LEGAL_AGE.TERMS"
+                          defaultValue="Je certifie avoir l'âge légal"
+                        />
+                      </p>
+                    </label>
+                  </div>
+                </div>
+
                 <div className="d-flex justify-content-between mt-4">
                   <button
                     type="button"
@@ -1177,7 +1345,7 @@ const UserInfoForm = () => {
                   <button
                     type="submit"
                     className="btn btn-primary"
-                    disabled={uploading}
+                    disabled={uploading || !(acceptTerms && legalAgeTerms)}
                   >
                     {uploading
                       ? "Chargement..."
@@ -1193,4 +1361,4 @@ const UserInfoForm = () => {
   );
 };
 
-export default UserInfoForm
+export default UserInfoForm;
