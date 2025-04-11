@@ -1,5 +1,11 @@
 {
-    "ponicode.testSettings.testLocation.locationType": "Same folder as source file",
-    "ponicode.testSettings.testLocation.path": "{rootDir}/{filePath}/{fileName}.test.{ext}",
-    "compile-hero.disable-compile-files-on-did-save-code": true
+  "ponicode.testSettings.testLocation.locationType": "Same folder as source file",
+  "ponicode.testSettings.testLocation.path": "{rootDir}/{filePath}/{fileName}.test.{ext}",
+  "compile-hero.disable-compile-files-on-did-save-code": true,
+  "i18n-ally.localesPaths": [
+    "src/_metronic/i18n",
+    "src/_metronic/i18n/messages",
+    "src/ui/components/client/messages",
+    "src/ui/components/interimaire/messages"
+  ]
 }

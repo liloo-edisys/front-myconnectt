@@ -32,6 +32,7 @@
   "AUTH.REGISTER.TITLE": "Inscrivez-vous.",
   "AUTH.REGISTER.POSTALCODE": "Ville ou code postal de votre société",
   "AUTH.REGISTER.COMPANY_NAME": "Raison sociale",
+  "AUTH.REGISTER.SIRET_NUMBER": "Numéro SIRET",
   "AUTH.RESET.DESC": "Saisissez votre nouveau mot de passe:",
   "AUTH.RESET.SUCCESS_DESC": "Oups petit soucis ! Merci de vous reconnecter.",
   "AUTH.RESET.SUCCESS_TITLE": "C'est bon ! Votre mot de passe a bien été modifié.",
