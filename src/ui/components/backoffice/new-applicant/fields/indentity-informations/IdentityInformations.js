@@ -27,7 +27,7 @@ import axios from "axios";
 import PlacesAutocomplete, {
   geocodeByAddress,
   getLatLng,
-  geocodeByPlaceId,
+  geocodeByPlaceId
 } from "react-places-autocomplete";
 import { ApplicantDeleteModal } from "./ApplicantDeleteModal";
 
@@ -41,13 +41,13 @@ function IdentityInformations(props) {
     user,
     titleTypes,
     activeInterimaire,
-    nationalitiesList,
+    nationalitiesList
   } = useSelector(
-    (state) => ({
+    state => ({
       user: state.user.user,
       titleTypes: state.lists.titleTypes,
       activeInterimaire: state.accountsReducerData.activeInterimaire,
-      nationalitiesList: state.interimairesReducerData.nationalitiesList,
+      nationalitiesList: state.interimairesReducerData.nationalitiesList
     }),
     shallowEqual
   );
@@ -148,7 +148,7 @@ function IdentityInformations(props) {
         : "",
     hasSms: false,
     applicantPictureID: null,
-    applicantPicture: null,
+    applicantPicture: null
   };
 
   useEffect(() => {
@@ -181,10 +181,10 @@ function IdentityInformations(props) {
 
       const now = moment(new Date()).format("YYYY-MM-DD");
       const habilitationsList = activeInterimaire.applicantDocuments.filter(
-        (hab) => hab.documentType === 13 && hab.expirationDate
+        hab => hab.documentType === 13 && hab.expirationDate
       );
       const datesArray = [
-        moment(activeInterimaire.idCardExpirationDate).format("YYYY-MM-DD"),
+        moment(activeInterimaire.idCardExpirationDate).format("YYYY-MM-DD")
       ];
       for (let i = 0; i < habilitationsList.length; i++) {
         datesArray.push(habilitationsList[i].expirationDate);
@@ -245,7 +245,7 @@ function IdentityInformations(props) {
     ),
     birthPlace: Yup.string().required(
       intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })
-    ),
+    )
   });
 
   useEffect(() => {
@@ -256,7 +256,7 @@ function IdentityInformations(props) {
     setFieldValue("titleTypeID", parseInt(e));
   };
 
-  const handleChange = (address) => {
+  const handleChange = address => {
     setAddress(address);
   };
 
@@ -265,10 +265,9 @@ function IdentityInformations(props) {
     const latLng = await getLatLng(results[0]);
     const [place] = await geocodeByPlaceId(placeId);
     const { long_name: postalCode = "" } =
-      place.address_components.find((c) => c.types.includes("postal_code")) ||
-      {};
+      place.address_components.find(c => c.types.includes("postal_code")) || {};
     const { long_name: city = "" } =
-      place.address_components.find((c) => c.types.includes("locality")) || {};
+      place.address_components.find(c => c.types.includes("locality")) || {};
     const addressArray = address.split(",");
     setAddress(addressArray[0]);
 
@@ -311,7 +310,7 @@ function IdentityInformations(props) {
     </div>
   );
 
-  const photoUpload = (e) => {
+  const photoUpload = e => {
     e.preventDefault();
     let stringBase64;
     const reader = new FileReader();
@@ -323,7 +322,7 @@ function IdentityInformations(props) {
       stringBase64 = reader.result.split(",")[1];
       let appPicture = {
         fileName: fileName,
-        base64: stringBase64,
+        base64: stringBase64
       };
       setImageToSave(appPicture);
       //props.formik.setFieldValue("applicantPicture", appPicture);
@@ -335,7 +334,7 @@ function IdentityInformations(props) {
   const onValidateApplicant = () => {
     let body = {
       id1: activeInterimaire.tenantID,
-      id2: activeInterimaire.id,
+      id2: activeInterimaire.id
     };
     setValidationLoading(true);
 
@@ -344,7 +343,7 @@ function IdentityInformations(props) {
         process.env.REACT_APP_WEBAPI_URL + "api/applicant/SendToAnael",
         body
       )
-      .then((res) => {
+      .then(res => {
         toastr.success(
           intl.formatMessage({ id: "TITLE.EDIT.INTERIMAIRE" }),
           intl.formatMessage({ id: "MESSAGE.INTERIMAIRE.VALIDATION" })
@@ -355,7 +354,7 @@ function IdentityInformations(props) {
           history.push(`edit/${res.data.id}`);
         }*/
       })
-      .catch((err) => {
+      .catch(err => {
         setValidationLoading(false);
         toastr.error(
           intl.formatMessage({ id: "TITLE.EDIT.INTERIMAIRE" }),
@@ -367,7 +366,7 @@ function IdentityInformations(props) {
   const onDocumentRelance = () => {
     let body = {
       id1: activeInterimaire.tenantID,
-      id2: activeInterimaire.id,
+      id2: activeInterimaire.id
     };
     setRelanceLoading(true);
     axios
@@ -375,14 +374,14 @@ function IdentityInformations(props) {
         process.env.REACT_APP_WEBAPI_URL + "api/Email/ApplicantDocumentRelance",
         body
       )
-      .then((res) => {
+      .then(res => {
         toastr.success(
           intl.formatMessage({ id: "BUTTON.DOCUMENT.RELANCE" }),
           intl.formatMessage({ id: "MESSAGE.INTERIMAIRE.NOTIFIED" })
         );
         setRelanceLoading(false);
       })
-      .catch((err) => {
+      .catch(err => {
         setRelanceLoading(false);
         toastr.error(
           intl.formatMessage({ id: "BUTTON.DOCUMENT.RELANCE" }),
@@ -402,11 +401,11 @@ function IdentityInformations(props) {
     }
   };
 
-  const sendToPrefecture = (id) => {
+  const sendToPrefecture = id => {
     setSendPrefectureLoading(true);
     const body = {
       id1: user.tenantID,
-      id2: id,
+      id2: id
     };
 
     axios
@@ -415,11 +414,11 @@ function IdentityInformations(props) {
           "api/applicant/SendDocumentsToPrefecture",
         body
       )
-      .then((res) => {
+      .then(res => {
         toastr.success(
           intl.formatMessage({ id: "Succès" }),
           intl.formatMessage({
-            id: "L'envoi a été réalisé avec succès",
+            id: "L'envoi a été réalisé avec succès"
           })
         );
         setSendPrefectureLoading(false);
@@ -428,11 +427,11 @@ function IdentityInformations(props) {
             history.push(`edit/${res.data.id}`);
           }*/
       })
-      .catch((err) => {
+      .catch(err => {
         setSendPrefectureLoading(false);
         toastr.error(
           intl.formatMessage({
-            id: "Une erreur s'est produite lors de l'envoi à la préfecture",
+            id: "Une erreur s'est produite lors de l'envoi à la préfecture"
           }),
           intl.formatMessage({ id: err.response.data })
         );
@@ -458,42 +457,42 @@ function IdentityInformations(props) {
           validationSchema={ApplicantSchema}
           setFieldValue
           setFieldTouched
-          onSubmit={(values) => {
+          onSubmit={values => {
             let body = values;
             if (interimaireId) {
               body = {
                 ...activeInterimaire,
-                ...values,
+                ...values
               };
               if (imageToSave) {
                 body = {
                   ...body,
-                  applicantPicture: imageToSave,
+                  applicantPicture: imageToSave
                 };
               } else {
                 body = {
                   ...body,
-                  applicantPicture: activeInterimaire.applicantPicture,
+                  applicantPicture: activeInterimaire.applicantPicture
                 };
               }
             }
             setLoading(true);
             axios
               .put(process.env.REACT_APP_WEBAPI_URL + "api/Applicant", body)
-              .then((res) => {
+              .then(res => {
                 let message = interimaireId
                   ? intl.formatMessage({
-                      id: "MESSAGE.INTERIMAIRE.UPDATE.SUCCESS",
+                      id: "MESSAGE.INTERIMAIRE.UPDATE.SUCCESS"
                     })
                   : intl.formatMessage({
-                      id: "MESSAGE.INTERIMAIRE.CREATION.SUCCESS",
+                      id: "MESSAGE.INTERIMAIRE.CREATION.SUCCESS"
                     });
                 let errorMessage = interimaireId
                   ? intl.formatMessage({
-                      id: "MESSAGE.INTERIMAIRE.UPDATE.ERROR",
+                      id: "MESSAGE.INTERIMAIRE.UPDATE.ERROR"
                     })
                   : intl.formatMessage({
-                      id: "MESSAGE.INTERIMAIRE.CREATION.ERROR",
+                      id: "MESSAGE.INTERIMAIRE.CREATION.ERROR"
                     });
                 toastr.success(
                   intl.formatMessage({ id: "TITLE.INTERIMAIRE.CREATION" }),
@@ -505,7 +504,7 @@ function IdentityInformations(props) {
                   history.push(`edit/${res.data.id}`);
                 }
               })
-              .catch((err) => {
+              .catch(err => {
                 setLoading(false);
                 let message =
                   err.response.data.message && err.response.data.message;
@@ -520,7 +519,7 @@ function IdentityInformations(props) {
             status,
             handleSubmit,
             setFieldValue,
-            setFieldTouched,
+            setFieldTouched
           }) => (
             <Form
               id="kt_login_signin_form"
@@ -612,7 +611,7 @@ function IdentityInformations(props) {
                       <div className="avatar-container">
                         <Edit>
                           <ImgUpload
-                            onChange={(e) => photoUpload(e)}
+                            onChange={e => photoUpload(e)}
                             src={previewUrl}
                           />
                         </Edit>
@@ -625,7 +624,7 @@ function IdentityInformations(props) {
                             id="photo-upload"
                             type="file"
                             accept="image/*"
-                            onChange={(e) => photoUpload(e)}
+                            onChange={e => photoUpload(e)}
                           />
                         </label>
                       </div>
@@ -651,7 +650,7 @@ function IdentityInformations(props) {
                                     <select
                                       className="form-control h-auto py-5 px-6"
                                       name="titleTypeID"
-                                      onChange={(e) => {
+                                      onChange={e => {
                                         onChangeGender(
                                           e.target.value,
                                           setFieldValue
@@ -661,11 +660,11 @@ function IdentityInformations(props) {
                                       <option disabled selected value="0">
                                         --{" "}
                                         {intl.formatMessage({
-                                          id: "MODEL.CIVILITY",
+                                          id: "MODEL.CIVILITY"
                                         })}{" "}
                                         --
                                       </option>
-                                      {titleTypes.map((gender) => (
+                                      {titleTypes.map(gender => (
                                         <option
                                           key={gender.id}
                                           label={gender.name}
@@ -705,7 +704,7 @@ function IdentityInformations(props) {
                               </div>
                               <Field
                                 placeholder={intl.formatMessage({
-                                  id: "TEXT.ANAEL.ID",
+                                  id: "TEXT.ANAEL.ID"
                                 })}
                                 type="text"
                                 className={`form-control h-auto py-5 px-6`}
@@ -736,7 +735,7 @@ function IdentityInformations(props) {
                             </div>
                             <Field
                               placeholder={intl.formatMessage({
-                                id: "MODEL.FIRSTNAME",
+                                id: "MODEL.FIRSTNAME"
                               })}
                               type="text"
                               className={`form-control h-auto py-5 px-6`}
@@ -764,7 +763,7 @@ function IdentityInformations(props) {
                             </div>
                             <Field
                               placeholder={intl.formatMessage({
-                                id: "MODEL.LASTNAME",
+                                id: "MODEL.LASTNAME"
                               })}
                               type="text"
                               className={`form-control h-auto py-5 px-6`}
@@ -791,7 +790,7 @@ function IdentityInformations(props) {
                             </div>
                             <Field
                               placeholder={intl.formatMessage({
-                                id: "MODEL.BIRTHNAME",
+                                id: "MODEL.BIRTHNAME"
                               })}
                               type="text"
                               className={`form-control h-auto py-5 px-6`}
@@ -823,7 +822,7 @@ function IdentityInformations(props) {
                         </div>
                         <Field
                           placeholder={intl.formatMessage({
-                            id: "MODEL.EMAIL",
+                            id: "MODEL.EMAIL"
                           })}
                           type="text"
                           className={`form-control h-auto py-5 px-6`}
@@ -849,10 +848,10 @@ function IdentityInformations(props) {
                         </div>
                         <Field
                           placeholder={intl.formatMessage({
-                            id: "MODEL.PHONE",
+                            id: "MODEL.PHONE"
                           })}
                           type="text"
-                          onChange={(e) =>
+                          onChange={e =>
                             handleChangePhone(
                               setFieldValue,
                               setFieldTouched,
@@ -895,13 +894,13 @@ function IdentityInformations(props) {
                             getInputProps,
                             suggestions,
                             getSuggestionItemProps,
-                            loading,
+                            loading
                           }) => (
                             <div
                               style={{
                                 width: "100%",
                                 display: "flex",
-                                position: "relative",
+                                position: "relative"
                               }}
                             >
                               <div className="input-group-prepend">
@@ -915,7 +914,7 @@ function IdentityInformations(props) {
                               <input
                                 className={`form-control h-auto py-5 px-6 google-map-input-content`}
                                 {...getInputProps({
-                                  placeholder: "Entrez votre adresse",
+                                  placeholder: "Entrez votre adresse"
                                 })}
                               />
                               <div
@@ -924,7 +923,7 @@ function IdentityInformations(props) {
                                   position: "absolute",
                                   top: 55,
                                   left: 55,
-                                  zIndex: 1,
+                                  zIndex: 1
                                 }}
                               >
                                 {loading && (
@@ -932,7 +931,7 @@ function IdentityInformations(props) {
                                     <FormattedMessage id="MESSAGE.SEARCH.ONGOING" />
                                   </div>
                                 )}
-                                {suggestions.map((suggestion) => {
+                                {suggestions.map(suggestion => {
                                   const className = suggestion.active
                                     ? "suggestion-item--active"
                                     : "suggestion-item";
@@ -940,18 +939,18 @@ function IdentityInformations(props) {
                                     ? {
                                         backgroundColor: "#fafafa",
                                         cursor: "pointer",
-                                        padding: 5,
+                                        padding: 5
                                       }
                                     : {
                                         backgroundColor: "#ffffff",
                                         cursor: "pointer",
-                                        padding: 5,
+                                        padding: 5
                                       };
                                   return (
                                     <div
                                       {...getSuggestionItemProps(suggestion, {
                                         className,
-                                        style,
+                                        style
                                       })}
                                     >
                                       <span>{suggestion.description}</span>
@@ -981,7 +980,7 @@ function IdentityInformations(props) {
                         </div>
                         <input
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.ADDITIONALADDRESS",
+                            id: "MODEL.ACCOUNT.ADDITIONALADDRESS"
                           })}
                           type="text"
                           className={`form-control h-auto py-5 px-6`}
@@ -1006,7 +1005,7 @@ function IdentityInformations(props) {
                         <input
                           disabled
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.POSTALCODE",
+                            id: "MODEL.ACCOUNT.POSTALCODE"
                           })}
                           type="text"
                           className={`form-control h-auto py-5 px-6`}
@@ -1036,7 +1035,7 @@ function IdentityInformations(props) {
                         <input
                           disabled
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.CITY",
+                            id: "MODEL.ACCOUNT.CITY"
                           })}
                           type="text"
                           className={`form-control h-auto py-5 px-6`}
@@ -1080,7 +1079,7 @@ function IdentityInformations(props) {
                         <select
                           className="form-control h-auto py-5 px-6"
                           name="nationalityID"
-                          onChange={(e) => {
+                          onChange={e => {
                             handleChangeNationality(
                               e.target.value,
                               setFieldValue
@@ -1090,11 +1089,11 @@ function IdentityInformations(props) {
                           <option disabled selected value="0">
                             --{" "}
                             {intl.formatMessage({
-                              id: "MESSAGE.SELECT.NATIONALITY",
+                              id: "MESSAGE.SELECT.NATIONALITY"
                             })}{" "}
                             --
                           </option>
-                          {nationalitiesList.map((nationality) => (
+                          {nationalitiesList.map(nationality => (
                             <option
                               key={nationality.id}
                               label={nationality.frenchName}
@@ -1125,7 +1124,7 @@ function IdentityInformations(props) {
                         placeholder="JJ/MM/AAAA"
                         name="birthDate"
                         maxDate={moment().subtract(18, "years")._d}
-                        onChange={(date) =>
+                        onChange={date =>
                           onChangeBirthDate(date, setFieldValue)
                         }
                         showMonthDropdown
@@ -1181,7 +1180,7 @@ function IdentityInformations(props) {
                         </div>
                         <Field
                           placeholder={intl.formatMessage({
-                            id: "TEXT.BIRTH.LOCATION",
+                            id: "TEXT.BIRTH.LOCATION"
                           })}
                           type="text"
                           className={`form-control h-auto py-5 px-6`}

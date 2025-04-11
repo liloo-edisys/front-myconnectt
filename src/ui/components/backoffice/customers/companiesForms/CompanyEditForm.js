@@ -16,7 +16,7 @@ import {
   getAPE,
   getInvoicesTypes,
   getAccountGroups,
-  getPaymentChoices,
+  getPaymentChoices
 } from "actions/shared/ListsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { toastr } from "react-redux-toastr";
@@ -32,13 +32,13 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
     invoiceTypes,
     accountGroups,
     paymentChoices,
-    apeNumber,
+    apeNumber
   } = useSelector(
-    (state) => ({
+    state => ({
       invoiceTypes: state.lists.invoiceTypes,
       accountGroups: state.lists.accountGroups,
       paymentChoices: state.lists.paymentChoices,
-      apeNumber: state.lists.apeNumber,
+      apeNumber: state.lists.apeNumber
     }),
     shallowEqual
   );
@@ -46,7 +46,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [
     commercialAgreementsValidated,
-    setCommercialAgreementsValidated,
+    setCommercialAgreementsValidated
   ] = useState(false);
   const [currentCompany, setCurrentCompany] = useState(history.location.state);
   const [outstandingsValidated, setOutstandingsValidated] = useState(false);
@@ -75,7 +75,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
     if (id) {
       const COMPANIES_URL =
         process.env.REACT_APP_WEBAPI_URL + "api/Account/" + id;
-      axios.get(COMPANIES_URL).then((res) => {
+      axios.get(COMPANIES_URL).then(res => {
         setCurrentCompany(res.data);
         setAddress(res.data.address);
         setPhoneNumber(
@@ -114,14 +114,14 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
           "api/account/SendCustomerToAnael/" +
           id
       )
-      .then((res) => {
+      .then(res => {
         toastr.success(
           intl.formatMessage({ id: "TITLE.ENTREPRISE.EDIT" }),
           intl.formatMessage({ id: "MESSAGE.ENTREPRISE.ANAEL.SENT" })
         );
         onHide();
       })
-      .catch((err) => {
+      .catch(err => {
         let msg = err.response.data
           ? err.response.data
           : intl.formatMessage({ id: "TEXT.ERROR.FRIENDLY" });
@@ -135,10 +135,10 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
     { name: intl.formatMessage({ id: "PAYMENT.60.DAYS.BILL" }), id: 2 },
     { name: intl.formatMessage({ id: "PAYMENT.30.DAYS.END.MONTH" }), id: 3 },
     { name: intl.formatMessage({ id: "PAYMENT.45.DAYS.END.MONTH" }), id: 4 },
-    { name: intl.formatMessage({ id: "PAYMENT.BILL.RECEIVED" }), id: 5 },
+    { name: intl.formatMessage({ id: "PAYMENT.BILL.RECEIVED" }), id: 5 }
   ];
 
-  const formatTva = (value) => {
+  const formatTva = value => {
     if (!value) return 0;
     let siren = value.substring(0, value.length - 5);
     let test = [12 + 3 * (siren % 97)] % 97;
@@ -174,7 +174,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
     paymentChoiceID:
       currentCompany && currentCompany.paymentChoiceID
         ? currentCompany.paymentChoiceID
-        : 1,
+        : 1
   };
   // Validation schema
   const CompanyCreateSchema = Yup.object().shape({
@@ -197,7 +197,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
       .test(
         "len",
         intl.formatMessage({ id: "MESSAGE.MIN.5.NUMBERS" }),
-        (val) => val.length === 5
+        val => val.length === 5
       )
       .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
     city: Yup.string().required(
@@ -208,7 +208,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
       .test(
         "checkTva",
         intl.formatMessage({ id: "MESSAGE.INVALID.TVA" }),
-        (value) => value === formatTva(currentCompany.siret)
+        value => value === formatTva(currentCompany.siret)
       ),
     phoneNumber: Yup.string()
       .matches(
@@ -218,7 +218,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
       .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
     anaelID: Yup.string()
       .min(9, intl.formatMessage({ id: "WARNING.ANAEL.LENGTH" }))
-      .max(9, intl.formatMessage({ id: "WARNING.ANAEL.LENGTH" })),
+      .max(9, intl.formatMessage({ id: "WARNING.ANAEL.LENGTH" }))
   });
   return (
     <>
@@ -228,7 +228,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
         validationSchema={CompanyCreateSchema}
         setFieldValue
         setFieldTouched
-        onSubmit={(values) => {
+        onSubmit={values => {
           let data = currentCompany;
           data = {
             ...data,
@@ -237,7 +237,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
             outstandingsValidated,
             commercialContractSigned,
             accountGroupID: parseInt(values.accountGroupID),
-            tenantID: TENANTID,
+            tenantID: TENANTID
           };
           dispatch(
             updateCompany.request(data),
@@ -254,7 +254,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
           touched,
           values,
           setFieldValue,
-          setFieldTouched,
+          setFieldTouched
         }) => (
           <>
             <Modal.Body className="overlay overlay-block cursor-default">
@@ -275,7 +275,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                         name="name"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.NAME",
+                          id: "MODEL.ACCOUNT.NAME"
                         })}
                       />
                     </div>
@@ -295,7 +295,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                         name="siret"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.SIRET",
+                          id: "MODEL.ACCOUNT.SIRET"
                         })}
                       />
                     </div>
@@ -317,7 +317,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                           {intl.formatMessage({ id: "COLUMN.APE.NAF.NUMBER" })}{" "}
                           --
                         </option>
-                        {apeNumber.map((choice) => {
+                        {apeNumber.map(choice => {
                           return (
                             <option key={choice.id} value={choice.code}>
                               {choice.code}-{choice.description}
@@ -345,7 +345,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                         name="companyStatus"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.COMPANYSTATUS",
+                          id: "MODEL.ACCOUNT.COMPANYSTATUS"
                         })}
                       />
                     </div>
@@ -367,7 +367,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                         disabled
                         value={formatTva(values.siret)}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.TVANUMBER",
+                          id: "MODEL.ACCOUNT.TVANUMBER"
                         })}
                       />
                     </div>
@@ -389,7 +389,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                         name="anaelID"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "TEXT.ANAEL.ID",
+                          id: "TEXT.ANAEL.ID"
                         })}
                       />
                     </div>
@@ -442,7 +442,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                         name="additionaladdress"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.ADDITIONALADDRESS",
+                          id: "MODEL.ACCOUNT.ADDITIONALADDRESS"
                         })}
                       />
                     </div>
@@ -465,7 +465,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                         name="postalCode"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.POSTALCODE",
+                          id: "MODEL.ACCOUNT.POSTALCODE"
                         })}
                       />
                     </div>
@@ -485,7 +485,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                         name="city"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.CITY",
+                          id: "MODEL.ACCOUNT.CITY"
                         })}
                       />
                     </div>
@@ -504,7 +504,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                       <Field
                         name="phoneNumber"
                         component={Input}
-                        onChange={(e) =>
+                        onChange={e =>
                           handleChangePhone(
                             setFieldValue,
                             setFieldTouched,
@@ -515,7 +515,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                           phoneNumber && phoneNumber.match(/.{1,2}/g).join(" ")
                         }
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.PHONENUMBER",
+                          id: "MODEL.ACCOUNT.PHONENUMBER"
                         })}
                       />
                     </div>
@@ -536,7 +536,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                         </span>
                       </div>
                       <Select className="form-control" name="paymentChoiceID">
-                        {paymentChoices.map((choice) => {
+                        {paymentChoices.map(choice => {
                           return (
                             <option key={choice.id} value={choice.id}>
                               {choice.name}
@@ -561,10 +561,10 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                         className="form-control"
                         name="paymentCondition"
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.PAYMENT_CONDITION",
+                          id: "MODEL.ACCOUNT.PAYMENT_CONDITION"
                         })}
                       >
-                        {paymentConditions.map((choice) => {
+                        {paymentConditions.map(choice => {
                           return (
                             <option
                               key={parseInt(choice.id)}
@@ -589,7 +589,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                         </span>
                       </div>
                       <Select className="form-control" name="invoiceTypeID">
-                        {invoiceTypes.map((invoice) => {
+                        {invoiceTypes.map(invoice => {
                           return (
                             <option key={invoice.id} value={invoice.id}>
                               {invoice.name}
@@ -628,7 +628,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                         >
                           {intl.formatMessage({ id: "TEXT.NONE" })}
                         </option>
-                        {accountGroups.map((group) => {
+                        {accountGroups.map(group => {
                           return (
                             <option key={group.id} value={group.id}>
                               {group.name}
@@ -653,7 +653,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                         name="description"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.DESCRIPTION",
+                          id: "MODEL.ACCOUNT.DESCRIPTION"
                         })}
                       />
                     </div>

@@ -8,7 +8,7 @@ const TagSuggestions = ({
   setIsVisible,
   tags,
   isLoading,
-  error,
+  error
 }) => {
   const [filteredTags, setFilteredTags] = useState([]);
   const [currentTagQuery, setCurrentTagQuery] = useState("");
@@ -18,7 +18,7 @@ const TagSuggestions = ({
   const listRef = useRef(null);
 
   // Structure les tags en hiérarchie
-  const structureTagHierarchy = (tagsData) => {
+  const structureTagHierarchy = tagsData => {
     if (!tagsData || !Array.isArray(tagsData)) return [];
 
     const hierarchy = [];
@@ -27,7 +27,7 @@ const TagSuggestions = ({
     const processTagsRecursively = (items, level = 0, parentPath = "") => {
       if (!items || !Array.isArray(items)) return [];
 
-      items.forEach((item) => {
+      items.forEach(item => {
         if (!item || typeof item !== "object") return;
 
         // Construire le chemin complet pour ce tag
@@ -40,7 +40,7 @@ const TagSuggestions = ({
           level,
           path,
           parent: parentPath || null,
-          children: [],
+          children: []
         };
 
         // Ajouter le nœud à la liste des nœuds
@@ -49,7 +49,7 @@ const TagSuggestions = ({
         // Si ce tag a des sous-tags, les traiter récursivement
         if (item.tags && Array.isArray(item.tags) && item.tags.length > 0) {
           // Stocker les chemins des enfants
-          item.tags.forEach((childTag) => {
+          item.tags.forEach(childTag => {
             const childPath = `${path}/${childTag.name}`;
             node.children.push(childPath);
           });
@@ -78,20 +78,20 @@ const TagSuggestions = ({
 
     // Créer un index des nœuds par chemin pour faciliter la recherche
     const nodesByPath = {};
-    nodes.forEach((node) => {
+    nodes.forEach(node => {
       nodesByPath[node.path] = node;
     });
 
     // Filtre pour uniquement les nœuds de premier niveau
-    const rootNodes = nodes.filter((node) => node.level === 0);
+    const rootNodes = nodes.filter(node => node.level === 0);
 
     // Filtrer les nœuds
-    rootNodes.forEach((node) => {
+    rootNodes.forEach(node => {
       // Vérifier si le nom correspond à la requête
       const matches = node.name.toLowerCase().includes(queryLower);
 
       // Fonction pour vérifier si un nœud ou ses descendants correspondent à la requête
-      const hasMatchingDescendant = (nodePath) => {
+      const hasMatchingDescendant = nodePath => {
         const node = nodesByPath[nodePath];
         if (!node) return false;
 
@@ -100,33 +100,33 @@ const TagSuggestions = ({
         }
 
         // Vérifier récursivement les enfants
-        return node.children.some((childPath) =>
+        return node.children.some(childPath =>
           hasMatchingDescendant(childPath)
         );
       };
 
       // Fonction pour récupérer les enfants filtrés
-      const getFilteredChildren = (nodePath) => {
+      const getFilteredChildren = nodePath => {
         const node = nodesByPath[nodePath];
         if (!node || !node.children || node.children.length === 0) return [];
 
         const filteredChildren = [];
 
-        node.children.forEach((childPath) => {
+        node.children.forEach(childPath => {
           const childNode = nodesByPath[childPath];
           if (!childNode) return;
 
           const childMatches = childNode.name
             .toLowerCase()
             .includes(queryLower);
-          const hasMatchingChild = childNode.children.some((grandchildPath) =>
+          const hasMatchingChild = childNode.children.some(grandchildPath =>
             hasMatchingDescendant(grandchildPath)
           );
 
           if (childMatches || hasMatchingChild || query === "") {
             filteredChildren.push({
               ...childNode,
-              filteredChildren: getFilteredChildren(childPath),
+              filteredChildren: getFilteredChildren(childPath)
             });
           }
         });
@@ -137,12 +137,12 @@ const TagSuggestions = ({
       // Ajouter ce nœud s'il correspond ou s'il a des enfants qui correspondent ou si la requête est vide
       if (
         matches ||
-        node.children.some((childPath) => hasMatchingDescendant(childPath)) ||
+        node.children.some(childPath => hasMatchingDescendant(childPath)) ||
         query === ""
       ) {
         result.push({
           ...node,
-          filteredChildren: getFilteredChildren(node.path),
+          filteredChildren: getFilteredChildren(node.path)
         });
       }
     });
@@ -193,7 +193,7 @@ const TagSuggestions = ({
     // Par défaut, ouvrir tous les parents au premier affichage
     if (Object.keys(expandedParents).length === 0) {
       const newExpandedState = {};
-      tags.forEach((tag) => {
+      tags.forEach(tag => {
         newExpandedState[tag.name] = true;
       });
       setExpandedParents(newExpandedState);
@@ -224,7 +224,7 @@ const TagSuggestions = ({
       if (selectedElement) {
         selectedElement.scrollIntoView({
           block: "nearest",
-          behavior: "smooth",
+          behavior: "smooth"
         });
       }
     }
@@ -233,21 +233,21 @@ const TagSuggestions = ({
   // Fonction pour basculer l'expansion d'un parent
   const toggleExpand = (path, e) => {
     e.stopPropagation();
-    setExpandedParents((prev) => ({
+    setExpandedParents(prev => ({
       ...prev,
-      [path]: !prev[path],
+      [path]: !prev[path]
     }));
   };
 
   // Gérer les touches fléchées pour la navigation
-  const handleKeyDown = (e) => {
+  const handleKeyDown = e => {
     if (!isVisible || filteredTags.length === 0) return;
 
     // Créer une liste plate de tous les éléments sélectionnables
     const getFlattenedTags = (nodes, expanded = {}) => {
       let result = [];
 
-      nodes.forEach((node) => {
+      nodes.forEach(node => {
         result.push(node);
         if (
           node.filteredChildren &&
@@ -256,7 +256,7 @@ const TagSuggestions = ({
         ) {
           result = [
             ...result,
-            ...getFlattenedTags(node.filteredChildren, expanded),
+            ...getFlattenedTags(node.filteredChildren, expanded)
           ];
         }
       });
@@ -269,11 +269,11 @@ const TagSuggestions = ({
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
-        setSelectedIndex((prev) => (prev + 1) % flattenedTags.length);
+        setSelectedIndex(prev => (prev + 1) % flattenedTags.length);
         break;
       case "ArrowUp":
         e.preventDefault();
-        setSelectedIndex((prev) =>
+        setSelectedIndex(prev =>
           prev === 0 ? flattenedTags.length - 1 : prev - 1
         );
         break;
@@ -293,12 +293,12 @@ const TagSuggestions = ({
   };
 
   // Fonction pour sélectionner un tag
-  const handleSelectTag = (tag) => {
+  const handleSelectTag = tag => {
     const allNodes = [...filteredTags];
 
-    const flattenHierarchy = (nodes) => {
+    const flattenHierarchy = nodes => {
       let result = [];
-      nodes.forEach((node) => {
+      nodes.forEach(node => {
         result.push(node);
         if (node.filteredChildren && node.filteredChildren.length > 0) {
           result = [...result, ...flattenHierarchy(node.filteredChildren)];
@@ -308,7 +308,7 @@ const TagSuggestions = ({
     };
 
     const flatNodes = flattenHierarchy(allNodes);
-    const selectedNode = flatNodes.find((node) => node.path === tag);
+    const selectedNode = flatNodes.find(node => node.path === tag);
 
     if (selectedNode) {
       // Créer le format de lien markdown COMPLET
@@ -355,7 +355,7 @@ const TagSuggestions = ({
   const countNodesFlat = (accIndex, nodes) => {
     let currentIndex = accIndex;
 
-    nodes.forEach((node) => {
+    nodes.forEach(node => {
       node._flatIndex = currentIndex++;
 
       if (
@@ -375,7 +375,7 @@ const TagSuggestions = ({
     // Assigner des indices plats pour la sélection
     countNodesFlat(0, filteredTags);
 
-    return nodes.map((node) => {
+    return nodes.map(node => {
       const isSelected = node._flatIndex === selectedIndex;
       const isExpanded = expandedParents[node.path];
       const hasChildren =
@@ -383,7 +383,7 @@ const TagSuggestions = ({
 
       // Calculer l'indentation - augmentation significative du décalage
       const indentationStyle = {
-        paddingLeft: `${node.level * 24 + 12}px`,
+        paddingLeft: `${node.level * 24 + 12}px`
       };
 
       return (
@@ -400,7 +400,7 @@ const TagSuggestions = ({
               backgroundColor: isSelected ? "#e9ecef" : "transparent",
               transition: "background-color 0.2s ease",
               position: "relative",
-              marginLeft: node.level > 0 ? "10px" : "0",
+              marginLeft: node.level > 0 ? "10px" : "0"
             }}
             onClick={() => handleSelectTag(node.path)}
           >
@@ -415,7 +415,7 @@ const TagSuggestions = ({
                   height: "50%",
                   borderBottom: "2px solid #cfe2ff",
                   borderLeft: "2px solid #cfe2ff",
-                  bottom: "50%",
+                  bottom: "50%"
                 }}
               />
             )}
@@ -425,7 +425,7 @@ const TagSuggestions = ({
               <button
                 type="button"
                 className="expand-button"
-                onClick={(e) => toggleExpand(node.path, e)}
+                onClick={e => toggleExpand(node.path, e)}
                 style={{
                   background: isExpanded ? "#e7f1ff" : "transparent",
                   border: "none",
@@ -437,7 +437,7 @@ const TagSuggestions = ({
                   alignItems: "center",
                   justifyContent: "center",
                   color: "#0d6efd",
-                  transition: "all 0.2s ease",
+                  transition: "all 0.2s ease"
                 }}
               >
                 <i
@@ -465,7 +465,7 @@ const TagSuggestions = ({
                 backgroundColor: node.level === 0 ? "#f0f7ff" : "transparent",
                 padding: node.level === 0 ? "4px 8px" : "0",
                 borderRadius: "4px",
-                width: "100%",
+                width: "100%"
               }}
             >
               <span
@@ -473,7 +473,7 @@ const TagSuggestions = ({
                 style={{
                   color: "#0d6efd",
                   fontWeight: "bold",
-                  marginRight: "4px",
+                  marginRight: "4px"
                 }}
               >
                 #
@@ -489,7 +489,7 @@ const TagSuggestions = ({
                       : hasChildren
                       ? "#212529"
                       : "#495057",
-                  fontSize: node.level === 0 ? "14px" : "13px",
+                  fontSize: node.level === 0 ? "14px" : "13px"
                 }}
               >
                 {node.name}
@@ -504,7 +504,7 @@ const TagSuggestions = ({
                     padding: "1px 6px",
                     borderRadius: "10px",
                     backgroundColor: "#f1f3f5",
-                    color: "#6c757d",
+                    color: "#6c757d"
                   }}
                 >
                   Niveau {node.level}
@@ -544,7 +544,7 @@ const TagSuggestions = ({
         zIndex: 1050,
         overflow: "hidden",
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "column"
       }}
     >
       {/* En-tête */}
@@ -553,7 +553,7 @@ const TagSuggestions = ({
         style={{
           padding: "10px 15px",
           borderBottom: "1px solid #dee2e6",
-          backgroundColor: "#f8f9fa",
+          backgroundColor: "#f8f9fa"
         }}
       >
         <h6 style={{ margin: 0, fontSize: "14px", fontWeight: "600" }}>
@@ -575,7 +575,7 @@ const TagSuggestions = ({
           maxHeight: "220px",
           padding: "5px 0",
           scrollbarWidth: "thin",
-          scrollbarColor: "#6c757d #f8f9fa",
+          scrollbarColor: "#6c757d #f8f9fa"
         }}
       >
         {isLoading ? (
@@ -584,7 +584,7 @@ const TagSuggestions = ({
             style={{
               padding: "20px 15px",
               color: "#6c757d",
-              textAlign: "center",
+              textAlign: "center"
             }}
           >
             <div
@@ -639,7 +639,7 @@ const TagSuggestions = ({
           fontSize: "12px",
           color: "#6c757d",
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "space-between"
         }}
       >
         <span style={{ display: "flex", alignItems: "center" }}>

@@ -35,7 +35,7 @@ class SignalRService {
     // Créer la connexion avec plus de détails de journalisation
     this.connection = new HubConnectionBuilder()
       .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/chat", {
-        accessTokenFactory: () => authToken,
+        accessTokenFactory: () => authToken
       })
       .configureLogging(LogLevel.Debug) // Ajout de logs détaillés
       .withAutomaticReconnect([0, 2000, 5000, 10000, 20000]) // Tentatives plus fréquentes
@@ -47,22 +47,22 @@ class SignalRService {
     }
 
     // Logger tous les messages bruts reçus
-    this.connection.on("", (data) => {
+    this.connection.on("", data => {
       console.warn("Raw SignalR message:", data);
     });
 
     // Gestionnaire d'événements de reconnexion
-    this.connection.onreconnecting((error) => {
+    this.connection.onreconnecting(error => {
       console.log("SignalR reconnecting:", error);
       this.connected = false;
     });
 
-    this.connection.onreconnected((connectionId) => {
+    this.connection.onreconnected(connectionId => {
       console.log("SignalR reconnected with ID:", connectionId);
       this.connected = true;
     });
 
-    this.connection.onclose((error) => {
+    this.connection.onclose(error => {
       console.log("SignalR connection closed:", error);
       this.connected = false;
       this.connectPromise = null;
@@ -76,13 +76,13 @@ class SignalRService {
         this.connected = true;
 
         // Enregistrer les gestionnaires d'événements pour les messages
-        this.connection.on("UserToUser", (message) => {
+        this.connection.on("UserToUser", message => {
           console.log("UserToUser message received:", message);
           this.processMessage(message);
         });
 
         // Essayer aussi avec la casse originale
-        this.connection.on("userToUser", (message) => {
+        this.connection.on("userToUser", message => {
           console.log("userToUser message received:", message);
           this.processMessage(message);
         });
@@ -95,7 +95,7 @@ class SignalRService {
         this.connectPromise = null;
         return this.connection;
       })
-      .catch((err) => {
+      .catch(err => {
         console.error("SignalR Connection Error:", err);
         this.connected = false;
         this.connectPromise = null;
@@ -139,12 +139,12 @@ class SignalRService {
     // Tenter de décrypter si un message chiffré est présent
     if (messageData && messageData.message) {
       this.decryptMessage(messageData)
-        .then((decryptedMessage) => {
+        .then(decryptedMessage => {
           console.log("Successfully decrypted message:", decryptedMessage);
           messageData.decryptedContent = decryptedMessage;
           this.notifyMessageReceived(messageData);
         })
-        .catch((err) => {
+        .catch(err => {
           console.error("Failed to decrypt message:", err);
           this.notifyMessageReceived(messageData);
         });
@@ -175,12 +175,12 @@ class SignalRService {
         url: `${process.env.REACT_APP_WEBAPI_URL}api/chat/decrypt`,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
         data: {
           encryptedMessage: messageData.message,
-          chatID: messageData.chatID,
-        },
+          chatID: messageData.chatID
+        }
       });
 
       // Log the response for debugging
@@ -243,7 +243,7 @@ class SignalRService {
    */
   removeMessageHandler(handler) {
     const initialCount = this.messageHandlers.length;
-    this.messageHandlers = this.messageHandlers.filter((h) => h !== handler);
+    this.messageHandlers = this.messageHandlers.filter(h => h !== handler);
     const removedCount = initialCount - this.messageHandlers.length;
     console.log(
       `Removed ${removedCount} message handler(s). Remaining: ${this.messageHandlers.length}`
@@ -259,7 +259,7 @@ class SignalRService {
       `Notifying ${this.messageHandlers.length} handlers about message:`,
       message
     );
-    this.messageHandlers.forEach((handler) => {
+    this.messageHandlers.forEach(handler => {
       try {
         handler(message);
       } catch (error) {

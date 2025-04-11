@@ -24,17 +24,18 @@ export function UserNotificationsDropdownMobile() {
   const layoutProps = useMemo(() => {
     return {
       offcanvas:
-        objectPath.get(uiService.config, "extras.notifications.layout") === "offcanvas",
+        objectPath.get(uiService.config, "extras.notifications.layout") ===
+        "offcanvas"
     };
   }, [uiService]);
 
   const { notifs, unread, userDetails, authToken, userType } = useSelector(
-    (state) => ({
+    state => ({
       notifs: state.lists.notifs,
       unread: state.lists.unread,
       userDetails: state.auth.user,
       authToken: state.auth.authToken,
-      userType: state.auth.user.userType,
+      userType: state.auth.user.userType
     }),
     shallowEqual
   );
@@ -57,7 +58,6 @@ export function UserNotificationsDropdownMobile() {
   };
 
   // console.log(" --- notifs --- ", notifs);
-  
 
   return (
     <>
@@ -69,7 +69,7 @@ export function UserNotificationsDropdownMobile() {
           closePopup={closePopup}
         />
       )}
-      
+
       {layoutProps.offcanvas && (
         <div className="topbar-item">
           <div
@@ -77,7 +77,11 @@ export function UserNotificationsDropdownMobile() {
             id="kt_quick_notifications_toggle"
           >
             <span className="svg-icon svg-icon-xl svg-icon-primary">
-              <SVG src={toAbsoluteUrl("/media/svg/icons/Communication/Urgent-mail.svg")} />
+              <SVG
+                src={toAbsoluteUrl(
+                  "/media/svg/icons/Communication/Urgent-mail.svg"
+                )}
+              />
             </span>
             {/* {unread > 0 && (
               <span className="notification-count">
@@ -94,7 +98,10 @@ export function UserNotificationsDropdownMobile() {
           className="btn btn-icon btn-lg pulse pulse-primary"
           id="kt_quick_notifications_toggle"
         >
-          <Link to="/favorites" className="svg-icon svg-icon-xl svg-icon-primary">
+          <Link
+            to="/favorites"
+            className="svg-icon svg-icon-xl svg-icon-primary"
+          >
             <SVG src={toAbsoluteUrl("media/svg/icons/General/Star.svg")} />
           </Link>
         </div>
@@ -106,7 +113,11 @@ export function UserNotificationsDropdownMobile() {
           id="kt_quick_notifications_toggle"
         >
           <Link to="/contact" className="svg-icon svg-icon-xl svg-icon-primary">
-            <SVG src={toAbsoluteUrl("/media/svg/icons/Communication/Sending mail.svg")} />
+            <SVG
+              src={toAbsoluteUrl(
+                "/media/svg/icons/Communication/Sending mail.svg"
+              )}
+            />
           </Link>
         </div>
       </div>
@@ -131,10 +142,22 @@ export function UserNotificationsDropdownMobile() {
                 style={{ position: "relative" }}
               >
                 <span className="svg-icon svg-icon-xl svg-icon-primary">
-                  <SVG src={toAbsoluteUrl("/media/svg/icons/Communication/Urgent-mail.svg")} />
+                  <SVG
+                    src={toAbsoluteUrl(
+                      "/media/svg/icons/Communication/Urgent-mail.svg"
+                    )}
+                  />
                 </span>
                 {unread > 0 && (
-                  <span className="notification-count" style={{ fontSize: 8, padding: 4, marginLeft: 15, minWidth: "auto" }}>
+                  <span
+                    className="notification-count"
+                    style={{
+                      fontSize: 8,
+                      padding: 4,
+                      marginLeft: 15,
+                      minWidth: "auto"
+                    }}
+                  >
                     {unread > 9 ? "9+" : unread}
                   </span>
                 )}
@@ -160,12 +183,28 @@ export function UserNotificationsDropdownMobile() {
                 <PerfectScrollbar
                   options={{ wheelSpeed: 2, wheelPropagation: false }}
                   className="scroll mr-n7"
-                  style={{ maxHeight: "300px", position: "relative", width: "100%", paddingTop: "20px" }}
+                  style={{
+                    maxHeight: "300px",
+                    position: "relative",
+                    width: "100%",
+                    paddingTop: "20px"
+                  }}
                 >
                   {notifs.length === 0 && (
-                    <div className="d-flex align-items-center mb-6" style={{ marginTop: "5px" }}>
+                    <div
+                      className="d-flex align-items-center mb-6"
+                      style={{ marginTop: "5px" }}
+                    >
                       <div className="d-flex flex-column font-weight-bold">
-                        <span className="text-muted" style={{ display: "block", whiteSpace: "nowrap", width: "19em", textAlign: "center" }}>
+                        <span
+                          className="text-muted"
+                          style={{
+                            display: "block",
+                            whiteSpace: "nowrap",
+                            width: "19em",
+                            textAlign: "center"
+                          }}
+                        >
                           <FormattedMessage id="NOTIF.EMPTY" />
                         </span>
                       </div>
@@ -173,7 +212,11 @@ export function UserNotificationsDropdownMobile() {
                   )}
 
                   {notifs.map((notif, index) => (
-                    <div key={index} className="d-flex align-items-center mb-6" style={{ marginTop: "5px" }}>
+                    <div
+                      key={index}
+                      className="d-flex align-items-center mb-6"
+                      style={{ marginTop: "5px" }}
+                    >
                       <div className="d-flex flex-column font-weight-bold">
                         {/* Pour les notifications standards */}
                         {notif.title && (
@@ -181,7 +224,9 @@ export function UserNotificationsDropdownMobile() {
                             <a
                               onClick={() => setSelectedNotif(notif)}
                               className="text-dark text-hover-primary mb-1 font-size-lg"
-                              style={{ fontWeight: !notif.readed ? "bold" : "inherit" }}
+                              style={{
+                                fontWeight: !notif.readed ? "bold" : "inherit"
+                              }}
                               dangerouslySetInnerHTML={{ __html: notif.title }}
                             ></a>
                             <span
@@ -193,11 +238,13 @@ export function UserNotificationsDropdownMobile() {
                                 overflow: "hidden",
                                 textOverflow: "ellipsis"
                               }}
-                              dangerouslySetInnerHTML={{ __html: notif.message }}
+                              dangerouslySetInnerHTML={{
+                                __html: notif.message
+                              }}
                             ></span>
                           </>
                         )}
-                        
+
                         {/* Pour les notifications avec subject/body */}
                         {notif.subject && (
                           <>
@@ -208,7 +255,7 @@ export function UserNotificationsDropdownMobile() {
                               {notif.subject}
                             </a>
                             {notif.body && (
-                              <div 
+                              <div
                                 className="text-muted"
                                 style={{
                                   display: "block",

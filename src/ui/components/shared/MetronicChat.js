@@ -19,15 +19,15 @@ const MetronicChat = () => {
         "👋 Bonjour! Je suis là pour répondre à vos questions. Voici les sujets fréquemment abordés :",
       type: "bot",
       timestamp: new Date(),
-      suggestions: [],
-    },
+      suggestions: []
+    }
   ]);
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef(null);
 
   // Function to detect and render links in message content
-  const renderMessageContent = (content) => {
+  const renderMessageContent = content => {
     // Check if content is a URL only
     const urlRegex = /^(https?:\/\/[^\s]+)$/;
     if (urlRegex.test(content)) {
@@ -37,7 +37,7 @@ const MetronicChat = () => {
           target="_blank"
           rel="noopener noreferrer"
           className="message-link"
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             window.open(content, "_blank", "noopener,noreferrer");
           }}
@@ -81,7 +81,7 @@ const MetronicChat = () => {
           target="_blank"
           rel="noopener noreferrer"
           className="message-link"
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             window.open(match[0], "_blank", "noopener,noreferrer");
           }}
@@ -109,14 +109,14 @@ const MetronicChat = () => {
           "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Faq",
           {
             headers: {
-              accept: "text/plain",
-            },
+              accept: "text/plain"
+            }
           }
         );
         setFaqData(response.data);
       } catch (error) {
         console.error("Error fetching FAQs:", error);
-        setMessages((prev) => [
+        setMessages(prev => [
           ...prev,
           {
             id: Date.now(),
@@ -124,8 +124,8 @@ const MetronicChat = () => {
               "Désolé, je n'ai pas pu charger les questions fréquentes. Veuillez réessayer plus tard.",
             type: "bot",
             timestamp: new Date(),
-            suggestions: [],
-          },
+            suggestions: []
+          }
         ]);
       } finally {
         setIsLoading(false);
@@ -145,11 +145,11 @@ const MetronicChat = () => {
     scrollToBottom();
   }, [messages]);
 
-  const simulateTyping = (answer) => {
+  const simulateTyping = answer => {
     setIsTyping(true);
     const typingTime = Math.min(Math.max(answer.length * 30, 1000), 3000);
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       setTimeout(() => {
         setIsTyping(false);
         resolve();
@@ -162,30 +162,30 @@ const MetronicChat = () => {
     setShowFaq(false);
 
     // Add the user's question to the messages
-    setMessages((prev) => [
+    setMessages(prev => [
       ...prev,
       {
         id: Date.now(),
         content: question,
         type: "user",
         timestamp: new Date(),
-        suggestions: [],
-      },
+        suggestions: []
+      }
     ]);
 
     // Simulate typing
     await simulateTyping(answer);
 
     // Add the bot's answer to the messages, including any slave FAQs as suggestions
-    setMessages((prev) => [
+    setMessages(prev => [
       ...prev,
       {
         id: Date.now() + 1,
         content: answer,
         type: "bot",
         timestamp: new Date(),
-        suggestions: slaves,
-      },
+        suggestions: slaves
+      }
     ]);
 
     // Update current suggestions
@@ -233,7 +233,7 @@ const MetronicChat = () => {
         </div>
 
         <div className="messages-container">
-          {messages.map((msg) => (
+          {messages.map(msg => (
             <div key={msg.id}>
               <div
                 className={`message-wrapper ${
@@ -247,7 +247,7 @@ const MetronicChat = () => {
                   <div className="message-time">
                     {msg.timestamp.toLocaleTimeString([], {
                       hour: "2-digit",
-                      minute: "2-digit",
+                      minute: "2-digit"
                     })}
                   </div>
                 </div>
@@ -258,7 +258,7 @@ const MetronicChat = () => {
                 msg.suggestions &&
                 msg.suggestions.length > 0 && (
                   <div className="suggestion-buttons">
-                    {msg.suggestions.map((slave) => (
+                    {msg.suggestions.map(slave => (
                       <button
                         key={slave.id}
                         onClick={() =>
@@ -293,7 +293,7 @@ const MetronicChat = () => {
 
           {showFaq && !isLoading && (
             <div className="faq-buttons">
-              {faqData.map((faq) => (
+              {faqData.map(faq => (
                 <button
                   key={faq.id}
                   onClick={() =>

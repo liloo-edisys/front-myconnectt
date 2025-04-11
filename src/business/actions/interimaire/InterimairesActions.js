@@ -510,7 +510,11 @@ export const removeOneDocument = (body, step, dispatch) => {
 
 let connection = null;
 
-export const setSignalRInterimaire = (authToken, dispatch, setSelectedNotif) => {
+export const setSignalRInterimaire = (
+  authToken,
+  dispatch,
+  setSelectedNotif
+) => {
   // Create new connection if not exists
   connection = new HubConnectionBuilder()
     .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/interimaire", {
@@ -523,7 +527,7 @@ export const setSignalRInterimaire = (authToken, dispatch, setSelectedNotif) => 
     .start()
     .then(() => {
       console.log("SignalR connection established.");
-      
+
       connection.on("SendNotification", notif => {
         dispatch({
           type: actionTypes.PUSH_NEW_NOTIF,
@@ -555,19 +559,19 @@ export const setSignalRInterimaire = (authToken, dispatch, setSelectedNotif) => 
       });
     })
     .catch(e => console.log("Connection with SignalR failed: ", e.message));
-    
+
   return connection;
 };
 
 export const stopSignalRConnection = async () => {
   try {
-    if (connection && connection.state === 'Connected') {
+    if (connection && connection.state === "Connected") {
       await connection.stop();
-      console.log('SignalR connection closed successfully');
+      console.log("SignalR connection closed successfully");
       connection = null;
     }
   } catch (err) {
-    console.error('Error closing SignalR connection:', err);
+    console.error("Error closing SignalR connection:", err);
     throw err;
   }
 };

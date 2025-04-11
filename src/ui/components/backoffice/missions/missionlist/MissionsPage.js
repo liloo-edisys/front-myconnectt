@@ -24,7 +24,7 @@ class MissionsPage extends React.Component {
     this.state = {
       resumeOpen: false,
       resume: [],
-      currentApplicant: null,
+      currentApplicant: null
     };
   }
 
@@ -41,13 +41,13 @@ class MissionsPage extends React.Component {
     const { history } = this.props;
 
     const missionsUIEvents = {
-      openDeleteDialog: (data) => {
+      openDeleteDialog: data => {
         history.push(`/missions/delete`, data);
       },
-      openValidateDialog: (data) => {
+      openValidateDialog: data => {
         history.push(`/missions/approve`, data);
       },
-      openDeclineDialog: (row) => {
+      openDeclineDialog: row => {
         history.push(`/missions/decline`, row);
       },
       openDisplayDialog: data => {
@@ -60,7 +60,7 @@ class MissionsPage extends React.Component {
             }, 1000)
           );
       },
-      editMission: (row) => {
+      editMission: row => {
         this.deleteItems();
         this.props.getMission(row.id);
         history.push(`/mission-create/step-one`);
@@ -71,14 +71,14 @@ class MissionsPage extends React.Component {
       openResumeDialog: (row, data) => {
         history.push(`/missions/resume`, data);
       },
-      openMissionProfileDialog: (data) => {
+      openMissionProfileDialog: data => {
         history.push(`/missions/applicant/${data.applicantID}`, { ...data });
         this.setState({ currentApplicant: data.applicantID });
         // console.log("data dans openMissionProfileDialog" , data);
       },
-      openDeleteApplicationDialog: (row) => {
+      openDeleteApplicationDialog: row => {
         history.push(`/missions/delete-application`, row);
-      },
+      }
     };
     return (
       <MissionsUIProvider missionsUIEvents={missionsUIEvents} history={history}>

@@ -24,7 +24,7 @@ import MetronicChat from "./components/shared/MetronicChat";
 export default function BaseInterimairePage(props) {
   let { user } = useSelector(
     ({ auth, user }) => ({
-      user: user.user,
+      user: user.user
     }),
     shallowEqual
   );
@@ -39,9 +39,7 @@ export default function BaseInterimairePage(props) {
 
         <ContentRoute
           path="/int-profile-edit"
-          component={(props) => (
-            <ProfileWizzard userDetails={user} {...props} />
-          )}
+          component={props => <ProfileWizzard userDetails={user} {...props} />}
         />
         {/*<ContentRoute path="/int-dashboard" component={DashboardPage} />*/}
         <ContentRoute path="/int-dashboard" component={DashboardPage} />
@@ -59,10 +57,7 @@ export default function BaseInterimairePage(props) {
           path="/matching"
           component={InterimaireMatchingContainer}
         />
-        <ContentRoute
-          path="/chat"
-          component={Chat}
-        />
+        <ContentRoute path="/chat" component={Chat} />
         <ContentRoute
           path="/propositions"
           component={InterimairePropositionsContainer}

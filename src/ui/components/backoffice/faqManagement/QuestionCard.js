@@ -1,15 +1,27 @@
-import React from 'react';
-import { DragIndicator, Delete, ChevronRight as DoubleRight, Edit } from '@material-ui/icons';
-import { styles } from './styles';
+import React from "react";
+import {
+  DragIndicator,
+  Delete,
+  ChevronRight as DoubleRight,
+  Edit
+} from "@material-ui/icons";
+import { styles } from "./styles";
 
-export const QuestionCard = ({ question, onNavigate, onDelete, onEdit, onDragStart, onDrop }) => {
+export const QuestionCard = ({
+  question,
+  onNavigate,
+  onDelete,
+  onEdit,
+  onDragStart,
+  onDrop
+}) => {
   return (
     <div
       className={styles.questionCard}
       draggable
-      onDragStart={(e) => onDragStart(e, question.id)}
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={(e) => onDrop(e, question.id)}
+      onDragStart={e => onDragStart(e, question.id)}
+      onDragOver={e => e.preventDefault()}
+      onDrop={e => onDrop(e, question.id)}
     >
       <div className="d-flex justify-content-between align-items-start w-100">
         <div className="d-flex align-items-start flex-grow-1">
@@ -25,7 +37,7 @@ export const QuestionCard = ({ question, onNavigate, onDelete, onEdit, onDragSta
           {question.children?.length > 0 && (
             <button
               className="btn btn-sm btn-outline-secondary rounded-circle me-2 p-1 d-flex align-items-center justify-content-center"
-              style={{ width: '32px', height: '32px' }}
+              style={{ width: "32px", height: "32px" }}
               onClick={() => onNavigate(question)}
               title="Voir les sous-questions"
             >
@@ -34,7 +46,7 @@ export const QuestionCard = ({ question, onNavigate, onDelete, onEdit, onDragSta
           )}
           <button
             className="btn btn-sm btn-outline-primary rounded-circle me-2 p-1 d-flex align-items-center justify-content-center"
-            style={{ width: '32px', height: '32px' }}
+            style={{ width: "32px", height: "32px" }}
             onClick={() => onEdit(question)}
             title="Modifier"
           >
@@ -42,7 +54,7 @@ export const QuestionCard = ({ question, onNavigate, onDelete, onEdit, onDragSta
           </button>
           <button
             className="btn btn-sm btn-outline-danger rounded-circle p-1 d-flex align-items-center justify-content-center"
-            style={{ width: '32px', height: '32px' }}
+            style={{ width: "32px", height: "32px" }}
             onClick={() => onDelete(question)}
             title="Supprimer"
           >
@@ -51,9 +63,13 @@ export const QuestionCard = ({ question, onNavigate, onDelete, onEdit, onDragSta
         </div>
       </div>
       {question.children?.length > 0 && (
-        <span 
+        <span
           className="position-absolute top-0 end-0 translate-middle badge rounded-pill bg-primary"
-          style={{ marginTop: '-5px', marginRight: '-5px', fontSize: '0.65rem' }}
+          style={{
+            marginTop: "-5px",
+            marginRight: "-5px",
+            fontSize: "0.65rem"
+          }}
         >
           {question.children.length}
         </span>

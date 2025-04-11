@@ -10,13 +10,13 @@ import Select from "react-select/async";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider,
+  PaginationProvider
 } from "react-bootstrap-table2-paginator";
 import {
   Card,
   CardHeader,
   CardBody,
-  CardHeaderToolbar,
+  CardHeaderToolbar
 } from "../../../../_metronic/_partials/controls";
 
 const api = process.env.REACT_APP_WEBAPI_URL;
@@ -24,8 +24,8 @@ const api = process.env.REACT_APP_WEBAPI_URL;
 export default function Messenger() {
   const intl = useIntl();
   const { pathname } = useLocation();
-  const { user } = useSelector((state) => ({
-    user: state.auth.user,
+  const { user } = useSelector(state => ({
+    user: state.auth.user
   }));
   const editor = useRef(null);
   const [messagesList, setMessagesList] = useState([]);
@@ -41,7 +41,7 @@ export default function Messenger() {
   const [selectedApplicants, setSelectedApplicants] = useState([]);
 
   const config = {
-    readonly: false,
+    readonly: false
   };
 
   useEffect(() => {
@@ -62,50 +62,50 @@ export default function Messenger() {
       tenantID: user.tenantID,
       responseStatus: responseStatus,
       pageSize: 10,
-      pageNumber: pageNumber,
+      pageNumber: pageNumber
     };
     if (pathname === "/messenger/applicant") {
       body = {
         ...body,
-        applicantsOnly: true,
+        applicantsOnly: true
       };
     } else if (pathname === "/messenger/client") {
       body = {
         ...body,
-        accountsOnly: true,
+        accountsOnly: true
       };
     }
     axios
       .post(`${api}api/email/SearchMessagerie`, body)
-      .then((res) => {
+      .then(res => {
         setMessagesList(res.data.list);
         setTotalCount(res.data.totalcount);
       })
-      .catch((err) => console.log(err));
+      .catch(err => console.log(err));
   };
 
   const columns = [
     {
       dataField: "content_Subject",
-      text: "Sujet",
+      text: "Sujet"
     },
     {
       dataField: "content_From",
-      text: "Envoyé par",
+      text: "Envoyé par"
     },
     {
       dataField: "content_To",
-      text: "Reçu par",
+      text: "Reçu par"
     },
     {
       dataField: "creationDate",
       text: "Reçu le",
-      formatter: (value) => <span>{new Date(value).toLocaleString()}</span>,
+      formatter: value => <span>{new Date(value).toLocaleString()}</span>
     },
     {
       dataField: "isResponded",
       text: "Répondu",
-      formatter: (value) => <span>{value ? "Oui" : "Non"}</span>,
+      formatter: value => <span>{value ? "Oui" : "Non"}</span>
     },
     {
       text: "Action",
@@ -117,8 +117,8 @@ export default function Messenger() {
         >
           {row.isResponded ? "Voir les messages" : "Répondre"}
         </button>
-      ),
-    },
+      )
+    }
   ];
 
   const RemotePagination = ({
@@ -128,7 +128,7 @@ export default function Messenger() {
     onTableChange,
     totalSize,
     from,
-    to,
+    to
   }) => (
     <div>
       <PaginationProvider
@@ -145,7 +145,7 @@ export default function Messenger() {
           nextPageText: ">",
           lastPageText: intl.formatMessage({ id: "END" }),
           nextPageTitle: ">",
-          prePageTitle: "<",
+          prePageTitle: "<"
         })}
       >
         {({ paginationProps, paginationTableProps }) => (
@@ -208,7 +208,7 @@ export default function Messenger() {
         body: content,
         subject: activeMessage.content_Subject,
         relatedNotificationID: activeMessage.id,
-        accountID: parseInt(activeMessage.accountID),
+        accountID: parseInt(activeMessage.accountID)
       };
     } else {
       body = {
@@ -216,18 +216,18 @@ export default function Messenger() {
         subject: activeMessage.content_Subject,
         relatedNotificationID: activeMessage.id,
         applicantID: parseInt(activeMessage.related_ApplicantID),
-        userID: parseInt(activeMessage.senderUserID),
+        userID: parseInt(activeMessage.senderUserID)
       };
     }
     axios
       .post(SEND_EMAIL_URL, body)
-      .then((res) => {
+      .then(res => {
         toastr.success("Succès", "Votre mail a été envoyé avec succès.");
         getMessages();
         setActiveMessage(null);
         setContent("");
       })
-      .catch((err) =>
+      .catch(err =>
         toastr.error("Erreur", "Cet utilisateur n'a pas d'adresse mail.")
       );
   };
@@ -245,21 +245,21 @@ export default function Messenger() {
     const body = {
       applicantsID: sendToAllTemp
         ? null
-        : selectedApplicants.map((applicant) => applicant.value),
+        : selectedApplicants.map(applicant => applicant.value),
       allApplicants: sendToAllTemp,
       accountID: 0,
       subject: newMessageSubject,
-      body: content,
+      body: content
     };
 
     axios
       .post(`${api}api/Message/DelayedMessage/Applicant`, body, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${user.token}`,
-        },
+          Authorization: `Bearer ${user.token}`
+        }
       })
-      .then((res) => {
+      .then(res => {
         toastr.success(
           "Succès",
           "Votre message différé a été programmé avec succès."
@@ -268,7 +268,7 @@ export default function Messenger() {
         setShowNewMessageModal(false);
         resetNewMessageForm();
       })
-      .catch((err) => {
+      .catch(err => {
         console.error("Erreur lors de l'envoi du message différé:", err);
         toastr.error(
           "Erreur",
@@ -284,39 +284,39 @@ export default function Messenger() {
       background: state.isDisabled ? "#f3f6f9" : "#ffffff",
       borderColor: "#E4E6EF",
       "&:hover": {
-        borderColor: "#E4E6EF",
+        borderColor: "#E4E6EF"
       },
-      boxShadow: "none",
+      boxShadow: "none"
     }),
     option: (base, state) => ({
       ...base,
       backgroundColor: state.isFocused ? "#f3f6f9" : "white",
       color: "#3F4254",
       "&:hover": {
-        backgroundColor: "#f3f6f9",
-      },
+        backgroundColor: "#f3f6f9"
+      }
     }),
-    multiValue: (base) => ({
+    multiValue: base => ({
       ...base,
       backgroundColor: "#e1f0ff",
-      borderRadius: "0.42rem",
+      borderRadius: "0.42rem"
     }),
-    multiValueLabel: (base) => ({
+    multiValueLabel: base => ({
       ...base,
       color: "#3699FF",
-      padding: "2px 8px",
+      padding: "2px 8px"
     }),
-    multiValueRemove: (base) => ({
+    multiValueRemove: base => ({
       ...base,
       color: "#3699FF",
       "&:hover": {
         backgroundColor: "transparent",
-        color: "#0073e9",
-      },
-    }),
+        color: "#0073e9"
+      }
+    })
   };
 
-  const loadApplicants = async (inputValue) => {
+  const loadApplicants = async inputValue => {
     if (!inputValue) {
       return [];
     }
@@ -327,7 +327,7 @@ export default function Messenger() {
         firstName: "",
         lastName: inputValue,
         email: "",
-        phoneNumber: "",
+        phoneNumber: ""
       };
 
       const response = await axios.post(
@@ -335,10 +335,10 @@ export default function Messenger() {
         body
       );
 
-      return response.data.list.map((applicant) => ({
+      return response.data.list.map(applicant => ({
         value: applicant.id,
         label: `${applicant.firstname} ${applicant.lastname}`,
-        email: applicant.email,
+        email: applicant.email
       }));
     } catch (error) {
       console.error("Erreur lors de la recherche:", error);
@@ -346,7 +346,7 @@ export default function Messenger() {
     }
   };
 
-  const handleApplicantsChange = (selected) => {
+  const handleApplicantsChange = selected => {
     setSelectedApplicants(selected || []);
   };
 
@@ -364,10 +364,9 @@ export default function Messenger() {
           id:
             pathname === "/messenger/applicant"
               ? "TEXT.APPLICANT.MESSENGER"
-              : "TEXT.CLIENT.MESSENGER",
+              : "TEXT.CLIENT.MESSENGER"
         })}
-      >
-      </CardHeader>
+      ></CardHeader>
       <CardBody>
         <Modal
           size="xl"
@@ -407,7 +406,7 @@ export default function Messenger() {
                             <div
                               className="mt-2 rounded p-5 bg-light-success text-dark-50 font-weight-bold font-size-lg text-left max-w-400px"
                               dangerouslySetInnerHTML={{
-                                __html: activeMessage.content_Body,
+                                __html: activeMessage.content_Body
                               }}
                             />
                           </div>
@@ -429,7 +428,7 @@ export default function Messenger() {
                                 <div
                                   className="mt-2 rounded p-5 bg-light-primary text-dark-50 font-weight-bold font-size-lg text-right max-w-400px"
                                   dangerouslySetInnerHTML={{
-                                    __html: response.content_Body,
+                                    __html: response.content_Body
                                   }}
                                 />
                               </div>
@@ -443,7 +442,7 @@ export default function Messenger() {
                       value={content}
                       config={config}
                       tabIndex={1}
-                      onBlur={(newContent) => setContent(newContent)}
+                      onBlur={newContent => setContent(newContent)}
                       row={5}
                     />
                   </div>
@@ -492,7 +491,7 @@ export default function Messenger() {
                   <input
                     type="checkbox"
                     checked={sendToAllTemp}
-                    onChange={(e) => {
+                    onChange={e => {
                       setSendToAllTemp(e.target.checked);
                       if (e.target.checked) {
                         setSelectedApplicants([]);
@@ -524,18 +523,18 @@ export default function Messenger() {
                     onChange={handleApplicantsChange}
                     placeholder={intl.formatMessage({
                       id: "MESSAGE.RECIPIENTS.PLACEHOLDER",
-                      defaultMessage: "Rechercher des intérimaires...",
+                      defaultMessage: "Rechercher des intérimaires..."
                     })}
                     noOptionsMessage={() =>
                       intl.formatMessage({
                         id: "MESSAGE.NO_RESULTS",
-                        defaultMessage: "Aucun résultat",
+                        defaultMessage: "Aucun résultat"
                       })
                     }
                     loadingMessage={() =>
                       intl.formatMessage({
                         id: "MESSAGE.LOADING",
-                        defaultMessage: "Chargement...",
+                        defaultMessage: "Chargement..."
                       })
                     }
                     className="react-select"
@@ -553,7 +552,7 @@ export default function Messenger() {
                 type="text"
                 className="form-control"
                 value={newMessageSubject}
-                onChange={(e) => setNewMessageSubject(e.target.value)}
+                onChange={e => setNewMessageSubject(e.target.value)}
               />
             </div>
             <div className="form-group">
@@ -568,7 +567,7 @@ export default function Messenger() {
                 value={content}
                 config={config}
                 tabIndex={1}
-                onBlur={(newContent) => setContent(newContent)}
+                onBlur={newContent => setContent(newContent)}
               />
             </div>
           </Modal.Body>
@@ -603,7 +602,7 @@ export default function Messenger() {
                     <input
                       type="checkbox"
                       checked={responded}
-                      onChange={(e) => setResponded(!responded)}
+                      onChange={e => setResponded(!responded)}
                     />
                     <span></span>
                   </label>
@@ -622,7 +621,7 @@ export default function Messenger() {
                     <input
                       type="checkbox"
                       checked={notResponded}
-                      onChange={(e) => setNotResponded(!notResponded)}
+                      onChange={e => setNotResponded(!notResponded)}
                     />
                     <span></span>
                   </label>

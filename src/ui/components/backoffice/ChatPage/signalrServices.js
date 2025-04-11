@@ -17,22 +17,22 @@ const signalRService = {
       // Créer une nouvelle connexion avec plus de logs pour le débogage
       connection = new HubConnectionBuilder()
         .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/backoffice", {
-          accessTokenFactory: () => authToken,
+          accessTokenFactory: () => authToken
         })
         .withAutomaticReconnect([0, 2000, 5000, 10000, 20000]) // Stratégie de reconnexion plus agressive
         .configureLogging(LogLevel.Information) // Ajouter des logs pour le débogage
         .build();
 
       // Gérer les événements de reconnexion
-      connection.onreconnecting((error) => {
+      connection.onreconnecting(error => {
         console.warn("SignalR reconnecting due to:", error);
       });
 
-      connection.onreconnected((connectionId) => {
+      connection.onreconnected(connectionId => {
         console.log("SignalR reconnected with ID:", connectionId);
       });
 
-      connection.onclose((error) => {
+      connection.onclose(error => {
         console.warn("SignalR connection closed:", error);
       });
 
@@ -63,10 +63,10 @@ const signalRService = {
             "SendMessage",
             "ChatMessage",
             "MessageReceived",
-            "BackofficeMessage",
+            "BackofficeMessage"
           ];
-          messageEvents.forEach((eventName) => {
-            connection.on(eventName, (message) => {
+          messageEvents.forEach(eventName => {
+            connection.on(eventName, message => {
               console.log(`${eventName} received via SignalR:`, message);
 
               // Normaliser le message selon sa source
@@ -76,7 +76,7 @@ const signalRService = {
               if (normalizedMessage) {
                 // Appeler tous les gestionnaires enregistrés si le traitement est activé
                 if (messageHandlingEnabled) {
-                  messageHandlers.forEach((handler) => {
+                  messageHandlers.forEach(handler => {
                     try {
                       handler(normalizedMessage);
                     } catch (error) {
@@ -99,14 +99,14 @@ const signalRService = {
           if (onConnected) onConnected();
           resolve();
         })
-        .catch((error) => {
+        .catch(error => {
           console.error("Connection with SignalR failed:", error);
           reject(error);
         });
     });
   },
 
-  addMessageHandler: (handler) => {
+  addMessageHandler: handler => {
     if (typeof handler === "function") {
       // Éviter les doublons
       if (!messageHandlers.includes(handler)) {
@@ -119,7 +119,7 @@ const signalRService = {
     }
   },
 
-  removeMessageHandler: (handler) => {
+  removeMessageHandler: handler => {
     const index = messageHandlers.indexOf(handler);
     if (index !== -1) {
       messageHandlers.splice(index, 1);
@@ -132,7 +132,7 @@ const signalRService = {
 
   disconnect: () => {
     if (connection) {
-      connection.stop().catch((err) => {
+      connection.stop().catch(err => {
         console.error("Error while disconnecting SignalR:", err);
       });
       console.log("SignalR disconnect requested");
@@ -154,7 +154,7 @@ const signalRService = {
   // Méthode pour normaliser un message manuellement
   normalizeMessage: (message, eventType) => {
     return normalizeMessage(message, eventType);
-  },
+  }
 };
 
 // Fonction pour normaliser les formats de messages potentiellement différents

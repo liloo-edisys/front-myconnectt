@@ -8,7 +8,7 @@ const ChannelCreationModal = ({
   onClose,
   onCreateChannel,
   loadChannels,
-  chatMasterID,
+  chatMasterID
 }) => {
   // État pour gérer les onglets (intérimaires/clients)
   const [targetType, setTargetType] = useState("users"); // "users" pour intérimaires, "accounts" pour clients
@@ -25,7 +25,7 @@ const ChannelCreationModal = ({
     "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/";
 
   // Gestion du changement du nom du canal
-  const handleChannelNameChange = (e) => {
+  const handleChannelNameChange = e => {
     setChannelName(e.target.value);
   };
 
@@ -44,7 +44,7 @@ const ChannelCreationModal = ({
       // Préparer les données pour la création du canal
       const channelData = {
         name: channelName.trim(),
-        chatMasterID: chatMasterID || null,
+        chatMasterID: chatMasterID || null
       };
 
       console.log("Création de canal avec les données:", channelData);
@@ -56,8 +56,8 @@ const ChannelCreationModal = ({
         {
           headers: {
             "Content-Type": "application/json",
-            Accept: "*/*",
-          },
+            Accept: "*/*"
+          }
         }
       );
 
@@ -69,13 +69,13 @@ const ChannelCreationModal = ({
           id: response.data.id || response.data.chatID,
           name: channelName,
           targetType,
-          members: selectedIds.map((id) => {
-            const entity = searchResults.find((r) => r.id === id);
+          members: selectedIds.map(id => {
+            const entity = searchResults.find(r => r.id === id);
             return {
               id,
-              name: entity?.name || "Utilisateur",
+              name: entity?.name || "Utilisateur"
             };
-          }),
+          })
         };
 
         // Attendre que le composant parent ait reçu les informations
@@ -152,7 +152,7 @@ const ChannelCreationModal = ({
           outline: "none",
           overflow: "hidden",
           boxShadow: "0 5px 20px rgba(0,0,0,0.15)",
-          padding: "24px",
+          padding: "24px"
         }}
       >
         {/* Overlay de chargement qui bloque tout le modal pendant la création */}
@@ -169,7 +169,7 @@ const ChannelCreationModal = ({
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
-              zIndex: 1000,
+              zIndex: 1000
             }}
           >
             <div

@@ -745,7 +745,6 @@ function DashboardPage({ intl, history }) {
             </div>
           </div>
         </div>
-        
       </div>
     </MissionsUIProvider>
   );

@@ -31,9 +31,9 @@ import ChatPageClient from "./components/client/messages/ChatPageClient";
 export default function BasePage(props) {
   const dispatch = useDispatch();
   const { user, mission } = useSelector(
-    (state) => ({
+    state => ({
       user: state.auth.user,
-      mission: state.missionsReducerData.mission,
+      mission: state.missionsReducerData.mission
     }),
     shallowEqual
   );
@@ -77,7 +77,7 @@ export default function BasePage(props) {
 
         <ContentRoute
           path="/mission-create"
-          component={(props) => (
+          component={props => (
             <MissionWizardForm
               userDetails={user}
               mission={mission}

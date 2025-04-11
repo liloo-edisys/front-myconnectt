@@ -9,12 +9,7 @@ function MissionsActionsColumnFormatter(
   cellContent,
   row,
   rowIndex,
-  {
-    openDeleteDialog,
-    openDisplayDialog,
-    openMatchingDialog,
-    editMission
-  }
+  { openDeleteDialog, openDisplayDialog, openMatchingDialog, editMission }
 ) {
   return (
     <>

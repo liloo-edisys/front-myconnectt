@@ -17,7 +17,7 @@ const CVModal = ({ url, isOpen, onClose, title = "Curriculum Vitae" }) => {
     p: 0,
     borderRadius: 1,
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "column"
   };
 
   // Style pour la barre de titre
@@ -27,14 +27,14 @@ const CVModal = ({ url, isOpen, onClose, title = "Curriculum Vitae" }) => {
     alignItems: "center",
     padding: "8px 16px",
     backgroundColor: "#f5f5f5",
-    borderBottom: "1px solid #e0e0e0",
+    borderBottom: "1px solid #e0e0e0"
   };
 
   // Style pour l'iframe
   const iframeStyle = {
     width: "100%",
     height: "100%",
-    border: "none",
+    border: "none"
   };
 
   return (

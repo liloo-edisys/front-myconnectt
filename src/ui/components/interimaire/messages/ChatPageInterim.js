@@ -13,12 +13,12 @@ const ChatPage = () => {
   const [error, setError] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
 
-  const { authToken } = useSelector((state) => state.auth);
+  const { authToken } = useSelector(state => state.auth);
 
   // Récupérer l'utilisateur depuis Redux
   const { user } = useSelector(
-    (state) => ({
-      user: state.auth.user,
+    state => ({
+      user: state.auth.user
     }),
     shallowEqual
   );
@@ -39,20 +39,20 @@ const ChatPage = () => {
   useEffect(() => {
     const connection = new HubConnectionBuilder()
       .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/chat", {
-        accessTokenFactory: () => authToken,
+        accessTokenFactory: () => authToken
       })
       .withAutomaticReconnect()
       .build();
 
     connection
       .start()
-      .then((result) => {
-        connection.on("UserToUser", (message) => {
+      .then(result => {
+        connection.on("UserToUser", message => {
           console.log("UserToUser", message);
           loadChats();
         });
       })
-      .catch((e) => console.log("Connection with SignalR failed: ", e));
+      .catch(e => console.log("Connection with SignalR failed: ", e));
   }, []);
 
   const loadChats = async () => {
@@ -81,7 +81,7 @@ const ChatPage = () => {
     loadChats();
   }, []);
 
-  const handleSendMessage = async (e) => {
+  const handleSendMessage = async e => {
     e.preventDefault();
     if (!newMessage?.trim() || !selectedChat) return;
 
@@ -89,7 +89,7 @@ const ChatPage = () => {
     try {
       // Récupérer le chat sélectionné
       const currentChat = chats?.find(
-        (c) => Number(c?.id) === Number(selectedChat)
+        c => Number(c?.id) === Number(selectedChat)
       );
 
       if (!currentChat) {
@@ -101,7 +101,7 @@ const ChatPage = () => {
         // Utiliser la fonction existante pour envoyer un message à un groupe
         const messageData = {
           chatID: selectedChat,
-          message: newMessage.trim(),
+          message: newMessage.trim()
         };
 
         await chatService.sendMessageToGroup(messageData);
@@ -132,21 +132,21 @@ const ChatPage = () => {
     }
   };
 
-  const handleChatSelect = async (chatId) => {
+  const handleChatSelect = async chatId => {
     // Convertir chatId en nombre pour assurer la compatibilité
     setSelectedChat(Number(chatId));
 
     // C'est un chat normal
-    const chat = chats?.find((c) => Number(c?.id) === Number(chatId));
+    const chat = chats?.find(c => Number(c?.id) === Number(chatId));
     if (!chat) return;
 
     // Marquer les messages non lus comme lus
-    const unreadMessages = chat?.messages?.filter((msg) => !msg?.isRead);
+    const unreadMessages = chat?.messages?.filter(msg => !msg?.isRead);
     for (const msg of unreadMessages) {
       try {
         await chatService.markMessageAsRead({
           chatID: chatId,
-          messageID: msg?.id,
+          messageID: msg?.id
         });
       } catch (err) {
         console.error("Error marking message as read:", err);
@@ -154,15 +154,15 @@ const ChatPage = () => {
     }
   };
 
-  const getOtherUser = (chat) => {
+  const getOtherUser = chat => {
     // Cherche l'utilisateur avec chatUserRole: 1
-    const adminUser = chat?.users?.find((u) => u?.chatUserRole === 1);
+    const adminUser = chat?.users?.find(u => u?.chatUserRole === 1);
 
     // Si trouvé, retourne cet utilisateur, sinon fallback au premier utilisateur
     return adminUser || chat?.users?.[0];
   };
 
-  const getLastMessage = (chat) => {
+  const getLastMessage = chat => {
     if (!chat?.messages || chat.messages.length === 0) {
       return null;
     }
@@ -177,7 +177,7 @@ const ChatPage = () => {
   };
 
   // Filtrer les chats en fonction de la recherche
-  const filteredChats = chats?.filter((chat) => {
+  const filteredChats = chats?.filter(chat => {
     if (!chat) return false;
 
     // Ne pas afficher les groupes
@@ -190,7 +190,7 @@ const ChatPage = () => {
     const name = otherUser?.userName;
     return (
       name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      chat.messages?.some((m) =>
+      chat.messages?.some(m =>
         m?.message?.toLowerCase().includes(searchQuery.toLowerCase())
       )
     );
@@ -200,14 +200,14 @@ const ChatPage = () => {
   const getSelectedData = () => {
     // C'est un chat normal
     const selectedChatData = chats.find(
-      (chat) => Number(chat?.id) === Number(selectedChat)
+      chat => Number(chat?.id) === Number(selectedChat)
     );
 
     return selectedChatData;
   };
 
   // Fonction pour générer une couleur d'avatar basée sur le nom
-  const generateAvatarColor = (name) => {
+  const generateAvatarColor = name => {
     if (!name) return "#4361ee"; // Couleur par défaut si pas de nom
 
     const colors = [
@@ -220,7 +220,7 @@ const ChatPage = () => {
       "#560bad",
       "#480ca8",
       "#b5179e",
-      "#3f37c9",
+      "#3f37c9"
     ];
     const charCode = name.charCodeAt(0) || 0;
     return colors[charCode % colors.length];
@@ -270,7 +270,7 @@ const ChatPage = () => {
                   className="form-control bg-light border-start-0"
                   placeholder="Rechercher des conversations..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={e => setSearchQuery(e.target.value)}
                 />
               </div>
             </div>
@@ -289,11 +289,11 @@ const ChatPage = () => {
                 </div>
               ) : (
                 // Affichage des conversations
-                filteredChats?.map((chat) => {
+                filteredChats?.map(chat => {
                   const otherUser = getOtherUser(chat);
                   const lastMessage = getLastMessage(chat);
                   const hasUnread = chat.messages?.some(
-                    (m) =>
+                    m =>
                       !m?.isRead &&
                       Number(m?.byUserID) !== Number(currentUserId)
                   );
@@ -318,7 +318,7 @@ const ChatPage = () => {
                             height: "35px",
                             backgroundColor: avatarColor,
                             fontSize: "14px",
-                            marginRight: "10px",
+                            marginRight: "10px"
                           }}
                         >
                           A
@@ -371,7 +371,7 @@ const ChatPage = () => {
                         height: "25px",
                         backgroundColor: generateAvatarColor(
                           getOtherUser(selectedChatData)?.userName
-                        ),
+                        )
                       }}
                     >
                       {(getOtherUser(selectedChatData)?.userName || "?")
@@ -395,7 +395,7 @@ const ChatPage = () => {
                 className="flex-grow-1 overflow-auto p-3 bg-light messages-container"
                 style={{
                   backgroundImage:
-                    "linear-gradient(rgba(240, 240, 250, 0.9), rgba(240, 240, 250, 0.9)), url(\"data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23dcdcef' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")",
+                    "linear-gradient(rgba(240, 240, 250, 0.9), rgba(240, 240, 250, 0.9)), url(\"data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23dcdcef' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
                 }}
               >
                 {/* Affichage des messages de conversation */}
@@ -420,7 +420,7 @@ const ChatPage = () => {
                   ).map((msg, index, reversedArray) => {
                     // Trouver l'expéditeur du message
                     const messageSender = selectedChatData?.users?.find(
-                      (user) => Number(user.id) === Number(msg?.byUserID)
+                      user => Number(user.id) === Number(msg?.byUserID)
                     );
 
                     // Vérifier si le message provient de l'utilisateur actuel
@@ -474,7 +474,7 @@ const ChatPage = () => {
                             style={{
                               borderRadius: isFromCurrentUser
                                 ? "18px 18px 4px 18px"
-                                : "18px 18px 18px 4px",
+                                : "18px 18px 18px 4px"
                             }}
                           >
                             {msg?.message}
@@ -486,7 +486,7 @@ const ChatPage = () => {
                           >
                             {new Date(msg?.sentAt).toLocaleTimeString([], {
                               hour: "2-digit",
-                              minute: "2-digit",
+                              minute: "2-digit"
                             })}
                           </div>
                         </div>
@@ -528,7 +528,7 @@ const ChatPage = () => {
                       className="form-control bg-light border-0"
                       placeholder="Écrivez un message..."
                       value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
+                      onChange={e => setNewMessage(e.target.value)}
                     />
                     <button
                       type="submit"

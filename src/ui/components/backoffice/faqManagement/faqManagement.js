@@ -1,13 +1,13 @@
-import React, { useState, useCallback } from 'react';
-import { Tabs, Tab } from '@material-ui/core';
-import { People, Business } from '@material-ui/icons';
-import { styles } from './styles';
-import { useFAQManagement } from './useFAQManagement';
-import { QuestionForm } from './QuestionForm';
-import { Breadcrumb } from './Breadcrumb';
-import { QuestionCard } from './QuestionCard';
-import { DeleteModal } from './DeleteModal';
-import { EditModal } from './EditModal';
+import React, { useState, useCallback } from "react";
+import { Tabs, Tab } from "@material-ui/core";
+import { People, Business } from "@material-ui/icons";
+import { styles } from "./styles";
+import { useFAQManagement } from "./useFAQManagement";
+import { QuestionForm } from "./QuestionForm";
+import { Breadcrumb } from "./Breadcrumb";
+import { QuestionCard } from "./QuestionCard";
+import { DeleteModal } from "./DeleteModal";
+import { EditModal } from "./EditModal";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -28,7 +28,7 @@ function TabPanel(props) {
 function a11yProps(index) {
   return {
     id: `faq-tab-${index}`,
-    'aria-controls': `faq-tabpanel-${index}`,
+    "aria-controls": `faq-tabpanel-${index}`
   };
 }
 
@@ -50,7 +50,7 @@ const FaqManagement = () => {
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  const handleDeleteClick = useCallback((question) => {
+  const handleDeleteClick = useCallback(question => {
     setQuestionToDelete(question);
     setShowDeleteModal(true);
   }, []);
@@ -67,7 +67,7 @@ const FaqManagement = () => {
     setQuestionToDelete(null);
   }, []);
 
-  const handleEditClick = useCallback((question) => {
+  const handleEditClick = useCallback(question => {
     setEditingQuestion(question);
     setShowEditModal(true);
   }, []);
@@ -77,13 +77,13 @@ const FaqManagement = () => {
     setEditingQuestion(null);
   }, []);
 
-  const handleSaveEdit = useCallback(async (updatedQuestion) => {
+  const handleSaveEdit = useCallback(async updatedQuestion => {
     try {
       await getCurrentFAQ().handleEdit(updatedQuestion);
       setShowEditModal(false);
       setEditingQuestion(null);
     } catch (error) {
-      console.error('Erreur lors de la modification:', error);
+      console.error("Erreur lors de la modification:", error);
     }
   }, []);
 
@@ -97,7 +97,7 @@ const FaqManagement = () => {
     getCurrentFAQ().handleDrop(draggedId, targetId);
   };
 
-  const renderFAQContent = (faq) => {
+  const renderFAQContent = faq => {
     return (
       <div className="row g-4">
         <div className="col-md-4">
@@ -106,15 +106,17 @@ const FaqManagement = () => {
 
         <div className="col-md-8">
           <div className={styles.mainContent}>
-            <Breadcrumb 
-              currentPath={faq.currentPath} 
-              navigation={faq.navigation} 
+            <Breadcrumb
+              currentPath={faq.currentPath}
+              navigation={faq.navigation}
             />
 
             {faq.isLoading ? (
               <div className="text-center py-5">
-                <div className="spinner-border text-primary" role="status">
-                </div>
+                <div
+                  className="spinner-border text-primary"
+                  role="status"
+                ></div>
               </div>
             ) : faq.error ? (
               <div className="alert alert-danger" role="alert">
@@ -126,17 +128,19 @@ const FaqManagement = () => {
                 <p>Commencez par ajouter une question</p>
               </div>
             ) : (
-              faq.getCurrentQuestions().map((question) => (
-                <QuestionCard
-                  key={question.id}
-                  question={question}
-                  onNavigate={faq.navigation.handleNavigate}
-                  onDelete={handleDeleteClick}
-                  onEdit={handleEditClick}
-                  onDragStart={handleDragStart}
-                  onDrop={handleQuestionDrop}
-                />
-              ))
+              faq
+                .getCurrentQuestions()
+                .map(question => (
+                  <QuestionCard
+                    key={question.id}
+                    question={question}
+                    onNavigate={faq.navigation.handleNavigate}
+                    onDelete={handleDeleteClick}
+                    onEdit={handleEditClick}
+                    onDragStart={handleDragStart}
+                    onDrop={handleQuestionDrop}
+                  />
+                ))
             )}
           </div>
         </div>
@@ -147,23 +151,15 @@ const FaqManagement = () => {
   return (
     <div className={styles.container}>
       <div className="mb-4 border-bottom">
-        <Tabs 
-          value={tabValue} 
+        <Tabs
+          value={tabValue}
           onChange={handleTabChange}
           aria-label="FAQ tabs"
           variant="fullWidth"
           className="border-bottom-0"
         >
-          <Tab 
-            icon={<People />}
-            label="FAQs Intérimaires" 
-            {...a11yProps(0)}
-          />
-          <Tab 
-            icon={<Business />}
-            label="FAQs Clients" 
-            {...a11yProps(1)}
-          />
+          <Tab icon={<People />} label="FAQs Intérimaires" {...a11yProps(0)} />
+          <Tab icon={<Business />} label="FAQs Clients" {...a11yProps(1)} />
         </Tabs>
       </div>
 
