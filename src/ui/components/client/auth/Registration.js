@@ -18,6 +18,9 @@ function Registration(props) {
   const [selectedCity, setselectedCity] = useState(null);
   const [selectedCompany, setselectedCompany] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [siretInput, setSiretInput] = useState("");
+  const [siretError, setSiretError] = useState("");
+  const [siretResults, setSiretResults] = useState(null);
   const { intl, history } = props;
 
   const handleChangeCity = (value) => {
@@ -26,6 +29,76 @@ function Registration(props) {
 
   const handleChangeCompany = (value) => {
     setselectedCompany(value);
+  };
+
+  const handleSiretChange = (e) => {
+    const value = e.target.value.replace(/\D/g, ""); // Only allow digits
+    setSiretInput(value);
+
+    // Reset error if input is empty
+    if (!value) {
+      setSiretError("");
+      setSiretResults(null);
+      return;
+    }
+
+    // Validate SIRET as user types
+    if (value.length < 14) {
+      setSiretError("Le numéro SIRET doit contenir exactement 14 chiffres");
+      setSiretResults(null);
+    } else if (value.length > 14) {
+      setSiretInput(value.slice(0, 14)); // Limite  14 chiffres
+    } else {
+      setSiretError("");
+      // Si nous avons 14 digits, fetch les infos de l'entreprise
+      fetchCompanyBySiret(value);
+    }
+  };
+
+  const fetchCompanyBySiret = (siret) => {
+    const baseUrl = "https://api.insee.fr";
+    const url = `${baseUrl}/entreprises/sirene/V3/siret/${siret}`;
+    setLoading(true);
+
+    axios
+      .get(url)
+      .then((res) => {
+        setLoading(false);
+        setSiretResults(res.data);
+        // Populate company selection if data is valid
+        if (res.data && res.data.etablissement) {
+          const companyData = {
+            nom_complet:
+              res.data.etablissement.uniteLegale.denominationUniteLegale ||
+              `${res.data.etablissement.uniteLegale.prenom1UniteLegale ||
+                ""} ${res.data.etablissement.uniteLegale.nomUniteLegale || ""}`,
+            siege: {
+              siret: res.data.etablissement.siret,
+              libelle_commune:
+                res.data.etablissement.libelleCommuneEtablissement,
+              adresse_complete: `${res.data.etablissement
+                .numeroVoieEtablissement || ""} ${res.data.etablissement
+                .typeVoieEtablissement || ""} ${res.data.etablissement
+                .libelleVoieEtablissement || ""}`,
+              complement_adresse:
+                res.data.etablissement.complementAdresseEtablissement || "",
+              code_postal: res.data.etablissement.codePostalEtablissement,
+            },
+            libelle_nature_juridique_entreprise:
+              res.data.etablissement.uniteLegale.categorieJuridiqueUniteLegale,
+          };
+          setselectedCompany(companyData);
+        }
+      })
+      .catch((error) => {
+        setLoading(false);
+        if (error.response && error.response.status === 404) {
+          setSiretError("Aucune entreprise trouvée avec ce numéro SIRET");
+        } else {
+          setSiretError("Erreur lors de la recherche de l'entreprise");
+        }
+        console.error("Error fetching company:", error);
+      });
   };
 
   const loadOptions = (inputValue, callback) => {
@@ -161,7 +234,9 @@ function Registration(props) {
   const getAsyncOptions = (inputValue) => {
     return axios
       .get(
-        `https://recherche-entreprises.api.gouv.fr/search?q=${inputValue}&&code_postal=${selectedCity.Code_postal}`
+        `https://recherche-entreprises.api.gouv.fr/search?q=${inputValue}&&code_postal=${
+          selectedCity ? selectedCity.Code_postal : ""
+        }`
       )
       .then((res) => {
         return res.data.results;
@@ -188,8 +263,8 @@ function Registration(props) {
             src={toAbsoluteUrl("/media/logos/wow.png")}
             className="h-20px"
             alt="wow"
-          />{"  "}
-          !
+          />
+          {"  "}!
         </p>
         <div className="text-center">
           <Link to="/auth/login">
@@ -201,7 +276,10 @@ function Registration(props) {
       </div>
 
       {/* Right Side - Form Section  */}
-      <div className="d-flex flex-column flex-grow-1 justify-content-center align-items-center p-10" style={{ marginLeft: "550px" }}>
+      <div
+        className="d-flex flex-column flex-grow-1 justify-content-center align-items-center p-10"
+        style={{ marginLeft: "550px" }}
+      >
         <div className="max-w-850px w-100">
           <div className="text-center mb-10">
             <Link to="/">
@@ -272,6 +350,58 @@ function Registration(props) {
                 IndicatorSeparator: () => null,
               }}
             />
+
+            {/* SIRET Input with direct validation */}
+            <div className="form-group mb-5">
+              <input
+                type="text"
+                className="form-control form-control-solid rounded-lg"
+                value={siretInput}
+                onChange={handleSiretChange}
+                placeholder="Entrez les 14 chiffres du numéro SIRET"
+                maxLength={14}
+              />
+              {siretError && (
+                <div className="text-danger mt-2">{siretError}</div>
+              )}
+              {loading && (
+                <div className="mt-3">
+                  <span className="spinner spinner-primary mr-2"></span>
+                  <span>Recherche en cours...</span>
+                </div>
+              )}
+
+              {/* Display company result */}
+              {siretResults && !siretError && !loading && (
+                <div className="mt-4 p-5 bg-light-primary rounded">
+                  <h4 className="font-weight-bold mb-3">
+                    Entreprise trouvée :
+                  </h4>
+                  {selectedCompany && (
+                    <div>
+                      <p className="mb-1">
+                        <strong>Nom:</strong> {selectedCompany.nom_complet}
+                      </p>
+                      <p className="mb-1">
+                        <strong>SIRET:</strong> {selectedCompany.siege.siret}
+                      </p>
+                      <p className="mb-1">
+                        <strong>Adresse:</strong>{" "}
+                        {selectedCompany.siege.adresse_complete}
+                      </p>
+                      <p className="mb-1">
+                        <strong>Code postal:</strong>{" "}
+                        {selectedCompany.siege.code_postal}
+                      </p>
+                      <p className="mb-1">
+                        <strong>Ville:</strong>{" "}
+                        {selectedCompany.siege.libelle_commune}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {selectedCompany && (
