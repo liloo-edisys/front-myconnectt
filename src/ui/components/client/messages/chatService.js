@@ -15,32 +15,32 @@ export const chatService = {
   },
 
   // Envoyer un message de l'admin vers un utilisateur
-  sendBackofficeMessage: (data) => {
+  sendBackofficeMessage: data => {
     return axios.post(`${API_URL}api/Chat/backoffice/to/user`, data);
   },
 
   // Envoyer un message utilisateur vers l'admin
-  sendUserToBackoffice: (data) => {
+  sendUserToBackoffice: data => {
     return axios.post(`${API_URL}api/Chat/user/to/backoffice`, data);
   },
 
   // Envoyer un message à un utilisateur spécifique
-  sendMessageToUser: (data) => {
+  sendMessageToUser: data => {
     return axios.post(`${API_URL}api/Chat/message/to/user`, data);
   },
 
   // Envoyer un message à un groupe
-  sendMessageToGroup: (data) => {
+  sendMessageToGroup: data => {
     return axios.post(`${API_URL}api/Chat/message/to/users`, data);
   },
 
   // Créer un nouveau groupe
-  createGroup: (data) => {
+  createGroup: data => {
     return axios.post(`${API_URL}api/Chat/create/group`, data);
   },
 
   // Créer un nouveau channel
-  createGroup: (data) => {
+  createGroup: data => {
     return axios.post(`${API_URL}api/Chat/create/channel`, data);
   },
 
@@ -50,7 +50,7 @@ export const chatService = {
   },
 
   // Marquer un message comme lu
-  markMessageAsRead: (data) => {
+  markMessageAsRead: data => {
     return axios.post(`${API_URL}api/Chat/message/as/read`, data);
   },
 
@@ -63,30 +63,30 @@ export const chatService = {
   },
 
   // Décrypter un message
-  decryptMessage: (data) => {
+  decryptMessage: data => {
     return axios.post(`${API_URL}api/Chat/decrypt`, data);
-  },
+  }
 };
 
 // Types pour les requêtes
 export const MessageTypes = {
   CHAT_REQUEST: {
     message: "",
-    toUserID: 0,
+    toUserID: 0
   },
 
   CHAT_REQUEST_GROUP: {
     chatID: 0,
-    message: "",
+    message: ""
   },
 
   CHAT_MESSAGE_ONLY: {
-    message: "",
+    message: ""
   },
 
   CHAT_MESSAGE_IS_READ: {
     chatID: 0,
-    messageID: "",
+    messageID: ""
   },
 
   CHAT_REQUEST_CREATE_GROUP: {
@@ -94,26 +94,26 @@ export const MessageTypes = {
     groupName: "",
     chatMasterID: 0,
     toUsers: [],
-    isGroup: false,
-  },
+    isGroup: false
+  }
 };
 
 // Utilitaires pour formater les messages
 export const messageUtils = {
   formatChatRequest: (message, toUserId) => ({
     message,
-    toUserID: toUserId,
+    toUserID: toUserId
   }),
 
   formatGroupMessage: (chatId, message) => ({
     chatID: chatId,
-    message,
+    message
   }),
 
   formatCreateGroup: (name, masterId, users, isGroup = true) => ({
     groupName: name,
     chatMasterID: masterId,
     toUsers: users,
-    isGroup,
-  }),
+    isGroup
+  })
 };

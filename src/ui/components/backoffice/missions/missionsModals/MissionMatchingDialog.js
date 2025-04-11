@@ -148,7 +148,7 @@ export function MatchingDialog({
   useEffect(() => {
     show && !isNullOrEmpty(mission) && dispatch(getMatching.request(mission));
   }, [show, mission, dispatch]);
-  
+
   return (
     <Modal
       show={show}

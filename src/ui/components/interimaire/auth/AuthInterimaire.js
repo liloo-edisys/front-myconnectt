@@ -14,7 +14,7 @@ import "../../../../_metronic/_assets/sass/pages/login/classic/login-1.scss";
 import ResetPasswordInterimaire from "./ResetPasswordInterimaire";
 import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
 import RegisterConfirmSms from "./RegisterConfirmSms";
-import UserInfoForm from "../profile/userInfoForm/UserInfoForm"
+import UserInfoForm from "../profile/userInfoForm/UserInfoForm";
 import "./AuthInterimaire.css";
 
 export function AuthInterimaire() {

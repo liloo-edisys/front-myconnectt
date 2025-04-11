@@ -56,7 +56,6 @@ export const setSignalRClient = (authToken, dispatch, setSelectedNotif) => {
         });
         setSelectedNotif(notif);
         console.log("notif -----------> ", notif);
-        
       });
     })
     .catch(err => {

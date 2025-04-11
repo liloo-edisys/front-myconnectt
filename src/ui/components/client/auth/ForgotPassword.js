@@ -9,7 +9,7 @@ import * as Yup from "yup";
 import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
 
 const initialValues = {
-  email: "",
+  email: ""
 };
 
 function ForgotPassword(props) {
@@ -18,10 +18,10 @@ function ForgotPassword(props) {
   const ForgotPasswordSchema = Yup.object().shape({
     email: Yup.string()
       .email(intl.formatMessage({ id: "VALIDATION.INVALID_EMAIL" }))
-      .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
+      .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" }))
   });
 
-  const getInputClasses = (fieldname) => {
+  const getInputClasses = fieldname => {
     if (formik.touched[fieldname] && formik.errors[fieldname]) {
       return "is-invalid";
     }
@@ -39,7 +39,7 @@ function ForgotPassword(props) {
     onSubmit: (values, { setStatus, setSubmitting }) => {
       requestPassword(values.email)
         .then(() => setIsRequested(true))
-        .catch((error) => {
+        .catch(error => {
           setIsRequested(false);
           setSubmitting(false);
           setStatus(intl.formatMessage({ id: "TEXT.ERROR.EMAIL" }));
@@ -49,14 +49,14 @@ function ForgotPassword(props) {
           );
           return error;
         })
-        .then((error) => {
+        .then(error => {
           !error &&
             toastr.success(
               intl.formatMessage({ id: "TEXT.RESET.PASSWORD.TITLE" }),
               intl.formatMessage({ id: "TEXT.RESET.PASSWORD.DESCRIPTION" })
             );
         });
-    },
+    }
   });
 
   return (
@@ -67,7 +67,14 @@ function ForgotPassword(props) {
           <div className="login login-1 login-forgot-on d-flex flex-column flex-lg-row flex-column-fluid bg-primary h-100">
             <div className="login-content flex-row-fluid d-flex flex-column justify-content-center position-relative overflow-hidden p-7">
               <div className="d-flex flex-column-fluid flex-center">
-                <div className="login-form login-forgot bg-white shadow-sm p-10" style={{ width: '100%', maxWidth: '600px' , borderRadius: '34px'}}>
+                <div
+                  className="login-form login-forgot bg-white shadow-sm p-10"
+                  style={{
+                    width: "100%",
+                    maxWidth: "600px",
+                    borderRadius: "34px"
+                  }}
+                >
                   <div className="text-center mb-10">
                     <Link to="/">
                       <img

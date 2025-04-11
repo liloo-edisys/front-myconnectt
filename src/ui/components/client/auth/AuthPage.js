@@ -12,7 +12,9 @@ export function AuthPage() {
     <div className="d-flex flex-root h-100">
       {/* Main login container */}
       <div className=" h-100 w-100">
-        <div style={{ backgroundColor: "#F3F6F9", width: "100%" , height: "100%"}}>
+        <div
+          style={{ backgroundColor: "#F3F6F9", width: "100%", height: "100%" }}
+        >
           {/* Logo
           <div className="d-flex flex-left mb-15 mt-5">
               <Link to="/">

@@ -50,19 +50,19 @@ const ChatPage = () => {
 
   const [adminList, setAdminList] = useState([]);
   const [loadingAdmins, setLoadingAdmins] = useState(false);
-    const { authToken } = useSelector((state) => state.auth);
+  const { authToken } = useSelector(state => state.auth);
 
   // Fonction pour vérifier si un canal est un parent (a des enfants)
-  const hasChildren = (channel) => {
+  const hasChildren = channel => {
     return channel.slaves && channel.slaves.length > 0;
   };
 
   // Fonction pour obtenir tous les IDs enfants d'un canal (récursif)
-  const getChildrenIds = (channel) => {
+  const getChildrenIds = channel => {
     if (!hasChildren(channel)) return [];
 
     let ids = [];
-    channel.slaves.forEach((slave) => {
+    channel.slaves.forEach(slave => {
       ids.push(slave.id);
       ids = [...ids, ...getChildrenIds(slave)];
     });
@@ -139,7 +139,7 @@ const ChatPage = () => {
     }
   }, [selectedChat]);
 
-  const convertMarkdownLinks = (text) => {
+  const convertMarkdownLinks = text => {
     const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
 
     return text.replace(linkRegex, (match, text, url) => {
@@ -156,7 +156,7 @@ const ChatPage = () => {
 
   // Et dans la partie d'affichage de votre message, utilisez quelque chose comme:
 
-  const handleMessageChange = (e) => {
+  const handleMessageChange = e => {
     const { value, selectionStart } = e.target;
     setNewMessage(value);
     setCursorPosition(selectionStart);
@@ -185,7 +185,7 @@ const ChatPage = () => {
 
   // Ajoutez cette fonction pour gérer la sélection d'un tag
   // Dans ChatPage.js, modifiez la fonction handleSelectTag
-  const handleSelectTag = (updatedMessage) => {
+  const handleSelectTag = updatedMessage => {
     // Le composant TagSuggestions va maintenant nous envoyer le message complet mis à jour
     // avec le lien markdown déjà inséré
     setNewMessage(updatedMessage);
@@ -203,8 +203,8 @@ const ChatPage = () => {
   };
   // Récupérer l'utilisateur depuis Redux
   const { user } = useSelector(
-    (state) => ({
-      user: state.auth.user,
+    state => ({
+      user: state.auth.user
     }),
     shallowEqual
   );
@@ -215,14 +215,14 @@ const ChatPage = () => {
 
     let result = [];
 
-    channels.forEach((channel) => {
+    channels.forEach(channel => {
       // Ajouter les informations du niveau et du parent
       const channelWithLevel = {
         ...channel,
         level,
         parentName,
         displayName:
-          level > 0 ? `${parentName} / ${channel.name}` : channel.name,
+          level > 0 ? `${parentName} / ${channel.name}` : channel.name
       };
 
       // Ajouter le canal courant
@@ -362,42 +362,42 @@ const ChatPage = () => {
     updateNestedChannel,
     handleChatSelect,
     currentUserId,
-    user,
+    user
   });
 
   useEffect(() => {
     const connection = new HubConnectionBuilder()
       .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/chat", {
-        accessTokenFactory: () => authToken,
+        accessTokenFactory: () => authToken
       })
       .withAutomaticReconnect()
       .build();
 
     connection
       .start()
-      .then((result) => {
-        connection.on("UserToUser", (message) => {
+      .then(result => {
+        connection.on("UserToUser", message => {
           console.log("UserToUser", message);
           loadChats();
         });
       })
-      .catch((e) => console.log("Connection with SignalR failed: ", e));
+      .catch(e => console.log("Connection with SignalR failed: ", e));
   }, []);
 
   // Fonction utilitaire pour mettre à jour les canaux imbriqués
   const updateNestedChannel = (channels, targetId, newMessage) => {
     if (!channels || !Array.isArray(channels)) return channels;
 
-    return channels.map((chan) => {
+    return channels.map(chan => {
       if (Number(chan.id) === Number(targetId)) {
         // Ajouter le message au canal si besoin
         const messages = chan.messages || [];
-        const messageExists = messages.some((msg) => msg.id === newMessage.id);
+        const messageExists = messages.some(msg => msg.id === newMessage.id);
 
         if (!messageExists) {
           return {
             ...chan,
-            messages: [...messages, newMessage],
+            messages: [...messages, newMessage]
           };
         }
         return chan;
@@ -417,7 +417,7 @@ const ChatPage = () => {
   };
 
   // Fonction pour créer un canal
-  const handleCreateChannel = async (channelData) => {
+  const handleCreateChannel = async channelData => {
     // console.log("Canal créé:", channelData);
     setLoading(true);
 
@@ -446,7 +446,7 @@ const ChatPage = () => {
     }
   };
 
-  const handleSendMessage = async (e) => {
+  const handleSendMessage = async e => {
     e.preventDefault();
     if (!newMessage?.trim() || !selectedChat) return;
 
@@ -466,7 +466,7 @@ const ChatPage = () => {
         (match, tagName) => {
           // Rechercher le tag correspondant dans la liste complète des tags
           const matchingTag = allTags.find(
-            (tag) => tag.name.toLowerCase() === tagName.toLowerCase()
+            tag => tag.name.toLowerCase() === tagName.toLowerCase()
           );
 
           return matchingTag
@@ -482,15 +482,15 @@ const ChatPage = () => {
           message: transformedMessage,
           sentAt: new Date().toISOString(),
           byUserID: currentUserId,
-          isRead: true,
+          isRead: true
         };
 
         // Mettre à jour les chats temporaires et la liste des chats
-        const updatedTemporaryChats = temporaryChats.map((chat) => {
+        const updatedTemporaryChats = temporaryChats.map(chat => {
           if (chat.id === selectedChat) {
             return {
               ...chat,
-              messages: [...(chat.messages || []), newMsg],
+              messages: [...(chat.messages || []), newMsg]
             };
           }
           return chat;
@@ -499,12 +499,12 @@ const ChatPage = () => {
         setTemporaryChats(updatedTemporaryChats);
 
         // Mettre également à jour la liste principale des chats
-        setChats((prevChats) =>
-          prevChats.map((chat) => {
+        setChats(prevChats =>
+          prevChats.map(chat => {
             if (chat.id === selectedChat) {
               return {
                 ...chat,
-                messages: [...(chat.messages || []), newMsg],
+                messages: [...(chat.messages || []), newMsg]
               };
             }
             return chat;
@@ -516,14 +516,14 @@ const ChatPage = () => {
 
       // Vérifier d'abord si le chat sélectionné est un canal
       const selectedChannelData = flattenedChannels.find(
-        (chan) => Number(chan.id) === Number(selectedChat)
+        chan => Number(chan.id) === Number(selectedChat)
       );
 
       if (selectedChannelData) {
         // Envoyer un message au canal avec sendMessageToChannel
         const messageData = {
           chatID: selectedChat,
-          message: transformedMessage,
+          message: transformedMessage
         };
 
         await chatService.sendMessageToChannel(messageData);
@@ -557,7 +557,7 @@ const ChatPage = () => {
       } else {
         // Récupérer le chat sélectionné
         const currentChat = chats?.find(
-          (c) => Number(c?.id) === Number(selectedChat)
+          c => Number(c?.id) === Number(selectedChat)
         );
 
         if (!currentChat) {
@@ -569,7 +569,7 @@ const ChatPage = () => {
           // Utiliser la fonction existante pour envoyer un message à un groupe
           const messageData = {
             chatID: selectedChat,
-            message: transformedMessage,
+            message: transformedMessage
           };
 
           await chatService.sendMessageToGroup(messageData);
@@ -597,15 +597,15 @@ const ChatPage = () => {
           message: transformedMessage,
           sentAt: new Date().toISOString(),
           byUserID: currentUserId,
-          isRead: true,
+          isRead: true
         };
 
-        setChats((prevChats) =>
-          prevChats.map((chat) => {
+        setChats(prevChats =>
+          prevChats.map(chat => {
             if (Number(chat.id) === Number(selectedChat)) {
               return {
                 ...chat,
-                messages: [...(chat.messages || []), newMsg],
+                messages: [...(chat.messages || []), newMsg]
               };
             }
             return chat;
@@ -623,7 +623,7 @@ const ChatPage = () => {
   };
 
   const handleChatSelect = useCallback(
-    async (chatId) => {
+    async chatId => {
       // Convertir chatId en valeur pour compatibilité (sans Number() pour les chats temporaires)
       const chatIdValue = String(chatId);
       const isTemporaryChat = chatIdValue.startsWith("temp_");
@@ -648,7 +648,7 @@ const ChatPage = () => {
         setChannelMessages([]);
 
         // Mettre à jour le titre du document pour un chat temporaire
-        const tempChat = temporaryChats.find((chat) => chat.id === chatIdValue);
+        const tempChat = temporaryChats.find(chat => chat.id === chatIdValue);
         if (tempChat) {
           const otherUser = getOtherUser(tempChat);
           document.title = `Chat temporaire avec: ${otherUser?.userName ||
@@ -662,7 +662,7 @@ const ChatPage = () => {
 
       // Vérifier d'abord si c'est un canal
       const selectedChannelData = flattenedChannels.find(
-        (chan) => Number(chan.id) === Number(chatId)
+        chan => Number(chan.id) === Number(chatId)
       );
 
       // Si c'est un canal et que l'onglet n'est pas "channels", changer l'onglet
@@ -681,7 +681,7 @@ const ChatPage = () => {
         // document.title = `Canal: ${selectedChannelData.name}`;
       } else {
         // Pour les chats, on attend de récupérer les infos
-        const chat = chats?.find((c) => Number(c?.id) === Number(chatId));
+        const chat = chats?.find(c => Number(c?.id) === Number(chatId));
         if (chat) {
           const otherUser = getOtherUser(chat);
           // Format pour les conversations : "Chat avec: [Nom]"
@@ -734,7 +734,7 @@ const ChatPage = () => {
       setChannelMessages([]);
 
       // Sinon, c'est un chat normal
-      const chat = chats?.find((c) => Number(c?.id) === Number(chatId));
+      const chat = chats?.find(c => Number(c?.id) === Number(chatId));
       if (!chat) return;
 
       // Charger les messages via l'API pour les discussions normales
@@ -753,7 +753,7 @@ const ChatPage = () => {
           // );
 
           // Mettre à jour le chat dans la liste des chats avec les nouveaux messages
-          const updatedChats = chats.map((c) => {
+          const updatedChats = chats.map(c => {
             if (Number(c.id) === Number(chatId)) {
               // S'assurer que le format des données est cohérent
               const updatedMessages = Array.isArray(messagesResponse.data)
@@ -762,7 +762,7 @@ const ChatPage = () => {
 
               return {
                 ...c,
-                messages: updatedMessages,
+                messages: updatedMessages
               };
             }
             return c;
@@ -782,13 +782,13 @@ const ChatPage = () => {
       }
 
       // Marquer les messages non lus comme lus
-      const unreadMessages = chat?.messages?.filter((msg) => !msg?.isRead);
+      const unreadMessages = chat?.messages?.filter(msg => !msg?.isRead);
       if (unreadMessages && Array.isArray(unreadMessages)) {
         for (const msg of unreadMessages) {
           try {
             await chatService.markMessageAsRead({
               chatID: Number(chatId),
-              messageID: msg?.id,
+              messageID: msg?.id
             });
           } catch (err) {
             console.error("Error marking message as read:", err);
@@ -805,7 +805,7 @@ const ChatPage = () => {
       selectedChat,
       activeTab,
       getOtherUser,
-      setChats,
+      setChats
     ]
   );
 
@@ -822,7 +822,7 @@ const ChatPage = () => {
         if (selectedChat) {
           // Vérifier d'abord si c'est un canal
           const selectedChannelData = flattenedChannels.find(
-            (chan) => Number(chan.id) === Number(selectedChat)
+            chan => Number(chan.id) === Number(selectedChat)
           );
 
           if (selectedChannelData) {
@@ -874,7 +874,7 @@ const ChatPage = () => {
   }, [selectedChat, flattenedChannels]); // Dépendances pour recréer l'intervalle si le chat sélectionné change
 
   useEffect(() => {
-    const handleLinkClick = (e) => {
+    const handleLinkClick = e => {
       // Vérifier si le clic est sur un lien interne
       if (
         e.target.tagName === "A" &&
@@ -891,7 +891,7 @@ const ChatPage = () => {
 
           // Vérifier d'abord si c'est un canal
           const isChannel = flattenedChannels.some(
-            (chan) => Number(chan.id) === chatId
+            chan => Number(chan.id) === chatId
           );
 
           // Si c'est un canal, activer l'onglet "channels"
@@ -918,7 +918,7 @@ const ChatPage = () => {
     };
   }, [flattenedChannels, activeTab, history, handleChatSelect]); //
 
-  const tryLoadSpecificChatById = async (specificId) => {
+  const tryLoadSpecificChatById = async specificId => {
     try {
       // Vérifier d'abord si c'est un canal
       const channelResponse = await chatService.getSpecificChannel(specificId);
@@ -927,10 +927,10 @@ const ChatPage = () => {
         const newChannelData = channelResponse.data;
 
         // Ajouter ce canal à la liste des canaux
-        setChannel((prevChannels) => {
+        setChannel(prevChannels => {
           // Vérifier si le canal existe déjà
           const channelExists = prevChannels.some(
-            (chan) => Number(chan.id) === Number(specificId)
+            chan => Number(chan.id) === Number(specificId)
           );
           if (channelExists) {
             return prevChannels;
@@ -950,10 +950,10 @@ const ChatPage = () => {
         const newChatData = chatResponse.data;
 
         // Ajouter ce chat à la liste des chats
-        setChats((prevChats) => {
+        setChats(prevChats => {
           // Vérifier si le chat existe déjà
           const chatExists = prevChats.some(
-            (chat) => Number(chat?.id) === Number(specificId)
+            chat => Number(chat?.id) === Number(specificId)
           );
           if (chatExists) {
             return prevChats;
@@ -991,10 +991,10 @@ const ChatPage = () => {
           setTimeout(() => {
             // Vérifier si c'est un chat ou un canal
             const foundChat = chats.find(
-              (chat) => Number(chat?.id) === Number(channelId)
+              chat => Number(chat?.id) === Number(channelId)
             );
             const foundChannel = flattenedChannels.find(
-              (chan) => Number(chan.id) === Number(channelId)
+              chan => Number(chan.id) === Number(channelId)
             );
 
             if (foundChat || foundChannel) {
@@ -1025,7 +1025,7 @@ const ChatPage = () => {
     }
   }, [channelId]);
 
-  const handleProfileSelect = async (profile) => {
+  const handleProfileSelect = async profile => {
     setIsProfileModalOpen(false);
     setLoading(true);
 
@@ -1075,15 +1075,15 @@ const ChatPage = () => {
     }
   };
 
-  const getOtherUser = (chat) => {
+  const getOtherUser = chat => {
     // Cherche l'utilisateur avec chatUserRole: 1
-    const adminUser = chat?.users?.find((u) => u?.chatUserRole === 1);
+    const adminUser = chat?.users?.find(u => u?.chatUserRole === 1);
 
     // Si trouvé, retourne cet utilisateur, sinon fallback au premier utilisateur
     return adminUser || chat?.users?.[0];
   };
 
-  const getLastMessage = (chat) => {
+  const getLastMessage = chat => {
     if (!chat?.messages || chat.messages.length === 0) {
       return null;
     }
@@ -1098,7 +1098,7 @@ const ChatPage = () => {
   };
 
   // Filtrer les chats en fonction de l'onglet actif et de la recherche
-  const filteredChats = chats?.filter((chat) => {
+  const filteredChats = chats?.filter(chat => {
     if (!chat) return false;
 
     // Filtrer d'abord par type (message individuel ou canal/groupe)
@@ -1117,7 +1117,7 @@ const ChatPage = () => {
       name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (chat.messages &&
         Array.isArray(chat.messages) &&
-        chat.messages.some((m) =>
+        chat.messages.some(m =>
           m?.message?.toLowerCase().includes(searchQuery.toLowerCase())
         ))
     );
@@ -1127,28 +1127,28 @@ const ChatPage = () => {
   const getSelectedData = () => {
     // Vérifier d'abord si c'est un canal
     const selectedChannelData = flattenedChannels.find(
-      (chan) => Number(chan.id) === Number(selectedChat)
+      chan => Number(chan.id) === Number(selectedChat)
     );
 
     if (selectedChannelData) {
       return {
         isChannel: true,
-        data: selectedChannelData,
+        data: selectedChannelData
       };
     }
 
     // Sinon, c'est un chat normal
     const selectedChatData = chats.find(
-      (chat) => Number(chat?.id) === Number(selectedChat)
+      chat => Number(chat?.id) === Number(selectedChat)
     );
 
     return {
       isChannel: false,
-      data: selectedChatData,
+      data: selectedChatData
     };
   };
 
-  const handleSelectUsers = (selectedData) => {
+  const handleSelectUsers = selectedData => {
     setIsUserSelectionModalOpen(false);
 
     if (!selectedData.isGroup && selectedData.users.length === 1) {
@@ -1178,27 +1178,27 @@ const ChatPage = () => {
           {
             id: selectedUser.id,
             userName: selectedUser.name,
-            chatUserRole: 1, // Pour que getOtherUser() fonctionne correctement
+            chatUserRole: 1 // Pour que getOtherUser() fonctionne correctement
           },
           // L'utilisateur actuel
           {
             id: currentUserId,
             userName: user?.fullName || "Vous", // Utiliser le nom complet si disponible
-            chatUserRole: 2,
-          },
+            chatUserRole: 2
+          }
         ],
-        messages: [], // Pas de messages initiaux
+        messages: [] // Pas de messages initiaux
       };
 
       // Ajouter aux chats temporaires
-      setTemporaryChats((prevTempChats) => [...prevTempChats, newChat]);
+      setTemporaryChats(prevTempChats => [...prevTempChats, newChat]);
 
       // Ajouter également à la liste des chats normaux
       // Ajouter aux chats temporaires
-      setTemporaryChats((prevTempChats) => [...prevTempChats, newChat]);
+      setTemporaryChats(prevTempChats => [...prevTempChats, newChat]);
 
       // Ajouter également à la liste des chats normaux
-      setChats((prevChats) => [newChat, ...prevChats]);
+      setChats(prevChats => [newChat, ...prevChats]);
 
       // Sélectionner automatiquement cette nouvelle conversation
       handleChatSelect(tempChatId);
@@ -1214,7 +1214,7 @@ const ChatPage = () => {
   };
 
   // Fonction pour générer une couleur d'avatar basée sur le nom
-  const generateAvatarColor = (name) => {
+  const generateAvatarColor = name => {
     if (!name) return "#4361ee"; // Couleur par défaut si pas de nom
 
     const colors = [
@@ -1227,7 +1227,7 @@ const ChatPage = () => {
       "#560bad",
       "#480ca8",
       "#b5179e",
-      "#3f37c9",
+      "#3f37c9"
     ];
     const charCode = name.charCodeAt(0) || 0;
     return colors[charCode % colors.length];
@@ -1259,7 +1259,7 @@ const ChatPage = () => {
   };
 
   // Second bouton - avec chatMasterID
-  const handleOpenChannelForChild = (id) => {
+  const handleOpenChannelForChild = id => {
     setCurrentChatMasterID(id); // Définir l'ID
     setIsChannelModalOpen(true);
   };
@@ -1343,7 +1343,7 @@ const ChatPage = () => {
                     activeTab === "messages" ? "conversations" : "dossiers"
                   }...`}
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={e => setSearchQuery(e.target.value)}
                 />
               </div>
             </div>
@@ -1381,7 +1381,7 @@ const ChatPage = () => {
                 ) : (
                   // Filtrer pour n'afficher que les parents et les enfants visibles
                   flattenedChannels
-                    .filter((chan) => {
+                    .filter(chan => {
                       // Filtrer par recherche si nécessaire
                       const matchesSearch =
                         chan.name
@@ -1404,7 +1404,7 @@ const ChatPage = () => {
                         parentSegments.length - 1
                       ].trim();
                       const parentChannel = flattenedChannels.find(
-                        (c) =>
+                        c =>
                           c.name === immediateParentName &&
                           c.level === chan.level - 1
                       );
@@ -1415,7 +1415,7 @@ const ChatPage = () => {
                         expandedChannels[parentChannel.id] !== false
                       );
                     })
-                    .map((chan) => {
+                    .map(chan => {
                       const lastMessage =
                         chan.messages && chan.messages.length > 0
                           ? chan.messages[chan.messages.length - 1]
@@ -1425,7 +1425,7 @@ const ChatPage = () => {
                         chan.messages &&
                         Array.isArray(chan.messages) &&
                         chan.messages.some(
-                          (m) =>
+                          m =>
                             !m?.isRead &&
                             Number(m?.byUserID) !== Number(currentUserId)
                         );
@@ -1456,18 +1456,18 @@ const ChatPage = () => {
                             }`}
                             style={{
                               paddingLeft: `${indentation + 10}px`,
-                              cursor: "pointer",
+                              cursor: "pointer"
                             }}
                           >
                             {/* Bouton dropdown pour les canaux avec enfants */}
                             {hasChildren && (
                               <div
                                 className="me-2"
-                                onClick={(e) => {
+                                onClick={e => {
                                   e.stopPropagation(); // Empêcher de sélectionner le canal
-                                  setExpandedChannels((prev) => ({
+                                  setExpandedChannels(prev => ({
                                     ...prev,
-                                    [chan.id]: !prev[chan.id], // Inverser l'état
+                                    [chan.id]: !prev[chan.id] // Inverser l'état
                                   }));
                                 }}
                                 style={{
@@ -1480,21 +1480,21 @@ const ChatPage = () => {
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
-                                  margin: "0 8px 0 0",
+                                  margin: "0 8px 0 0"
                                 }}
                               >
                                 {isExpanded ? (
                                   <ExpandMore
                                     style={{
                                       fontSize: "24px",
-                                      color: "#56565f",
+                                      color: "#56565f"
                                     }}
                                   />
                                 ) : (
                                   <ChevronRight
                                     style={{
                                       fontSize: "24px",
-                                      color: "#56565f",
+                                      color: "#56565f"
                                     }}
                                   />
                                 )}
@@ -1525,7 +1525,7 @@ const ChatPage = () => {
                                     backgroundColor: generateAvatarColor(
                                       chan.name
                                     ),
-                                    fontSize: "14px",
+                                    fontSize: "14px"
                                   }}
                                 >
                                   {isRootLevel
@@ -1596,11 +1596,11 @@ const ChatPage = () => {
                 </div>
               ) : (
                 // Affichage des conversations
-                filteredChats?.map((chat) => {
+                filteredChats?.map(chat => {
                   const otherUser = getOtherUser(chat);
                   const lastMessage = getLastMessage(chat);
                   const hasUnread = chat.messages?.some(
-                    (m) =>
+                    m =>
                       !m?.isRead &&
                       Number(m?.byUserID) !== Number(currentUserId)
                   );
@@ -1627,7 +1627,7 @@ const ChatPage = () => {
                             height: "35px",
                             backgroundColor: avatarColor,
                             fontSize: "14px",
-                            marginRight: "6px",
+                            marginRight: "6px"
                           }}
                         >
                           {chat.isGroup
@@ -1674,7 +1674,7 @@ const ChatPage = () => {
                         height: "25px",
                         backgroundColor: generateAvatarColor(
                           selectedChannelData.name
-                        ),
+                        )
                       }}
                     >
                       <span>#</span>
@@ -1721,7 +1721,7 @@ const ChatPage = () => {
                           backgroundColor: generateAvatarColor(
                             selectedChatData?.groupName ||
                               getOtherUser(selectedChatData)?.userName
-                          ),
+                          )
                         }}
                       >
                         {selectedChatData.isGroup
@@ -1764,7 +1764,7 @@ const ChatPage = () => {
                 className="flex-grow-1 overflow-auto p-3 bg-light messages-container"
                 style={{
                   backgroundImage:
-                    "linear-gradient(rgba(240, 240, 250, 0.9), rgba(240, 240, 250, 0.9)), url(\"data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23dcdcef' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")",
+                    "linear-gradient(rgba(240, 240, 250, 0.9), rgba(240, 240, 250, 0.9)), url(\"data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23dcdcef' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
                 }}
               >
                 {/* Affichage des messages selon le type (canal ou conversation) */}
@@ -1792,7 +1792,7 @@ const ChatPage = () => {
                     // Affichage des messages du canal récupérés via l'API
                     [...channelMessages]
                       .sort((a, b) => new Date(a.sentAt) - new Date(b.sentAt))
-                      .map((msg) => {
+                      .map(msg => {
                         // Afficher les détails du message pour déboguer
                         // console.log("Traitement du message:", msg);
 
@@ -1809,7 +1809,7 @@ const ChatPage = () => {
                         // Si possible, essayer de trouver les informations sur l'expéditeur
                         if (selectedData.data && selectedData.data.users) {
                           const messageSender = selectedData.data.users.find(
-                            (u) => Number(u.id) === Number(msg.byUserID)
+                            u => Number(u.id) === Number(msg.byUserID)
                           );
                           if (messageSender && messageSender.userName) {
                             senderName = messageSender.userName;
@@ -1829,7 +1829,7 @@ const ChatPage = () => {
                                   ),
                                   color: "#b8b8b8",
                                   fontSize: "14px",
-                                  marginRight: "8px",
+                                  marginRight: "8px"
                                 }}
                               >
                                 <span className="text-muted ">
@@ -1844,7 +1844,7 @@ const ChatPage = () => {
                                       dangerouslySetInnerHTML={{
                                         __html: convertMarkdownLinks(
                                           msg.message
-                                        ),
+                                        )
                                       }}
                                     />
                                   </div>
@@ -1853,7 +1853,7 @@ const ChatPage = () => {
                                     style={{
                                       fontSize: "0.8rem",
                                       color: "#3165a7",
-                                      fontWeight: "semi-bold",
+                                      fontWeight: "semi-bold"
                                     }}
                                   >
                                     {msg.byUserID === user?.userID
@@ -1864,7 +1864,7 @@ const ChatPage = () => {
                                       [],
                                       {
                                         hour: "2-digit",
-                                        minute: "2-digit",
+                                        minute: "2-digit"
                                       }
                                     )}
                                   </span>
@@ -1905,7 +1905,7 @@ const ChatPage = () => {
                   ).map((msg, index, messages) => {
                     // Trouver l'expéditeur du message
                     const messageSender = selectedChatData?.users?.find(
-                      (user) => Number(user.id) === Number(msg?.byUserID)
+                      user => Number(user.id) === Number(msg?.byUserID)
                     );
 
                     // Vérifier si le message provient de l'utilisateur actuel
@@ -1935,7 +1935,7 @@ const ChatPage = () => {
                                 backgroundColor: generateAvatarColor(
                                   messageSender?.userName || "?"
                                 ),
-                                fontSize: "14px",
+                                fontSize: "14px"
                               }}
                             >
                               {(messageSender?.userName || "?")
@@ -1959,7 +1959,7 @@ const ChatPage = () => {
                             style={{
                               borderRadius: isFromCurrentUser
                                 ? "18px 18px 4px 18px"
-                                : "18px 18px 18px 4px",
+                                : "18px 18px 18px 4px"
                             }}
                           >
                             {msg.message}
@@ -1971,7 +1971,7 @@ const ChatPage = () => {
                           >
                             {new Date(msg?.sentAt).toLocaleTimeString([], {
                               hour: "2-digit",
-                              minute: "2-digit",
+                              minute: "2-digit"
                             })}
                           </div>
                         </div>
@@ -2003,7 +2003,7 @@ const ChatPage = () => {
                       placeholder="Écrivez un message... (utilisez # pour les mentions)"
                       value={newMessage}
                       onChange={handleMessageChange}
-                      onKeyDown={(e) => {
+                      onKeyDown={e => {
                         // Empêcher la propagation des touches fléchées lorsque les suggestions sont visibles
                         if (
                           showTagSuggestions &&

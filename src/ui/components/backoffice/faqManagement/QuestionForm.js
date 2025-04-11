@@ -7,16 +7,16 @@ export const QuestionForm = ({ onAdd }) => {
   const [answerText, setAnswerText] = useState("");
   const [formErrors, setFormErrors] = useState({
     question: false,
-    answer: false,
+    answer: false
   });
 
   const validateForm = () => {
     const errors = {
       question: !questionText.trim(),
-      answer: !answerText.trim(),
+      answer: !answerText.trim()
     };
     setFormErrors(errors);
-    return !Object.values(errors).some((error) => error);
+    return !Object.values(errors).some(error => error);
   };
 
   const handleSubmit = () => {
@@ -26,7 +26,7 @@ export const QuestionForm = ({ onAdd }) => {
       id: Date.now().toString(),
       text: questionText.trim(),
       answer: answerText.trim(),
-      children: [],
+      children: []
     });
 
     setQuestionText("");
@@ -43,7 +43,7 @@ export const QuestionForm = ({ onAdd }) => {
           className={`form-control ${formErrors.question ? "is-invalid" : ""}`}
           placeholder="Question"
           value={questionText}
-          onChange={(e) => setQuestionText(e.target.value)}
+          onChange={e => setQuestionText(e.target.value)}
         />
         {formErrors.question && (
           <div className="invalid-feedback">La question est requise</div>
@@ -56,7 +56,7 @@ export const QuestionForm = ({ onAdd }) => {
           placeholder="Réponse"
           rows="4"
           value={answerText}
-          onChange={(e) => setAnswerText(e.target.value)}
+          onChange={e => setAnswerText(e.target.value)}
         />
         {formErrors.answer && (
           <div className="invalid-feedback">La réponse est requise</div>

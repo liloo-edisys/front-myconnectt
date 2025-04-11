@@ -19,7 +19,7 @@ import {
   getInvoicesTypes,
   getAccountGroups,
   getPaymentChoices,
-  getAPE,
+  getAPE
 } from "actions/shared/ListsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import LocationSearchInput from "./location-search-input";
@@ -47,19 +47,19 @@ function CompanyCreateForm({ onHide, intl, getData }) {
     }
   };
 
-  const handleCityInputChange = (value) => {
+  const handleCityInputChange = value => {
     setCityInputValue(value);
   };
 
-  const handleCompanyInputChange = (value) => {
+  const handleCompanyInputChange = value => {
     setCompanyInputValue(value);
   };
 
-  const handleChangeCity = (value) => {
+  const handleChangeCity = value => {
     setselectedCity(value);
   };
 
-  const handleChangeCompany = (value) => {
+  const handleChangeCompany = value => {
     companyExist(value, setselectedCompany);
   };
 
@@ -79,14 +79,14 @@ function CompanyCreateForm({ onHide, intl, getData }) {
     }, 1000);
   };
 
-  const loadCompanyOptions = (inputValue) => {
+  const loadCompanyOptions = inputValue => {
     return companyInputValue.length >= 3
       ? fetch(
           //`https://entreprise.data.gouv.fr/api/sirene/v1/full_text/${inputValue}?&code_postal=${selectedCity.Code_postal}`
           `https://acceslibre.beta.gouv.fr/api/erps/?q=${inputValue}&&code_postal=${selectedCity.Code_postal}`
         )
-          .then((res) => res.json())
-          .then((data) => data.etablissement)
+          .then(res => res.json())
+          .then(data => data.etablissement)
       : null;
   };
 
@@ -94,17 +94,17 @@ function CompanyCreateForm({ onHide, intl, getData }) {
     invoiceTypes,
     accountGroups,
     paymentChoices,
-    apeNumber,
+    apeNumber
   } = useSelector(
-    (state) => ({
+    state => ({
       invoiceTypes: state.lists.invoiceTypes,
       accountGroups: state.lists.accountGroups,
       paymentChoices: state.lists.paymentChoices,
-      apeNumber: state.lists.apeNumber,
+      apeNumber: state.lists.apeNumber
     }),
     shallowEqual
   );
-  const formatTva = (value) => {
+  const formatTva = value => {
     if (!value) return 0;
     let siren = value.substring(0, value.length - 5);
     let test = [12 + 3 * (siren % 97)] % 97;
@@ -135,7 +135,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
     accountGroups,
     paymentChoices,
     apeNumber,
-    selectedCompany,
+    selectedCompany
   ]);
   const newInitialValues = {
     name: selectedCompany ? selectedCompany.l1_normalisee : "",
@@ -163,7 +163,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
       : "",
     apeNumber: "",
     tvaNumber: selectedCompany ? formatTva(selectedCompany.siret) : "",
-    anaelID: "",
+    anaelID: ""
   };
 
   // Validation schema
@@ -188,7 +188,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
       .test(
         "checkTva",
         intl.formatMessage({ id: "MESSAGE.INVALID.TVA" }),
-        (value) => value === formatTva(selectedCompany.siret)
+        value => value === formatTva(selectedCompany.siret)
       ),
     address: Yup.string()
       .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" }))
@@ -197,7 +197,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
       .test(
         "len",
         intl.formatMessage({ id: "MESSAGE.MIN.5.NUMBERS" }),
-        (val) => val.length === 5
+        val => val.length === 5
       )
       .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
     city: Yup.string().required(
@@ -212,7 +212,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
       .typeError(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
     anaelID: Yup.string()
       .min(9, intl.formatMessage({ id: "WARNING.ANAEL.LENGTH" }))
-      .max(9, intl.formatMessage({ id: "WARNING.ANAEL.LENGTH" })),
+      .max(9, intl.formatMessage({ id: "WARNING.ANAEL.LENGTH" }))
   });
 
   const customStyles = {
@@ -227,21 +227,21 @@ function CompanyCreateForm({ onHide, intl, getData }) {
       boxShadow: null,
       "&:hover": {
         // Overwrittes the different states of border
-        borderColor: "transparent",
-      },
+        borderColor: "transparent"
+      }
     }),
-    menu: (base) => ({
+    menu: base => ({
       ...base,
       // override border radius to match the box
       borderRadius: 0,
       // kill the gap
-      marginTop: 0,
+      marginTop: 0
     }),
-    menuList: (base) => ({
+    menuList: base => ({
       ...base,
       // kill the white space on first and last option
-      padding: 0,
-    }),
+      padding: 0
+    })
   };
 
   return (
@@ -255,8 +255,8 @@ function CompanyCreateForm({ onHide, intl, getData }) {
           loadingMessage={() =>
             intl.formatMessage({ id: "MESSAGE.SEARCH.ONGOING" })
           }
-          getOptionLabel={(e) => `${e.Nom_commune} (${e.Code_postal})`}
-          getOptionValue={(e) => e.Code_postal}
+          getOptionLabel={e => `${e.Nom_commune} (${e.Code_postal})`}
+          getOptionValue={e => e.Code_postal}
           loadOptions={loadOptions}
           onInputChange={handleCityInputChange}
           onChange={handleChangeCity}
@@ -265,7 +265,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
           isSearchable
           components={{
             DropdownIndicator: () => null,
-            IndicatorSeparator: () => null,
+            IndicatorSeparator: () => null
           }}
           styles={customStyles}
         />
@@ -282,8 +282,8 @@ function CompanyCreateForm({ onHide, intl, getData }) {
           loadingMessage={() =>
             intl.formatMessage({ id: "MESSAGE.SEARCH.ONGOING" })
           }
-          getOptionLabel={(e) => `${e.l1_normalisee} SIRET(${e.siret})`}
-          getOptionValue={(e) => e.siret}
+          getOptionLabel={e => `${e.l1_normalisee} SIRET(${e.siret})`}
+          getOptionValue={e => e.siret}
           loadOptions={selectedCity != null ? loadCompanyOptions : null}
           onInputChange={handleCompanyInputChange}
           onChange={handleChangeCompany}
@@ -292,7 +292,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
           isSearchable
           components={{
             DropdownIndicator: () => null,
-            IndicatorSeparator: () => null,
+            IndicatorSeparator: () => null
           }}
           styles={customStyles}
         />
@@ -307,11 +307,11 @@ function CompanyCreateForm({ onHide, intl, getData }) {
           validationSchema={CompanyCreateSchema}
           setFieldTouched
           setFieldValue
-          onSubmit={(values) => {
+          onSubmit={values => {
             let data = {
               ...values,
               tenantID: TENANTID,
-              accountGroupID: parseInt(values.accountGroupID),
+              accountGroupID: parseInt(values.accountGroupID)
             };
             dispatch(createCompany.request(data, getData), onHide());
           }}
@@ -322,7 +322,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
             touched,
             values,
             setFieldValue,
-            setFieldTouched,
+            setFieldTouched
           }) => (
             <>
               <Modal.Body className="overlay overlay-block cursor-default">
@@ -344,7 +344,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
                           component={Input}
                           disabled
                           placeholder={intl.formatMessage({
-                            id: "AUTH.REGISTER.COMPANY_NAME",
+                            id: "AUTH.REGISTER.COMPANY_NAME"
                           })}
                         />
                       </div>
@@ -368,7 +368,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
                           component={Input}
                           disabled
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.SIRET",
+                            id: "MODEL.ACCOUNT.SIRET"
                           })}
                         />
                       </div>
@@ -395,11 +395,11 @@ function CompanyCreateForm({ onHide, intl, getData }) {
                           <option disabled selected value="">
                             --{" "}
                             {intl.formatMessage({
-                              id: "COLUMN.APE.NAF.NUMBER",
+                              id: "COLUMN.APE.NAF.NUMBER"
                             })}{" "}
                             --
                           </option>
-                          {apeNumber.map((choice) => {
+                          {apeNumber.map(choice => {
                             return (
                               <option key={choice.id} value={choice.code}>
                                 {choice.code}-{choice.description}
@@ -431,7 +431,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
                           component={Input}
                           disabled
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.COMPANYSTATUS",
+                            id: "MODEL.ACCOUNT.COMPANYSTATUS"
                           })}
                         />
                       </div>
@@ -455,7 +455,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
                           component={Input}
                           disabled
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.TVANUMBER",
+                            id: "MODEL.ACCOUNT.TVANUMBER"
                           })}
                         />
                       </div>
@@ -477,7 +477,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
                           name="anaelID"
                           component={Input}
                           placeholder={intl.formatMessage({
-                            id: "TEXT.ANAEL.ID",
+                            id: "TEXT.ANAEL.ID"
                           })}
                         />
                       </div>
@@ -534,7 +534,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
                           name="additionaladdress"
                           component={Input}
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.ADDITIONALADDRESS",
+                            id: "MODEL.ACCOUNT.ADDITIONALADDRESS"
                           })}
                         />
                       </div>
@@ -558,7 +558,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
                           disabled
                           component={Input}
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.POSTALCODE",
+                            id: "MODEL.ACCOUNT.POSTALCODE"
                           })}
                         />
                       </div>
@@ -582,7 +582,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
                           disabled
                           component={Input}
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.CITY",
+                            id: "MODEL.ACCOUNT.CITY"
                           })}
                         />
                       </div>
@@ -604,7 +604,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
                         <Field
                           name="phoneNumber"
                           component={Input}
-                          onChange={(e) =>
+                          onChange={e =>
                             handleChangePhone(
                               setFieldValue,
                               setFieldTouched,
@@ -616,7 +616,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
                             phoneNumber.match(/.{1,2}/g).join(" ")
                           }
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.PHONENUMBER",
+                            id: "MODEL.ACCOUNT.PHONENUMBER"
                           })}
                         />
                       </div>
@@ -640,7 +640,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
                           </span>
                         </div>
                         <Select className="form-control" name="paymentChoiceID">
-                          {paymentChoices.map((choice) => {
+                          {paymentChoices.map(choice => {
                             return (
                               <option key={choice.id} value={choice.id}>
                                 {choice.name}
@@ -662,7 +662,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
                           </span>
                         </div>
                         <Select className="form-control" name="InvoiceTypeID">
-                          {invoiceTypes.map((invoice) => {
+                          {invoiceTypes.map(invoice => {
                             return (
                               <option key={invoice.id} value={invoice.id}>
                                 {invoice.name}
@@ -719,7 +719,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
                           >
                             {intl.formatMessage({ id: "MODEL.ACCOUNT.GROUP" })}
                           </option>
-                          {accountGroups.map((group) => {
+                          {accountGroups.map(group => {
                             return (
                               <option key={group.id} value={group.id}>
                                 {group.name}
@@ -744,7 +744,7 @@ function CompanyCreateForm({ onHide, intl, getData }) {
                           name="description"
                           component={Input}
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.DESCRIPTION",
+                            id: "MODEL.ACCOUNT.DESCRIPTION"
                           })}
                         />
                       </div>

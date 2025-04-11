@@ -23,15 +23,15 @@ function Registration(props) {
   const [siretResults, setSiretResults] = useState(null);
   const { intl, history } = props;
 
-  const handleChangeCity = (value) => {
+  const handleChangeCity = value => {
     setselectedCity(value);
   };
 
-  const handleChangeCompany = (value) => {
+  const handleChangeCompany = value => {
     setselectedCompany(value);
   };
 
-  const handleSiretChange = (e) => {
+  const handleSiretChange = e => {
     const value = e.target.value.replace(/\D/g, ""); // Only allow digits
     setSiretInput(value);
 
@@ -55,14 +55,14 @@ function Registration(props) {
     }
   };
 
-  const fetchCompanyBySiret = (siret) => {
+  const fetchCompanyBySiret = siret => {
     const baseUrl = "https://api.insee.fr";
     const url = `${baseUrl}/entreprises/sirene/V3/siret/${siret}`;
     setLoading(true);
 
     axios
       .get(url)
-      .then((res) => {
+      .then(res => {
         setLoading(false);
         setSiretResults(res.data);
         // Populate company selection if data is valid
@@ -82,15 +82,15 @@ function Registration(props) {
                 .libelleVoieEtablissement || ""}`,
               complement_adresse:
                 res.data.etablissement.complementAdresseEtablissement || "",
-              code_postal: res.data.etablissement.codePostalEtablissement,
+              code_postal: res.data.etablissement.codePostalEtablissement
             },
             libelle_nature_juridique_entreprise:
-              res.data.etablissement.uniteLegale.categorieJuridiqueUniteLegale,
+              res.data.etablissement.uniteLegale.categorieJuridiqueUniteLegale
           };
           setselectedCompany(companyData);
         }
       })
-      .catch((error) => {
+      .catch(error => {
         setLoading(false);
         if (error.response && error.response.status === 404) {
           setSiretError("Aucune entreprise trouvée avec ce numéro SIRET");
@@ -151,7 +151,7 @@ function Registration(props) {
       selectedCompany &&
       !isNullOrEmpty(selectedCompany.libelle_nature_juridique_entreprise)
         ? selectedCompany.libelle_nature_juridique_entreprise
-        : "_",
+        : "_"
   };
 
   const RegistrationSchema = Yup.object().shape({
@@ -188,7 +188,7 @@ function Registration(props) {
     acceptTerms: Yup.bool().oneOf(
       [true],
       intl.formatMessage({ id: "AUTH.REGISTER.TERMS_REQUIRED" })
-    ),
+    )
   });
 
   const enableLoading = () => {
@@ -209,36 +209,36 @@ function Registration(props) {
       padding: "0 10px",
       boxShadow: "none",
       "&:hover": {
-        borderColor: "transparent",
-      },
+        borderColor: "transparent"
+      }
     }),
-    menu: (base) => ({
+    menu: base => ({
       ...base,
       borderRadius: "10px",
       marginTop: 8,
       overflow: "hidden",
-      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
     }),
-    menuList: (base) => ({
+    menuList: base => ({
       ...base,
       padding: 0,
-      maxHeight: 200,
+      maxHeight: 200
     }),
-    placeholder: (base) => ({
+    placeholder: base => ({
       ...base,
-      color: "#B5B5C3",
-    }),
+      color: "#B5B5C3"
+    })
   };
 
   const wait = 1000;
-  const getAsyncOptions = (inputValue) => {
+  const getAsyncOptions = inputValue => {
     return axios
       .get(
         `https://recherche-entreprises.api.gouv.fr/search?q=${inputValue}&&code_postal=${
           selectedCity ? selectedCity.Code_postal : ""
         }`
       )
-      .then((res) => {
+      .then(res => {
         return res.data.results;
       });
   };
@@ -309,18 +309,18 @@ function Registration(props) {
                 intl.formatMessage({ id: "MESSAGE.SEARCH.ONGOING" })
               }
               value={selectedCity}
-              getOptionLabel={(e) => `${e.Nom_commune} (${e.Code_postal})`}
-              getOptionValue={(e) => e.Code_postal}
+              getOptionLabel={e => `${e.Nom_commune} (${e.Code_postal})`}
+              getOptionValue={e => e.Code_postal}
               loadOptions={loadOptions}
               onChange={handleChangeCity}
               placeholder={intl.formatMessage({
-                id: "AUTH.REGISTER.POSTALCODE",
+                id: "AUTH.REGISTER.POSTALCODE"
               })}
               isClearable
               isSearchable
               components={{
                 DropdownIndicator: () => null,
-                IndicatorSeparator: () => null,
+                IndicatorSeparator: () => null
               }}
             />
 
@@ -334,20 +334,18 @@ function Registration(props) {
               loadingMessage={() =>
                 intl.formatMessage({ id: "MESSAGE.SEARCH.ONGOING" })
               }
-              getOptionLabel={(e) =>
-                `${e.nom_complet} SIRET (${e.siege.siret})`
-              }
-              getOptionValue={(e) => e.siege.siret}
+              getOptionLabel={e => `${e.nom_complet} SIRET (${e.siege.siret})`}
+              getOptionValue={e => e.siege.siret}
               loadOptions={debouncedLoadOptions}
               onChange={handleChangeCompany}
               placeholder={intl.formatMessage({
-                id: "AUTH.REGISTER.COMPANY_NAME",
+                id: "AUTH.REGISTER.COMPANY_NAME"
               })}
               isClearable
               isSearchable
               components={{
                 DropdownIndicator: () => null,
-                IndicatorSeparator: () => null,
+                IndicatorSeparator: () => null
               }}
             />
 
@@ -412,7 +410,7 @@ function Registration(props) {
               onSubmit={(values, { setSubmitting }) => {
                 enableLoading();
                 registerAccount(values)
-                  .then((response) => {
+                  .then(response => {
                     disableLoading();
                     response && history.push("/");
                   })

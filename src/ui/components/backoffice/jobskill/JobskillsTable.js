@@ -6,7 +6,7 @@ import BootstrapTable from "react-bootstrap-table-next";
 import axios from "axios";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider,
+  PaginationProvider
 } from "react-bootstrap-table2-paginator";
 import { ContentRoute } from "../../../../_metronic/layout";
 import JobskillForm from "./JobskillForm";
@@ -25,8 +25,8 @@ function JobskillsTable(props) {
   const [totalCount, setTotalCount] = useState(0);
 
   const { user } = useSelector(
-    (state) => ({
-      user: state.user.user,
+    state => ({
+      user: state.user.user
     }),
     shallowEqual
   );
@@ -34,25 +34,25 @@ function JobskillsTable(props) {
   const columns = [
     {
       dataField: "name",
-      text: intl.formatMessage({ id: "TEXT.JOBSKILL.NAME" }),
+      text: intl.formatMessage({ id: "TEXT.JOBSKILL.NAME" })
     },
     {
       dataField: "skillType",
       text: intl.formatMessage({ id: "TEXT.JOBSKILL.TYPE" }),
-      formatter: (value) => value || "-",
+      formatter: value => value || "-"
     },
     {
       dataField: "jobTitles",
       text: intl.formatMessage({ id: "TEXT.JOB.TITLE" }),
       formatter: (value, row) => {
         if (!value || value.length === 0) return "-";
-        return value.map((title) => title.name).join(", ");
-      },
+        return value.map(title => title.name).join(", ");
+      }
     },
     {
       dataField: "id",
       text: intl.formatMessage({ id: "MATCHING.TABLE.ACTIONS" }),
-      formatter: (value) => (
+      formatter: value => (
         <div>
           <NavLink
             className="btn btn-light-primary btn-sm mr-2"
@@ -67,8 +67,8 @@ function JobskillsTable(props) {
             Supprimer
           </NavLink>
         </div>
-      ),
-    },
+      )
+    }
   ];
 
   useEffect(() => {
@@ -83,17 +83,17 @@ function JobskillsTable(props) {
       tenantID: user.tenantID,
       pageNumber: selectedPageNumber,
       pageSize: selectedPageSize,
-      name: selectedName,
+      name: selectedName
     };
 
     axios
       .post(SEARCH_JOBSKILLS_API, body)
-      .then((res) => {
+      .then(res => {
         setJobskillsList(res.data.list);
         setTotalCount(res.data.totalcount);
         console.log("res.data.list ---------> ", res.data.list);
       })
-      .catch((err) => {
+      .catch(err => {
         console.error("Erreur lors de la récupération des données:", err);
       });
   };
@@ -127,7 +127,7 @@ function JobskillsTable(props) {
           className="form-control"
           type="text"
           value={selectedName}
-          onChange={(e) => setSelectedName(e.target.value)}
+          onChange={e => setSelectedName(e.target.value)}
           placeholder={intl.formatMessage({ id: "MODEL.LASTNAME" })}
         />
         <small className="form-text text-muted">
@@ -153,7 +153,7 @@ function JobskillsTable(props) {
     nextPageText: ">",
     lastPageText: intl.formatMessage({ id: "END" }),
     nextPageTitle: ">",
-    prePageTitle: "<",
+    prePageTitle: "<"
   };
 
   return (

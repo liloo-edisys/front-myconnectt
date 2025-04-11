@@ -7,8 +7,8 @@ import { debounce } from "lodash";
 function JobTitleSelect({ value, onChange, className, styles }) {
   const [options, setOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  
-  const searchJobTitles = debounce(async (inputValue) => {
+
+  const searchJobTitles = debounce(async inputValue => {
     if (!inputValue) {
       setOptions([]);
       return;
@@ -19,7 +19,7 @@ function JobTitleSelect({ value, onChange, className, styles }) {
       const response = await axios.get(
         `${process.env.REACT_APP_WEBAPI_URL}api/JobTitle/SearchByName?name=${inputValue}`
       );
-      
+
       // Adaptation pour la structure de réponse avec "data"
       const formattedOptions = response.data.data.map(jobTitle => ({
         label: `${jobTitle.name} (${jobTitle.code})`, // Affiche le nom et le code
@@ -27,7 +27,7 @@ function JobTitleSelect({ value, onChange, className, styles }) {
         code: jobTitle.code, // Stocke le code si besoin
         tenantID: jobTitle.tenantID // Stocke le tenantID si besoin
       }));
-      
+
       setOptions(formattedOptions);
     } catch (error) {
       console.error("Erreur lors de la recherche des titres:", error);
@@ -37,7 +37,7 @@ function JobTitleSelect({ value, onChange, className, styles }) {
     }
   }, 300);
 
-  const handleInputChange = (newValue) => {
+  const handleInputChange = newValue => {
     searchJobTitles(newValue);
   };
 
@@ -55,9 +55,9 @@ function JobTitleSelect({ value, onChange, className, styles }) {
         isLoading={isLoading}
         styles={styles}
         className={className}
-        noOptionsMessage={({ inputValue }) => 
-          !inputValue 
-            ? "Commencez à taper pour rechercher" 
+        noOptionsMessage={({ inputValue }) =>
+          !inputValue
+            ? "Commencez à taper pour rechercher"
             : "Aucun résultat trouvé"
         }
         placeholder="Rechercher un titre de poste..."

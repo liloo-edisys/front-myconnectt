@@ -30,7 +30,8 @@
   bottom: 30px;
   right: 30px;
   z-index: 9999;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
 }
 
 /* Toggle button */
@@ -424,7 +425,7 @@
   width: 380px;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   animation: slideUp 0.3s ease-out, fadeIn 0.3s ease-out;
   z-index: 1100;
