@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
-import { Modal } from "react-bootstrap";
-import { FormattedMessage } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { FormattedMessage } from "react-intl";
 import { getMatching } from "actions/client/ApplicantsActions";
 import MatchingTable from "../missionlist/MatchingTable";
 import { getMission } from "actions/client/MissionsActions";
@@ -13,6 +12,66 @@ import { MissionResumeDialog } from "./MissionResumeDialog";
 import { searchMission } from "../../../../../business/actions/client/MissionsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 const TENANTID = process.env.REACT_APP_TENANT_ID;
+
+// Styles CSS pour le drawer
+const drawerStyles = {
+  drawer: {
+    position: "fixed",
+    top: 0,
+    right: 0,
+    height: "100vh",
+    width: "50%", // Largeur fixe
+    maxWidth: "50vw",
+    backgroundColor: "var(--bg-color, white)",
+    boxShadow: "-2px 0 10px rgba(0, 0, 0, 0.2)",
+    transition: "transform 0.3s ease-in-out",
+    transform: "translateX(100%)", // Commence hors écran à droite
+    overflow: "hidden",
+    zIndex: 1050
+  },
+  drawerOpen: {
+    transform: "translateX(0)" // Slide jusqu'à sa position finale
+  },
+  overlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 1040,
+    opacity: 0,
+    visibility: "hidden",
+    transition: "opacity 0.3s ease-in-out, visibility 0.3s ease-in-out"
+  },
+  overlayVisible: {
+    opacity: 1,
+    visibility: "visible"
+  },
+  drawerHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "16px",
+    borderBottom: "1px solid var(--border-color, #e6e6e6)"
+  },
+  drawerTitle: {
+    margin: 0,
+    fontSize: "18px",
+    fontWeight: 500
+  },
+  drawerBody: {
+    padding: "20px",
+    overflowY: "auto",
+    height: "calc(100vh - 70px)"
+  },
+  closeButton: {
+    background: "transparent",
+    border: "none",
+    cursor: "pointer",
+    fontSize: "16px"
+  }
+};
 
 export function MatchingDialog({
   show,
@@ -124,12 +183,12 @@ export function MatchingDialog({
       )
     );
     dispatch(getMatching.request(mission));
+    console.log("mission ------------>  ",mission);
+    
   };
 
   // Fonction pour logger les candidats
-  const handleDebugCandidates = () => {
-    console.log("Liste des candidats:", candidates);
-  };
+ 
 
   let missionId = state && state.id;
 
@@ -140,7 +199,9 @@ export function MatchingDialog({
     });
     return ref.current;
   }
+  
   const prevCandidates = usePrevious(candidates);
+  
   useEffect(() => {
     show && mission.id !== missionId && dispatch(getMission.request(missionId));
   }, [show, mission, candidates, dispatch, missionId, prevCandidates]);
@@ -148,57 +209,81 @@ export function MatchingDialog({
   useEffect(() => {
     show && !isNullOrEmpty(mission) && dispatch(getMatching.request(mission));
   }, [show, mission, dispatch]);
+
+  // Gestion pour empêcher le scroll du body quand le drawer est ouvert
+  useEffect(() => {
+    if (show) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [show]);
+
+  // Si le composant n'est pas affiché, ne rien rendre
+  if (!show) return null;
   
   return (
-    <Modal
-      show={show}
-      onHide={onHide}
-      aria-labelledby="example-modal-sizes-title-lg"
-      size="xl"
-    >
-      {resumeOpen === true ? (
-        <MissionResumeDialog
-          show={resumeOpen === true}
-          history={history}
-          resumeRow={resumeRow}
-          onHide={() => {
-            onCloseResume();
-          }}
-        />
-      ) : null}
-      <Modal.Header closeButton className="pb-5">
-        <Modal.Title
-          className="pageSubtitle w-100"
-          id="example-modal-sizes-title-lg"
-        >
-          <FormattedMessage id="MATCHING.MODAL.TITLE" />
-        </Modal.Title>
-        {/* Bouton de débogage ajouté ici */}
-        <button
-          type="button"
-          className="btn btn-primary mx-2"
-          onClick={handleDebugCandidates}
-        >
-          Debug Candidats
-        </button>
-        <button
-          type="button"
-          className="close"
-          data-dismiss="modal"
-          aria-label="Fermer"
-          onClick={onHide}
-        >
-          <i aria-hidden="true" className="ki ki-close"></i>
-        </button>
-      </Modal.Header>
-      <Modal.Body className="py-0">
-        <MatchingTable
-          candidates={candidates}
-          handleAccept={handleAccept}
-          handleDeny={handleDeny}
-          onOpenResume={onOpenResume}
-        />
-      </Modal.Body>
-    </Modal>
+    <>
+      {/* Overlay de fond */}
+      <div 
+        style={{
+          ...drawerStyles.overlay, 
+          ...(show ? drawerStyles.overlayVisible : {})
+        }}
+        onClick={onHide}
+      />
+      
+      {/* Drawer principal */}
+      <div 
+        style={{
+          ...drawerStyles.drawer,
+          ...(show ? drawerStyles.drawerOpen : {})
+        }}
+      >
+        {resumeOpen === true ? (
+          <MissionResumeDialog
+            show={resumeOpen === true}
+            history={history}
+            resumeRow={resumeRow}
+            onHide={() => {
+              onCloseResume();
+            }}
+          />
+        ) : null}
+        
+        {/* Header du drawer */}
+        <div style={drawerStyles.drawerHeader}>
+          <h4 style={drawerStyles.drawerTitle}>
+            <FormattedMessage id="MATCHING.MODAL.TITLE" />
+          </h4>
+          <div>
+            
+            {/* Bouton de fermeture */}
+            <button
+              type="button"
+              style={drawerStyles.closeButton}
+              onClick={onHide}
+              aria-label="Fermer"
+            >
+              <i aria-hidden="true" className="ki ki-close"></i>
+            </button>
+          </div>
+        </div>
+        
+        {/* Corps du drawer */}
+        <div style={drawerStyles.drawerBody}>
+          <MatchingTable
+            candidates={candidates}
+            handleAccept={handleAccept}
+            handleDeny={handleDeny}
+            onOpenResume={onOpenResume}
+          />
+        </div>
+      </div>
+    </>
   );
 }
