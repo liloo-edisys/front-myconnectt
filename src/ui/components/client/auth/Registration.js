@@ -21,7 +21,7 @@ function Registration(props) {
   const [totalPages, setTotalPages] = useState(1);
   const { intl, history } = props;
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = e => {
     const value = e.target.value;
     setSearchQuery(value);
 
@@ -41,14 +41,14 @@ function Registration(props) {
     }
   };
 
-  const handleSearchSubmit = (e) => {
+  const handleSearchSubmit = e => {
     e.preventDefault();
     if (searchQuery.length >= 3) {
       fetchCompanies(searchQuery, 1);
     }
   };
 
-  const handlePageChange = (page) => {
+  const handlePageChange = page => {
     setCurrentPage(page);
     setPaginationLoading(true);
     fetchCompanies(searchQuery, page);
@@ -60,7 +60,7 @@ function Registration(props) {
       .get(
         `${process.env.REACT_APP_WEBAPI_URL}/api/Insee/search?query=${query}&page=${page}`
       )
-      .then((res) => {
+      .then(res => {
         setLoading(false);
         setPaginationLoading(false);
         setSearchResults(res.data);
@@ -77,7 +77,7 @@ function Registration(props) {
           setTotalPages(pages);
         }
       })
-      .catch((error) => {
+      .catch(error => {
         setLoading(false);
         setPaginationLoading(false);
         if (error.response && error.response.status === 404) {
@@ -89,7 +89,7 @@ function Registration(props) {
       });
   };
 
-  const selectCompany = (company) => {
+  const selectCompany = company => {
     const companyData = {
       nom_complet:
         company.uniteLegale.denominationUniteLegale ||
@@ -105,10 +105,10 @@ function Registration(props) {
           .libelleVoieEtablissement || ""}`,
         complement_adresse:
           company.adresseEtablissement.complementAdresseEtablissement || "",
-        code_postal: company.adresseEtablissement.codePostalEtablissement,
+        code_postal: company.adresseEtablissement.codePostalEtablissement
       },
       libelle_nature_juridique_entreprise:
-        company.uniteLegale.categorieJuridiqueUniteLegale,
+        company.uniteLegale.categorieJuridiqueUniteLegale
     };
     setselectedCompany(companyData);
   };
@@ -147,7 +147,7 @@ function Registration(props) {
       selectedCompany &&
       !isNullOrEmpty(selectedCompany.libelle_nature_juridique_entreprise)
         ? selectedCompany.libelle_nature_juridique_entreprise
-        : "_",
+        : "_"
   };
 
   const RegistrationSchema = Yup.object().shape({
@@ -184,7 +184,7 @@ function Registration(props) {
     acceptTerms: Yup.bool().oneOf(
       [true],
       intl.formatMessage({ id: "AUTH.REGISTER.TERMS_REQUIRED" })
-    ),
+    )
   });
 
   const enableLoading = () => {
@@ -257,7 +257,7 @@ function Registration(props) {
               </>
             )}
 
-            {pages.map((page) => (
+            {pages.map(page => (
               <li
                 key={page}
                 className={`page-item ${currentPage === page ? "active" : ""}`}
@@ -446,7 +446,7 @@ function Registration(props) {
                             </div>
                             <button
                               className="btn btn-sm btn-light-primary ml-3"
-                              onClick={(e) => {
+                              onClick={e => {
                                 e.stopPropagation();
                                 selectCompany(company);
                               }}
@@ -518,7 +518,7 @@ function Registration(props) {
               onSubmit={(values, { setSubmitting }) => {
                 enableLoading();
                 registerAccount(values)
-                  .then((response) => {
+                  .then(response => {
                     disableLoading();
                     response && history.push("/");
                   })
