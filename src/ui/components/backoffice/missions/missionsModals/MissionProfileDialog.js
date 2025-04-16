@@ -26,7 +26,7 @@ export function MissionProfileDialog({
 }) {
   const { state } = history.location;
 
-  console.log("state dans MissionProfileDialog --------------> ", state);
+  // console.log("state dans MissionProfileDialog --------------> ", state);
 
   const TENANTID = process.env.REACT_APP_TENANT_ID;
 
