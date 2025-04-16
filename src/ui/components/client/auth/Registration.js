@@ -20,8 +20,7 @@ function Registration(props) {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const { intl, history } = props;
-
-  const handleSearchChange = e => {
+  const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchQuery(value);
 
@@ -32,23 +31,37 @@ function Registration(props) {
       return;
     }
 
-    // Validate minimal length
+    // Validate SIRET (must be exactly 14 digits)
+    if (value.match(/^[0-9]+$/)) {
+      if (value.length < 14) {
+        setSearchError("Le SIRET doit contenir 14 chiffres");
+        setSearchResults(null);
+        return;
+      } else if (value.length > 14) {
+        setSearchError("Le SIRET ne peut pas dépasser 14 chiffres");
+        setSearchResults(null);
+        return;
+      }
+    }
+
+    // Validate minimal length for general search
     if (value.length < 3) {
       setSearchError("La recherche doit contenir au moins 3 caractères");
       setSearchResults(null);
-    } else {
-      setSearchError("");
+      return;
     }
-  };
 
-  const handleSearchSubmit = e => {
+    // If we reach here, there are no errors
+    setSearchError("");
+  };
+  const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.length >= 3) {
       fetchCompanies(searchQuery, 1);
     }
   };
 
-  const handlePageChange = page => {
+  const handlePageChange = (page) => {
     setCurrentPage(page);
     setPaginationLoading(true);
     fetchCompanies(searchQuery, page);
@@ -60,7 +73,7 @@ function Registration(props) {
       .get(
         `${process.env.REACT_APP_WEBAPI_URL}/api/Insee/search?query=${query}&page=${page}`
       )
-      .then(res => {
+      .then((res) => {
         setLoading(false);
         setPaginationLoading(false);
         setSearchResults(res.data);
@@ -76,8 +89,11 @@ function Registration(props) {
           );
           setTotalPages(pages);
         }
+        if (res.status === 204) {
+          setSearchError("Aucune entreprise trouvée avec cette recherche");
+        }
       })
-      .catch(error => {
+      .catch((error) => {
         setLoading(false);
         setPaginationLoading(false);
         if (error.response && error.response.status === 404) {
@@ -89,7 +105,7 @@ function Registration(props) {
       });
   };
 
-  const selectCompany = company => {
+  const selectCompany = (company) => {
     const companyData = {
       nom_complet:
         company.uniteLegale.denominationUniteLegale ||
@@ -105,10 +121,10 @@ function Registration(props) {
           .libelleVoieEtablissement || ""}`,
         complement_adresse:
           company.adresseEtablissement.complementAdresseEtablissement || "",
-        code_postal: company.adresseEtablissement.codePostalEtablissement
+        code_postal: company.adresseEtablissement.codePostalEtablissement,
       },
       libelle_nature_juridique_entreprise:
-        company.uniteLegale.categorieJuridiqueUniteLegale
+        company.uniteLegale.categorieJuridiqueUniteLegale,
     };
     setselectedCompany(companyData);
   };
@@ -147,7 +163,7 @@ function Registration(props) {
       selectedCompany &&
       !isNullOrEmpty(selectedCompany.libelle_nature_juridique_entreprise)
         ? selectedCompany.libelle_nature_juridique_entreprise
-        : "_"
+        : "_",
   };
 
   const RegistrationSchema = Yup.object().shape({
@@ -184,7 +200,7 @@ function Registration(props) {
     acceptTerms: Yup.bool().oneOf(
       [true],
       intl.formatMessage({ id: "AUTH.REGISTER.TERMS_REQUIRED" })
-    )
+    ),
   });
 
   const enableLoading = () => {
@@ -257,7 +273,7 @@ function Registration(props) {
               </>
             )}
 
-            {pages.map(page => (
+            {pages.map((page) => (
               <li
                 key={page}
                 className={`page-item ${currentPage === page ? "active" : ""}`}
@@ -377,7 +393,7 @@ function Registration(props) {
               <form onSubmit={handleSearchSubmit} className="d-flex">
                 <input
                   type="text"
-                  className="form-control form-control-solid rounded-lg mr-3"
+                  className="form-control form-control-solid h-auto  rounded-lg border mr-3 border-primary"
                   value={searchQuery}
                   onChange={handleSearchChange}
                   placeholder="Nom  d'entreprise ou SIRET"
@@ -385,7 +401,12 @@ function Registration(props) {
                 <button
                   type="submit"
                   className="btn btn-primary px-6"
-                  disabled={searchQuery.length < 3 || loading}
+                  disabled={
+                    searchQuery.length < 3 ||
+                    (searchQuery.match(/^[0-9]+$/) &&
+                      searchQuery.length !== 14) ||
+                    loading
+                  }
                 >
                   {loading ? (
                     <span className="spinner spinner-white mr-6"></span>
@@ -446,7 +467,7 @@ function Registration(props) {
                             </div>
                             <button
                               className="btn btn-sm btn-light-primary ml-3"
-                              onClick={e => {
+                              onClick={(e) => {
                                 e.stopPropagation();
                                 selectCompany(company);
                               }}
@@ -518,7 +539,7 @@ function Registration(props) {
               onSubmit={(values, { setSubmitting }) => {
                 enableLoading();
                 registerAccount(values)
-                  .then(response => {
+                  .then((response) => {
                     disableLoading();
                     response && history.push("/");
                   })
@@ -532,23 +553,11 @@ function Registration(props) {
                 <Form className="form" onSubmit={handleSubmit}>
                   <div className="form-group mb-5">
                     <label className="font-size-h6 text-primary mb-3">
-                      Nom d'utilisateur
-                    </label>
-                    <Field
-                      type="text"
-                      className="form-control form-control-solid h-auto py-5 px-6 rounded-lg"
-                      name="username"
-                      placeholder="Nom d'utilisateur"
-                    />
-                  </div>
-
-                  <div className="form-group mb-5">
-                    <label className="font-size-h6 text-primary mb-3">
-                      Adresse Emailk;k
+                      Adresse Email
                     </label>
                     <Field
                       type="email"
-                      className="form-control form-control-solid h-auto py-5 px-6 rounded-lg"
+                      className="form-control form-control-solid h-auto  rounded-lg border border-primary"
                       name="email"
                       placeholder="Adresse Email"
                     />
@@ -563,7 +572,7 @@ function Registration(props) {
                     </label>
                     <Field
                       type="password"
-                      className="form-control form-control-solid h-auto py-5 px-6 rounded-lg"
+                      className="form-control form-control-solid h-auto  rounded-lg border border-primary"
                       name="password"
                       placeholder="Mot de passe"
                     />
@@ -578,7 +587,7 @@ function Registration(props) {
                     </label>
                     <Field
                       type="password"
-                      className="form-control form-control-solid h-auto py-5 px-6 rounded-lg"
+                      className="form-control form-control-solid h-auto  rounded-lg border border-primary"
                       name="confirmPassword"
                       placeholder="Confirmation de mot de passe"
                     />
