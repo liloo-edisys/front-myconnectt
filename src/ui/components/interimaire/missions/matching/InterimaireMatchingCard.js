@@ -98,12 +98,6 @@ const InterimaireMatchingCard = (props) => {
 
       // Rafraîchir les données
       handleUpdateChildren();
-
-      toastr.success(
-        useLocation
-          ? "Localisation activée avec succès"
-          : "Localisation désactivée avec succès"
-      );
     } catch (error) {
       console.error("Erreur lors de la mise à jour de la localisation:", error);
 
@@ -139,9 +133,6 @@ const InterimaireMatchingCard = (props) => {
               />
               <span></span>
               <div className="d-flex align-items-center ml-2">
-                {(isLoadingLocation || isInitializing) && (
-                  <span className="spinner spinner-sm spinner-primary mr-2"></span>
-                )}
                 <span>Utiliser ma localisation</span>
               </div>
             </label>
