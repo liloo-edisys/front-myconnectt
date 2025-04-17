@@ -6,12 +6,10 @@
 // Data validation is based on Yup
 // Please, be familiar with article first:
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import ReactDOM from "react-dom";
+import React, { useEffect, useState } from "react";
 
 import { Field } from "formik";
 import _ from "lodash";
-import { Input } from "metronic/_partials/controls";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useFormikContext } from "formik";
@@ -26,33 +24,31 @@ import ReactDatePicker from "react-datepicker";
 import { DeleteProfileDialog } from "../profileModals/DeleteProfileDialog";
 import fr from "date-fns/locale/fr";
 import { toastr } from "react-redux-toastr";
-import { Route } from "react-router-dom";
 import { getNationalitiesList } from "../../../../../business/actions/interimaire/InterimairesActions";
+import axios from "axios";
 
-import PlacesAutocomplete, {
-  geocodeByAddress,
-  getLatLng,
-  geocodeByPlaceId
-} from "react-places-autocomplete";
+const EnumSexe = {
+  Men: 0,
+  Women: 1,
+};
 
 function FormStepTwo(props, formik) {
   const dispatch = useDispatch();
   const { intl } = props;
-  const TENANTID = +process.env.REACT_APP_TENANT_ID;
+  const [gender, setGender] = useLocalStorage("gender", null);
   const {
-    user,
     titleTypes,
     parsed,
     nationalitiesList,
-    updateInterimaireIdentityLoading
+    updateInterimaireIdentityLoading,
   } = useSelector(
-    state => ({
+    (state) => ({
       user: state.user.user,
       titleTypes: state.lists.titleTypes,
       parsed: state.interimairesReducerData.interimaire,
       updateInterimaireIdentityLoading:
         state.interimairesReducerData.updateInterimaireIdentityLoading,
-      nationalitiesList: state.interimairesReducerData.nationalitiesList
+      nationalitiesList: state.interimairesReducerData.nationalitiesList,
     }),
     shallowEqual
   );
@@ -72,7 +68,7 @@ function FormStepTwo(props, formik) {
   );
   const [selectedGender, setSelectedGender] = useLocalStorage(
     "selectedGender",
-    0
+    null // Initialisé à null au lieu de 0
   );
   const [firstName, setFirstName] = useLocalStorage("firstName", "");
   const [cropperOpen, setCropperOpen] = useState(false);
@@ -101,6 +97,13 @@ function FormStepTwo(props, formik) {
   const [birthDate, setBirthDate] = useState(null);
   const [birthPlace, setBirthPlace] = useState(null);
 
+  // États pour la gestion des suggestions d'adresse
+  const [addressSuggestions, setAddressSuggestions] = useState([]);
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [position, setPosition] = useState("");
+  const [isLoadingGeolocation, setIsLoadingGeolocation] = useState(false);
+
   useEffect(() => {
     !isNullOrEmpty(mobilePhoneNumber) &&
       props.formik.setFieldTouched("mobilePhoneNumber", true);
@@ -111,6 +114,9 @@ function FormStepTwo(props, formik) {
     !isNullOrEmpty(parsed) &&
       !isNullOrEmpty(parsed.lastname) &&
       handleChangeLastName(parsed.lastname);
+      !isNullOrEmpty(parsed) &&
+      !isNullOrEmpty(parsed) &&
+      handleChangeBirthDate(parsed.birthDate);
     !isNullOrEmpty(parsed) &&
       !isNullOrEmpty(parsed.birthDate) &&
       handleChangeBirthDate(parsed.birthDate);
@@ -145,6 +151,9 @@ function FormStepTwo(props, formik) {
       !isNullOrEmpty(parsed.titleTypeID) &&
       handleChangeSelectedGender(parsed.titleTypeID);
     !isNullOrEmpty(parsed) &&
+      !isNullOrEmpty(parsed.sexe) &&
+      handleChangeGender(parsed.sexe);
+    !isNullOrEmpty(parsed) &&
       !isNullOrEmpty(parsed.applicantPicture) &&
       setPreviewUrl(
         "data:image/" +
@@ -155,82 +164,189 @@ function FormStepTwo(props, formik) {
     !isNullOrEmpty(parsed) &&
       !isNullOrEmpty(parsed.nationalityID) &&
       handleChangeNationality(parsed.nationalityID);
+    !isNullOrEmpty(parsed) &&
+      !isNullOrEmpty(parsed.position) &&
+      setPosition(parsed.position);
     if (nationalitiesList.length === 0) {
       getNationalitiesList(dispatch);
     }
   }, [parsed]);
-  const handleChangeFirstName = e => {
+
+
+  const handleChangeFirstName = (e) => {
     setFirstName(e);
     props.formik.setFieldTouched("firstname", true);
-
     props.formik.setFieldValue("firstname", e);
   };
-  const handleChangeBirthDate = e => {
+
+  const handleChangeBirthDate = (e) => {
     e !== null ? setBirthDate(e) : setBirthDate(null);
     props.formik.setFieldTouched("birthDate", true);
-
     props.formik.setFieldValue("birthDate", e);
   };
 
-  const handleChangeBirthPlace = e => {
+  const handleChangeBirthPlace = (e) => {
     e !== null ? setBirthPlace(e) : setBirthPlace(null);
     props.formik.setFieldTouched("birthPlace", true);
-
     props.formik.setFieldValue("birthPlace", e);
   };
 
-  const handleChangeLastName = e => {
+  const handleChangeLastName = (e) => {
     setLastName(e);
     props.formik.setFieldTouched("lastname", true);
-
     props.formik.setFieldValue("lastname", e);
   };
-  const handleChangeBirthName = e => {
+
+  const handleChangeBirthName = (e) => {
     setMaidenName(e);
     props.formik.setFieldValue("maidenName", e);
   };
-  const handleChangeEmail = e => {
+
+  const handleChangeEmail = (e) => {
     setEmail(e);
     props.formik.setFieldValue("email", e);
   };
-  const handleChangeMobilePhone = e => {
+
+  const handleChangeMobilePhone = (e) => {
     setMobilePhoneNumber(e.replace(/\s/g, ""));
     props.formik.setFieldTouched("mobilePhoneNumber", true);
-
     props.formik.setFieldValue("mobilePhoneNumber", e.replace(/\s/g, ""));
   };
 
-  const handleChangeAddress = e => {
-    setAddress(e);
-    props.formik.setFieldValue("address", e);
+  // Fonction pour utiliser la géolocalisation de l'utilisateur
+  const useMyLocation = async () => {
+    setIsLoadingGeolocation(true);
+    try {
+      const response = await axios.post(
+        "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Map/MyLocalization",
+        "",
+        {
+          headers: {
+            accept: "*/*",
+          },
+        }
+      );
+
+      const {
+        freeformAddress,
+        postalCode: locationPostalCode,
+        localName,
+        position,
+      } = response.data;
+
+      // Mettre à jour les champs
+      setAddress(freeformAddress);
+      if (locationPostalCode) setPostalCode(locationPostalCode);
+      if (localName) setCity(localName);
+      setPosition(position);
+
+      // Mettre à jour Formik
+      props.formik.setFieldValue("address", freeformAddress);
+      if (locationPostalCode)
+        props.formik.setFieldValue("postalCode", locationPostalCode);
+      if (localName) props.formik.setFieldValue("city", localName);
+      props.formik.setFieldValue("position", position);
+
+      toastr.success("Localisation récupérée avec succès");
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération de la localisation:",
+        error
+      );
+      toastr.error("Erreur lors de la récupération de votre localisation");
+    } finally {
+      setIsLoadingGeolocation(false);
+    }
   };
 
-  const handleSelectAddress = async (address, placeId, setFieldValue) => {
-    const results = await geocodeByAddress(address);
-    const latLng = await getLatLng(results[0]);
-    const [place] = await geocodeByPlaceId(placeId);
-    const { long_name: postalCode = "" } =
-      place.address_components.find(c => c.types.includes("postal_code")) || {};
-    const { long_name: city = "" } =
-      place.address_components.find(c => c.types.includes("locality")) || {};
-    const addressArray = address.split(",");
-    setAddress(addressArray[0]);
-    setPostalCode(postalCode);
-    setCity(city);
-    props.formik.setFieldValue("address", addressArray[0]);
-    props.formik.setFieldValue("postalCode", postalCode);
-    props.formik.setFieldValue("city", city);
+  // Fonction pour rechercher des adresses
+  const searchAddresses = async (query) => {
+    if (!query || query.length < 3) {
+      setAddressSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    setIsLoadingAddresses(true);
+    try {
+      const response = await axios.get(
+        `https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Map/search?query=${encodeURIComponent(
+          query
+        )}`,
+        {
+          headers: {
+            accept: "text/plain",
+          },
+        }
+      );
+
+      setAddressSuggestions(response.data);
+      setShowSuggestions(true);
+    } catch (error) {
+      console.error("Erreur lors de la recherche d'adresses:", error);
+      setAddressSuggestions([]);
+    } finally {
+      setIsLoadingAddresses(false);
+    }
   };
 
-  const handleChangeAdditionalAddress = e => {
-    setAdditionalAddress(e);
-    props.formik.setFieldValue("additionalAddress", e);
+  // Fonction pour gérer le changement d'adresse
+  const handleChangeAddress = (e) => {
+    const value = typeof e === "string" ? e : e.target.value;
+    setAddress(value);
+    props.formik.setFieldValue("address", value);
+
+    if (typeof e !== "string") {
+      searchAddresses(value);
+    }
   };
-  const handleChangePostalCode = e => {
+
+  // Fonction pour gérer le changement d'adresse additionnelle (simple champ texte)
+  const handleChangeAdditionalAddress = (e) => {
+    const value = typeof e === "string" ? e : e.target.value;
+    setAdditionalAddress(value);
+    props.formik.setFieldValue("additionalAddress", value);
+  };
+
+  // Fonction pour sélectionner une adresse dans les suggestions
+  const handleAddressSuggestionSelect = (suggestion) => {
+    // Extraire les informations pertinentes
+    const {
+      freeformAddress,
+      postalCode: suggestionPostalCode,
+      localName,
+      position,
+    } = suggestion;
+
+    // Mettre à jour les champs
+    setAddress(freeformAddress);
+    setPostalCode(suggestionPostalCode || "");
+    setCity(localName || "");
+    setPosition(position);
+
+    // Mettre à jour Formik
+    props.formik.setFieldValue("address", freeformAddress);
+    if (suggestionPostalCode)
+      props.formik.setFieldValue("postalCode", suggestionPostalCode);
+    if (localName) props.formik.setFieldValue("city", localName);
+    props.formik.setFieldValue("position", position);
+
+    // Fermer les suggestions
+    setShowSuggestions(false);
+  };
+
+  const handleChangeGender = (e) => {
+    setGender(parseInt(e));
+    props.formik.setFieldValue("sexe", parseInt(e));
+    props.formik.setFieldTouched("sexe", true);
+  };
+
+  const handleChangePostalCode = (e) => {
     setPostalCode(e);
     props.formik.setFieldValue("postalCode", e);
     props.formik.setFieldTouched("postalCode");
   };
+
   useEffect(() => {
     props.formik.setFieldTouched("postalCode");
   }, [postalCode]);
@@ -244,37 +360,24 @@ function FormStepTwo(props, formik) {
     }
   }, [mobilePhoneNumber]);
 
-  const handleChangeCity = e => {
+  const handleChangeCity = (e) => {
     setCity(e);
     props.formik.setFieldValue("city", e);
   };
-  const handleChangeSelectedGender = e => {
-    setSelectedGender(parseInt(e));
-    props.formik.setFieldValue("titleTypeID", parseInt(e));
+
+  const handleChangeSelectedGender = (e) => {
+    // Si la valeur est "0" ou une chaîne vide, définir comme null
+    const value = e === "0" || e === "" ? null : parseInt(e);
+    setSelectedGender(value);
+    props.formik.setFieldValue("titleTypeID", value);
   };
-  const handleChangeNationality = e => {
+
+  const handleChangeNationality = (e) => {
     setNationality(parseInt(e));
     props.formik.setFieldValue("nationalityID", parseInt(e));
   };
 
-  const createOption = (label, value) => ({
-    label,
-    value
-  });
-
   const { errors, touched } = useFormikContext();
-  const getFieldCSSClasses = (touched, errors) => {
-    const classes = ["form-control, col-lg-12"];
-    if (touched && errors) {
-      classes.push("is-invalid");
-    }
-
-    if (touched && !errors) {
-      classes.push("is-valid");
-    }
-
-    return classes.join(" ");
-  };
 
   const handleSave = () => {
     if (
@@ -283,10 +386,19 @@ function FormStepTwo(props, formik) {
       !errors.postalCode &&
       !errors.city &&
       !errors.address &&
+      !errors.titleTypeID &&
       !errors.nationality &&
       !errors.mobilePhoneNumber
     ) {
-      const body = { ...props.formik.values, anaelID: parsed.anaelID };
+      const formikValues = { ...props.formik.values };
+      if (formikValues.titleTypeID === 0) {
+        formikValues.titleTypeID = null;
+      }
+      const body = {
+        ...props.formik.values,
+        anaelID: parsed.anaelID,
+        position: position,
+      };
       dispatch(updateApplicant.request(body));
     } else {
       toastr.error(
@@ -295,12 +407,7 @@ function FormStepTwo(props, formik) {
     }
   };
 
-  const handleChangePhoneNumber = () => {
-    dispatch(updateApplicant.request(props.formik.values));
-    props.history.push("/int-profile-edit/step-three");
-  };
-
-  const photoUpload = e => {
+  const photoUpload = (e) => {
     e.preventDefault();
     let stringBase64;
     const reader = new FileReader();
@@ -312,7 +419,7 @@ function FormStepTwo(props, formik) {
       stringBase64 = reader.result.split(",")[1];
       let appPicture = {
         fileName: fileName,
-        base64: stringBase64
+        base64: stringBase64,
       };
       props.formik.setFieldValue("applicantPicture", appPicture);
     };
@@ -333,6 +440,7 @@ function FormStepTwo(props, formik) {
       />
     </label>
   );
+
   const Edit = ({ onSubmit, children }) => (
     <div className="card">
       <form onSubmit={onSubmit}>{children}</form>
@@ -342,6 +450,7 @@ function FormStepTwo(props, formik) {
   const hideDeleteModal = () => {
     setToggleDeleteModal(false);
   };
+
   return (
     <>
       <div className="d-flex flex-row">
@@ -389,7 +498,7 @@ function FormStepTwo(props, formik) {
                           <div className="avatar-container">
                             <Edit>
                               <ImgUpload
-                                onChange={e => photoUpload(e)}
+                                onChange={(e) => photoUpload(e)}
                                 src={previewUrl}
                               />
                             </Edit>
@@ -403,7 +512,7 @@ function FormStepTwo(props, formik) {
                                 id="photo-upload"
                                 type="file"
                                 accept="image/*"
-                                onChange={e => photoUpload(e)}
+                                onChange={(e) => photoUpload(e)}
                               />
                             </label>
                           </div>
@@ -424,11 +533,11 @@ function FormStepTwo(props, formik) {
                                   </div>
                                   <Field
                                     name="titleTypeID"
-                                    render={({ field, form }) => (
+                                    render={() => (
                                       <select
                                         className="form-control h-auto py-5 px-6"
                                         name="titleTypeID"
-                                        onChange={e => {
+                                        onChange={(e) => {
                                           handleChangeSelectedGender(
                                             e.target.value
                                           );
@@ -437,11 +546,11 @@ function FormStepTwo(props, formik) {
                                         <option disabled selected value="0">
                                           --{" "}
                                           {intl.formatMessage({
-                                            id: "MODEL.CIVILITY"
+                                            id: "MODEL.CIVILITY",
                                           })}{" "}
                                           --
                                         </option>
-                                        {titleTypes.map(gender => (
+                                        {titleTypes.map((gender) => (
                                           <option
                                             key={gender.id}
                                             label={gender.name}
@@ -477,12 +586,12 @@ function FormStepTwo(props, formik) {
                                   </div>
                                   <input
                                     placeholder={intl.formatMessage({
-                                      id: "MODEL.FIRSTNAME"
+                                      id: "MODEL.FIRSTNAME",
                                     })}
                                     type="text"
                                     className={`form-control h-auto py-5 px-6`}
                                     name="firstname"
-                                    onChange={e =>
+                                    onChange={(e) =>
                                       handleChangeFirstName(e.target.value)
                                     }
                                     value={firstName}
@@ -510,12 +619,12 @@ function FormStepTwo(props, formik) {
                                 </div>
                                 <input
                                   placeholder={intl.formatMessage({
-                                    id: "MODEL.LASTNAME"
+                                    id: "MODEL.LASTNAME",
                                   })}
                                   type="text"
                                   className={`form-control h-auto py-5 px-6`}
                                   name="lastname"
-                                  onChange={e =>
+                                  onChange={(e) =>
                                     handleChangeLastName(e.target.value)
                                   }
                                   value={lastName}
@@ -541,16 +650,84 @@ function FormStepTwo(props, formik) {
                                 </div>
                                 <input
                                   placeholder={intl.formatMessage({
-                                    id: "MODEL.BIRTHNAME"
+                                    id: "MODEL.BIRTHNAME",
                                   })}
                                   type="text"
                                   className={`form-control h-auto py-5 px-6`}
                                   name="maidenName"
-                                  onChange={e =>
+                                  onChange={(e) =>
                                     handleChangeBirthName(e.target.value)
                                   }
                                   value={maidenName}
                                 />
+                              </div>
+                            </div>
+
+                            {/* Nouvelle rangée pour le champ sexe */}
+                            <div className="">
+                              <div className="form-group">
+                                <label className="col-form-label">
+                                  <FormattedMessage
+                                    id="MODEL.GENDER"
+                                    defaultMessage="Sexe"
+                                  />
+                                  <span className="asterisk">*</span>
+                                </label>
+                                <div className="input-group">
+                                  <div className="input-group-prepend">
+                                    <span className="input-group-text">
+                                      <i className="icon-xl fas fa-venus-mars text-primary"></i>
+                                    </span>
+                                  </div>
+                                  <Field
+                                    name="sexe"
+                                    render={() => (
+                                      <select
+                                        className="form-control h-auto py-5 px-6"
+                                        name="sexe"
+                                        onChange={(e) => {
+                                          handleChangeGender(e.target.value);
+                                        }}
+                                      >
+                                        <option
+                                          disabled
+                                          selected={gender === null}
+                                          value=""
+                                        >
+                                          --{" "}
+                                          {intl.formatMessage({
+                                            id: "MODEL.GENDER",
+                                            defaultMessage: "Sexe",
+                                          })}{" "}
+                                          --
+                                        </option>
+                                        <option
+                                          value={EnumSexe.Men}
+                                          selected={gender === EnumSexe.Men}
+                                        >
+                                          {intl.formatMessage({
+                                            id: "MODEL.GENDER.MEN",
+                                          })}
+                                        </option>
+                                        <option
+                                          value={EnumSexe.Women}
+                                          selected={gender === EnumSexe.Women}
+                                        >
+                                          {intl.formatMessage({
+                                            id: "MODEL.GENDER.WOMEN",
+                                          })}
+                                        </option>
+                                      </select>
+                                    )}
+                                  />
+                                </div>
+                                {touched.sexe && errors.sexe ? (
+                                  <div className="fv-plugins-message-container">
+                                    <div className="fv-help-block">
+                                      {errors.sexe}
+                                    </div>
+                                  </div>
+                                ) : null}
                               </div>
                             </div>
                           </div>
@@ -570,12 +747,14 @@ function FormStepTwo(props, formik) {
                             </div>
                             <input
                               placeholder={intl.formatMessage({
-                                id: "MODEL.EMAIL"
+                                id: "MODEL.EMAIL",
                               })}
                               type="text"
                               className={`form-control h-auto py-5 px-6`}
                               name="email"
-                              onChange={e => handleChangeEmail(e.target.value)}
+                              onChange={(e) =>
+                                handleChangeEmail(e.target.value)
+                              }
                               value={email}
                               disabled
                             />
@@ -595,12 +774,12 @@ function FormStepTwo(props, formik) {
                             </div>
                             <input
                               placeholder={intl.formatMessage({
-                                id: "MODEL.PHONE"
+                                id: "MODEL.PHONE",
                               })}
                               type="text"
                               className={`form-control h-auto py-5 px-6`}
                               name="mobilePhoneNumber"
-                              onChange={e =>
+                              onChange={(e) =>
                                 handleChangeMobilePhone(e.target.value)
                               }
                               value={
@@ -625,88 +804,140 @@ function FormStepTwo(props, formik) {
                             <FormattedMessage id="MODEL.ACCOUNT.ADDRESS" />
                             <span className="asterisk">*</span>
                           </label>
+
+                          {/* Bouton Utiliser ma localisation */}
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-light-primary mb-2"
+                            onClick={useMyLocation}
+                            disabled={isLoadingGeolocation}
+                          >
+                            {isLoadingGeolocation ? (
+                              <span
+                                className="spinner-border spinner-border-sm mr-2"
+                                role="status"
+                                aria-hidden="true"
+                              ></span>
+                            ) : (
+                              <i className="fas fa-map-marker-alt mr-2"></i>
+                            )}
+                            Utiliser ma localisation
+                          </button>
+
                           <div className="input-group">
-                            <PlacesAutocomplete
-                              value={address}
-                              onChange={handleChangeAddress}
-                              onSelect={(address, placeId) =>
-                                handleSelectAddress(address, placeId)
-                              }
+                            <div
+                              style={{
+                                width: "100%",
+                                display: "flex",
+                                position: "relative",
+                              }}
                             >
-                              {({
-                                getInputProps,
-                                suggestions,
-                                getSuggestionItemProps,
-                                loading
-                              }) => (
-                                <div
-                                  style={{
-                                    width: "100%",
-                                    display: "flex",
-                                    position: "relative"
-                                  }}
+                              <div className="input-group-prepend">
+                                <span
+                                  className="input-group-text"
+                                  style={{ borderRadius: "5px 0 0 5px" }}
                                 >
-                                  <div className="input-group-prepend">
-                                    <span
-                                      className="input-group-text"
-                                      style={{ borderRadius: "5px 0 0 5px" }}
-                                    >
-                                      <i className="icon-xl fas fa-home text-primary"></i>
-                                    </span>
-                                  </div>
-                                  <input
-                                    className={`form-control h-auto py-5 px-6 google-map-input-content`}
-                                    {...getInputProps({
-                                      placeholder: "Entrez votre adresse"
-                                    })}
-                                  />
+                                  <i className="icon-xl fas fa-home text-primary"></i>
+                                </span>
+                              </div>
+                              <input
+                                className="form-control h-auto py-5 px-6"
+                                placeholder={intl.formatMessage({
+                                  id: "MODEL.ACCOUNT.ADDRESS",
+                                })}
+                                value={address}
+                                onChange={handleChangeAddress}
+                                onFocus={() =>
+                                  address.length >= 3 &&
+                                  setShowSuggestions(true)
+                                }
+                                onBlur={() =>
+                                  setTimeout(
+                                    () => setShowSuggestions(false),
+                                    200
+                                  )
+                                }
+                              />
+
+                              {showSuggestions &&
+                                addressSuggestions.length > 0 && (
                                   <div
-                                    className="autocomplete-dropdown-container google-map-input"
+                                    className="autocomplete-dropdown-container"
                                     style={{
                                       position: "absolute",
                                       top: 55,
                                       left: 55,
-                                      zIndex: 1
+                                      zIndex: 10,
+                                      width: "calc(100% - 55px)",
+                                      maxHeight: "200px",
+                                      overflowY: "auto",
+                                      backgroundColor: "#ffffff",
+                                      border: "1px solid #e6e6e6",
+                                      borderRadius: "0 0 5px 5px",
+                                      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                                     }}
                                   >
-                                    {loading && (
-                                      <div>
+                                    {isLoadingAddresses && (
+                                      <div
+                                        style={{
+                                          padding: "10px",
+                                          textAlign: "center",
+                                        }}
+                                      >
                                         <FormattedMessage id="MESSAGE.SEARCH.ONGOING" />
                                       </div>
                                     )}
-                                    {suggestions.map(suggestion => {
-                                      const className = suggestion.active
-                                        ? "suggestion-item--active"
-                                        : "suggestion-item";
-                                      const style = suggestion.active
-                                        ? {
-                                            backgroundColor: "#fafafa",
-                                            cursor: "pointer",
-                                            padding: 5
-                                          }
-                                        : {
-                                            backgroundColor: "#ffffff",
-                                            cursor: "pointer",
-                                            padding: 5
-                                          };
-                                      return (
-                                        <div
-                                          {...getSuggestionItemProps(
-                                            suggestion,
-                                            {
-                                              className,
-                                              style
+
+                                    {!isLoadingAddresses &&
+                                      addressSuggestions.map(
+                                        (suggestion, index) => (
+                                          <div
+                                            key={index}
+                                            onMouseDown={() =>
+                                              handleAddressSuggestionSelect(
+                                                suggestion
+                                              )
                                             }
-                                          )}
-                                        >
-                                          <span>{suggestion.description}</span>
-                                        </div>
-                                      );
-                                    })}
+                                            style={{
+                                              padding: "10px",
+                                              cursor: "pointer",
+                                              borderBottom:
+                                                index <
+                                                addressSuggestions.length - 1
+                                                  ? "1px solid #f0f0f0"
+                                                  : "none",
+                                              backgroundColor: "#ffffff",
+                                              transition:
+                                                "background-color 0.2s",
+                                            }}
+                                            onMouseOver={(e) =>
+                                              (e.currentTarget.style.backgroundColor =
+                                                "#f7f7f7")
+                                            }
+                                            onMouseOut={(e) =>
+                                              (e.currentTarget.style.backgroundColor =
+                                                "#ffffff")
+                                            }
+                                          >
+                                            <div style={{ fontWeight: "500" }}>
+                                              {suggestion.freeformAddress}
+                                            </div>
+                                            <div
+                                              style={{
+                                                fontSize: "12px",
+                                                color: "#616061",
+                                              }}
+                                            >
+                                              {suggestion.postalCode}{" "}
+                                              {suggestion.localName},{" "}
+                                              {suggestion.country}
+                                            </div>
+                                          </div>
+                                        )
+                                      )}
                                   </div>
-                                </div>
-                              )}
-                            </PlacesAutocomplete>
+                                )}
+                            </div>
                           </div>
                           {touched.address && errors.address ? (
                             <div className="fv-plugins-message-container">
@@ -728,12 +959,12 @@ function FormStepTwo(props, formik) {
                             </div>
                             <input
                               placeholder={intl.formatMessage({
-                                id: "MODEL.ACCOUNT.ADDITIONALADDRESS"
+                                id: "MODEL.ACCOUNT.ADDITIONALADDRESS",
                               })}
                               type="text"
                               className={`form-control h-auto py-5 px-6`}
                               name="additionalAddress"
-                              onChange={e =>
+                              onChange={(e) =>
                                 handleChangeAdditionalAddress(e.target.value)
                               }
                               value={additionalAddress}
@@ -756,12 +987,12 @@ function FormStepTwo(props, formik) {
                             <input
                               disabled
                               placeholder={intl.formatMessage({
-                                id: "MODEL.ACCOUNT.POSTALCODE"
+                                id: "MODEL.ACCOUNT.POSTALCODE",
                               })}
                               type="text"
                               className={`form-control h-auto py-5 px-6`}
                               name="postalCode"
-                              onChange={e =>
+                              onChange={(e) =>
                                 handleChangePostalCode(e.target.value)
                               }
                               value={postalCode}
@@ -789,12 +1020,12 @@ function FormStepTwo(props, formik) {
                             <input
                               disabled
                               placeholder={intl.formatMessage({
-                                id: "MODEL.ACCOUNT.CITY"
+                                id: "MODEL.ACCOUNT.CITY",
                               })}
                               type="text"
                               className={`form-control h-auto py-5 px-6`}
                               name="city"
-                              onChange={e => handleChangeCity(e.target.value)}
+                              onChange={(e) => handleChangeCity(e.target.value)}
                               value={city}
                             />
                           </div>
@@ -821,18 +1052,18 @@ function FormStepTwo(props, formik) {
                             <select
                               className="form-control h-auto py-5 px-6"
                               name="nationalityID"
-                              onChange={e => {
+                              onChange={(e) => {
                                 handleChangeNationality(e.target.value);
                               }}
                             >
                               <option disabled selected value="0">
                                 --{" "}
                                 {intl.formatMessage({
-                                  id: "MESSAGE.SELECT.NATIONALITY"
+                                  id: "MESSAGE.SELECT.NATIONALITY",
                                 })}{" "}
                                 --
                               </option>
-                              {nationalitiesList.map(nationality => (
+                              {nationalitiesList.map((nationality) => (
                                 <option
                                   key={nationality.id}
                                   label={nationality.frenchName}
@@ -863,7 +1094,7 @@ function FormStepTwo(props, formik) {
                             <ReactDatePicker
                               className={`form-control h-auto py-5 px-6 date-input-content`}
                               style={{ width: "100%" }}
-                              onChange={val => {
+                              onChange={(val) => {
                                 handleChangeBirthDate(
                                   moment(val)
                                     .locale("fr")
@@ -923,12 +1154,12 @@ function FormStepTwo(props, formik) {
                             </div>
                             <input
                               placeholder={intl.formatMessage({
-                                id: "TEXT.BIRTH.LOCATION"
+                                id: "TEXT.BIRTH.LOCATION",
                               })}
                               type="text"
                               className={`form-control h-auto py-5 px-6`}
                               name="birthPlace"
-                              onChange={e =>
+                              onChange={(e) =>
                                 handleChangeBirthPlace(e.target.value)
                               }
                               value={birthPlace}

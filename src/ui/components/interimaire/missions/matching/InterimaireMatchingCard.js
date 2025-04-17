@@ -1,72 +1,172 @@
-import React, { Component } from "react";
-
+import React, { useState, useEffect } from "react";
 import { injectIntl } from "react-intl";
 import { connect } from "react-redux";
+import axios from "axios";
+import { toastr } from "react-redux-toastr";
 
 import {
   Card,
   CardHeader,
   CardBody,
-  CardHeaderToolbar
+  CardHeaderToolbar,
 } from "../../../../../_metronic/_partials/controls";
 
 import InterimaireMatchingTable from "./InterimaireMatchingTable";
 
-class InterimaireMatchingCard extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      show: null,
-      refresh: 0
-    };
-  }
+const InterimaireMatchingCard = (props) => {
+  const { intl, missions } = props;
 
-  handleClose = () => {
-    this.setState({ show: null });
+  // États
+  const [show, setShow] = useState(null);
+  const [refresh, setRefresh] = useState(0);
+  const [useMyLocation, setUseMyLocation] = useState(false);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
+
+  // Récupérer l'état actuel de la localisation depuis l'API
+  const fetchLocationState = async () => {
+    try {
+      const response = await axios.get(
+        "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Applicant/IsCurrentLocalization",
+        {
+          headers: {
+            accept: "*/*",
+          },
+        }
+      );
+
+      const { isCurrentLocalization } = response.data;
+
+      // Mettre à jour l'état local et localStorage
+      setUseMyLocation(isCurrentLocalization);
+      setIsInitializing(false);
+      localStorage.setItem("useMyLocation", isCurrentLocalization);
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération de l'état de localisation:",
+        error
+      );
+
+      // Utiliser localStorage comme fallback en cas d'erreur
+      setUseMyLocation(
+        localStorage.getItem("useMyLocation") === "true" || false
+      );
+      setIsInitializing(false);
+    }
   };
 
-  handleShow = id => () => {
-    this.setState({ show: id });
+  // Équivalent de componentDidMount
+  useEffect(() => {
+    fetchLocationState();
+  }, []);
+
+  const handleClose = () => {
+    setShow(null);
   };
 
-  handleUpdateChildren = () => {
-    this.setState({ refresh: this.state.refresh + 1 });
+  const handleShow = (id) => () => {
+    setShow(id);
+  };
+
+  const handleUpdateChildren = () => {
+    setRefresh((prevRefresh) => prevRefresh + 1);
     setTimeout(() => {
-      this.setState({ refresh: 0 });
+      setRefresh(0);
     }, 500);
   };
 
-  render() {
-    const { show } = this.state;
-    const { intl, missions } = this.props;
-    return (
-      <Card>
-        <CardHeader
-          title={intl.formatMessage({
-            id: "DASHBOARD.INTERIMAIRE.LIST.MISSIONS.TITLE"
-          })}
-        >
-          <CardHeaderToolbar>
-            <button
-              onClick={() => this.handleUpdateChildren()}
-              className="btn btn-icon btn-light-primary pulse pulse-primary mr-5"
+  // Méthode pour gérer le changement du checkbox
+  const handleLocationCheckboxChange = async (e) => {
+    const useLocation = e.target.checked;
+
+    setIsLoadingLocation(true);
+    setUseMyLocation(useLocation);
+
+    try {
+      // Appel à l'API pour mettre à jour la localisation
+      await axios.get(
+        `https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Applicant/UseMyCurrentLocalization/${useLocation}`,
+        {
+          headers: {
+            accept: "*/*",
+          },
+        }
+      );
+
+      // Stocker la préférence dans le localStorage
+      localStorage.setItem("useMyLocation", useLocation);
+
+      // Rafraîchir les données
+      handleUpdateChildren();
+
+      toastr.success(
+        useLocation
+          ? "Localisation activée avec succès"
+          : "Localisation désactivée avec succès"
+      );
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour de la localisation:", error);
+
+      // Remettre l'état précédent en cas d'erreur
+      setUseMyLocation(!useLocation);
+      localStorage.setItem("useMyLocation", !useLocation);
+
+      toastr.error("Erreur lors de la mise à jour de la localisation");
+    } finally {
+      setIsLoadingLocation(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader
+        title={intl.formatMessage({
+          id: "DASHBOARD.INTERIMAIRE.LIST.MISSIONS.TITLE",
+        })}
+      >
+        <CardHeaderToolbar>
+          {/* Checkbox pour activer/désactiver la localisation avec meilleur affichage */}
+          <div className="d-flex align-items-center mr-5">
+            <label
+              className="checkbox checkbox-primary d-flex align-items-center"
+              style={{ marginBottom: 0 }}
             >
-              <i className="flaticon-refresh"></i>
-              <span className="pulse-ring"></span>
-            </button>
-          </CardHeaderToolbar>
-        </CardHeader>
-        <CardBody>
-          <InterimaireMatchingTable
-            missions={missions}
-            handleClose={this.handleClose}
-            show={show}
-            refresh={this.state.refresh}
-          />
-        </CardBody>
-      </Card>
-    );
-  }
-}
+              <input
+                type="checkbox"
+                checked={useMyLocation}
+                onChange={handleLocationCheckboxChange}
+                disabled={isLoadingLocation || isInitializing}
+              />
+              <span></span>
+              <div className="d-flex align-items-center ml-2">
+                {(isLoadingLocation || isInitializing) && (
+                  <span className="spinner spinner-sm spinner-primary mr-2"></span>
+                )}
+                <span>Utiliser ma localisation</span>
+              </div>
+            </label>
+          </div>
+
+          {/* Bouton de rafraîchissement existant */}
+          <button
+            onClick={handleUpdateChildren}
+            className="btn btn-icon btn-light-primary pulse pulse-primary mr-5"
+          >
+            <i className="flaticon-refresh"></i>
+            <span className="pulse-ring"></span>
+          </button>
+        </CardHeaderToolbar>
+      </CardHeader>
+      <CardBody>
+        <InterimaireMatchingTable
+          missions={missions}
+          handleClose={handleClose}
+          show={show}
+          refresh={refresh}
+        />
+      </CardBody>
+    </Card>
+  );
+};
 
 export default injectIntl(connect()(InterimaireMatchingCard));
