@@ -902,5 +902,8 @@
   "TEXT.NOTIFICATION.NAME": "Nom de la notification",
   "TEXT.NOTIFICATION.SUBJECT": "Objet du mail",
   "TEXT.ACCROCHE_TO_ALL": "Envoyer la notification push à tous les intérimaires",
-  "TEXT.RELANCE_ACCEPT_LARGE_NUMBER":"Autoriser l'envoi d'un grand nombre de relances."
+  "TEXT.RELANCE_ACCEPT_LARGE_NUMBER":"Autoriser l'envoi d'un grand nombre de relances.",
+  "MODEL.GENDER.MEN" : "Homme",
+  "MODEL.GENDER.WOMEN" :"Femme",
+  "MODEL.GENDER" : "Genre"
 }
