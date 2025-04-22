@@ -6,7 +6,7 @@ import MatchingTable from "../missionlist/MatchingTable";
 import { getMission } from "actions/client/MissionsActions";
 import {
   declineMatching,
-  approveByCustomer,
+  approveByCustomer
 } from "../../../../../business/actions/client/ApplicantsActions";
 import { MissionResumeDialog } from "./MissionResumeDialog";
 import { searchMission } from "../../../../../business/actions/client/MissionsActions";
@@ -38,10 +38,10 @@ const drawerStyles = {
     transition: "transform 0.3s ease-in-out",
     transform: "translateX(100%)", // Commence hors écran à droite
     overflow: "hidden",
-    zIndex: 1050,
+    zIndex: 1050
   },
   drawerOpen: {
-    transform: "translateX(0)", // Slide jusqu'à sa position finale
+    transform: "translateX(0)" // Slide jusqu'à sa position finale
   },
   overlay: {
     position: "fixed",
@@ -53,41 +53,41 @@ const drawerStyles = {
     zIndex: 1040,
     opacity: 0,
     visibility: "hidden",
-    transition: "opacity 0.3s ease-in-out, visibility 0.3s ease-in-out",
+    transition: "opacity 0.3s ease-in-out, visibility 0.3s ease-in-out"
   },
   overlayVisible: {
     opacity: 1,
-    visibility: "visible",
+    visibility: "visible"
   },
   drawerHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     padding: "16px",
-    borderBottom: "1px solid var(--border-color, #e6e6e6)",
+    borderBottom: "1px solid var(--border-color, #e6e6e6)"
   },
   drawerTitle: {
     margin: 0,
     fontSize: "18px",
-    fontWeight: 500,
+    fontWeight: 500
   },
   drawerBody: {
     padding: "20px",
     overflowY: "auto",
     height: "calc(100vh - 70px)",
-    paddingBottom: "80px",
+    paddingBottom: "80px"
   },
   closeButton: {
     background: "transparent",
     border: "none",
     cursor: "pointer",
-    fontSize: "16px",
+    fontSize: "16px"
   },
   paginationContainer: {
     display: "flex",
     justifyContent: "center",
     padding: "16px",
-    borderBottom: "1px solid var(--border-color, #e6e6e6)",
+    borderBottom: "1px solid var(--border-color, #e6e6e6)"
   },
   paginationButton: {
     padding: "8px 16px",
@@ -100,14 +100,14 @@ const drawerStyles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    minWidth: "100px",
+    minWidth: "100px"
   },
   paginationInfo: {
     display: "flex",
     alignItems: "center",
     margin: "0 15px",
     fontSize: "14px",
-    color: "var(--text-secondary, #616061)",
+    color: "var(--text-secondary, #616061)"
   },
   spinner: {
     width: "16px",
@@ -117,8 +117,8 @@ const drawerStyles = {
     borderTopColor: "white",
     animation: "spin 1s linear infinite",
     marginRight: "8px",
-    display: "inline-block",
-  },
+    display: "inline-block"
+  }
 };
 
 // Composant de spinner
@@ -137,14 +137,14 @@ export function MatchingDialog({
   resumeOpen,
   onOpenResume,
   onCloseResume,
-  resumeRow,
+  resumeRow
 }) {
   const { state } = history.location;
   const dispatch = useDispatch();
   const { candidates, mission } = useSelector(
-    (state) => ({
+    state => ({
       mission: state.missionsReducerData.mission,
-      candidates: state.applicants.matchingCandidates,
+      candidates: state.applicants.matchingCandidates
     }),
     shallowEqual
   );
@@ -155,7 +155,7 @@ export function MatchingDialog({
     currentPage: 1,
     totalPages: 0,
     hasNextPage: false,
-    hasPrevPage: false,
+    hasPrevPage: false
   });
   const [isApiDataLoaded, setIsApiDataLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -183,7 +183,7 @@ export function MatchingDialog({
               pageSize: parseInt(pageSize),
               pageNumber: parseInt(page),
               loadMissionApplications: true,
-              userId: parseInt(userID),
+              userId: parseInt(userID)
             }
           : {
               tenantID: parseInt(TENANTID),
@@ -196,7 +196,7 @@ export function MatchingDialog({
               isApplicationsOnly: false,
               pageSize: parseInt(pageSize),
               pageNumber: parseInt(page),
-              loadMissionApplications: true,
+              loadMissionApplications: true
             }
       )
     );
@@ -213,7 +213,7 @@ export function MatchingDialog({
         pageNumber: parseInt(localStorage.getItem("pageNumber")),
         pageSize: parseInt(localStorage.getItem("pageSize")),
         startDate: null,
-        tenantID: parseInt(TENANTID),
+        tenantID: parseInt(TENANTID)
       })
     );
   };
@@ -235,7 +235,7 @@ export function MatchingDialog({
               pageSize: parseInt(pageSize),
               pageNumber: parseInt(page),
               loadMissionApplications: true,
-              userId: parseInt(userID),
+              userId: parseInt(userID)
             }
           : {
               tenantID: parseInt(TENANTID),
@@ -248,7 +248,7 @@ export function MatchingDialog({
               isApplicationsOnly: false,
               pageSize: parseInt(pageSize),
               pageNumber: parseInt(page),
-              loadMissionApplications: true,
+              loadMissionApplications: true
             }
       )
     );
@@ -313,7 +313,7 @@ export function MatchingDialog({
         currentPage: response.currenT_PAGE || pageNumber,
         totalPages: response.totaL_PAGES || 1,
         hasNextPage: response.nexT_PAGE !== "",
-        hasPrevPage: response.preV_PAGE !== "",
+        hasPrevPage: response.preV_PAGE !== ""
       });
       setIsApiDataLoaded(true);
     } catch (error) {
@@ -342,7 +342,7 @@ export function MatchingDialog({
       <div
         style={{
           ...drawerStyles.overlay,
-          ...(show ? drawerStyles.overlayVisible : {}),
+          ...(show ? drawerStyles.overlayVisible : {})
         }}
         onClick={onHide}
       />
@@ -351,7 +351,7 @@ export function MatchingDialog({
       <div
         style={{
           ...drawerStyles.drawer,
-          ...(show ? drawerStyles.drawerOpen : {}),
+          ...(show ? drawerStyles.drawerOpen : {})
         }}
       >
         {resumeOpen === true ? (

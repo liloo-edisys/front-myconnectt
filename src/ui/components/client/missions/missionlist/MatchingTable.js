@@ -16,7 +16,7 @@ import MatchingActionsColumnFormatter from "../column-formatters/MatchingActions
 function MatchingTable({ candidates, handleDeny, handleAccept, onOpenResume }) {
   const intl = useIntl();
   console.log("candidates in MatchingTable --------------> ", candidates);
-  
+
   let {
     missions,
     loadingMission,
@@ -160,16 +160,16 @@ function MatchingTable({ candidates, handleDeny, handleAccept, onOpenResume }) {
         <span className="colmx-auto spinner spinner-primary"></span>
       ) : (
         <> */}
-          <div className="mx-auto">
-            <RemotePagination
-              data={missions}
-              page={pageNumber}
-              sizePerPage={pageSize}
-              totalSize={totalCount}
-              onTableChange={handleTableChange}
-            />
-          </div>
-        {/* </>
+      <div className="mx-auto">
+        <RemotePagination
+          data={missions}
+          page={pageNumber}
+          sizePerPage={pageSize}
+          totalSize={totalCount}
+          onTableChange={handleTableChange}
+        />
+      </div>
+      {/* </>
       )} */}
     </div>
   );

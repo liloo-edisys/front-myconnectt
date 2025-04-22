@@ -317,7 +317,7 @@ export const getUserStartGuide = (interimaire, dispatch) => {
   axios.get(`${USER_START_GUIDE_URL}/${userID}`).then(res => {
     let step = null;
     console.log("<-------- res.data --------->", res.data.length);
-    
+
     const userGuideStep = Math.max.apply(
       Math,
       res.data.map(function(o) {

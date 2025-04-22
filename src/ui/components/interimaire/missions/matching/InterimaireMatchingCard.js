@@ -8,12 +8,12 @@ import {
   Card,
   CardHeader,
   CardBody,
-  CardHeaderToolbar,
+  CardHeaderToolbar
 } from "../../../../../_metronic/_partials/controls";
 
 import InterimaireMatchingTable from "./InterimaireMatchingTable";
 
-const InterimaireMatchingCard = (props) => {
+const InterimaireMatchingCard = props => {
   const { intl, missions } = props;
 
   // États
@@ -30,8 +30,8 @@ const InterimaireMatchingCard = (props) => {
         "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Applicant/IsCurrentLocalization",
         {
           headers: {
-            accept: "*/*",
-          },
+            accept: "*/*"
+          }
         }
       );
 
@@ -64,19 +64,19 @@ const InterimaireMatchingCard = (props) => {
     setShow(null);
   };
 
-  const handleShow = (id) => () => {
+  const handleShow = id => () => {
     setShow(id);
   };
 
   const handleUpdateChildren = () => {
-    setRefresh((prevRefresh) => prevRefresh + 1);
+    setRefresh(prevRefresh => prevRefresh + 1);
     setTimeout(() => {
       setRefresh(0);
     }, 500);
   };
 
   // Méthode pour gérer le changement du checkbox
-  const handleLocationCheckboxChange = async (e) => {
+  const handleLocationCheckboxChange = async e => {
     const useLocation = e.target.checked;
 
     setIsLoadingLocation(true);
@@ -88,8 +88,8 @@ const InterimaireMatchingCard = (props) => {
         `https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Applicant/UseMyCurrentLocalization/${useLocation}`,
         {
           headers: {
-            accept: "*/*",
-          },
+            accept: "*/*"
+          }
         }
       );
 
@@ -115,7 +115,7 @@ const InterimaireMatchingCard = (props) => {
     <Card>
       <CardHeader
         title={intl.formatMessage({
-          id: "DASHBOARD.INTERIMAIRE.LIST.MISSIONS.TITLE",
+          id: "DASHBOARD.INTERIMAIRE.LIST.MISSIONS.TITLE"
         })}
       >
         <CardHeaderToolbar>
