@@ -9,7 +9,7 @@ export const MessageBubble = ({ messages = [], unreadCount = 0 }) => {
   return (
     <div className="message-bubble">
       <ul className="message-bubble__list">
-        {displayedMessages.map((message) => (
+        {displayedMessages.map(message => (
           <li key={message.id} className="message-bubble__item">
             <div className="symbol symbol-40px">
               <div className="symbol-label fs-2 fw-semibold bg-light-primary text-primary">

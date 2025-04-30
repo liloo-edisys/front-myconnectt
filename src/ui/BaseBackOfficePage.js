@@ -43,8 +43,8 @@ export default function BaseBackOfficePage(props) {
   const dispatch = useDispatch();
   const location = useLocation(); // Ajoutez cette ligne
   const { user, mission } = useSelector(
-    (state) => ({
-      user: state.auth.user,
+    state => ({
+      user: state.auth.user
     }),
     shallowEqual
   );

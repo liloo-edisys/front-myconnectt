@@ -19,7 +19,7 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
   const [isLoading, setIsLoading] = useState({
     types: false,
     submit: false,
-    initial: true,
+    initial: true
   });
 
   // URLs de l'API
@@ -28,13 +28,13 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
 
   const API_ENDPOINTS = {
     types: "/VacancyOfferProgram/Types",
-    byVacancyId: (id) => `/VacancyOfferProgram/ByVacancyId/${id}`,
+    byVacancyId: id => `/VacancyOfferProgram/ByVacancyId/${id}`,
     base: "/VacancyOfferProgram",
-    delete: (id) => `/VacancyOfferProgram/${id}`, // Nouvel endpoint
+    delete: id => `/VacancyOfferProgram/${id}` // Nouvel endpoint
   };
 
   const fetchRecurrenceTypes = async () => {
-    setIsLoading((prev) => ({ ...prev, types: true }));
+    setIsLoading(prev => ({ ...prev, types: true }));
     try {
       const response = await axios.get(`${API_BASE_URL}${API_ENDPOINTS.types}`);
       setRecurrenceTypes(response.data);
@@ -42,7 +42,7 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
       console.error("Error fetching recurrence types:", error);
       toastr.error("Erreur lors de la récupération des types de récurrence");
     } finally {
-      setIsLoading((prev) => ({ ...prev, types: false }));
+      setIsLoading(prev => ({ ...prev, types: false }));
     }
   };
 
@@ -51,14 +51,14 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
       const response = await axios.get(
         `${API_BASE_URL}${API_ENDPOINTS.byVacancyId(vacancyID)}`,
         {
-          headers: { accept: "text/plain" },
+          headers: { accept: "text/plain" }
         }
       );
       console.log("Response data:", response.data); // Pour débugger
 
       // Mettre à jour existingRecurrence
       setExistingRecurrence(response.data);
-     setSelectedRecurrenceType(response.data.TypeID);
+      setSelectedRecurrenceType(response.data.TypeID);
 
       // Mettre à jour la date de publication si présente
       if (response.data && response.data.publishDate) {
@@ -71,7 +71,7 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
       setSelectedRecurrenceType(0);
       setpublishDate(null);
     } finally {
-      setIsLoading((prev) => ({ ...prev, initial: false }));
+      setIsLoading(prev => ({ ...prev, initial: false }));
     }
   };
 
@@ -81,15 +81,15 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
       return;
     }
 
-    setIsLoading((prev) => ({ ...prev, submit: true }));
+    setIsLoading(prev => ({ ...prev, submit: true }));
     try {
       await axios.delete(
         `${API_BASE_URL}${API_ENDPOINTS.base}?id=${existingRecurrence.id}`,
         {
           headers: {
             Accept: "*/*",
-            "Content-Type": "text/plain;charset=UTF-8",
-          },
+            "Content-Type": "text/plain;charset=UTF-8"
+          }
         }
       );
       toastr.success("Récurrence supprimée avec succès");
@@ -98,7 +98,7 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
       console.error("Error deleting recurrence:", error);
       toastr.error("Erreur lors de la suppression de la récurrence");
     } finally {
-      setIsLoading((prev) => ({ ...prev, submit: false }));
+      setIsLoading(prev => ({ ...prev, submit: false }));
     }
   };
 
@@ -113,7 +113,7 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
       return;
     }
 
-    setIsLoading((prev) => ({ ...prev, submit: true }));
+    setIsLoading(prev => ({ ...prev, submit: true }));
     try {
       const data = {
         id: existingRecurrence?.id || 0,
@@ -122,23 +122,23 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
         nextDate: moment().toISOString(),
         publishDate: publishDate
           ? moment(publishDate).format("YYYY-MM-DD") + "T00:00:00.000Z"
-          : null,
+          : null
       };
 
       if (existingRecurrence?.id) {
         await axios.put(`${API_BASE_URL}${API_ENDPOINTS.base}`, data, {
           headers: {
             accept: "*/*",
-            "Content-Type": "application/json",
-          },
+            "Content-Type": "application/json"
+          }
         });
         toastr.success("Récurrence modifiée avec succès");
       } else {
         await axios.post(`${API_BASE_URL}${API_ENDPOINTS.base}`, data, {
           headers: {
             accept: "*/*",
-            "Content-Type": "application/json",
-          },
+            "Content-Type": "application/json"
+          }
         });
         toastr.success("Récurrence ajoutée avec succès");
       }
@@ -149,7 +149,7 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
         error.response?.data || "Erreur lors de la soumission de la récurrence"
       );
     } finally {
-      setIsLoading((prev) => ({ ...prev, submit: false }));
+      setIsLoading(prev => ({ ...prev, submit: false }));
     }
   };
 
@@ -196,7 +196,7 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
               name="recurrenceType"
               className="form-control"
               value={selectedRecurrenceType}
-              onChange={(e) =>
+              onChange={e =>
                 setSelectedRecurrenceType(parseInt(e.target.value))
               }
               disabled={isLoading.types || isLoading.initial}
@@ -206,7 +206,7 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
                   ? "Chargement..."
                   : "Veuillez choisir une valeur"}
               </option>
-              {recurrenceTypes.map((type) => (
+              {recurrenceTypes.map(type => (
                 <option key={type.id} value={type.id}>
                   {type.name}
                 </option>
@@ -224,7 +224,7 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
             </div>
             <DatePicker
               selected={publishDate}
-              onChange={(date) => setpublishDate(date)}
+              onChange={date => setpublishDate(date)}
               className="form-control"
               dateFormat="dd/MM/yyyy"
               placeholderText="JJ/MM/AAAA"

@@ -142,7 +142,7 @@
         border-radius: 50%;
 
         &:hover {
-          background: rgba(0,0,0,0.05);
+          background: rgba(0, 0, 0, 0.05);
         }
 
         .star-icon {
@@ -326,15 +326,15 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
-        
+
         .message {
           display: flex;
           flex-direction: column;
           max-width: 70%;
-          
+
           &.sent {
             align-self: flex-end;
-            
+
             .message-content {
               background: var(--primary-blue);
               color: white;
@@ -351,7 +351,7 @@
 
           &.received {
             align-self: flex-start;
-            
+
             .message-content {
               background: var(--msg-bg);
               color: var(--text-primary);
@@ -526,7 +526,7 @@
   cursor: pointer;
 
   &:after {
-    content: '▼';
+    content: "▼";
     font-size: 10px;
     margin-left: 4px;
   }
@@ -540,7 +540,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #0D6EFD;
+  background-color: #0d6efd;
   margin-left: 8px;
 }
 

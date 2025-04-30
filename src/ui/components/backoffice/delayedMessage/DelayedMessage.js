@@ -16,7 +16,7 @@ const DelayType = {
   AllApplicants: 1,
   SpecifiqApplicants: 2,
   AllClients: 3,
-  SpecifiqClients: 4,
+  SpecifiqClients: 4
 };
 
 const MessageFilter = ({ onFilterChange }) => {
@@ -29,20 +29,20 @@ const MessageFilter = ({ onFilterChange }) => {
         { value: DelayType.AllApplicants, label: "Tous les intérimaires" },
         {
           value: DelayType.SpecifiqApplicants,
-          label: "Intérimaires spécifiques",
-        },
-      ],
+          label: "Intérimaires spécifiques"
+        }
+      ]
     },
     clients: {
       label: "Clients",
       options: [
         { value: DelayType.AllClients, label: "Tous les clients" },
-        { value: DelayType.SpecifiqClients, label: "Clients spécifiques" },
-      ],
-    },
+        { value: DelayType.SpecifiqClients, label: "Clients spécifiques" }
+      ]
+    }
   };
 
-  const handleRadioChange = (value) => {
+  const handleRadioChange = value => {
     setSelectedType(value);
     onFilterChange(value);
   };
@@ -55,7 +55,7 @@ const MessageFilter = ({ onFilterChange }) => {
             {group.label}
           </h3>
           <div className="d-flex flex-column gap-2">
-            {group.options.map((option) => (
+            {group.options.map(option => (
               <div key={option.value} className="form-check">
                 <input
                   type="radio"
@@ -111,19 +111,19 @@ const MessagesList = () => {
       "|",
       "link",
       "|",
-      "source",
-    ],
+      "source"
+    ]
   };
 
   const customStyles = {
-    control: (base) => ({
+    control: base => ({
       ...base,
-      minHeight: 38,
+      minHeight: 38
     }),
-    menu: (base) => ({
+    menu: base => ({
       ...base,
-      zIndex: 9999,
-    }),
+      zIndex: 9999
+    })
   };
 
   const columns = [
@@ -131,14 +131,14 @@ const MessagesList = () => {
       dataField: "creationDate",
       text: "Date",
       headerStyle: { width: "20%" },
-      formatter: (cell) => {
+      formatter: cell => {
         const date = new Date(cell);
         return date.toLocaleDateString("fr-FR", {
           day: "2-digit",
           month: "2-digit",
-          year: "numeric",
+          year: "numeric"
         });
-      },
+      }
     },
     {
       dataField: "destinataire",
@@ -156,24 +156,24 @@ const MessagesList = () => {
           default:
             return "-";
         }
-      },
+      }
     },
     {
       dataField: "subject",
       text: "Sujet",
-      headerStyle: { width: "20%" },
+      headerStyle: { width: "20%" }
     },
     {
       dataField: "body",
       text: "Contenu",
       headerStyle: { width: "35%" },
-      formatter: (cell) => (
+      formatter: cell => (
         <div
           className="text-truncate"
           style={{ maxHeight: "48px", overflow: "hidden" }}
           dangerouslySetInnerHTML={{ __html: cell }}
         />
-      ),
+      )
     },
     {
       dataField: "actions",
@@ -186,11 +186,11 @@ const MessagesList = () => {
         >
           Voir
         </button>
-      ),
-    },
+      )
+    }
   ];
 
-  const fetchMessages = async (types) => {
+  const fetchMessages = async types => {
     setLoading(true);
     try {
       if (types.length === 0) {
@@ -199,15 +199,15 @@ const MessagesList = () => {
         return;
       }
 
-      const messagesPromises = types.map((type) =>
+      const messagesPromises = types.map(type =>
         axios.get(`${api}api/Message/DelayedMessage/Type/${type}`)
       );
 
       const responses = await Promise.all(messagesPromises);
-      const allMessages = responses.flatMap((response) => response.data || []);
+      const allMessages = responses.flatMap(response => response.data || []);
 
       const uniqueMessages = [
-        ...new Map(allMessages.map((item) => [item.id, item])).values(),
+        ...new Map(allMessages.map(item => [item.id, item])).values()
       ];
 
       setMessages(uniqueMessages);
@@ -222,7 +222,7 @@ const MessagesList = () => {
     fetchMessages(selectedTypes);
   }, [selectedTypes]);
 
-  const loadApplicants = async (inputValue) => {
+  const loadApplicants = async inputValue => {
     if (!inputValue) return [];
 
     try {
@@ -231,7 +231,7 @@ const MessagesList = () => {
         firstName: "",
         lastName: inputValue,
         email: "",
-        phoneNumber: "",
+        phoneNumber: ""
       };
 
       const response = await axios.post(
@@ -239,10 +239,10 @@ const MessagesList = () => {
         body
       );
 
-      return response.data.list.map((applicant) => ({
+      return response.data.list.map(applicant => ({
         value: applicant.id,
         label: `${applicant.firstname} ${applicant.lastname}`,
-        email: applicant.email,
+        email: applicant.email
       }));
     } catch (error) {
       console.error("Erreur lors de la recherche des intérimaires:", error);
@@ -250,7 +250,7 @@ const MessagesList = () => {
     }
   };
 
-  const loadClients = async (inputValue) => {
+  const loadClients = async inputValue => {
     if (!inputValue) return [];
 
     try {
@@ -260,7 +260,7 @@ const MessagesList = () => {
         groupID: 0,
         pageSize: 10,
         pageNumber: 1,
-        status: null,
+        status: null
       };
 
       const response = await axios.post(
@@ -268,9 +268,9 @@ const MessagesList = () => {
         body
       );
 
-      return response.data.list.map((client) => ({
+      return response.data.list.map(client => ({
         value: client.id,
-        label: client.name,
+        label: client.name
       }));
     } catch (error) {
       console.error("Erreur lors de la recherche des clients:", error);
@@ -281,7 +281,7 @@ const MessagesList = () => {
   const debouncedLoadApplicants = debounce(loadApplicants, 500);
   const debouncedLoadClients = debounce(loadClients, 500);
 
-  const handleViewMessage = (message) => {
+  const handleViewMessage = message => {
     setSelectedMessage(message);
     setShowViewModal(true);
   };
@@ -302,21 +302,19 @@ const MessagesList = () => {
       if (messageType === "temp") {
         endpoint = `${api}api/Message/DelayedMessage/Applicant`;
         messageData = {
-          applicantsID: !sendToAll
-            ? selectedRecipients.map((r) => r.value)
-            : [],
+          applicantsID: !sendToAll ? selectedRecipients.map(r => r.value) : [],
           allApplicants: sendToAll,
           accountID: 0,
           subject: newMessageSubject,
-          body: content,
+          body: content
         };
       } else {
         endpoint = `${api}api/Message/DelayedMessage/Customer`;
         messageData = {
-          customersID: !sendToAll ? selectedRecipients.map((r) => r.value) : [],
+          customersID: !sendToAll ? selectedRecipients.map(r => r.value) : [],
           allCustomer: sendToAll,
           subject: newMessageSubject,
-          body: content,
+          body: content
         };
       }
 
@@ -336,7 +334,7 @@ const MessagesList = () => {
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-start">
             <MessageFilter
-              onFilterChange={(type) => {
+              onFilterChange={type => {
                 setSelectedTypes([type]);
               }}
             />
@@ -433,7 +431,7 @@ const MessagesList = () => {
                   className="form-check-input"
                   id="sendToAll"
                   checked={sendToAll}
-                  onChange={(e) => {
+                  onChange={e => {
                     setSendToAll(e.target.checked);
                     if (e.target.checked) {
                       setSelectedRecipients([]);
@@ -475,7 +473,7 @@ const MessagesList = () => {
                       ? debouncedLoadApplicants
                       : debouncedLoadClients
                   }
-                  onChange={(selected) => setSelectedRecipients(selected || [])}
+                  onChange={selected => setSelectedRecipients(selected || [])}
                   placeholder={
                     messageType === "temp"
                       ? "Rechercher des intérimaires..."
@@ -499,7 +497,7 @@ const MessagesList = () => {
               type="text"
               className="form-control"
               value={newMessageSubject}
-              onChange={(e) => setNewMessageSubject(e.target.value)}
+              onChange={e => setNewMessageSubject(e.target.value)}
             />
           </div>
 
@@ -512,7 +510,7 @@ const MessagesList = () => {
               value={content}
               config={config}
               tabIndex={1}
-              onBlur={(newContent) => setContent(newContent)}
+              onBlur={newContent => setContent(newContent)}
             />
           </div>
         </Modal.Body>
@@ -553,7 +551,7 @@ const MessagesList = () => {
                         {
                           day: "2-digit",
                           month: "2-digit",
-                          year: "numeric",
+                          year: "numeric"
                         }
                       )
                     : "-"}

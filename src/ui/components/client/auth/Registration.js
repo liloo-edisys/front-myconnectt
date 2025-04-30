@@ -20,11 +20,11 @@ function Registration(props) {
   const [loading, setLoading] = useState(false);
   const { intl, history } = props;
 
-  const handleChangeCity = (value) => {
+  const handleChangeCity = value => {
     setselectedCity(value);
   };
 
-  const handleChangeCompany = (value) => {
+  const handleChangeCompany = value => {
     setselectedCompany(value);
   };
 
@@ -78,7 +78,7 @@ function Registration(props) {
       selectedCompany &&
       !isNullOrEmpty(selectedCompany.libelle_nature_juridique_entreprise)
         ? selectedCompany.libelle_nature_juridique_entreprise
-        : "_",
+        : "_"
   };
 
   const RegistrationSchema = Yup.object().shape({
@@ -115,7 +115,7 @@ function Registration(props) {
     acceptTerms: Yup.bool().oneOf(
       [true],
       intl.formatMessage({ id: "AUTH.REGISTER.TERMS_REQUIRED" })
-    ),
+    )
   });
 
   const enableLoading = () => {
@@ -136,34 +136,34 @@ function Registration(props) {
       padding: "0 10px",
       boxShadow: "none",
       "&:hover": {
-        borderColor: "transparent",
-      },
+        borderColor: "transparent"
+      }
     }),
-    menu: (base) => ({
+    menu: base => ({
       ...base,
       borderRadius: "10px",
       marginTop: 8,
       overflow: "hidden",
-      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
     }),
-    menuList: (base) => ({
+    menuList: base => ({
       ...base,
       padding: 0,
-      maxHeight: 200,
+      maxHeight: 200
     }),
-    placeholder: (base) => ({
+    placeholder: base => ({
       ...base,
-      color: "#B5B5C3",
-    }),
+      color: "#B5B5C3"
+    })
   };
 
   const wait = 1000;
-  const getAsyncOptions = (inputValue) => {
+  const getAsyncOptions = inputValue => {
     return axios
       .get(
         `https://recherche-entreprises.api.gouv.fr/search?q=${inputValue}&&code_postal=${selectedCity.Code_postal}`
       )
-      .then((res) => {
+      .then(res => {
         return res.data.results;
       });
   };
@@ -188,8 +188,8 @@ function Registration(props) {
             src={toAbsoluteUrl("/media/logos/wow.png")}
             className="h-20px"
             alt="wow"
-          />{"  "}
-          !
+          />
+          {"  "}!
         </p>
         <div className="text-center">
           <Link to="/auth/login">
@@ -201,7 +201,10 @@ function Registration(props) {
       </div>
 
       {/* Right Side - Form Section  */}
-      <div className="d-flex flex-column flex-grow-1 justify-content-center align-items-center p-10" style={{ marginLeft: "550px" }}>
+      <div
+        className="d-flex flex-column flex-grow-1 justify-content-center align-items-center p-10"
+        style={{ marginLeft: "550px" }}
+      >
         <div className="max-w-850px w-100">
           <div className="text-center mb-10">
             <Link to="/">
@@ -231,18 +234,18 @@ function Registration(props) {
                 intl.formatMessage({ id: "MESSAGE.SEARCH.ONGOING" })
               }
               value={selectedCity}
-              getOptionLabel={(e) => `${e.Nom_commune} (${e.Code_postal})`}
-              getOptionValue={(e) => e.Code_postal}
+              getOptionLabel={e => `${e.Nom_commune} (${e.Code_postal})`}
+              getOptionValue={e => e.Code_postal}
               loadOptions={loadOptions}
               onChange={handleChangeCity}
               placeholder={intl.formatMessage({
-                id: "AUTH.REGISTER.POSTALCODE",
+                id: "AUTH.REGISTER.POSTALCODE"
               })}
               isClearable
               isSearchable
               components={{
                 DropdownIndicator: () => null,
-                IndicatorSeparator: () => null,
+                IndicatorSeparator: () => null
               }}
             />
 
@@ -256,20 +259,18 @@ function Registration(props) {
               loadingMessage={() =>
                 intl.formatMessage({ id: "MESSAGE.SEARCH.ONGOING" })
               }
-              getOptionLabel={(e) =>
-                `${e.nom_complet} SIRET (${e.siege.siret})`
-              }
-              getOptionValue={(e) => e.siege.siret}
+              getOptionLabel={e => `${e.nom_complet} SIRET (${e.siege.siret})`}
+              getOptionValue={e => e.siege.siret}
               loadOptions={debouncedLoadOptions}
               onChange={handleChangeCompany}
               placeholder={intl.formatMessage({
-                id: "AUTH.REGISTER.COMPANY_NAME",
+                id: "AUTH.REGISTER.COMPANY_NAME"
               })}
               isClearable
               isSearchable
               components={{
                 DropdownIndicator: () => null,
-                IndicatorSeparator: () => null,
+                IndicatorSeparator: () => null
               }}
             />
           </div>
@@ -282,7 +283,7 @@ function Registration(props) {
               onSubmit={(values, { setSubmitting }) => {
                 enableLoading();
                 registerAccount(values)
-                  .then((response) => {
+                  .then(response => {
                     disableLoading();
                     response && history.push("/");
                   })

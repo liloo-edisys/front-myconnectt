@@ -8,7 +8,7 @@ const UserSelectionModal = ({
   isOpen,
   onClose,
   onSelectUsers,
-  currentUserId,
+  currentUserId
 }) => {
   // État pour gérer les onglets (intérimaires/clients)
   const [tabValue, setTabValue] = useState(0);
@@ -45,7 +45,7 @@ const UserSelectionModal = ({
 
   // Fonction pour rechercher des utilisateurs
   const searchUsers = useCallback(
-    async (query) => {
+    async query => {
       if (!query.trim()) {
         setUsers([]);
         setLoading(false);
@@ -70,8 +70,8 @@ const UserSelectionModal = ({
 
         const response = await axios.get(endpoint, {
           headers: {
-            Accept: "*/*",
-          },
+            Accept: "*/*"
+          }
         });
 
         // Traiter les données reçues selon le format de réponse
@@ -79,19 +79,19 @@ const UserSelectionModal = ({
         if (response.data && Array.isArray(response.data)) {
           if (tabValue === 0) {
             // Format pour les intérimaires: { id, fullName }
-            formattedUsers = response.data.map((user) => ({
+            formattedUsers = response.data.map(user => ({
               id: user.userID,
               name: user.fullName || "Sans nom",
               role: "Intérimaire",
-              status: "Disponible", // Statut par défaut si non fourni par l'API
+              status: "Disponible" // Statut par défaut si non fourni par l'API
             }));
           } else {
             // Format pour les clients: { id, name }
-            formattedUsers = response.data.map((user) => ({
+            formattedUsers = response.data.map(user => ({
               id: user.id,
               name: user.name || "Sans nom",
               role: "Client",
-              status: "Actif", // Statut par défaut si non fourni par l'API
+              status: "Actif" // Statut par défaut si non fourni par l'API
             }));
           }
         }
@@ -109,7 +109,7 @@ const UserSelectionModal = ({
 
   // Créer une version debounced de la fonction de recherche
   const debouncedSearch = useCallback(
-    debounce((query) => searchUsers(query), 300),
+    debounce(query => searchUsers(query), 300),
     [searchUsers]
   );
 
@@ -123,7 +123,7 @@ const UserSelectionModal = ({
   }, [searchQuery, debouncedSearch]);
 
   // Réinitialiser la recherche lors du changement d'onglet
-  const handleTabChange = (newValue) => {
+  const handleTabChange = newValue => {
     setTabValue(newValue);
     setSelectedUsers([]);
     setSearchQuery("");
@@ -133,10 +133,10 @@ const UserSelectionModal = ({
   };
 
   // Gestion de la sélection d'utilisateurs
-  const handleToggleUser = (userId) => {
-    setSelectedUsers((prev) => {
+  const handleToggleUser = userId => {
+    setSelectedUsers(prev => {
       if (prev.includes(userId)) {
-        return prev.filter((id) => id !== userId);
+        return prev.filter(id => id !== userId);
       } else {
         return [...prev, userId];
       }
@@ -149,9 +149,9 @@ const UserSelectionModal = ({
       setLoading(true);
 
       // Préparer les données pour la création du groupe
-      const toUsers = selectedUsers.map((userId) => ({
+      const toUsers = selectedUsers.map(userId => ({
         userID: userId,
-        enumChatUserRole: 2, // Rôle par défaut pour les membres
+        enumChatUserRole: 2 // Rôle par défaut pour les membres
       }));
 
       const groupData = {
@@ -159,7 +159,7 @@ const UserSelectionModal = ({
         chatID: 0,
         chatMasterID: null, // Utilisation du currentUserId passé en prop
         toUsers: toUsers,
-        isGroup: true,
+        isGroup: true
       };
 
       // Utiliser le service existant pour créer le groupe
@@ -190,23 +190,23 @@ const UserSelectionModal = ({
         // Notifier le composant parent avec les informations du groupe créé
         onSelectUsers({
           isGroup: true,
-          users: selectedUsers.map((id) => {
-            const user = users.find((u) => u.id === id);
+          users: selectedUsers.map(id => {
+            const user = users.find(u => u.id === id);
             return { id, name: user?.name || "Utilisateur" };
           }),
           groupName,
-          groupId: result?.id || result?.chatID || null,
+          groupId: result?.id || result?.chatID || null
         });
       } else {
         // Si un seul utilisateur est sélectionné, créer une discussion sans API
-        const selectedUser = users.find((user) => user.id === selectedUsers[0]);
+        const selectedUser = users.find(user => user.id === selectedUsers[0]);
 
         // Ajouter statiquement à la liste des discussions
         onSelectUsers({
           isGroup: false,
           users: [{ id: selectedUser.id, name: selectedUser.name }],
           groupName: null,
-          groupId: null,
+          groupId: null
         });
       }
 
@@ -219,7 +219,7 @@ const UserSelectionModal = ({
   };
 
   // Gestion du changement dans la barre de recherche
-  const handleSearchChange = (e) => {
+  const handleSearchChange = e => {
     setSearchQuery(e.target.value);
     if (!e.target.value.trim()) {
       setUsers([]);
@@ -227,23 +227,23 @@ const UserSelectionModal = ({
   };
 
   // Gestion du changement du nom de groupe
-  const handleGroupNameChange = (e) => {
+  const handleGroupNameChange = e => {
     setGroupName(e.target.value);
   };
 
   // Générer des initiales à partir du nom pour l'avatar
-  const getInitials = (name) => {
+  const getInitials = name => {
     if (!name) return "??";
     return name
       .split(" ")
-      .map((word) => word[0])
+      .map(word => word[0])
       .join("")
       .toUpperCase()
       .substring(0, 2);
   };
 
   // Générer une couleur cohérente à partir du nom pour l'avatar
-  const getAvatarColor = (name) => {
+  const getAvatarColor = name => {
     const colors = [
       "#4361ee",
       "#3a0ca3",
@@ -254,7 +254,7 @@ const UserSelectionModal = ({
       "#560bad",
       "#480ca8",
       "#b5179e",
-      "#3f37c9",
+      "#3f37c9"
     ];
     const charCode = name?.charCodeAt(0) || 0;
     return colors[charCode % colors.length];
@@ -281,7 +281,7 @@ const UserSelectionModal = ({
           outline: "none",
           overflow: "hidden",
           boxShadow: "0 5px 20px rgba(0,0,0,0.15)",
-          padding: "16px", // Padding global du modal
+          padding: "16px" // Padding global du modal
         }}
       >
         {/* Header - Simple et minimaliste */}
@@ -386,7 +386,7 @@ const UserSelectionModal = ({
             </div>
           ) : users.length > 0 ? (
             <div className="px-4">
-              {users.map((user) => (
+              {users.map(user => (
                 <div
                   key={user.id}
                   className={`py-3 d-flex align-items-center hover-bg-light mb-2 rounded ${
@@ -395,14 +395,14 @@ const UserSelectionModal = ({
                   onClick={() => handleToggleUser(user.id)}
                   style={{
                     cursor: "pointer",
-                    transition: "background-color 0.15s ease",
+                    transition: "background-color 0.15s ease"
                   }}
-                  onMouseOver={(e) => {
+                  onMouseOver={e => {
                     if (!selectedUsers.includes(user.id)) {
                       e.currentTarget.style.backgroundColor = "#f8f9fa";
                     }
                   }}
-                  onMouseOut={(e) => {
+                  onMouseOut={e => {
                     if (!selectedUsers.includes(user.id)) {
                       e.currentTarget.style.backgroundColor = "transparent";
                     }
@@ -415,7 +415,7 @@ const UserSelectionModal = ({
                         width: "40px",
                         height: "40px",
                         backgroundColor: getAvatarColor(user.name),
-                        fontSize: "16px",
+                        fontSize: "16px"
                       }}
                     >
                       {getInitials(user.name)}
@@ -430,12 +430,12 @@ const UserSelectionModal = ({
                       type="checkbox"
                       checked={selectedUsers.includes(user.id)}
                       onChange={() => handleToggleUser(user.id)}
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={e => e.stopPropagation()}
                       id={`user-check-${user.id}`}
                       style={{
                         width: "14px",
                         height: "14px",
-                        cursor: "pointer",
+                        cursor: "pointer"
                       }}
                     />
                   </div>

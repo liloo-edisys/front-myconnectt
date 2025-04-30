@@ -1,5 +1,5 @@
 import React from "react";
-import {MessageBubble} from "../messageBubble/MessageBubble";
+import { MessageBubble } from "../messageBubble/MessageBubble";
 
 export const ParentBubble = () => {
   const messages = [
@@ -7,20 +7,20 @@ export const ParentBubble = () => {
       id: 1,
       name: "John Doe",
       avatar: "/path/to/avatar1.jpg",
-      lastMessage: "Salut, comment ça va ?",
+      lastMessage: "Salut, comment ça va ?"
     },
     {
       id: 2,
       name: "Jane Smith",
       avatar: "/path/to/avatar2.jpg",
-      lastMessage: "Tu as reçu mon message ?",
+      lastMessage: "Tu as reçu mon message ?"
     },
     {
       id: 3,
       name: "Jane Smith",
       avatar: "/path/to/avatar2.jpg",
-      lastMessage: "Tu as reçu mon message ?",
-    },
+      lastMessage: "Tu as reçu mon message ?"
+    }
     // ... autres messages
   ];
 

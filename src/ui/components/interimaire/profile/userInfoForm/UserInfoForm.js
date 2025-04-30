@@ -19,7 +19,7 @@ const UserInfoForm = () => {
     nationality: "",
     nationalityId: null, // Pour stocker l'ID du pays
     position: "",
-    skills: "",
+    skills: ""
   });
   const [errors, setErrors] = useState({});
   const [importedFile, setImportedFile] = useState(null);
@@ -53,7 +53,7 @@ const UserInfoForm = () => {
   const history = useHistory();
 
   // Fonctions de traitement des données
-  const filterCountries = (query) => {
+  const filterCountries = query => {
     if (!query || query.length < 2) {
       setFilteredCountries([]);
       return;
@@ -66,7 +66,7 @@ const UserInfoForm = () => {
       .replace(/[\u0300-\u036f]/g, "");
 
     // Filtrage des pays
-    const filtered = countries.filter((country) => {
+    const filtered = countries.filter(country => {
       const normalizedName = country.frenchName
         .toLowerCase()
         .normalize("NFD")
@@ -79,7 +79,7 @@ const UserInfoForm = () => {
   };
 
   // Fonction pour gérer les changements des cases à cocher
-  const handleCheckboxChange = (e) => {
+  const handleCheckboxChange = e => {
     const { name, checked } = e.target;
     if (name === "acceptTerms") {
       setAcceptTerms(checked);
@@ -89,11 +89,11 @@ const UserInfoForm = () => {
   };
 
   // Fonction pour sélectionner un pays
-  const selectCountry = (country) => {
+  const selectCountry = country => {
     setFormValues({
       ...formValues,
       nationality: country.frenchName,
-      nationalityId: country.id, // Stocker l'ID pour l'API
+      nationalityId: country.id // Stocker l'ID pour l'API
     });
     setShowCountryDropdown(false);
     setSelectedCountryIndex(-1);
@@ -105,11 +105,11 @@ const UserInfoForm = () => {
   };
 
   // Fonction pour sélectionner une adresse
-  const selectAddress = (suggestion) => {
+  const selectAddress = suggestion => {
     setFormValues({
       ...formValues,
       address: suggestion.freeformAddress,
-      addressObject: suggestion, // Stocker l'objet complet
+      addressObject: suggestion // Stocker l'objet complet
     });
     setAddressSuggestions([]);
     setSelectedSuggestionIndex(-1);
@@ -130,8 +130,8 @@ const UserInfoForm = () => {
         "",
         {
           headers: {
-            accept: "/",
-          },
+            accept: "/"
+          }
         }
       );
 
@@ -141,7 +141,7 @@ const UserInfoForm = () => {
         setFormValues({
           ...formValues,
           address: response.data.freeformAddress,
-          addressObject: response.data, // Stocker l'objet complet
+          addressObject: response.data // Stocker l'objet complet
         });
       }
     } catch (error) {
@@ -158,7 +158,7 @@ const UserInfoForm = () => {
   };
 
   // Fonction pour envoyer le CV à l'API
-  const uploadCV = async (file) => {
+  const uploadCV = async file => {
     if (!file) return null;
 
     setUploading(true);
@@ -173,8 +173,8 @@ const UserInfoForm = () => {
         formData,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
-          },
+            "Content-Type": "multipart/form-data"
+          }
         }
       );
 
@@ -196,23 +196,23 @@ const UserInfoForm = () => {
   };
 
   // Fonction pour remplir le formulaire avec les données de l'API
-  const fillFormWithApiData = (data) => {
+  const fillFormWithApiData = data => {
     if (!data) return;
 
     // Mise à jour des valeurs du formulaire avec les données de l'API
-    setFormValues((prevValues) => ({
+    setFormValues(prevValues => ({
       ...prevValues,
       firstname: data.firstname || prevValues.firstname,
       lastname: data.lastname || prevValues.lastname,
       email: data.email || prevValues.email,
       phone: data.phonenumber || prevValues.phone,
       position: data.jobTitle || prevValues.position,
-      skills: data.skills ? data.skills.join(", ") : prevValues.skills,
+      skills: data.skills ? data.skills.join(", ") : prevValues.skills
     }));
   };
 
   // Fonction pour récupérer les suggestions d'adresses
-  const fetchAddressSuggestions = async (query) => {
+  const fetchAddressSuggestions = async query => {
     if (!query || query.length < 3) return;
 
     setAddressSearchLoading(true);
@@ -224,8 +224,8 @@ const UserInfoForm = () => {
         )}`,
         {
           headers: {
-            accept: "text/plain",
-          },
+            accept: "text/plain"
+          }
         }
       );
 
@@ -241,11 +241,11 @@ const UserInfoForm = () => {
   };
 
   // Gérer les changements de champs
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
     setFormValues({
       ...formValues,
-      [name]: value,
+      [name]: value
     });
 
     // Supprimer l'erreur si le champ est rempli
@@ -257,7 +257,7 @@ const UserInfoForm = () => {
   };
 
   // Gérer l'importation de fichier
-  const handleFileChange = (e) => {
+  const handleFileChange = e => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
 
@@ -339,8 +339,8 @@ const UserInfoForm = () => {
           "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Country",
           {
             headers: {
-              accept: "/",
-            },
+              accept: "/"
+            }
           }
         );
 
@@ -363,7 +363,7 @@ const UserInfoForm = () => {
 
   // Effet pour fermer les suggestions lorsqu'on clique en dehors
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = event => {
       // Fermer la liste des adresses si on clique en dehors
       const addressContainer = document.getElementById("address-container");
       if (addressContainer && !addressContainer.contains(event.target)) {
@@ -485,7 +485,7 @@ const UserInfoForm = () => {
   };
 
   // Gérer la soumission du formulaire
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setSubmitError(null);
 
@@ -510,8 +510,7 @@ const UserInfoForm = () => {
             formValues.gender === "M" ? 0 : formValues.gender === "F" ? 1 : 0, // Conversion
           nationalityID:
             formValues.nationalityId ||
-            countries.find((c) => c.frenchName === formValues.nationality)
-              ?.id ||
+            countries.find(c => c.frenchName === formValues.nationality)?.id ||
             0,
           localization: formValues.addressObject
             ? {
@@ -520,7 +519,7 @@ const UserInfoForm = () => {
                 country: formValues.addressObject.country || "",
                 localName: formValues.addressObject.localName || "",
                 freeformAddress: formValues.addressObject.freeformAddress || "",
-                position: formValues.addressObject.position || "",
+                position: formValues.addressObject.position || ""
               }
             : {
                 // Fallback si pas d'objet complet
@@ -529,15 +528,15 @@ const UserInfoForm = () => {
                 countryCode: "",
                 country: "",
                 localName: "",
-                position: "",
+                position: ""
               },
           jobTitle: formValues.position,
           skills: formValues.skills
             .split(",")
-            .map((skill) => skill.trim())
+            .map(skill => skill.trim())
             .filter(Boolean),
           cV_ID_TEMPORARY:
-            cvIdTemporary || (importedFile ? importedFile.name : ""),
+            cvIdTemporary || (importedFile ? importedFile.name : "")
         };
 
         console.log("Données à envoyer à l'API:", requestData);
@@ -549,8 +548,8 @@ const UserInfoForm = () => {
           {
             headers: {
               "Content-Type": "application/json",
-              accept: "*/*",
-            },
+              accept: "*/*"
+            }
           }
         );
 
@@ -613,17 +612,17 @@ const UserInfoForm = () => {
               className="border border-2 border-dashed rounded p-5 text-center mb-4"
               style={{ cursor: "pointer", transition: "all 0.2s ease" }}
               onClick={() => document.getElementById("file-upload").click()}
-              onDragOver={(e) => {
+              onDragOver={e => {
                 e.preventDefault();
                 e.currentTarget.style.backgroundColor = "#f8f9fa";
                 e.currentTarget.style.borderColor = "#0d6efd";
               }}
-              onDragLeave={(e) => {
+              onDragLeave={e => {
                 e.preventDefault();
                 e.currentTarget.style.backgroundColor = "transparent";
                 e.currentTarget.style.borderColor = "";
               }}
-              onDrop={(e) => {
+              onDrop={e => {
                 e.preventDefault();
                 e.currentTarget.style.backgroundColor = "transparent";
                 e.currentTarget.style.borderColor = "";
@@ -645,7 +644,7 @@ const UserInfoForm = () => {
                   <p className="mb-0">{selectedFileName}</p>
                   <button
                     className="btn btn-sm btn-outline-secondary mt-3"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation(); // Empêcher d'ouvrir le sélecteur de fichier
                       setImportedFile(null);
                       setSelectedFileName("");
@@ -910,7 +909,7 @@ const UserInfoForm = () => {
                         id="address"
                         name="address"
                         value={formValues.address}
-                        onChange={(e) => {
+                        onChange={e => {
                           // Persistez l'événement pour éviter l'erreur de réutilisation des événements synthétiques
                           e.persist();
 
@@ -936,7 +935,7 @@ const UserInfoForm = () => {
                             fetchAddressSuggestions(query);
                           }, 300);
                         }}
-                        onKeyDown={(e) => {
+                        onKeyDown={e => {
                           // Navigation avec les flèches dans les suggestions
                           if (addressSuggestions.length > 0) {
                             if (e.key === "ArrowDown") {
@@ -979,7 +978,7 @@ const UserInfoForm = () => {
                             setFormValues({
                               ...formValues,
                               address: "",
-                              addressObject: null, // Réinitialiser l'objet d'adresse
+                              addressObject: null // Réinitialiser l'objet d'adresse
                             });
                             setAddressSuggestions([]);
                             // Focus sur l'input après suppression
@@ -1019,9 +1018,9 @@ const UserInfoForm = () => {
                         style={{
                           zIndex: 1000,
                           maxHeight: "200px",
-                          overflowY: "auto",
+                          overflowY: "auto"
                         }}
-                        onClick={(e) => e.stopPropagation()} // Empêche la propagation du clic
+                        onClick={e => e.stopPropagation()} // Empêche la propagation du clic
                       >
                         {addressSuggestions.map((suggestion, index) => (
                           <div
@@ -1033,7 +1032,7 @@ const UserInfoForm = () => {
                             }`}
                             style={{
                               cursor: "pointer",
-                              transition: "background-color 0.2s ease",
+                              transition: "background-color 0.2s ease"
                             }}
                             onMouseEnter={() =>
                               setSelectedSuggestionIndex(index)
@@ -1075,7 +1074,7 @@ const UserInfoForm = () => {
                         id="nationality"
                         name="nationality"
                         value={formValues.nationality}
-                        onChange={(e) => {
+                        onChange={e => {
                           // Capture de la valeur
                           const value = e.target.value;
 
@@ -1100,7 +1099,7 @@ const UserInfoForm = () => {
                             setShowCountryDropdown(true);
                           }
                         }}
-                        onKeyDown={(e) => {
+                        onKeyDown={e => {
                           // Navigation avec les flèches dans les suggestions
                           if (
                             showCountryDropdown &&
@@ -1146,7 +1145,7 @@ const UserInfoForm = () => {
                             setFormValues({
                               ...formValues,
                               nationality: "",
-                              nationalityId: null, // Réinitialiser l'ID
+                              nationalityId: null // Réinitialiser l'ID
                             });
                             setShowCountryDropdown(false);
                             // Focus sur l'input après suppression
@@ -1186,9 +1185,9 @@ const UserInfoForm = () => {
                         style={{
                           zIndex: 1000,
                           maxHeight: "200px",
-                          overflowY: "auto",
+                          overflowY: "auto"
                         }}
-                        onClick={(e) => e.stopPropagation()} // Empêche la propagation du clic
+                        onClick={e => e.stopPropagation()} // Empêche la propagation du clic
                       >
                         {filteredCountries.map((country, index) => (
                           <div
@@ -1198,7 +1197,7 @@ const UserInfoForm = () => {
                             }`}
                             style={{
                               cursor: "pointer",
-                              transition: "background-color 0.2s ease",
+                              transition: "background-color 0.2s ease"
                             }}
                             onMouseEnter={() => setSelectedCountryIndex(index)}
                             onClick={() => selectCountry(country)}

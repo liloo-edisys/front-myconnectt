@@ -1,11 +1,16 @@
 import React from "react";
 import {
   deleteNotification,
-  setNotifRead,
+  setNotifRead
 } from "../../../business/actions/shared/NotificationsActions";
 import "./styles.scss";
 
-export function UserNotificationPopup({ notif, userDetails, dispatch, closePopup }) {
+export function UserNotificationPopup({
+  notif,
+  userDetails,
+  dispatch,
+  closePopup
+}) {
   if (!notif.readed) setNotifRead(notif.id, userDetails.tenantID, dispatch);
 
   return (
@@ -18,7 +23,7 @@ export function UserNotificationPopup({ notif, userDetails, dispatch, closePopup
             </div>
             <span
               dangerouslySetInnerHTML={{
-                __html: notif?.subject || notif?.title,
+                __html: notif?.subject || notif?.title
               }}
             />
           </div>
@@ -34,7 +39,7 @@ export function UserNotificationPopup({ notif, userDetails, dispatch, closePopup
         <div className="notification-body">
           <span
             dangerouslySetInnerHTML={{
-              __html: notif?.body || notif?.message,
+              __html: notif?.body || notif?.message
             }}
           />
         </div>

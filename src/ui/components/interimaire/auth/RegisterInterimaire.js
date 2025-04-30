@@ -206,10 +206,7 @@ function RegisterInterimaire(props) {
             <span className="opacity-40 mr-4 text-dark">
               <FormattedMessage id="TEXT.HAVE.MYCONNECTT.ACCOUNT" />
             </span>
-            <Link
-              to="/auth/int-info"
-              className="text-black font-weight-normal"
-            >
+            <Link to="/auth/int-info" className="text-black font-weight-normal">
               <FormattedMessage id="TEXT.LOGIN.ACCOUNT" />
             </Link>
           </div>

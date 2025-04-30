@@ -23,7 +23,7 @@ import moment from "moment";
 import paginationFactory, {
   PaginationListStandalone,
   PaginationProvider,
-  SizePerPageDropdownStandalone,
+  SizePerPageDropdownStandalone
 } from "react-bootstrap-table2-paginator";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { searchMission } from "../../../../../business/actions/client/MissionsActions";
@@ -36,7 +36,7 @@ import { getCompanies } from "actions/client/CompaniesActions";
 import MissionsStatusColumnFormatter from "../column-formatters/MissionsStatusColumnFormatter";
 import {
   deleteCurrentDuplicate,
-  deleteCurrentTemplate,
+  deleteCurrentTemplate
 } from "../../../../../business/actions/client/MissionsActions";
 import Avatar from "react-avatar";
 import ReactTooltip from "react-tooltip";
@@ -46,7 +46,7 @@ import {
   setSelectedAccount,
   setDefaultStatus,
   setPageSize,
-  setPageNumber,
+  setPageNumber
 } from "../../../../../business/actions/backoffice/MissionsActions.js";
 
 const tenantID = +process.env.REACT_APP_TENANT_ID;
@@ -94,17 +94,17 @@ function MissionsTable({ refresh }) {
     { value: 1, label: intl.formatMessage({ id: "STATUS.NON.PROVIDED" }) },
     {
       value: 2,
-      label: intl.formatMessage({ id: "STATUS.PARTIALLY.PROVIDED" }),
+      label: intl.formatMessage({ id: "STATUS.PARTIALLY.PROVIDED" })
     },
     { value: 3, label: intl.formatMessage({ id: "STATUS.PROVIDED" }) },
     {
       value: 4,
-      label: intl.formatMessage({ id: "STATUS.PROPOSITION.CANCELED" }),
+      label: intl.formatMessage({ id: "STATUS.PROPOSITION.CANCELED" })
     },
     {
       value: 5,
-      label: intl.formatMessage({ id: "STATUS.VALIDATED.MYCONNECTT" }),
-    },
+      label: intl.formatMessage({ id: "STATUS.VALIDATED.MYCONNECTT" })
+    }
   ];
   let history = useHistory();
 
@@ -123,9 +123,9 @@ function MissionsTable({ refresh }) {
     selectedAccount,
     defaultStatus,
     pageSize,
-    pageNumber,
+    pageNumber
   } = useSelector(
-    (state) => ({
+    state => ({
       user: state.contacts.user,
       missions: state.missionsReducerData.missions.list,
       totalCount: state.missionsReducerData.missions.totalcount,
@@ -139,20 +139,20 @@ function MissionsTable({ refresh }) {
       selectedAccount: state.missionsBackOfficeReducer.selectedAccount,
       defaultStatus: state.missionsBackOfficeReducer.defaultStatus,
       pageSize: state.missionsBackOfficeReducer.pageSize,
-      pageNumber: state.missionsBackOfficeReducer.pageNumber,
+      pageNumber: state.missionsBackOfficeReducer.pageNumber
     }),
     shallowEqual
   );
-  const useMountEffect = (fun) => useEffect(fun, []);
+  const useMountEffect = fun => useEffect(fun, []);
   let filteredCompanies =
     companies != null
       ? companies.length
         ? companies
-            .filter((company) => company.parentID === null)
+            .filter(company => company.parentID === null)
             .map(function(c) {
               return {
                 value: c.id,
-                label: c.name,
+                label: c.name
               };
             })
         : []
@@ -188,7 +188,7 @@ function MissionsTable({ refresh }) {
             loadMissionApplications: true,
             status: !isNullOrEmpty(defaultStatus)
               ? reduceData(defaultStatus)
-              : null,
+              : null
           })
         );
     } else {
@@ -213,7 +213,7 @@ function MissionsTable({ refresh }) {
             loadMissionApplications: true,
             status: !isNullOrEmpty(defaultStatus)
               ? reduceData(defaultStatus)
-              : null,
+              : null
           })
         );
     }
@@ -240,7 +240,7 @@ function MissionsTable({ refresh }) {
               loadMissionApplications: true,
               status: !isNullOrEmpty(defaultStatus)
                 ? reduceData(defaultStatus)
-                : null,
+                : null
             })
           )
         : dispatch(
@@ -260,7 +260,7 @@ function MissionsTable({ refresh }) {
               loadMissionApplications: true,
               status: !isNullOrEmpty(defaultStatus)
                 ? reduceData(defaultStatus)
-                : null,
+                : null
             })
           );
     }
@@ -318,17 +318,17 @@ function MissionsTable({ refresh }) {
         </div>
       );
     },
-  
+
     expandHeaderColumnRenderer: function() {
       return null;
     },
-  
+
     headerClasses: "hidden",
-  
+
     className: function(isExpanded, row, rowIndex) {
       return "fulfilled-row";
     },
-  
+
     onExpand: function(row, isExpand, rowIndex, e) {
       if (isExpand) {
         let exp = [...expanded, row.id];
@@ -339,7 +339,7 @@ function MissionsTable({ refresh }) {
         });
         setExpanded(exp);
       }
-  
+
       getMission(row.id)
         .then(function(res) {
           return res.data;
@@ -351,15 +351,17 @@ function MissionsTable({ refresh }) {
           localStorage.setItem("candidate", JSON.stringify(row));
         });
     },
-  
+
     showExpandColumn: true,
     expanded: expanded,
-  
+
     expandColumnRenderer: function({ expanded, rowKey, expandable }) {
-      let mission = missions && missions.filter(function(mission) {
-        return mission.id === rowKey;
-      })[0];
-  
+      let mission =
+        missions &&
+        missions.filter(function(mission) {
+          return mission.id === rowKey;
+        })[0];
+
       return (
         <div>
           <span
@@ -384,7 +386,7 @@ function MissionsTable({ refresh }) {
               />
             )}
           </span>
-  
+
           {expanded ? (
             <i className="fas fa-angle-double-down text-primary"></i>
           ) : (
@@ -413,25 +415,24 @@ function MissionsTable({ refresh }) {
       openDeclineDialog: missionsUIContext.openDeclineDialog,
       openValidateDialog: missionsUIContext.openValidateDialog,
       openMissionProfileDialog: missionsUIContext.openMissionProfileDialog,
-      openDeleteApplicationDialog:
-        missionsUIContext.openDeleteApplicationDialog,
+      openDeleteApplicationDialog: missionsUIContext.openDeleteApplicationDialog
     };
   }, [missionsUIContext]);
 
   let columns = [
     {
       dataField: "entrepriseName",
-      text: intl.formatMessage({ id: "TEXT.COMPANY" }),
+      text: intl.formatMessage({ id: "TEXT.COMPANY" })
     },
     {
       dataField: "vacancyNumberOfApplications",
       formatter: OccupiedColumnFormatter,
       text: intl.formatMessage({ id: "COLUMN.JOBS.NBR" }),
-      attrs: (cell, row) => ({ id: `rowid_${row.id}` }),
+      attrs: (cell, row) => ({ id: `rowid_${row.id}` })
     },
     {
       dataField: "vacancyTitle",
-      text: intl.formatMessage({ id: "MODEL.JOBTITLE" }),
+      text: intl.formatMessage({ id: "MODEL.JOBTITLE" })
     },
     {
       dataField: "vacancyBusinessAddressPostalCode",
@@ -439,7 +440,7 @@ function MissionsTable({ refresh }) {
         (row.vacancyBusinessAddressCity != null
           ? row.vacancyBusinessAddressCity
           : "") + (value != null ? " (" + value.substring(0, 2) + ")" : ""),
-      text: intl.formatMessage({ id: "MODEL.LOCATION" }),
+      text: intl.formatMessage({ id: "MODEL.LOCATION" })
     },
     {
       dataField: "status",
@@ -449,18 +450,18 @@ function MissionsTable({ refresh }) {
         return a - b;
       },
 
-      formatter: MissionsStatusColumnFormatter,
+      formatter: MissionsStatusColumnFormatter
     },
 
     {
       dataField: "vacancyContractualVacancyEmploymentContractTypeStartDate",
       text: intl.formatMessage({ id: "COLUMN.START.DATE" }),
-      formatter: DateColumnFormatter,
+      formatter: DateColumnFormatter
     },
     {
       dataField: "vacancyContractualVacancyEmploymentContractTypeEndDate",
       text: intl.formatMessage({ id: "COLUMN.END.DATE" }),
-      formatter: DateColumnFormatter,
+      formatter: DateColumnFormatter
     },
     {
       dataField: "action",
@@ -470,18 +471,18 @@ function MissionsTable({ refresh }) {
       headerClasses: "text-right pr-3",
       style: {
         minWidth: "100px",
-        paddinBottom: "10px",
+        paddinBottom: "10px"
       },
       formatExtraData: {
-        openDisplayDialog : missionsUIProps.openDisplayDialog,
-      },
-    },
+        openDisplayDialog: missionsUIProps.openDisplayDialog
+      }
+    }
   ];
 
   let applicationColumns = [
     {
       headerAttrs: {
-        hidden: true,
+        hidden: true
       },
       dataField: "name",
       sort: true,
@@ -512,22 +513,22 @@ function MissionsTable({ refresh }) {
           )}
           {value.split(" ")[0]}
         </span>
-      ),
+      )
     },
     {
       dataField: "applicationID",
-      formatter: ApplicationsStatusColumnFormatter,
+      formatter: ApplicationsStatusColumnFormatter
     },
     {
       headerAttrs: {
-        hidden: true,
+        hidden: true
       },
       dataField: "action",
       formatter: ApplicationsActionsColumnFormatter,
       classes: "text-right pr-0",
       headerClasses: "text-right pr-3",
       style: {
-        minWidth: "100px",
+        minWidth: "100px"
       },
       formatExtraData: {
         openEditWorksiteDialog: missionsUIProps.openEditWorksiteDialog,
@@ -537,21 +538,20 @@ function MissionsTable({ refresh }) {
         openDeclineDialog: missionsUIProps.openDeclineDialog,
         openValidateDialog: missionsUIProps.openValidateDialog,
         openMissionProfileDialog: missionsUIProps.openMissionProfileDialog,
-        openDeleteApplicationDialog:
-          missionsUIProps.openDeleteApplicationDialog,
-      },
-    },
+        openDeleteApplicationDialog: missionsUIProps.openDeleteApplicationDialog
+      }
+    }
   ];
 
   const filterExpanded = () => {
     let filtered = [];
     let rows = !isNullOrEmpty(missions)
       ? missions.filter(
-          (mission) =>
+          mission =>
             mission.status === 1 && !isNullOrEmpty(mission.missionApplications)
         )
       : [];
-    !isNullOrEmpty(rows) && rows.map((row) => filtered.push(row.id));
+    !isNullOrEmpty(rows) && rows.map(row => filtered.push(row.id));
     return;
   };
 
@@ -584,7 +584,7 @@ function MissionsTable({ refresh }) {
               loadMissionApplications: true,
               status: !isNullOrEmpty(defaultStatus)
                 ? reduceData(defaultStatus)
-                : null,
+                : null
             })
           )
         : dispatch(
@@ -604,7 +604,7 @@ function MissionsTable({ refresh }) {
               loadMissionApplications: true,
               status: !isNullOrEmpty(defaultStatus)
                 ? reduceData(defaultStatus)
-                : null,
+                : null
             })
           );
     } else {
@@ -622,7 +622,7 @@ function MissionsTable({ refresh }) {
               pageSize: pageSize,
               pageNumber: pageNumber,
               loadMissionApplications: true,
-              status: null,
+              status: null
             })
           )
         : dispatch(
@@ -637,13 +637,13 @@ function MissionsTable({ refresh }) {
               pageSize: pageSize,
               pageNumber: pageNumber,
               loadMissionApplications: true,
-              status: null,
+              status: null
             })
           );
     }
   }, [isEdit]);
 
-  const filterTitle = (value) => {
+  const filterTitle = value => {
     if (user.displayChoice === 0) {
       dispatch(
         searchMission.request({
@@ -662,7 +662,7 @@ function MissionsTable({ refresh }) {
           loadMissionApplications: true,
           status: !isNullOrEmpty(defaultStatus)
             ? reduceData(defaultStatus)
-            : null,
+            : null
         })
       );
     } else {
@@ -683,13 +683,13 @@ function MissionsTable({ refresh }) {
           loadMissionApplications: true,
           status: !isNullOrEmpty(defaultStatus)
             ? reduceData(defaultStatus)
-            : null,
+            : null
         })
       );
     }
   };
 
-  const filterAskers = (value) => {
+  const filterAskers = value => {
     user.displayChoice === 0
       ? dispatch(
           searchMission.request({
@@ -708,7 +708,7 @@ function MissionsTable({ refresh }) {
             loadMissionApplications: true,
             status: !isNullOrEmpty(defaultStatus)
               ? reduceData(defaultStatus)
-              : null,
+              : null
           })
         )
       : dispatch(
@@ -728,12 +728,12 @@ function MissionsTable({ refresh }) {
             loadMissionApplications: true,
             status: !isNullOrEmpty(defaultStatus)
               ? reduceData(defaultStatus)
-              : null,
+              : null
           })
         );
   };
 
-  const filterStatus = (value) => {
+  const filterStatus = value => {
     user.displayChoice === 0
       ? dispatch(
           searchMission.request({
@@ -750,7 +750,7 @@ function MissionsTable({ refresh }) {
             pageSize: pageSize,
             pageNumber: 1,
             loadMissionApplications: true,
-            status: !isNullOrEmpty(value) ? reduceData(value) : null,
+            status: !isNullOrEmpty(value) ? reduceData(value) : null
           })
         )
       : dispatch(
@@ -768,12 +768,12 @@ function MissionsTable({ refresh }) {
             pageSize: pageSize,
             pageNumber: 1,
             loadMissionApplications: true,
-            status: !isNullOrEmpty(value) ? reduceData(value) : null,
+            status: !isNullOrEmpty(value) ? reduceData(value) : null
           })
         );
   };
 
-  const filterAccount = (value) => {
+  const filterAccount = value => {
     user.displayChoice === 0
       ? dispatch(
           searchMission.request({
@@ -792,7 +792,7 @@ function MissionsTable({ refresh }) {
             loadMissionApplications: true,
             status: !isNullOrEmpty(defaultStatus)
               ? reduceData(defaultStatus)
-              : null,
+              : null
           })
         )
       : dispatch(
@@ -812,12 +812,12 @@ function MissionsTable({ refresh }) {
             loadMissionApplications: true,
             status: !isNullOrEmpty(defaultStatus)
               ? reduceData(defaultStatus)
-              : null,
+              : null
           })
         );
   };
 
-  const onChangeStartDate = (e) => {
+  const onChangeStartDate = e => {
     user.displayChoice === 0
       ? dispatch(
           searchMission.request({
@@ -834,7 +834,7 @@ function MissionsTable({ refresh }) {
             loadMissionApplications: true,
             status: !isNullOrEmpty(defaultStatus)
               ? reduceData(defaultStatus)
-              : null,
+              : null
           })
         )
       : dispatch(
@@ -852,12 +852,12 @@ function MissionsTable({ refresh }) {
             loadMissionApplications: true,
             status: !isNullOrEmpty(defaultStatus)
               ? reduceData(defaultStatus)
-              : null,
+              : null
           })
         );
   };
 
-  const onChangeEndDate = (e) => {
+  const onChangeEndDate = e => {
     user.displayChoice === 0 && !loadingMission
       ? dispatch(
           searchMission.request({
@@ -874,7 +874,7 @@ function MissionsTable({ refresh }) {
             loadMissionApplications: true,
             status: !isNullOrEmpty(defaultStatus)
               ? reduceData(defaultStatus)
-              : null,
+              : null
           })
         )
       : dispatch(
@@ -892,7 +892,7 @@ function MissionsTable({ refresh }) {
             loadMissionApplications: true,
             status: !isNullOrEmpty(defaultStatus)
               ? reduceData(defaultStatus)
-              : null,
+              : null
           })
         );
   };
@@ -903,7 +903,7 @@ function MissionsTable({ refresh }) {
         <DatePicker
           className={`col-lg-12   form-control`}
           style={{ width: "100%" }}
-          onChange={(val) => {
+          onChange={val => {
             setSetelectedStartDate(val, dispatch);
             onChangeStartDate(val);
           }}
@@ -926,7 +926,7 @@ function MissionsTable({ refresh }) {
         <DatePicker
           className={`col-lg-12 form-control`}
           style={{ width: "100%" }}
-          onChange={(val) => {
+          onChange={val => {
             setSetelectedEndDate(val, dispatch);
             onChangeEndDate(val);
           }}
@@ -944,7 +944,7 @@ function MissionsTable({ refresh }) {
     );
   };
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     setDefaultStatus(e, dispatch);
   };
 
@@ -955,7 +955,7 @@ function MissionsTable({ refresh }) {
           name="invoiceTypeID"
           isMulti
           value={defaultStatus}
-          onChange={(e) => {
+          onChange={e => {
             filterStatus(e);
             handleChange(e);
           }}
@@ -976,7 +976,7 @@ function MissionsTable({ refresh }) {
           options={filteredCompanies}
           value={selectedAccount}
           placeholder="--Entreprise--"
-          onChange={(e) => {
+          onChange={e => {
             setSelectedAccount(e, dispatch);
             filterAccount(e.value);
           }}
@@ -986,19 +986,19 @@ function MissionsTable({ refresh }) {
     );
   };
 
-  const reduceData = (data) => {
+  const reduceData = data => {
     let result = [];
     !isNullOrEmpty(data) &&
-      data.map((value) => {
+      data.map(value => {
         result.push(value.value);
       });
     return result;
   };
 
-  const reduceString = (data) => {
+  const reduceString = data => {
     let result = [];
     !isNullOrEmpty(data) &&
-      data.map((value) => {
+      data.map(value => {
         result.push(value.label);
       });
     return result;
@@ -1023,7 +1023,7 @@ function MissionsTable({ refresh }) {
             loadMissionApplications: true,
             status: !isNullOrEmpty(defaultStatus)
               ? reduceData(defaultStatus)
-              : null,
+              : null
           })
         )
       : dispatch(
@@ -1043,7 +1043,7 @@ function MissionsTable({ refresh }) {
             loadMissionApplications: true,
             status: !isNullOrEmpty(defaultStatus)
               ? reduceData(defaultStatus)
-              : null,
+              : null
           })
         );
   };
@@ -1051,14 +1051,14 @@ function MissionsTable({ refresh }) {
   const rowStyle = (row, rowIndex) => {
     const style = {};
     if (
-      expanded.find((id) => row.id === id) &&
+      expanded.find(id => row.id === id) &&
       row.status !== 3 &&
       row.status !== 5 &&
       rowIndex % 2 !== 0
     ) {
       style.backgroundColor = "rgba(225, 240, 255, 0.2)";
     } else if (
-      expanded.find((id) => row.id === id) &&
+      expanded.find(id => row.id === id) &&
       row.status !== 3 &&
       row.status !== 5 &&
       rowIndex % 2 === 0
@@ -1078,7 +1078,7 @@ function MissionsTable({ refresh }) {
     onTableChange,
     totalSize,
     from,
-    to,
+    to
   }) => (
     <div>
       <PaginationProvider
@@ -1093,27 +1093,27 @@ function MissionsTable({ refresh }) {
           sizePerPageList: [
             {
               text: "5",
-              value: 5,
+              value: 5
             },
             {
               text: "10",
-              value: 10,
+              value: 10
             },
             {
               text: "25",
-              value: 25,
+              value: 25
             },
             {
               text: "Toutes",
-              value: missions && totalCount,
-            },
+              value: missions && totalCount
+            }
           ],
           firstPageText: intl.formatMessage({ id: "BEGINNING" }),
           prePageText: "<",
           nextPageText: ">",
           lastPageText: intl.formatMessage({ id: "END" }),
           nextPageTitle: ">",
-          prePageTitle: "<",
+          prePageTitle: "<"
         })}
       >
         {({ paginationProps, paginationTableProps }) => (

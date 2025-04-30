@@ -7,38 +7,38 @@ import { useSelector } from "react-redux";
 const Chat = () => {
   const [chat, setChat] = useState([]);
   const latestChat = useRef(null);
-  const { authToken } = useSelector((state) => state.auth);
+  const { authToken } = useSelector(state => state.auth);
 
   latestChat.current = chat;
 
   useEffect(() => {
     const connection = new HubConnectionBuilder()
       .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/chat", {
-        accessTokenFactory: () => authToken,
+        accessTokenFactory: () => authToken
       })
       .withAutomaticReconnect()
       .build();
 
     connection
       .start()
-      .then((result) => {
-        connection.on("ReceiveMessage", (message) => {
+      .then(result => {
+        connection.on("ReceiveMessage", message => {
           const updatedChat = [...latestChat.current];
           updatedChat.push(message);
 
           setChat(updatedChat);
         });
-        connection.on("UserToUser", (message) => {
+        connection.on("UserToUser", message => {
           console.log("UserToUser", message);
         });
       })
-      .catch((e) => console.log("Connection with SignalR failed: ", e));
+      .catch(e => console.log("Connection with SignalR failed: ", e));
   }, []);
 
   const sendMessage = async (user, message) => {
     const chatMessage = {
       user: user,
-      message: message,
+      message: message
     };
 
     try {
@@ -46,8 +46,8 @@ const Chat = () => {
         method: "POST",
         body: JSON.stringify(chatMessage),
         headers: {
-          "Content-Type": "application/json",
-        },
+          "Content-Type": "application/json"
+        }
       });
     } catch (e) {
       console.log("Sending message failed.", e);

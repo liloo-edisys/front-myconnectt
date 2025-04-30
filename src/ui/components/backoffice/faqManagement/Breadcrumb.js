@@ -1,6 +1,6 @@
-import React from 'react';
-import { ArrowBack, Home, ChevronRight } from '@material-ui/icons';
-import { styles } from './styles';
+import React from "react";
+import { ArrowBack, Home, ChevronRight } from "@material-ui/icons";
+import { styles } from "./styles";
 
 export const Breadcrumb = ({ currentPath, navigation }) => {
   const { handleBack, handleRootNavigation, handlePathNavigation } = navigation;

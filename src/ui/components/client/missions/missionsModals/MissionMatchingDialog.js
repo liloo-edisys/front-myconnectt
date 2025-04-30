@@ -6,7 +6,7 @@ import MatchingTable from "../missionlist/MatchingTable";
 import { getMission } from "actions/client/MissionsActions";
 import {
   declineMatching,
-  approveByCustomer,
+  approveByCustomer
 } from "../../../../../business/actions/client/ApplicantsActions";
 import { MissionResumeDialog } from "./MissionResumeDialog";
 import { searchMission } from "../../../../../business/actions/client/MissionsActions";
@@ -17,7 +17,7 @@ const TENANTID = process.env.REACT_APP_TENANT_ID;
 
 // Styles CSS pour le drawer
 // Ajouter l'animation CSS directement dans le head
-const spinnerAnimation = document.createElement('style');
+const spinnerAnimation = document.createElement("style");
 spinnerAnimation.innerHTML = `
   @keyframes spin {
     to { transform: rotate(360deg); }
@@ -38,10 +38,10 @@ const drawerStyles = {
     transition: "transform 0.3s ease-in-out",
     transform: "translateX(100%)", // Commence hors écran à droite
     overflow: "hidden",
-    zIndex: 1050,
+    zIndex: 1050
   },
   drawerOpen: {
-    transform: "translateX(0)", // Slide jusqu'à sa position finale
+    transform: "translateX(0)" // Slide jusqu'à sa position finale
   },
   overlay: {
     position: "fixed",
@@ -53,41 +53,41 @@ const drawerStyles = {
     zIndex: 1040,
     opacity: 0,
     visibility: "hidden",
-    transition: "opacity 0.3s ease-in-out, visibility 0.3s ease-in-out",
+    transition: "opacity 0.3s ease-in-out, visibility 0.3s ease-in-out"
   },
   overlayVisible: {
     opacity: 1,
-    visibility: "visible",
+    visibility: "visible"
   },
   drawerHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     padding: "16px",
-    borderBottom: "1px solid var(--border-color, #e6e6e6)",
+    borderBottom: "1px solid var(--border-color, #e6e6e6)"
   },
   drawerTitle: {
     margin: 0,
     fontSize: "18px",
-    fontWeight: 500,
+    fontWeight: 500
   },
   drawerBody: {
     padding: "20px",
     overflowY: "auto",
     height: "calc(100vh - 70px)",
-    paddingBottom: "80px",
+    paddingBottom: "80px"
   },
   closeButton: {
     background: "transparent",
     border: "none",
     cursor: "pointer",
-    fontSize: "16px",
+    fontSize: "16px"
   },
   paginationContainer: {
     display: "flex",
     justifyContent: "center",
     padding: "16px",
-    borderBottom: "1px solid var(--border-color, #e6e6e6)",
+    borderBottom: "1px solid var(--border-color, #e6e6e6)"
   },
   paginationButton: {
     padding: "8px 16px",
@@ -100,14 +100,14 @@ const drawerStyles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    minWidth: "100px",
+    minWidth: "100px"
   },
   paginationInfo: {
     display: "flex",
     alignItems: "center",
     margin: "0 15px",
     fontSize: "14px",
-    color: "var(--text-secondary, #616061)",
+    color: "var(--text-secondary, #616061)"
   },
   spinner: {
     width: "16px",
@@ -117,17 +117,13 @@ const drawerStyles = {
     borderTopColor: "white",
     animation: "spin 1s linear infinite",
     marginRight: "8px",
-    display: "inline-block",
-  },
+    display: "inline-block"
+  }
 };
 
 // Composant de spinner
 const Spinner = () => (
-  <span
-    style={drawerStyles.spinner}
-    role="status"
-    aria-hidden="true"
-  ></span>
+  <span style={drawerStyles.spinner} role="status" aria-hidden="true"></span>
 );
 
 export function MatchingDialog({
@@ -137,14 +133,14 @@ export function MatchingDialog({
   resumeOpen,
   onOpenResume,
   onCloseResume,
-  resumeRow,
+  resumeRow
 }) {
   const { state } = history.location;
   const dispatch = useDispatch();
   const { candidates, mission } = useSelector(
-    (state) => ({
+    state => ({
       mission: state.missionsReducerData.mission,
-      candidates: state.applicants.matchingCandidates,
+      candidates: state.applicants.matchingCandidates
     }),
     shallowEqual
   );
@@ -155,7 +151,7 @@ export function MatchingDialog({
     currentPage: 1,
     totalPages: 0,
     hasNextPage: false,
-    hasPrevPage: false,
+    hasPrevPage: false
   });
   const [isApiDataLoaded, setIsApiDataLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -183,7 +179,7 @@ export function MatchingDialog({
               pageSize: parseInt(pageSize),
               pageNumber: parseInt(page),
               loadMissionApplications: true,
-              userId: parseInt(userID),
+              userId: parseInt(userID)
             }
           : {
               tenantID: parseInt(TENANTID),
@@ -196,7 +192,7 @@ export function MatchingDialog({
               isApplicationsOnly: false,
               pageSize: parseInt(pageSize),
               pageNumber: parseInt(page),
-              loadMissionApplications: true,
+              loadMissionApplications: true
             }
       )
     );
@@ -213,7 +209,7 @@ export function MatchingDialog({
         pageNumber: parseInt(localStorage.getItem("pageNumber")),
         pageSize: parseInt(localStorage.getItem("pageSize")),
         startDate: null,
-        tenantID: parseInt(TENANTID),
+        tenantID: parseInt(TENANTID)
       })
     );
   };
@@ -235,7 +231,7 @@ export function MatchingDialog({
               pageSize: parseInt(pageSize),
               pageNumber: parseInt(page),
               loadMissionApplications: true,
-              userId: parseInt(userID),
+              userId: parseInt(userID)
             }
           : {
               tenantID: parseInt(TENANTID),
@@ -248,7 +244,7 @@ export function MatchingDialog({
               isApplicationsOnly: false,
               pageSize: parseInt(pageSize),
               pageNumber: parseInt(page),
-              loadMissionApplications: true,
+              loadMissionApplications: true
             }
       )
     );
@@ -302,7 +298,7 @@ export function MatchingDialog({
     try {
       setIsLoading(true);
       setLoadingDirection(direction);
-      
+
       // Appel à l'API avec paramètre de page
       const response = await getMatchingWithVacancy(missionId, pageNumber);
       console.log("Matchings récupérés:", response);
@@ -313,7 +309,7 @@ export function MatchingDialog({
         currentPage: response.currenT_PAGE || pageNumber,
         totalPages: response.totaL_PAGES || 1,
         hasNextPage: response.nexT_PAGE !== "",
-        hasPrevPage: response.preV_PAGE !== "",
+        hasPrevPage: response.preV_PAGE !== ""
       });
       setIsApiDataLoaded(true);
     } catch (error) {
@@ -326,13 +322,13 @@ export function MatchingDialog({
 
   const handleNextPage = () => {
     if (paginationInfo.hasNextPage && !isLoading) {
-      handleFetchMatchings(paginationInfo.currentPage + 1, 'next');
+      handleFetchMatchings(paginationInfo.currentPage + 1, "next");
     }
   };
 
   const handlePrevPage = () => {
     if (paginationInfo.hasPrevPage && !isLoading) {
-      handleFetchMatchings(paginationInfo.currentPage - 1, 'prev');
+      handleFetchMatchings(paginationInfo.currentPage - 1, "prev");
     }
   };
 
@@ -342,7 +338,7 @@ export function MatchingDialog({
       <div
         style={{
           ...drawerStyles.overlay,
-          ...(show ? drawerStyles.overlayVisible : {}),
+          ...(show ? drawerStyles.overlayVisible : {})
         }}
         onClick={onHide}
       />
@@ -351,7 +347,7 @@ export function MatchingDialog({
       <div
         style={{
           ...drawerStyles.drawer,
-          ...(show ? drawerStyles.drawerOpen : {}),
+          ...(show ? drawerStyles.drawerOpen : {})
         }}
       >
         {resumeOpen === true ? (
@@ -391,7 +387,7 @@ export function MatchingDialog({
               onClick={handlePrevPage}
               disabled={!paginationInfo.hasPrevPage || isLoading}
             >
-              {isLoading && loadingDirection === 'prev' ? (
+              {isLoading && loadingDirection === "prev" ? (
                 <>
                   <Spinner /> Chargement...
                 </>
@@ -399,17 +395,17 @@ export function MatchingDialog({
                 "Précédent"
               )}
             </button>
-            
+
             <div style={drawerStyles.paginationInfo}>
               Page {paginationInfo.currentPage} sur {paginationInfo.totalPages}
             </div>
-            
+
             <button
               style={drawerStyles.paginationButton}
               onClick={handleNextPage}
               disabled={!paginationInfo.hasNextPage || isLoading}
             >
-              {isLoading && loadingDirection === 'next' ? (
+              {isLoading && loadingDirection === "next" ? (
                 <>
                   <Spinner /> Chargement...
                 </>

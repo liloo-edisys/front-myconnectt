@@ -4,12 +4,12 @@ import axios from "axios";
 const API_URL =
   "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api";
 
-const transformData = (data) => {
-  return data.map((item) => ({
+const transformData = data => {
+  return data.map(item => ({
     id: item.id.toString(),
     text: item.question,
     answer: item.answer,
-    children: item.slaves ? transformData(item.slaves) : [],
+    children: item.slaves ? transformData(item.slaves) : []
   }));
 };
 
@@ -42,13 +42,13 @@ export const useFAQManagement = (type = 1) => {
   const getCurrentQuestions = useCallback(() => {
     let current = questions;
     for (const pathItem of currentPath) {
-      current = current.find((q) => q.id === pathItem.id)?.children || [];
+      current = current.find(q => q.id === pathItem.id)?.children || [];
     }
     return current;
   }, [questions, currentPath]);
 
   const handleAdd = useCallback(
-    async (newQuestion) => {
+    async newQuestion => {
       try {
         setIsLoading(true);
         // Trouver le parent actuel si on est dans une sous-catégorie
@@ -62,7 +62,7 @@ export const useFAQManagement = (type = 1) => {
           question: newQuestion.text,
           answer: newQuestion.answer,
           faqMasterID: parentId,
-          faqType: type,
+          faqType: type
         };
 
         await axios.post(`${API_URL}/Faq`, payload);
@@ -79,7 +79,7 @@ export const useFAQManagement = (type = 1) => {
   );
 
   const handleEdit = useCallback(
-    async (question) => {
+    async question => {
       try {
         setIsLoading(true);
 
@@ -111,7 +111,7 @@ export const useFAQManagement = (type = 1) => {
           question: question.text,
           answer: question.answer,
           faqMasterID: parentId,
-          faqType: type,
+          faqType: type
         };
 
         await axios.post(`${API_URL}/Faq`, payload);
@@ -128,7 +128,7 @@ export const useFAQManagement = (type = 1) => {
   );
 
   const handleDelete = useCallback(
-    async (questionId) => {
+    async questionId => {
       try {
         setIsLoading(true);
         await axios.delete(`${API_URL}/Faq/${questionId}`);
@@ -151,10 +151,10 @@ export const useFAQManagement = (type = 1) => {
 
       try {
         // On commence par mettre à jour l'UI localement pour une expérience fluide
-        setQuestions((prev) => {
+        setQuestions(prev => {
           let draggedQuestion;
 
-          const removeFromArray = (arr) => {
+          const removeFromArray = arr => {
             for (let i = 0; i < arr.length; i++) {
               if (arr[i].id === draggedId) {
                 draggedQuestion = arr[i];
@@ -170,7 +170,7 @@ export const useFAQManagement = (type = 1) => {
             return false;
           };
 
-          const addToTarget = (arr) => {
+          const addToTarget = arr => {
             for (let i = 0; i < arr.length; i++) {
               if (arr[i].id === targetId) {
                 if (!arr[i].children) arr[i].children = [];
@@ -219,7 +219,7 @@ export const useFAQManagement = (type = 1) => {
             question: draggedQuestion.text,
             answer: draggedQuestion.answer,
             faqMasterID: parseInt(targetId), // Nouveau parent
-            faqType: type,
+            faqType: type
           };
 
           // Appel API pour mettre à jour le faqMasterID
@@ -244,18 +244,18 @@ export const useFAQManagement = (type = 1) => {
   );
 
   const navigation = {
-    handleNavigate: useCallback((question) => {
-      setCurrentPath((prev) => [...prev, question]);
+    handleNavigate: useCallback(question => {
+      setCurrentPath(prev => [...prev, question]);
     }, []),
     handleBack: useCallback(() => {
-      setCurrentPath((prev) => prev.slice(0, -1));
+      setCurrentPath(prev => prev.slice(0, -1));
     }, []),
     handleRootNavigation: useCallback(() => {
       setCurrentPath([]);
     }, []),
-    handlePathNavigation: useCallback((index) => {
-      setCurrentPath((prev) => prev.slice(0, index + 1));
-    }, []),
+    handlePathNavigation: useCallback(index => {
+      setCurrentPath(prev => prev.slice(0, index + 1));
+    }, [])
   };
 
   return {
@@ -270,6 +270,6 @@ export const useFAQManagement = (type = 1) => {
     navigation,
     isLoading,
     error,
-    refetch: fetchFAQs,
+    refetch: fetchFAQs
   };
 };

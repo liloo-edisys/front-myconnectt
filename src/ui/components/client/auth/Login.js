@@ -15,18 +15,18 @@ const Login = ({ intl }) => {
     email: Yup.string()
       .email("Email invalide")
       .required("Ce champ est requis"),
-    password: Yup.string().required("Ce champ est requis"),
+    password: Yup.string().required("Ce champ est requis")
   });
 
   const formik = useFormik({
     initialValues: {
       email: "",
-      password: "",
+      password: ""
     },
     validationSchema: LoginSchema,
-    onSubmit: (values) => {
+    onSubmit: values => {
       dispatch(login.request(values));
-    },
+    }
   });
 
   return (
@@ -47,7 +47,7 @@ const Login = ({ intl }) => {
                 fontSize: "2.75rem",
                 color: "#1994DA",
                 textAlign: "center",
-                fontWeight: "800",
+                fontWeight: "800"
               }}
             >
               Connexion à votre Espace
@@ -89,7 +89,7 @@ const Login = ({ intl }) => {
                   <span
                     className="input-group-text border-0 bg-transparent"
                     style={{ cursor: "pointer" }}
-                    onClick={() => setIsRevealPwd((prev) => !prev)}
+                    onClick={() => setIsRevealPwd(prev => !prev)}
                   >
                     <i
                       className={`far ${
@@ -121,10 +121,10 @@ const Login = ({ intl }) => {
                 type="button"
                 className="btn btn-light font-weight-bold py-4 px-6 d-flex align-items-center justify-content-center mx-2"
                 style={{ border: "1px solid #ddd", borderRadius: "50px" }}
-                onMouseEnter={(e) => {
+                onMouseEnter={e => {
                   e.currentTarget.style.backgroundColor = "#f5f5f5";
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={e => {
                   e.currentTarget.style.backgroundColor = "";
                 }}
               >
@@ -139,10 +139,10 @@ const Login = ({ intl }) => {
                 type="button"
                 className="btn btn-light font-weight-bold py-4 px-6 d-flex align-items-center justify-content-center mx-2"
                 style={{ border: "1px solid #ddd", borderRadius: "50px" }}
-                onMouseEnter={(e) => {
+                onMouseEnter={e => {
                   e.currentTarget.style.backgroundColor = "#f5f5f5";
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={e => {
                   e.currentTarget.style.backgroundColor = "";
                 }}
               >
@@ -157,10 +157,10 @@ const Login = ({ intl }) => {
                 type="button"
                 className="btn btn-light font-weight-bold py-4 px-6 d-flex align-items-center justify-content-center mx-2"
                 style={{ border: "1px solid #ddd", borderRadius: "50px" }}
-                onMouseEnter={(e) => {
+                onMouseEnter={e => {
                   e.currentTarget.style.backgroundColor = "#f5f5f5";
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={e => {
                   e.currentTarget.style.backgroundColor = "";
                 }}
               >
@@ -179,12 +179,12 @@ const Login = ({ intl }) => {
                 type="submit"
                 className="btn btn-primary font-weight-bold py-4 px-6 w-50 mb-5 rounded-pill"
                 style={{ border: "1px solid #ddd" }}
-                onMouseEnter={(e) => {
+                onMouseEnter={e => {
                   e.currentTarget.style.backgroundColor = "#0056b3";
                   e.currentTarget.style.boxShadow =
                     "0 4px 8px rgba(0, 0, 0, 0.2)";
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={e => {
                   e.currentTarget.style.backgroundColor = "";
                   e.currentTarget.style.boxShadow =
                     "0 2px 4px rgba(0, 0, 0, 0.1)";
@@ -208,7 +208,7 @@ const Login = ({ intl }) => {
           style={{
             backgroundImage:
               "linear-gradient(to bottom left, #2FAAF0, #0580C6)",
-            margin: 0,
+            margin: 0
           }}
         >
           <div className="d-flex flex-column flex-center w-100 h-100 p-20">
@@ -228,8 +228,7 @@ const Login = ({ intl }) => {
                   src={toAbsoluteUrl("/media/logos/wow.png")}
                   className="h-20px"
                   alt="Facebook"
-                />
-                {" "}
+                />{" "}
                 de MyConnectt !
               </p>
               <a

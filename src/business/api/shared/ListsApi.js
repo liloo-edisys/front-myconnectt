@@ -56,7 +56,7 @@ export function getJobSkillsByActivityDomain(activityDomains) {
   const params = new URLSearchParams();
 
   // Ajoute chaque ID de domaine comme paramètre ActivityDomain
-  activityDomains.forEach((domainId) => {
+  activityDomains.forEach(domainId => {
     params.append("ActivityDomain", domainId);
   });
 
@@ -67,7 +67,7 @@ export function getJobSkillsGetByJobTitle(activityDomains) {
   const params = new URLSearchParams();
 
   // Ajoute chaque ID de domaine comme paramètre ActivityDomain
-  activityDomains.forEach((domainId) => {
+  activityDomains.forEach(domainId => {
     params.append("ActivityDomain", domainId);
   });
 

@@ -35,7 +35,7 @@ class SignalRService {
     // Créer la connexion avec plus de détails de journalisation
     this.connection = new HubConnectionBuilder()
       .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/chat", {
-        accessTokenFactory: () => authToken,
+        accessTokenFactory: () => authToken
       })
       .configureLogging(LogLevel.Debug) // Ajout de logs détaillés
       .withAutomaticReconnect([0, 2000, 5000, 10000, 20000]) // Tentatives plus fréquentes
@@ -47,7 +47,7 @@ class SignalRService {
     }
 
     // Logger tous les messages bruts reçus
-    this.connection.on("", (data) => {
+    this.connection.on("", data => {
       console.warn("Raw SignalR message:", data);
     });
 
@@ -76,24 +76,26 @@ class SignalRService {
         this.connected = true;
 
         // Enregistrer les gestionnaires d'événements pour les messages
-        this.connection.on("UserToUser", (message) => {
+        this.connection.on("UserToUser", message => {
           console.log("UserToUser message received:", message);
           this.processMessage(message);
         });
 
         // Essayer aussi avec la casse originale
-        this.connection.on("userToUser", (message) => {
+        this.connection.on("userToUser", message => {
           console.log("userToUser message received:", message);
           this.processMessage(message);
         });
 
         // Vérifier que les handlers sont bien enregistrés
-        console.log(`Registered ${this.messageHandlers.length} message handlers`);
+        console.log(
+          `Registered ${this.messageHandlers.length} message handlers`
+        );
 
         this.connectPromise = null;
         return this.connection;
       })
-      .catch((err) => {
+      .catch(err => {
         console.error("SignalR Connection Error:", err);
         this.connected = false;
         this.connectPromise = null;
@@ -106,30 +108,34 @@ class SignalRService {
   // Traiter les messages dans différents formats possibles
   processMessage(message) {
     console.log("Processing SignalR message:", message);
-    
+
     let messageData;
-    
+
     // Format avec type et arguments (comme dans votre exemple)
-    if (message.type === 1 && message.arguments && message.arguments.length > 0) {
+    if (
+      message.type === 1 &&
+      message.arguments &&
+      message.arguments.length > 0
+    ) {
       messageData = message.arguments[0];
       console.log("Extracted message data from arguments:", messageData);
-    } 
+    }
     // Format direct (objet message)
     else if (message.id && message.message) {
       messageData = message;
       console.log("Message in direct format:", messageData);
-    } 
+    }
     // Message déjà sous forme d'objet simple
-    else if (typeof message === 'object') {
+    else if (typeof message === "object") {
       messageData = message;
       console.log("Using message as is:", messageData);
-    } 
+    }
     // Autre format inconnu
     else {
       console.warn("Unknown message format:", message);
       messageData = { rawMessage: message };
     }
-    
+
     // Tenter de décrypter si un message chiffré est présent
     if (messageData && messageData.message) {
       this.decryptMessage(messageData)

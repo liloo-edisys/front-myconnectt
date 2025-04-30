@@ -25,7 +25,7 @@ function NewExperience(props) {
     hideExperienceForm,
     selectedExperience,
     setSelectedExperience,
-    setEmptyArrayError,
+    setEmptyArrayError
   } = props;
   const [endDate, setEndDate] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -35,7 +35,7 @@ function NewExperience(props) {
     employerNameAndPlace: "",
     startDate: "",
     endDate: "",
-    isCurrentItem: "False",
+    isCurrentItem: "False"
   };
 
   let initialValuesFromParent = selectedExperience;
@@ -49,16 +49,16 @@ function NewExperience(props) {
     ),
     startDate: Yup.string().required(
       intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })
-    ),
+    )
     /*endDate: Yup.string().required(
       intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })
     )*/
   });
 
   const { activeInterimaire, user } = useSelector(
-    (state) => ({
+    state => ({
       user: state.auth.user,
-      activeInterimaire: state.accountsReducerData.activeInterimaire,
+      activeInterimaire: state.accountsReducerData.activeInterimaire
     }),
     shallowEqual
   );
@@ -88,10 +88,10 @@ function NewExperience(props) {
 
   const createOption = (label, value) => ({
     label,
-    value,
+    value
   });
 
-  let formatedRole = jobTitles.map((equipment) => {
+  let formatedRole = jobTitles.map(equipment => {
     return equipment && createOption(equipment.name, equipment.id);
   });
 
@@ -108,18 +108,18 @@ function NewExperience(props) {
       borderColor: "transparent",
       boxShadow: null,
       "&:hover": {
-        borderColor: "transparent",
-      },
+        borderColor: "transparent"
+      }
     }),
-    menu: (base) => ({
+    menu: base => ({
       ...base,
       borderRadius: 0,
-      marginTop: 0,
+      marginTop: 0
     }),
-    menuList: (base) => ({
+    menuList: base => ({
       ...base,
-      padding: 0,
-    }),
+      padding: 0
+    })
   };
 
   const onChangeStartDate = (date, setFieldValue, values) => {
@@ -201,9 +201,9 @@ function NewExperience(props) {
                     </span>
                   </div>
                   <Select
-                    onChange={(e) => handleChangeRole(setFieldValue, e)}
+                    onChange={e => handleChangeRole(setFieldValue, e)}
                     placeholder={intl.formatMessage({
-                      id: "MODEL.JOBTITLE",
+                      id: "MODEL.JOBTITLE"
                     })}
                     options={formatedRole}
                     styles={customStyles}
@@ -232,7 +232,7 @@ function NewExperience(props) {
                         className={`form-control h-auto py-5 px-6`}
                         type="text"
                         placeholder={intl.formatMessage({
-                          id: "MODEL.VACANCY.TITLE",
+                          id: "MODEL.VACANCY.TITLE"
                         })}
                       />
                     )}
@@ -257,7 +257,7 @@ function NewExperience(props) {
                   </div>
                   <Field
                     placeholder={intl.formatMessage({
-                      id: "MODEL.VACANCY.LOCATION",
+                      id: "MODEL.VACANCY.LOCATION"
                     })}
                     type="text"
                     className={`form-control h-auto py-5 px-6`}
@@ -298,7 +298,7 @@ function NewExperience(props) {
                           (values.startDate && new Date(values.startDate)) ||
                           null
                         }
-                        onChange={(date) =>
+                        onChange={date =>
                           onChangeStartDate(date, setFieldValue, values)
                         }
                         showMonthDropdown
@@ -348,9 +348,7 @@ function NewExperience(props) {
                         selected={
                           (values.endDate && new Date(values.endDate)) || null
                         }
-                        onChange={(date) =>
-                          onChangeEndDate(date, setFieldValue)
-                        }
+                        onChange={date => onChangeEndDate(date, setFieldValue)}
                         showMonthDropdown
                         showYearDropdown
                         yearItemNumber={9}
