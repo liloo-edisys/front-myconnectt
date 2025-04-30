@@ -38,9 +38,11 @@ import {
   getJobTags,
   getJobSkills,
   getMissionExperiences
+  getMissionExperiences
 } from "../../../../../business/actions/shared/ListsActions";
 import {
   getJobSkills as getJobSkillsApi,
+  getJobTags as getJobTagsApi
   getJobTags as getJobTagsApi
 } from "api/shared/ListsApi";
 import { toastr } from "react-redux-toastr";
@@ -48,6 +50,7 @@ import {
   getMission as getMissionAction,
   resetMissionIndicator,
   resetMission,
+  getHabilitationsList
   getHabilitationsList
 } from "../../../../../business/actions/client/MissionsActions";
 import { deleteFromStorage } from "../../../shared/DeleteFromStorage";
@@ -67,7 +70,9 @@ function FormStepOne(props, formik) {
     isTmpOrDup,
     habilitations,
     mission
+    mission
   } = useSelector(
+    state => ({
     state => ({
       saveMissionSuccess: state.missionsReducerData.saveMissionSuccess,
       updateMissionSuccess: state.missionsReducerData.updateMissionSuccess,
@@ -77,6 +82,7 @@ function FormStepOne(props, formik) {
         ? false
         : true,
       habilitations: state.missionsReducerData.habilitations,
+      mission: state.missionsReducerData.mission
       mission: state.missionsReducerData.mission
     }),
     shallowEqual
@@ -268,6 +274,7 @@ function FormStepOne(props, formik) {
     let currentCompany = _.filter(
       companies,
       person => person.id === parseInt(city)
+      person => person.id === parseInt(city)
     );
     return currentCompany.length && currentCompany[0][field];
   };
@@ -282,7 +289,9 @@ function FormStepOne(props, formik) {
     currentWorksite,
     template,
     currentCompanyID
+    currentCompanyID
   } = useSelector(
+    state => ({
     state => ({
       jobTitleList: state.lists.jobTitles,
       jobExperiences: state.lists.missionExperiences,
@@ -295,15 +304,18 @@ function FormStepOne(props, formik) {
       currentWorksite: state.auth.user.siteID,
       currentCompanyID: state.auth.user.accountID,
       template: state.missionsReducerData.mission
+      template: state.missionsReducerData.mission
     }),
     shallowEqual
   );
 
   let worksites = companies.length
     ? companies.filter(company => company.parentID === currentCompanyID)
+    ? companies.filter(company => company.parentID === currentCompanyID)
     : [];
 
   let selectedMission = worksites.filter(
+    worksite => worksite.id === selectedCity
     worksite => worksite.id === selectedCity
   )[0];
   // let selectedJobTitle = jobTitleList.filter(title => title.id === props.formik.values.jobTitleID)
@@ -348,10 +360,12 @@ function FormStepOne(props, formik) {
   };
 
   const fetchExistingRecurrence = async id => {
+  const fetchExistingRecurrence = async id => {
     try {
       const response = await axios.get(
         `${API_BASE_URL}/VacancyOfferProgram/ByVacancyId/${id}`,
         {
+          headers: { accept: "text/plain" }
           headers: { accept: "text/plain" }
         }
       );
@@ -434,11 +448,15 @@ function FormStepOne(props, formik) {
   const createOption = (label, value) => ({
     label,
     value
+    value
   });
+  const formatLanguage = useCallback(data => {
   const formatLanguage = useCallback(data => {
     if (languages.length) {
       let newArray = [];
       data &&
+        data.map(lang => {
+          let value = languages.filter(l => l.id === lang);
         data.map(lang => {
           let value = languages.filter(l => l.id === lang);
           if (!isNullOrEmpty(value)) {
@@ -454,9 +472,12 @@ function FormStepOne(props, formik) {
     }
   });
   const formatEducation = useCallback(data => {
+  const formatEducation = useCallback(data => {
     if (educationLevels.length) {
       let newArray = [];
       data &&
+        data.map(level => {
+          let value = educationLevels.filter(l => l.id === level);
         data.map(level => {
           let value = educationLevels.filter(l => l.id === level);
           if (!isNullOrEmpty(value)) {
@@ -478,9 +499,12 @@ function FormStepOne(props, formik) {
   });
 
   const formatSkills = useCallback(data => {
+  const formatSkills = useCallback(data => {
     if (jobSkills.length) {
       let newArray = [];
       data &&
+        data.map(skill => {
+          let value = jobSkills.filter(l => l.id === skill);
         data.map(skill => {
           let value = jobSkills.filter(l => l.id === skill);
           if (!isNullOrEmpty(value)) {
@@ -502,14 +526,18 @@ function FormStepOne(props, formik) {
   });
 
   const handleChangeDistance = value => {
+  const handleChangeDistance = value => {
     props.formik.setFieldValue("matchingPostalCodeDistance", value.value);
     setDistance(value.value);
   };
 
   const formatTags = useCallback(data => {
+  const formatTags = useCallback(data => {
     if (jobTags.length) {
       let newArray = [];
       data &&
+        data.map(tag => {
+          let value = jobTags.filter(l => l.id === tag);
         data.map(tag => {
           let value = jobTags.filter(l => l.id === tag);
           if (!isNullOrEmpty(value)) {
@@ -541,9 +569,11 @@ function FormStepOne(props, formik) {
     return classes.join(" ");
   };
   const handleChangeAddress = e => {
+  const handleChangeAddress = e => {
     setAddress(e);
     return e;
   };
+  const handleForceChangeAddress = e => {
   const handleForceChangeAddress = e => {
     props.formik.setFieldValue("address", getCurrentMission("address", e));
     setAddress(getCurrentMission("address", e));
@@ -551,10 +581,12 @@ function FormStepOne(props, formik) {
   };
 
   const handleChangeCity = e => {
+  const handleChangeCity = e => {
     setCity(e);
     return e;
   };
 
+  const handleForceChangeCity = e => {
   const handleForceChangeCity = e => {
     props.formik.setFieldValue(
       "vacancyBusinessAddressCity",
@@ -566,12 +598,14 @@ function FormStepOne(props, formik) {
   };
 
   const handleChangePostalCode = e => {
+  const handleChangePostalCode = e => {
     setPostalCode(e);
     props.formik.setFieldValue("vacancyBusinessAddressPostalCode", e);
 
     return e;
   };
 
+  const handleForceChangePostalCode = e => {
   const handleForceChangePostalCode = e => {
     props.formik.setFieldValue(
       "vacancyBusinessAddressPostalCode",
@@ -581,6 +615,7 @@ function FormStepOne(props, formik) {
     return e;
   };
 
+  const handleChangeJobTitle = e => {
   const handleChangeJobTitle = e => {
     setSelectedJobTitle(e.target.value);
     props.formik.setFieldValue("jobTitleID", parseInt(e.target.value));
@@ -607,8 +642,11 @@ function FormStepOne(props, formik) {
       let newArray = [];
       template.missionArrayHabilitations.map(skill => {
         let label = habilitations.filter(jobSkill => jobSkill.id === skill);
+      template.missionArrayHabilitations.map(skill => {
+        let label = habilitations.filter(jobSkill => jobSkill.id === skill);
         const newObject = {
           label: label[0].name,
+          value: skill
           value: skill
         };
         newArray.push(newObject);
@@ -631,7 +669,9 @@ function FormStepOne(props, formik) {
   }, [selectedJobTitle, vacancyNumberOfJobs, description]);
 
   const handleForceChangeExtaJobTitle = e => {
+  const handleForceChangeExtaJobTitle = e => {
     let extraTitle = jobTitleList.filter(
+      job => job.id === parseInt(e.target.value)
       job => job.id === parseInt(e.target.value)
     );
     props.formik.setFieldValue("vacancyTitle", extraTitle[0].name);
@@ -640,22 +680,27 @@ function FormStepOne(props, formik) {
   };
 
   const handleChangeExtraJobtitle = e => {
+  const handleChangeExtraJobtitle = e => {
     setExtraJobTitle(e);
 
     setExtraJobTitle(e);
   };
 
   const handleChangeLanguage = newValue => {
+  const handleChangeLanguage = newValue => {
     let newArray = selectedLanguage !== null ? [...selectedLanguage] : [];
     let difference =
       newValue !== null &&
       selectedLanguage !== null &&
       selectedLanguage.filter(x => !newValue.includes(x)); // calculates diff
+      selectedLanguage.filter(x => !newValue.includes(x)); // calculates diff
     if (!difference.length && newValue === null) {
       newArray = [];
     } else if (difference.length) {
       let filteredArray = selectedLanguage.filter(x => newValue.includes(x));
+      let filteredArray = selectedLanguage.filter(x => newValue.includes(x));
       newArray = [];
+      filteredArray.map(lang =>
       filteredArray.map(lang =>
         newArray.push(createOption(lang.label, lang.value))
       );
@@ -676,16 +721,20 @@ function FormStepOne(props, formik) {
   };
 
   const handleChangeTags = newValue => {
+  const handleChangeTags = newValue => {
     let newArray = selectedTags !== null ? [...selectedTags] : [];
     let difference =
       newValue !== null &&
       selectedTags !== null &&
       selectedTags.filter(x => !newValue.includes(x)); // calculates diff
+      selectedTags.filter(x => !newValue.includes(x)); // calculates diff
     if (!difference.length && newValue === null) {
       newArray = [];
     } else if (difference.length) {
       let filteredArray = selectedTags.filter(x => newValue.includes(x));
+      let filteredArray = selectedTags.filter(x => newValue.includes(x));
       newArray = [];
+      filteredArray.map(tag =>
       filteredArray.map(tag =>
         newArray.push(createOption(tag.label, tag.value))
       );
@@ -706,19 +755,23 @@ function FormStepOne(props, formik) {
   };
 
   const handleChangeHabilitations = newValue => {
+  const handleChangeHabilitations = newValue => {
     let newArray =
       selectedHabilitations !== null ? [...selectedHabilitations] : [];
     let difference =
       newValue !== null &&
       selectedHabilitations !== null &&
       selectedHabilitations.filter(x => !newValue.includes(x)); // calculates diff
+      selectedHabilitations.filter(x => !newValue.includes(x)); // calculates diff
     if (!difference.length && newValue === null) {
       newArray = [];
     } else if (difference.length) {
       let filteredArray = selectedHabilitations.filter(x =>
+      let filteredArray = selectedHabilitations.filter(x =>
         newValue.includes(x)
       );
       newArray = [];
+      filteredArray.map(tag =>
       filteredArray.map(tag =>
         newArray.push(createOption(tag.label, tag.value))
       );
@@ -739,14 +792,17 @@ function FormStepOne(props, formik) {
   };
 
   const handleChangeSkill = newValue => {
+  const handleChangeSkill = newValue => {
     let difference =
       newValue !== null &&
       selectedSkills !== null &&
+      selectedSkills.filter(x => !newValue.includes(x)); // calculates diff
       selectedSkills.filter(x => !newValue.includes(x)); // calculates diff
     let newArray = selectedSkills !== null ? [...selectedSkills] : [];
     if (!difference.length && newValue === null) {
       newArray = [];
     } else if (difference.length) {
+      let filteredArray = selectedSkills.filter(x => newValue.includes(x));
       let filteredArray = selectedSkills.filter(x => newValue.includes(x));
       newArray = [];
       filteredArray.map((skill, index) => {
@@ -767,14 +823,17 @@ function FormStepOne(props, formik) {
     );
   };
   const handleChangeEducation = newValue => {
+  const handleChangeEducation = newValue => {
     let difference =
       newValue !== null &&
       selectedEducation !== null &&
+      selectedEducation.filter(x => !newValue.includes(x)); // calculates diff
       selectedEducation.filter(x => !newValue.includes(x)); // calculates diff
     let newArray = selectedEducation !== null ? [...selectedEducation] : [];
     if (!difference.length && newValue === null) {
       newArray = [];
     } else if (difference.length) {
+      let filteredArray = selectedEducation.filter(x => newValue.includes(x));
       let filteredArray = selectedEducation.filter(x => newValue.includes(x));
       newArray = [];
       filteredArray.map((skill, index) => {
@@ -796,9 +855,11 @@ function FormStepOne(props, formik) {
   };
 
   const handleCreateTag = value => {
+  const handleCreateTag = value => {
     setLoading(true);
     dispatch(createJobTags.request({ name: value }));
     setTimeout(() => {
+      getJobTagsApi().then(data => {
       getJobTagsApi().then(data => {
         let newTag = data.data.slice(-1)[0];
         let newArray = !isNullOrEmpty(selectedTags) ? [...selectedTags] : [];
@@ -814,9 +875,11 @@ function FormStepOne(props, formik) {
   };
 
   const handleCreateSkill = value => {
+  const handleCreateSkill = value => {
     setIsSkillsLoading(true);
     dispatch(createJobSkills.request({ name: value }));
     setTimeout(() => {
+      getJobSkillsApi().then(data => {
       getJobSkillsApi().then(data => {
         let newSkill = data.data.slice(-1)[0];
         let newArray = !isNullOrEmpty(selectedSkills)
@@ -845,18 +908,26 @@ function FormStepOne(props, formik) {
       "&:hover": {
         borderColor: "transparent"
       }
+        borderColor: "transparent"
+      }
     }),
+    menu: base => ({
     menu: base => ({
       ...base,
       borderRadius: 0,
       marginTop: 0
+      marginTop: 0
     }),
+    menuList: base => ({
     menuList: base => ({
       ...base,
       padding: 0
     })
+      padding: 0
+    })
   };
 
+  let formattedLanguagues = languages.map(lang => {
   let formattedLanguagues = languages.map(lang => {
     lang["value"] = lang["id"];
     lang["label"] = lang["frenchName"];
@@ -864,24 +935,30 @@ function FormStepOne(props, formik) {
   });
 
   let formattedTags = jobTags.map(tag => {
+  let formattedTags = jobTags.map(tag => {
     return tag && createOption(tag.name, tag.id);
   });
 
+  let formattedHabilitations = habilitations.map(habilitation => {
   let formattedHabilitations = habilitations.map(habilitation => {
     return habilitation && createOption(habilitation.name, habilitation.id);
   });
 
   let formattedSkills = jobSkills.map(skill => {
+  let formattedSkills = jobSkills.map(skill => {
     return skill && createOption(skill.name, skill.id);
   });
 
+  let formattedEducation = educationLevels.map(education => {
   let formattedEducation = educationLevels.map(education => {
     return education && createOption(education.name, education.id);
   });
 
   const formatFormik = values => {
+  const formatFormik = values => {
     let formatedValues = [];
     values !== null &&
+      values.map(value => {
       values.map(value => {
         return formatedValues.push(value.value);
       });
@@ -903,6 +980,7 @@ function FormStepOne(props, formik) {
         "VacancyContractualVacancyEmploymentContractTypeEndDate",
         "jobTitleID",
         "TypeID"
+        "TypeID"
       ];
 
       for (const field of fieldsToTouch) {
@@ -923,6 +1001,8 @@ function FormStepOne(props, formik) {
             : null,
           TypeID: typeValue,
           vacancyID: vacancyID || 0,
+          id: ProgramId || 0
+        }
           id: ProgramId || 0
         }
       };
@@ -967,6 +1047,7 @@ function FormStepOne(props, formik) {
       );
     }
   }, [dispatch, props.currentWorkiste, template]);
+  const useMountEffect = fun => useEffect(fun, []);
   const useMountEffect = fun => useEffect(fun, []);
   let deleteItems = () => {
     var result = {};
@@ -1079,6 +1160,7 @@ function FormStepOne(props, formik) {
     selectedSkills,
     selectedLanguage,
     selectedEducation,
+    missionOrderReference
     missionOrderReference
   ]);
 
@@ -1381,6 +1463,7 @@ function FormStepOne(props, formik) {
           selectedLanguage
         ),
         vacancyBusinessAddressPostalCode: postalCode
+        vacancyBusinessAddressPostalCode: postalCode
       })
     );
   };
@@ -1392,6 +1475,7 @@ function FormStepOne(props, formik) {
     selectedTags,
     selectedLanguage,
     postalCode,
+    address
     address
   ]);
 
@@ -1470,6 +1554,7 @@ function FormStepOne(props, formik) {
                               name="jobTitleID"
                               value={selectedJobTitle}
                               onChange={e => {
+                              onChange={e => {
                                 handleChangeJobTitle(e);
                                 handleForceChangeExtaJobTitle(e);
                               }}
@@ -1479,6 +1564,7 @@ function FormStepOne(props, formik) {
                                 {intl.formatMessage({ id: "MODEL.JOBTITLE" })}{" "}
                                 --
                               </option>
+                              {jobTitleList.map(job => (
                               {jobTitleList.map(job => (
                                 <option
                                   key={job.id}
@@ -1522,10 +1608,12 @@ function FormStepOne(props, formik) {
                           name="vacancyTitle"
                           placeholder={intl.formatMessage({
                             id: "MODEL.VACANCY.TITLE"
+                            id: "MODEL.VACANCY.TITLE"
                           })}
                           maxLength="25"
                           component={Input}
                           defaultValue={extraJobTitle}
+                          onChange={e =>
                           onChange={e =>
                             handleChangeExtraJobtitle(e.target.value)
                           }
@@ -1554,6 +1642,7 @@ function FormStepOne(props, formik) {
                             name="workSiteID"
                             value={selectedCity}
                             onChange={e => {
+                            onChange={e => {
                               let data = props.formik.values;
                               props.formik &&
                                 props.formik.values.missionHasVehicle ===
@@ -1563,6 +1652,7 @@ function FormStepOne(props, formik) {
                                 countMatching.request({
                                   ...data,
                                   workSiteID: parseInt(e.target.value)
+                                  workSiteID: parseInt(e.target.value)
                                 })
                               );
                               setselectedCity(e.target.value);
@@ -1571,6 +1661,7 @@ function FormStepOne(props, formik) {
                               handleForceChangePostalCode(e.target.value);
                             }}
                           >
+                            {worksites.map(worksite => (
                             {worksites.map(worksite => (
                               <option key={worksite.id} value={worksite.id}>
                                 {worksite.name}
@@ -1600,7 +1691,9 @@ function FormStepOne(props, formik) {
                           type="text"
                           placeholder={intl.formatMessage({
                             id: "MODEL.ACCOUNT.ADDRESS"
+                            id: "MODEL.ACCOUNT.ADDRESS"
                           })}
+                          onChange={e => {
                           onChange={e => {
                             let data = props.formik.values;
                             props.formik &&
@@ -1609,6 +1702,7 @@ function FormStepOne(props, formik) {
                             dispatch(
                               countMatching.request({
                                 ...data,
+                                address: e.target.value
                                 address: e.target.value
                               })
                             );
@@ -1735,6 +1829,7 @@ function FormStepOne(props, formik) {
                         placeholder="JJ/MM/AAAA"
                         name="VacancyContractualVacancyEmploymentContractTypeStartDate"
                         onChange={date => {
+                        onChange={date => {
                           setStartDate(date);
                           props.formik.setFieldValue(
                             "VacancyContractualVacancyEmploymentContractTypeStartDate",
@@ -1747,6 +1842,7 @@ function FormStepOne(props, formik) {
                           dispatch(
                             countMatching.request({
                               ...data,
+                              jobTitleID: parseInt(selectedJobTitle)
                               jobTitleID: parseInt(selectedJobTitle)
                             })
                           );
@@ -1783,6 +1879,7 @@ function FormStepOne(props, formik) {
                         placeholder="JJ/MM/AAAA"
                         name="VacancyContractualVacancyEmploymentContractTypeEndDate"
                         onChange={date => {
+                        onChange={date => {
                           setEndDate(date);
                           props.formik.setFieldValue(
                             "VacancyContractualVacancyEmploymentContractTypeEndDate",
@@ -1795,6 +1892,7 @@ function FormStepOne(props, formik) {
                           dispatch(
                             countMatching.request({
                               ...data,
+                              jobTitleID: parseInt(selectedJobTitle)
                               jobTitleID: parseInt(selectedJobTitle)
                             })
                           );
@@ -1838,7 +1936,9 @@ function FormStepOne(props, formik) {
                           value={vacancyNumberOfJobs}
                           placeholder={intl.formatMessage({
                             id: "MODEL.VACANCY.JOBS_COUNT"
+                            id: "MODEL.VACANCY.JOBS_COUNT"
                           })}
+                          onChange={e => {
                           onChange={e => {
                             setVacancyNumberOfJobs(e.target.value);
                             props.formik.setFieldValue(
@@ -1880,8 +1980,10 @@ function FormStepOne(props, formik) {
                           type="text"
                           placeholder={intl.formatMessage({
                             id: "MODEL.VACANCY.REF_COMMAND"
+                            id: "MODEL.VACANCY.REF_COMMAND"
                           })}
                           value={missionOrderReference}
+                          onChange={e => {
                           onChange={e => {
                             setMissionOrderReference(e.target.value);
                             props.formik.setFieldValue(
@@ -1905,6 +2007,7 @@ function FormStepOne(props, formik) {
                       <textarea
                         className="col-lg-12 form-control"
                         onBlur={props.formik.handleBlur}
+                        onChange={e => {
                         onChange={e => {
                           setDescription(e.target.value);
                           props.formik.setFieldValue(
@@ -1943,6 +2046,7 @@ function FormStepOne(props, formik) {
                           className="form-control"
                           value={selectedRecurrenceType}
                           onChange={e =>
+                          onChange={e =>
                             setSelectedRecurrenceType(parseInt(e.target.value))
                           }
                           disabled={isLoading.types || isLoading.initial}
@@ -1952,6 +2056,7 @@ function FormStepOne(props, formik) {
                               ? "Chargement..."
                               : "Veuillez choisir une valeur"}
                           </option>
+                          {recurrenceTypes.map(type => (
                           {recurrenceTypes.map(type => (
                             <option key={type.id} value={type.id}>
                               {type.name}
@@ -1978,6 +2083,7 @@ function FormStepOne(props, formik) {
                       name="recurrenceEndDate"
                       selected={publishDate}
                       value={moment(publishDate).format("DD/MM/YYYY")}
+                      onChange={date => {
                       onChange={date => {
                         if (!date) {
                           setpublishDate(null);
@@ -2022,8 +2128,10 @@ function FormStepOne(props, formik) {
                           name="missionExperienceID"
                           placeholder={intl.formatMessage({
                             id: "MODEL.EXPERIENCE"
+                            id: "MODEL.EXPERIENCE"
                           })}
                           value={experience}
+                          onChange={e => {
                           onChange={e => {
                             setExperience(parseInt(e.target.value));
                             props.formik.setFieldValue(
@@ -2036,6 +2144,7 @@ function FormStepOne(props, formik) {
                             -- {intl.formatMessage({ id: "MODEL.EXPERIENCE" })}{" "}
                             --
                           </option>
+                          {jobExperiences.map(xp => (
                           {jobExperiences.map(xp => (
                             <option key={xp.id} value={xp.id}>
                               {xp.name}
@@ -2085,6 +2194,7 @@ function FormStepOne(props, formik) {
                         <Select
                           isMulti
                           name="langs"
+                          onChange={e => {
                           onChange={e => {
                             handleChangeLanguage(e);
                           }}
@@ -2185,6 +2295,7 @@ function FormStepOne(props, formik) {
                         <div className="input-group mt-5 ">
                           <InputRange
                             formatLabel={value => `${value} km`}
+                            formatLabel={value => `${value} km`}
                             step={10}
                             maxValue={1000}
                             minValue={0}
@@ -2209,6 +2320,7 @@ function FormStepOne(props, formik) {
                                 "opacity-50 cursor-not-allowed"
                             }}
                             value={distance}
+                            onChange={value => handleChangeDistance({ value })}
                             onChange={value => handleChangeDistance({ value })}
                           />
                         </div>
