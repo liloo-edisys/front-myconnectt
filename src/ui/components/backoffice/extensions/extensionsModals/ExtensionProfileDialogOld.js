@@ -16,14 +16,14 @@ import { getJobSkills } from "../../../../../business/actions/shared/ListsAction
 import axios from "axios";
 import {
   getApplicantById,
-  getFormattedCV
+  getFormattedCV,
 } from "actions/client/ApplicantsActions";
 
 export function ExtensionProfileDialog({
   show,
   onHide,
   history,
-  currentApplicant
+  currentApplicant,
 }) {
   const { state } = history.location;
   const TENANTID = process.env.REACT_APP_TENANT_ID;
@@ -36,15 +36,15 @@ export function ExtensionProfileDialog({
     applicant,
     jobTitles,
     jobSkills,
-    resume
+    resume,
   } = useSelector(
-    state => ({
+    (state) => ({
       mission: state.missionsReducerData.mission,
       candidates: state.applicants.matchingCandidates,
       applicant: state.applicants.currentCandidate,
       jobSkills: state.lists.jobSkills,
       jobTitles: state.lists.jobTitles,
-      resume: state.applicants.resume
+      resume: state.applicants.resume,
     }),
     shallowEqual
   );
@@ -57,7 +57,7 @@ export function ExtensionProfileDialog({
     let URL = `${process.env.REACT_APP_WEBAPI_URL}api/ActivityDomain`;
 
     isNullOrEmpty(activityDomainsList) &&
-      axios.get(URL).then(res => {
+      axios.get(URL).then((res) => {
         setActivityDomainsList(res.data);
       });
   }, [dispatch, jobTitles, jobSkills]);
@@ -70,7 +70,7 @@ export function ExtensionProfileDialog({
       dispatch(
         getFormattedCV.request({
           id1: parseInt(TENANTID),
-          id2: applicant.id
+          id2: applicant.id,
         })
       );
     }
@@ -319,11 +319,11 @@ export function ExtensionProfileDialog({
                   {applicant &&
                     activityDomainsList &&
                     !isNullOrEmpty(applicant.arrayActivityDomains) &&
-                    applicant.arrayActivityDomains.map(skill => {
+                    applicant.arrayActivityDomains.map((skill) => {
                       let label =
                         activityDomainsList &&
                         activityDomainsList.filter(
-                          activityDomain => activityDomain.id === skill
+                          (activityDomain) => activityDomain.id === skill
                         );
                       return (
                         label && (
@@ -352,10 +352,10 @@ export function ExtensionProfileDialog({
                 <div className="card-spacer bg-white card-rounded flex-grow-1">
                   {applicant &&
                     !isNullOrEmpty(applicant.applicantArraySkills) &&
-                    applicant.applicantArraySkills.map(skill => {
+                    applicant.applicantArraySkills.map((skill) => {
                       let label =
                         jobSkills &&
-                        jobSkills.filter(jobSkill => jobSkill.id === skill);
+                        jobSkills.filter((jobSkill) => jobSkill.id === skill);
                       return (
                         label && (
                           <div className="d-flex align-items-center flex-grow-1">
@@ -436,7 +436,7 @@ export function ExtensionProfileDialog({
                       <Row
                         style={{
                           borderBottom: "1px solid lightgrey",
-                          padding: 5
+                          padding: 5,
                         }}
                       >
                         <Col lg={6}>
@@ -450,7 +450,7 @@ export function ExtensionProfileDialog({
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
-                              height: "100%"
+                              height: "100%",
                             }}
                           >
                             Date de début
@@ -462,7 +462,7 @@ export function ExtensionProfileDialog({
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
-                              height: "100%"
+                              height: "100%",
                             }}
                           >
                             Date de fin
@@ -475,7 +475,7 @@ export function ExtensionProfileDialog({
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                height: "100%"
+                                height: "100%",
                               }}
                             >
                               Action
@@ -506,7 +506,7 @@ export function ExtensionProfileDialog({
                             <Row
                               style={{
                                 borderBottom: "1px solid lightgrey",
-                                padding: 5
+                                padding: 5,
                               }}
                             >
                               <Col lg={6}>
@@ -514,7 +514,7 @@ export function ExtensionProfileDialog({
                                   style={{
                                     display: "flex",
                                     alignItems: "center",
-                                    height: "100%"
+                                    height: "100%",
                                   }}
                                 >
                                   {isActive ? (
@@ -524,13 +524,13 @@ export function ExtensionProfileDialog({
                                   )}
                                   {document.documentType === 8
                                     ? intl.formatMessage({
-                                        id: "DOCUMENT.ID.CARD"
+                                        id: "DOCUMENT.ID.CARD",
                                       }) +
                                       " - " +
                                       intl.formatMessage({ id: "FRONT" })
                                     : document.documentType === 9
                                     ? intl.formatMessage({
-                                        id: "DOCUMENT.RESIDENCE.PERMIT"
+                                        id: "DOCUMENT.RESIDENCE.PERMIT",
                                       }) +
                                       " - " +
                                       intl.formatMessage({ id: "FRONT" })
@@ -547,7 +547,7 @@ export function ExtensionProfileDialog({
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    height: "100%"
+                                    height: "100%",
                                   }}
                                 >
                                   {new Date(
@@ -561,7 +561,7 @@ export function ExtensionProfileDialog({
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    height: "100%"
+                                    height: "100%",
                                   }}
                                 >
                                   {new Date(
@@ -608,7 +608,7 @@ export function ExtensionProfileDialog({
                             <Row
                               style={{
                                 borderBottom: "1px solid lightgrey",
-                                padding: 5
+                                padding: 5,
                               }}
                             >
                               <Col lg={6}>
@@ -616,7 +616,7 @@ export function ExtensionProfileDialog({
                                   style={{
                                     display: "flex",
                                     alignItems: "center",
-                                    height: "100%"
+                                    height: "100%",
                                   }}
                                 >
                                   {isActive ? (
@@ -626,17 +626,17 @@ export function ExtensionProfileDialog({
                                   )}
                                   {document.documentType === 8
                                     ? intl.formatMessage({
-                                        id: "DOCUMENT.ID.CARD"
+                                        id: "DOCUMENT.ID.CARD",
                                       }) +
                                       " - " +
                                       intl.formatMessage({ id: "FRONT" })
                                     : document.documentType === 16
                                     ? intl.formatMessage({
-                                        id: "DOCUMENT.RECEIPT"
+                                        id: "DOCUMENT.RECEIPT",
                                       })
                                     : document.documentType === 9 &&
                                       intl.formatMessage({
-                                        id: "DOCUMENT.RESIDENCE.PERMIT"
+                                        id: "DOCUMENT.RESIDENCE.PERMIT",
                                       }) +
                                         " - " +
                                         intl.formatMessage({ id: "FRONT" })}
@@ -648,7 +648,7 @@ export function ExtensionProfileDialog({
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    height: "100%"
+                                    height: "100%",
                                   }}
                                 >
                                   {new Date(
@@ -662,7 +662,7 @@ export function ExtensionProfileDialog({
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    height: "100%"
+                                    height: "100%",
                                   }}
                                 >
                                   {new Date(
@@ -711,7 +711,7 @@ export function ExtensionProfileDialog({
                             <Row
                               style={{
                                 borderBottom: "1px solid lightgrey",
-                                padding: 5
+                                padding: 5,
                               }}
                             >
                               <Col lg={6}>
@@ -719,7 +719,7 @@ export function ExtensionProfileDialog({
                                   style={{
                                     display: "flex",
                                     alignItems: "center",
-                                    height: "100%"
+                                    height: "100%",
                                   }}
                                 >
                                   {isActive ? (
@@ -736,7 +736,7 @@ export function ExtensionProfileDialog({
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    height: "100%"
+                                    height: "100%",
                                   }}
                                 >
                                   {new Date(
@@ -750,7 +750,7 @@ export function ExtensionProfileDialog({
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    height: "100%"
+                                    height: "100%",
                                   }}
                                 >
                                   {new Date(

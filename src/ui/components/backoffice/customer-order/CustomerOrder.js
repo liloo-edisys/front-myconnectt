@@ -33,14 +33,17 @@ function CustomerOrder(props) {
     anaelID:
       activeCustomerOrder && activeCustomerOrder.vacancy.anaelID
         ? activeCustomerOrder.vacancy.anaelID
-        : ""
+        : "",
   };
 
   const RibSchema = Yup.object().shape({
     anaelID: Yup.string()
       .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" }))
       .min(6, intl.formatMessage({ id: "WARNING.ANAEL.CUSTOMER.ORDER.LENGTH" }))
-      .max(6, intl.formatMessage({ id: "WARNING.ANAEL.CUSTOMER.ORDER.LENGTH" }))
+      .max(
+        6,
+        intl.formatMessage({ id: "WARNING.ANAEL.CUSTOMER.ORDER.LENGTH" })
+      ),
   });
 
   useEffect(() => {
@@ -51,38 +54,38 @@ function CustomerOrder(props) {
     {
       name: intl.formatMessage({ id: "STATUS.MATCHING.DENIED" }),
       id: 0,
-      color: "label font-weight-bold label-light-gray label-inline"
+      color: "label font-weight-bold label-light-gray label-inline",
     },
     {
       name: intl.formatMessage({ id: "STATUS.APPLICANT.INVITED" }),
       id: 1,
-      color: "label font-weight-bold label-light-primary label-inline"
+      color: "label font-weight-bold label-light-primary label-inline",
     },
     {
       name: intl.formatMessage({ id: "STATUS.SPONTANEOUS.APPLICATION" }),
       id: 2,
-      color: "label font-weight-bold label-light-primary label-inline"
+      color: "label font-weight-bold label-light-primary label-inline",
     },
     {
       name: intl.formatMessage({ id: "STATUS.APPLICATION.DECLINED" }),
       id: 3,
-      color: "label font-weight-bold label-light-danger label-inline"
+      color: "label font-weight-bold label-light-danger label-inline",
     },
     {
       name: intl.formatMessage({ id: "STATUS.APPLICATION.DENIED" }),
       id: 4,
-      color: "label font-weight-bold label-light-danger label-inline"
+      color: "label font-weight-bold label-light-danger label-inline",
     },
     {
       name: intl.formatMessage({ id: "STATUS.SELECTED" }),
       id: 5,
-      color: "label font-weight-bold label-light-success label-inline"
+      color: "label font-weight-bold label-light-success label-inline",
     },
     {
       name: intl.formatMessage({ id: "STATUS.CANCEL.VACANCY" }),
       id: 6,
-      color: "label font-weight-bold label-light-success label-inline"
-    }
+      color: "label font-weight-bold label-light-success label-inline",
+    },
   ];
 
   const statusArray = [
@@ -90,17 +93,17 @@ function CustomerOrder(props) {
     { value: 1, label: intl.formatMessage({ id: "STATUS.NON.PROVIDED" }) },
     {
       value: 2,
-      label: intl.formatMessage({ id: "STATUS.PARTIALLY.PROVIDED" })
+      label: intl.formatMessage({ id: "STATUS.PARTIALLY.PROVIDED" }),
     },
     { value: 3, label: intl.formatMessage({ id: "STATUS.PROVIDED" }) },
     {
       value: 4,
-      label: intl.formatMessage({ id: "STATUS.PROPOSITION.CANCELED" })
+      label: intl.formatMessage({ id: "STATUS.PROPOSITION.CANCELED" }),
     },
     {
       value: 5,
-      label: intl.formatMessage({ id: "STATUS.VALIDATED.MYCONNECTT" })
-    }
+      label: intl.formatMessage({ id: "STATUS.VALIDATED.MYCONNECTT" }),
+    },
   ];
 
   const statusEntrepriseArray = [
@@ -110,23 +113,23 @@ function CustomerOrder(props) {
     {
       id: 3,
       value: 3,
-      name: intl.formatMessage({ id: "STATUS.VALIDATED.COMMERCIALS.ENCOURS" })
+      name: intl.formatMessage({ id: "STATUS.VALIDATED.COMMERCIALS.ENCOURS" }),
     },
     {
       id: 4,
       value: 4,
-      name: intl.formatMessage({ id: "STATUS.VALIDATED.COMMERCIALS" })
+      name: intl.formatMessage({ id: "STATUS.VALIDATED.COMMERCIALS" }),
     },
     {
       id: 5,
       value: 5,
-      name: intl.formatMessage({ id: "STATUS.VALIDATED.ENCOURS" })
+      name: intl.formatMessage({ id: "STATUS.VALIDATED.ENCOURS" }),
     },
     {
       id: 6,
       value: 6,
-      name: intl.formatMessage({ id: "STATUS.ANAEL.UPDATED" })
-    }
+      name: intl.formatMessage({ id: "STATUS.ANAEL.UPDATED" }),
+    },
   ];
 
   const getData = () => {
@@ -135,16 +138,16 @@ function CustomerOrder(props) {
       process.env.REACT_APP_WEBAPI_URL + "api/Vacancy/CommandeClient";
     const body = {
       id1: 1,
-      id2: parseInt(missionId)
+      id2: parseInt(missionId),
     };
 
     axios
       .post(CUSTOMER_ORDER_URL, body)
-      .then(res => {
+      .then((res) => {
         setActiveCustomerOrder(res.data);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         setLoading(false);
       });
   };
@@ -172,14 +175,14 @@ function CustomerOrder(props) {
           "api/vacancy/SendToAnael/" +
           missionId
       )
-      .then(res => {
+      .then((res) => {
         getData();
         toastr.success(
           intl.formatMessage({ id: "TITLE.VACANCY.EDIT" }),
           intl.formatMessage({ id: "MESSAGE.VACANCY.ANAEL.FAIL" })
         );
       })
-      .catch(err => {
+      .catch((err) => {
         if (err.response) {
           toastr.error(
             intl.formatMessage({ id: "ERROR" }),
@@ -230,14 +233,14 @@ function CustomerOrder(props) {
     {
       dataField: "creationDate",
       text: intl.formatMessage({ id: "COLUMN.DATE" }),
-      formatter: value => (
+      formatter: (value) => (
         <span>{new Date(value).toLocaleDateString("fr-FR")}</span>
-      )
+      ),
     },
     {
       dataField: "status",
       text: intl.formatMessage({ id: "COLUMN.STATUS" }),
-      formatter: value => (
+      formatter: (value) => (
         <div
           className={
             applicationStatus[value] ? applicationStatus[value].color : ""
@@ -245,16 +248,16 @@ function CustomerOrder(props) {
         >
           {applicationStatus[value] ? applicationStatus[value].name : ""}
         </div>
-      )
+      ),
     },
     {
       dataField: "applicant",
       text: intl.formatMessage({ id: "TEXT.APPLICANT" }),
-      formatter: value => (
+      formatter: (value) => (
         <span>
           {value.firstname} {value.lastname}
         </span>
-      )
+      ),
     },
     {
       text: intl.formatMessage({ id: "MODEL.VACANCY.MEETING_PHONE" }),
@@ -264,11 +267,11 @@ function CustomerOrder(props) {
             ? row.applicant.mobilePhoneNumber.match(/.{1,2}/g).join(" ")
             : row.applicant.mobilePhoneNumber}
         </span>
-      )
+      ),
     },
     {
       text: intl.formatMessage({ id: "MODEL.EMAIL" }),
-      formatter: (value, row) => <span>{row.applicant.user.email}</span>
+      formatter: (value, row) => <span>{row.applicant.user.email}</span>,
     },
     {
       text: intl.formatMessage({ id: "COLUMN.ACTION" }),
@@ -296,8 +299,8 @@ function CustomerOrder(props) {
               </div>
             ))}
         </div>
-      )
-    }
+      ),
+    },
   ];
   const showApplicantList = () => {
     setToogleApplicantList(true);
@@ -305,18 +308,18 @@ function CustomerOrder(props) {
   const hideApplicantList = () => {
     setToogleApplicantList(false);
   };
-  const onApproveByBackoffice = row => {
+  const onApproveByBackoffice = (row) => {
     const body = {
       id1: activeCustomerOrder.vacancy.id,
-      id2: row.applicant.id
+      id2: row.applicant.id,
     };
     const APPLICATION_URL =
       process.env.REACT_APP_WEBAPI_URL +
       "api/MissionApplication/ApproveByBackOffice";
     axios
       .post(APPLICATION_URL, body)
-      .then(res => getData())
-      .catch(err => getData());
+      .then((res) => getData())
+      .catch((err) => getData());
   };
   return (
     <div>

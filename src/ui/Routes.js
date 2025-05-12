@@ -28,7 +28,7 @@ import BaseBackOfficePage from "./BaseBackOfficePage";
 import DocumentDisplay from "./components/shared/DocumentDisplay";
 
 export function Routes() {
-  const { step } = useSelector(state => state.interimairesReducerData);
+  const { step } = useSelector((state) => state.interimairesReducerData);
   const dispatch = useDispatch();
   useEffect(() => {
     getNationalitiesList(dispatch);
@@ -39,7 +39,7 @@ export function Routes() {
       isInterimaire: auth.user != null ? auth.user.userType === 0 : false,
       isCustomer: auth.user != null ? auth.user.userType === 1 : false,
       isBackOffice: auth.user != null ? auth.user.userType === 2 : false,
-      user: user.user
+      user: user.user,
     }),
     shallowEqual
   );

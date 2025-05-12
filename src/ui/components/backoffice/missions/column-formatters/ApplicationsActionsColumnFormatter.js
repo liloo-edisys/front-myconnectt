@@ -12,7 +12,7 @@ function ApplicationsActionsColumnFormatter(
     openDeclineDialog,
     openValidateDialog,
     openMissionProfileDialog,
-    openDeleteApplicationDialog
+    openDeleteApplicationDialog,
   }
 ) {
   return (
@@ -28,7 +28,7 @@ function ApplicationsActionsColumnFormatter(
 
       {row.status === 1 ? (
         <a
-          onClick={e => {
+          onClick={(e) => {
             e.stopPropagation();
             openDeleteApplicationDialog(row);
           }}
@@ -41,7 +41,7 @@ function ApplicationsActionsColumnFormatter(
       {row.status === 2 ? (
         <>
           <a
-            onClick={e => {
+            onClick={(e) => {
               e.stopPropagation();
               openValidateDialog(row);
             }}
@@ -51,7 +51,7 @@ function ApplicationsActionsColumnFormatter(
             <i className="far fa-handshake"></i>
           </a>
           <a
-            onClick={e => {
+            onClick={(e) => {
               e.stopPropagation();
               openDeclineDialog(row);
             }}
