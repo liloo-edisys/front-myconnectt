@@ -20,7 +20,7 @@ function Registration(props) {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const { intl, history } = props;
-  const handleSearchChange = e => {
+  const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchQuery(value);
 
@@ -54,14 +54,14 @@ function Registration(props) {
     // If we reach here, there are no errors
     setSearchError("");
   };
-  const handleSearchSubmit = e => {
+  const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.length >= 3) {
       fetchCompanies(searchQuery, 1);
     }
   };
 
-  const handlePageChange = page => {
+  const handlePageChange = (page) => {
     setCurrentPage(page);
     setPaginationLoading(true);
     fetchCompanies(searchQuery, page);
@@ -73,7 +73,7 @@ function Registration(props) {
       .get(
         `${process.env.REACT_APP_WEBAPI_URL}/api/Insee/search?query=${query}&page=${page}`
       )
-      .then(res => {
+      .then((res) => {
         setLoading(false);
         setPaginationLoading(false);
         setSearchResults(res.data);
@@ -93,7 +93,7 @@ function Registration(props) {
           setSearchError("Aucune entreprise trouvée avec cette recherche");
         }
       })
-      .catch(error => {
+      .catch((error) => {
         setLoading(false);
         setPaginationLoading(false);
         if (error.response && error.response.status === 404) {
@@ -105,7 +105,7 @@ function Registration(props) {
       });
   };
 
-  const selectCompany = company => {
+  const selectCompany = (company) => {
     const companyData = {
       nom_complet:
         company.uniteLegale.denominationUniteLegale ||
@@ -121,10 +121,10 @@ function Registration(props) {
           .libelleVoieEtablissement || ""}`,
         complement_adresse:
           company.adresseEtablissement.complementAdresseEtablissement || "",
-        code_postal: company.adresseEtablissement.codePostalEtablissement
+        code_postal: company.adresseEtablissement.codePostalEtablissement,
       },
       libelle_nature_juridique_entreprise:
-        company.uniteLegale.categorieJuridiqueUniteLegale
+        company.uniteLegale.categorieJuridiqueUniteLegale,
     };
     setselectedCompany(companyData);
   };
@@ -143,8 +143,6 @@ function Registration(props) {
         ? selectedCompany.siege.siret
         : "",
     email: "",
-    password: "",
-    confirmPassword: "",
     address:
       selectedCompany && !isNullOrEmpty(selectedCompany.siege.adresse_complete)
         ? selectedCompany.siege.adresse_complete
@@ -163,21 +161,12 @@ function Registration(props) {
       selectedCompany &&
       !isNullOrEmpty(selectedCompany.libelle_nature_juridique_entreprise)
         ? selectedCompany.libelle_nature_juridique_entreprise
-        : "_"
+        : "_",
   };
 
   const RegistrationSchema = Yup.object().shape({
     email: Yup.string()
       .email(intl.formatMessage({ id: "VALIDATION.INVALID_EMAIL" }))
-      .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
-    password: Yup.string()
-      .min(8, intl.formatMessage({ id: "VALIDATION.MIN_LENGTH_FIELD" }))
-      .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
-    confirmPassword: Yup.string()
-      .oneOf(
-        [Yup.ref("password"), null],
-        intl.formatMessage({ id: "VALIDATION.PASSWORD_MISMATCH" })
-      )
       .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
     name: Yup.string().required(
       intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })
@@ -200,7 +189,7 @@ function Registration(props) {
     acceptTerms: Yup.bool().oneOf(
       [true],
       intl.formatMessage({ id: "AUTH.REGISTER.TERMS_REQUIRED" })
-    )
+    ),
   });
 
   const enableLoading = () => {
@@ -273,7 +262,7 @@ function Registration(props) {
               </>
             )}
 
-            {pages.map(page => (
+            {pages.map((page) => (
               <li
                 key={page}
                 className={`page-item ${currentPage === page ? "active" : ""}`}
@@ -467,7 +456,7 @@ function Registration(props) {
                             </div>
                             <button
                               className="btn btn-sm btn-light-primary ml-3"
-                              onClick={e => {
+                              onClick={(e) => {
                                 e.stopPropagation();
                                 selectCompany(company);
                               }}
@@ -539,7 +528,7 @@ function Registration(props) {
               onSubmit={(values, { setSubmitting }) => {
                 enableLoading();
                 registerAccount(values)
-                  .then(response => {
+                  .then((response) => {
                     disableLoading();
                     response && history.push("/");
                   })
@@ -563,38 +552,6 @@ function Registration(props) {
                     />
                     {touched.email && errors.email && (
                       <div className="text-danger mt-2">{errors.email}</div>
-                    )}
-                  </div>
-
-                  <div className="form-group mb-5">
-                    <label className="font-size-h6 text-primary mb-3">
-                      Mot de passe
-                    </label>
-                    <Field
-                      type="password"
-                      className="form-control form-control-solid h-auto  rounded-lg border border-primary"
-                      name="password"
-                      placeholder="Mot de passe"
-                    />
-                    {touched.password && errors.password && (
-                      <div className="text-danger mt-2">{errors.password}</div>
-                    )}
-                  </div>
-
-                  <div className="form-group mb-8">
-                    <label className="font-size-h6 text-primary mb-3">
-                      Confirmation de mot de passe
-                    </label>
-                    <Field
-                      type="password"
-                      className="form-control form-control-solid h-auto  rounded-lg border border-primary"
-                      name="confirmPassword"
-                      placeholder="Confirmation de mot de passe"
-                    />
-                    {touched.confirmPassword && errors.confirmPassword && (
-                      <div className="text-danger mt-2">
-                        {errors.confirmPassword}
-                      </div>
                     )}
                   </div>
 
