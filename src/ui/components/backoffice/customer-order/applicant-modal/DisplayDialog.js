@@ -7,11 +7,11 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import {
   approveByCustomer,
   declineMatching,
-  getMatching,
+  getMatching
 } from "../../../../../business/actions/client/ApplicantsActions";
 import {
   getJobSkills,
-  getJobTitles,
+  getJobTitles
 } from "../../../../../business/actions/shared/ListsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import ProfileResume from "./ProfileResume";
@@ -28,12 +28,12 @@ export function DisplayDialog({ show, onHide, history, data }) {
   const { profileId } = useParams();
 
   const { applicant, loadingMission, jobTitles, jobSkills } = useSelector(
-    (state) => ({
+    state => ({
       applicant: state.applicants.currentCandidate,
       loadingMission: state.missionsReducerData.loading,
       user: state.auth.user,
       jobSkills: state.lists.jobSkills,
-      jobTitles: state.lists.jobTitles,
+      jobTitles: state.lists.jobTitles
     }),
     shallowEqual
   );
@@ -45,7 +45,7 @@ export function DisplayDialog({ show, onHide, history, data }) {
     isNullOrEmpty(jobTitles) && dispatch(getJobTitles.request());
     isNullOrEmpty(jobSkills) && dispatch(getJobSkills.request());
     isNullOrEmpty(activityDomainsList) &&
-      axios.get(URL).then((res) => {
+      axios.get(URL).then(res => {
         setActivityDomainsList(res.data);
       });
     dispatch(getApplicantById.request(profileId));
@@ -190,7 +190,7 @@ export function DisplayDialog({ show, onHide, history, data }) {
                         intl.formatMessage({ id: "FRONT" })
                       : document.documentType === 9
                       ? intl.formatMessage({
-                          id: "DOCUMENT.RESIDENCE.PERMIT",
+                          id: "DOCUMENT.RESIDENCE.PERMIT"
                         }) +
                         " - " +
                         intl.formatMessage({ id: "FRONT" })
@@ -263,7 +263,7 @@ export function DisplayDialog({ show, onHide, history, data }) {
                       ? intl.formatMessage({ id: "DOCUMENT.RECEIPT" })
                       : document.documentType === 9 &&
                         intl.formatMessage({
-                          id: "DOCUMENT.RESIDENCE.PERMIT",
+                          id: "DOCUMENT.RESIDENCE.PERMIT"
                         }) +
                           " - " +
                           intl.formatMessage({ id: "FRONT" })}
@@ -432,7 +432,7 @@ export function DisplayDialog({ show, onHide, history, data }) {
           style={{
             position: "absolute",
             top: "15px",
-            right: "15px",
+            right: "15px"
           }}
         >
           <i aria-hidden="true" className="ki ki-close"></i>
@@ -531,7 +531,7 @@ export function DisplayDialog({ show, onHide, history, data }) {
                           let label =
                             jobTitles &&
                             jobTitles.filter(
-                              (activityDomain) => activityDomain.id === skill
+                              activityDomain => activityDomain.id === skill
                             );
                           return (
                             label && (
@@ -585,10 +585,10 @@ export function DisplayDialog({ show, onHide, history, data }) {
                   <div className="card-spacer bg-white card-rounded flex-grow-1">
                     {applicant &&
                       !isNullOrEmpty(applicant.applicantArraySkills) &&
-                      applicant.applicantArraySkills.map((skill) => {
+                      applicant.applicantArraySkills.map(skill => {
                         let label =
                           jobSkills &&
-                          jobSkills.filter((jobSkill) => jobSkill.id === skill);
+                          jobSkills.filter(jobSkill => jobSkill.id === skill);
                         return (
                           label && (
                             <div className="d-flex align-items-center flex-grow-1">

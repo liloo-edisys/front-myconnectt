@@ -14,7 +14,7 @@ import { getJobSkills } from "../../../../../business/actions/shared/ListsAction
 import axios from "axios";
 import {
   getApplicantById,
-  getFormattedCV,
+  getFormattedCV
 } from "actions/client/ApplicantsActions";
 import "./styles.scss";
 
@@ -22,7 +22,7 @@ export function MissionProfileDialog({
   show,
   onHide,
   history,
-  currentApplicant,
+  currentApplicant
 }) {
   const { state } = history.location;
 
@@ -38,15 +38,15 @@ export function MissionProfileDialog({
     applicant,
     jobTitles,
     jobSkills,
-    resume,
+    resume
   } = useSelector(
-    (state) => ({
+    state => ({
       mission: state.missionsReducerData.mission,
       candidates: state.applicants.matchingCandidates,
       applicant: state.applicants.currentCandidate,
       jobSkills: state.lists.jobSkills,
       jobTitles: state.lists.jobTitles,
-      resume: state.applicants.resume,
+      resume: state.applicants.resume
     }),
     shallowEqual
   );
@@ -59,7 +59,7 @@ export function MissionProfileDialog({
     isNullOrEmpty(jobSkills) && dispatch(getJobSkills.request());
     let URL = `${process.env.REACT_APP_WEBAPI_URL}api/ActivityDomain`;
     isNullOrEmpty(activityDomainsList) &&
-      axios.get(URL).then((res) => {
+      axios.get(URL).then(res => {
         setActivityDomainsList(res.data);
       });
   }, [dispatch, jobTitles, jobSkills]);
@@ -73,7 +73,7 @@ export function MissionProfileDialog({
       dispatch(
         getFormattedCV.request({
           id1: parseInt(TENANTID),
-          id2: applicant.id,
+          id2: applicant.id
         })
       );
     }
@@ -193,7 +193,7 @@ export function MissionProfileDialog({
   const renderDocuments = () => {
     return (
       <>
-        {applicant.applicantDocuments.map((document) => {
+        {applicant.applicantDocuments.map(document => {
           if (
             (document.documentType === 8 &&
               document.filename === "IdentityCardFront") ||
@@ -224,7 +224,7 @@ export function MissionProfileDialog({
                         intl.formatMessage({ id: "FRONT" })
                       : document.documentType === 9
                       ? intl.formatMessage({
-                          id: "DOCUMENT.RESIDENCE.PERMIT",
+                          id: "DOCUMENT.RESIDENCE.PERMIT"
                         }) +
                         " - " +
                         intl.formatMessage({ id: "FRONT" })
@@ -266,7 +266,7 @@ export function MissionProfileDialog({
             );
           }
         })}
-        {applicant.applicantDocuments.map((document) => {
+        {applicant.applicantDocuments.map(document => {
           if (
             (document.documentType === 8 &&
               document.filename === "IdentityCardBack") ||
@@ -298,7 +298,7 @@ export function MissionProfileDialog({
                       ? intl.formatMessage({ id: "DOCUMENT.RECEIPT" })
                       : document.documentType === 9 &&
                         intl.formatMessage({
-                          id: "DOCUMENT.RESIDENCE.PERMIT",
+                          id: "DOCUMENT.RESIDENCE.PERMIT"
                         }) +
                           " - " +
                           intl.formatMessage({ id: "FRONT" })}
@@ -336,7 +336,7 @@ export function MissionProfileDialog({
             );
           }
         })}
-        {applicant.applicantDocuments.map((document) => {
+        {applicant.applicantDocuments.map(document => {
           const expirationDate = new Date(document.expirationDate);
           const now = new Date();
           let isActive = false;
@@ -412,7 +412,7 @@ export function MissionProfileDialog({
         const nextApp = applicants[currentIndex + 1];
         const nextState = {
           ...state,
-          ...nextApp,
+          ...nextApp
         };
         history.push(`/missions/applicant/${nextApp.applicantID}`, nextState);
         setCurrentIndex(currentIndex + 1);
@@ -427,7 +427,7 @@ export function MissionProfileDialog({
         const prevApp = applicants[currentIndex - 1];
         const prevState = {
           ...state,
-          ...prevApp,
+          ...prevApp
         };
         history.push(`/missions/applicant/${prevApp.applicantID}`, prevState);
         setCurrentIndex(currentIndex - 1);
@@ -487,7 +487,7 @@ export function MissionProfileDialog({
             </a>
             {state && state.status === 1 ? (
               <a
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   history.push(`/missions/delete-application`, state);
                 }}
@@ -500,7 +500,7 @@ export function MissionProfileDialog({
             {state && state.status === 2 ? (
               <>
                 <a
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     history.push(`/missions/approve`, state);
                   }}
@@ -510,7 +510,7 @@ export function MissionProfileDialog({
                   <FormattedMessage id="CANDIDATE.ACCEPT.TITLE" />
                 </a>
                 <a
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     history.push(`/missions/decline`, state);
                   }}
@@ -552,7 +552,7 @@ export function MissionProfileDialog({
           style={{
             position: "absolute",
             top: "15px",
-            right: "15px",
+            right: "15px"
           }}
         >
           <i aria-hidden="true" className="ki ki-close"></i>
@@ -578,7 +578,7 @@ export function MissionProfileDialog({
           <div>
             {state && state.status === 1 ? (
               <a
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   history.push(`/missions/delete-application`, state);
                 }}
@@ -591,7 +591,7 @@ export function MissionProfileDialog({
             {state && state.status === 2 ? (
               <>
                 <a
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     history.push(`/missions/approve`, state);
                   }}
@@ -601,7 +601,7 @@ export function MissionProfileDialog({
                   <FormattedMessage id="CANDIDATE.ACCEPT.TITLE" />
                 </a>
                 <a
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     history.push(`/missions/decline`, state);
                   }}
@@ -650,7 +650,7 @@ export function MissionProfileDialog({
           style={{
             position: "absolute",
             top: "15px",
-            right: "15px",
+            right: "15px"
           }}
         >
           <i aria-hidden="true" className="ki ki-close"></i>
@@ -743,7 +743,7 @@ export function MissionProfileDialog({
                         let label =
                           jobTitles &&
                           jobTitles.filter(
-                            (activityDomain) => activityDomain.id === skill
+                            activityDomain => activityDomain.id === skill
                           );
                         return (
                           label && (
@@ -797,10 +797,10 @@ export function MissionProfileDialog({
                 <div className="card-spacer bg-white card-rounded flex-grow-1">
                   {applicant &&
                     !isNullOrEmpty(applicant.applicantArraySkills) &&
-                    applicant.applicantArraySkills.map((skill) => {
+                    applicant.applicantArraySkills.map(skill => {
                       let label =
                         jobSkills &&
-                        jobSkills.filter((jobSkill) => jobSkill.id === skill);
+                        jobSkills.filter(jobSkill => jobSkill.id === skill);
                       return (
                         label && (
                           <div className="d-flex align-items-center flex-grow-1">
