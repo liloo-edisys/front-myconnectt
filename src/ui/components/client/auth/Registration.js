@@ -125,10 +125,12 @@ function Registration(props) {
       },
       libelle_nature_juridique_entreprise:
         company.uniteLegale.categorieJuridiqueUniteLegale,
+      position: company.adresseEtablissement.geoPositionWGS84 || null,
     };
     setselectedCompany(companyData);
   };
 
+  // Modifiez les initialValues pour inclure la position
   const initialValues = {
     name:
       selectedCompany && !isNullOrEmpty(selectedCompany.nom_complet)
@@ -162,6 +164,10 @@ function Registration(props) {
       !isNullOrEmpty(selectedCompany.libelle_nature_juridique_entreprise)
         ? selectedCompany.libelle_nature_juridique_entreprise
         : "_",
+    position:
+      selectedCompany && selectedCompany.position
+        ? selectedCompany.position
+        : null,
   };
 
   const RegistrationSchema = Yup.object().shape({
@@ -530,11 +536,17 @@ function Registration(props) {
                 registerAccount(values)
                   .then((response) => {
                     disableLoading();
-                    response && history.push("/");
+                    if (response && response.status === 200) {
+                      localStorage.setItem("userEmail", values.email);
+                      history.push("/auth/email-confirm");
+                    } else {
+                      setSubmitting(false);
+                    }
                   })
-                  .catch(() => {
+                  .catch((error) => {
                     setSubmitting(false);
                     disableLoading();
+                    console.error("Erreur lors de l'inscription:", error);
                   });
               }}
             >

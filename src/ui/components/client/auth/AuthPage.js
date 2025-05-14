@@ -1,6 +1,7 @@
 import React from "react";
 import Login from "./Login";
 import Registration from "./Registration";
+import EmailVerification from "./EmailVerification";
 import RegisterConfirm from "./RegisterConfirm";
 import ForgotPassword from "./ForgotPassword";
 import { Link, Switch, Redirect } from "react-router-dom";
@@ -29,9 +30,14 @@ export function AuthPage() {
                 component={RegisterConfirm}
               />
               <ContentRoute
+                path="/auth/email-confirm"
+                component={EmailVerification}
+              />
+              <ContentRoute
                 path="/auth/forgot-password"
                 component={ForgotPassword}
               />
+              <Redirect exact={true} to="/auth/login" />
             </Switch>
           </div>
         </div>

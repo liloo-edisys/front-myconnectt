@@ -19,6 +19,7 @@ function RegisterConfirm(props) {
   const TENANTID = +process.env.REACT_APP_TENANT_ID;
   const [isRevealPwd, setIsRevealPwd] = useState(false);
   const [isRevealConfirm, setIsRevealConfirm] = useState(false);
+  const [email] = useState(localStorage.getItem("userEmail") || "");
 
   const [loading, setLoading] = useState(false);
   const { user } = useSelector(
