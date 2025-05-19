@@ -1,5 +1,5 @@
 # Utilise l'image officielle Node.js version 16.20.2
-FROM node:16.20.2 AS build
+FROM node:16.20.2-alpine3.18 AS build
 
 # Définit le répertoire de travail dans le conteneur
 WORKDIR /app
@@ -18,8 +18,7 @@ RUN npm run build:dev
 
 
 # Utilise l'image officielle Node.js version 16.20.2
-FROM node:16.20.2
-
+FROM node:16.20.2-alpine3.18
 
 COPY --from=build /app/dev myconnectt
 
