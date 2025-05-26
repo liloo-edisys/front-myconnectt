@@ -42,7 +42,7 @@ function EmailVerification() {
               style={{
                 top: "50%",
                 left: "50%",
-                transform: "translate(-50%, -50%)",
+                transform: "translate(-50%, -50%)"
               }}
             >
               <div className="rounded-circle bg-light-primary p-10 d-inline-block shadow-lg animate-pulse">
@@ -62,7 +62,7 @@ function EmailVerification() {
                     height: "30px",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
+                    justifyContent: "center"
                   }}
                 >
                   <i className="fas fa-check text-white"></i>

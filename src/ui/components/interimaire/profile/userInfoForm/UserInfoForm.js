@@ -19,7 +19,8 @@ const UserInfoForm = () => {
     nationality: "",
     nationalityId: null, // Pour stocker l'ID du pays
     position: "",
-    skills: ""
+    skills: "",
+    SearchZone: 50
   });
   const [errors, setErrors] = useState({});
   const [importedFile, setImportedFile] = useState(null);
@@ -531,6 +532,7 @@ const UserInfoForm = () => {
                 position: ""
               },
           jobTitle: formValues.position,
+          searchZone: parseInt(formValues.maxDistance, 10) || 50,
           skills: formValues.skills
             .split(",")
             .map(skill => skill.trim())
@@ -1284,6 +1286,33 @@ const UserInfoForm = () => {
                   {errors.skills && (
                     <div className="invalid-feedback">{errors.skills}</div>
                   )}
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="searchZone" className="form-label">
+                    Distance maximale de déplacement (en km)
+                  </label>
+                  <div className="input-group">
+                    <input
+                      type="range"
+                      className="form-range"
+                      id="searchZone"
+                      name="searchZone"
+                      min="50"
+                      max="1000"
+                      step="50"
+                      value={formValues.searchZone}
+                      onChange={handleChange}
+                      style={{ flex: "1" }}
+                    />
+                    <span className="input-group-text ms-2 rounded">
+                      {formValues.searchZone} km
+                    </span>
+                  </div>
+                  <small className="text-muted">
+                    Faites glisser pour définir la distance maximale à laquelle
+                    vous êtes prêt(e) à vous déplacer pour un poste
+                  </small>
                 </div>
 
                 {/* Cases à cocher pour les conditions et l'âge légal */}

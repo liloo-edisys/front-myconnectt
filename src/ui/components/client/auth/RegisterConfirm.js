@@ -23,7 +23,7 @@ function RegisterConfirm(props) {
 
   const [loading, setLoading] = useState(false);
   const { user } = useSelector(
-    (state) => ({ user: state.user.user }),
+    state => ({ user: state.user.user }),
     shallowEqual
   );
 
@@ -43,7 +43,7 @@ function RegisterConfirm(props) {
     poste: user.poste ? user.poste : "",
     acceptTerms: false,
     confirm: "",
-    email: user.email ? user.email : "",
+    email: user.email ? user.email : ""
   };
 
   const RegistrationSchema = Yup.object().shape(
@@ -55,7 +55,7 @@ function RegisterConfirm(props) {
         intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })
       ),
       mobilePhoneNumber: Yup.string().when(["homePhoneNumber"], {
-        is: (val) => !!val,
+        is: val => !!val,
         then: Yup.string().matches(
           /^(\+33|0)(1|2|3|4|5|6|7|8|9)\d{8}$/,
           intl.formatMessage({ id: "MESSAGE.FORMAT.PHONE" })
@@ -65,7 +65,7 @@ function RegisterConfirm(props) {
             /^(\+33|0)(1|2|3|4|5|6|7|8|9)\d{8}$/,
             intl.formatMessage({ id: "MESSAGE.FORMAT.PHONE" })
           )
-          .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
+          .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" }))
       }),
 
       homePhoneNumber: Yup.string()
@@ -74,7 +74,7 @@ function RegisterConfirm(props) {
           intl.formatMessage({ id: "MESSAGE.FORMAT.PHONE" })
         )
         .when("mobilePhoneNumber", {
-          is: (val) => !!val,
+          is: val => !!val,
           then: Yup.string().matches(
             /^(\+33|0)(1|2|3|4|5|6|7|8|9)\d{8}$/,
             intl.formatMessage({ id: "MESSAGE.FORMAT.PHONE" })
@@ -84,7 +84,7 @@ function RegisterConfirm(props) {
               /^(\+33|0)(1|2|3|4|5|6|7|8|9)\d{8}$/,
               intl.formatMessage({ id: "MESSAGE.FORMAT.PHONE" })
             )
-            .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
+            .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" }))
         }),
 
       poste: Yup.string().required(
@@ -99,15 +99,15 @@ function RegisterConfirm(props) {
       confirm: Yup.string()
         .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" }))
         .when("password", {
-          is: (val) => (val && val.length > 0 ? true : false),
+          is: val => (val && val.length > 0 ? true : false),
           then: Yup.string().oneOf(
             [Yup.ref("password")],
             intl.formatMessage({ id: "VALIDATION.CONFIRM_MATCH_PASSWORD" })
-          ),
+          )
         }),
       acceptTerms: Yup.bool().required(
         "You must accept the terms and conditions"
-      ),
+      )
     },
     [["mobilePhoneNumber", "homePhoneNumber"], ["homePhoneNumber"]]
   );
@@ -120,7 +120,7 @@ function RegisterConfirm(props) {
     setLoading(false);
   };
 
-  const getInputClasses = (fieldname) => {
+  const getInputClasses = fieldname => {
     if (formik.touched[fieldname] && formik.errors[fieldname]) {
       return "is-invalid";
     }
@@ -140,7 +140,7 @@ function RegisterConfirm(props) {
     onSubmit: (values, { setStatus, setSubmitting }) => {
       enableLoading();
       confirmInvite(values)
-        .then((data) => {
+        .then(data => {
           disableLoading();
           dispatch(login.request(values));
         })
@@ -148,12 +148,12 @@ function RegisterConfirm(props) {
           setSubmitting(false);
           setStatus(
             intl.formatMessage({
-              id: "TEXT.ERROR.FRIENDLY",
+              id: "TEXT.ERROR.FRIENDLY"
             })
           );
           disableLoading();
         });
-    },
+    }
   });
 
   return (
@@ -201,7 +201,7 @@ function RegisterConfirm(props) {
                     </div>
                     <input
                       placeholder={intl.formatMessage({
-                        id: "MODEL.FIRSTNAME",
+                        id: "MODEL.FIRSTNAME"
                       })}
                       type="text"
                       className={`form-control ${getInputClasses("firstname")}`}
@@ -259,7 +259,7 @@ function RegisterConfirm(props) {
                     </div>
                     <input
                       placeholder={intl.formatMessage({
-                        id: "MODEL.MOBILE",
+                        id: "MODEL.MOBILE"
                       })}
                       type="text"
                       className={`form-control ${getInputClasses(
@@ -288,7 +288,7 @@ function RegisterConfirm(props) {
                     </div>
                     <input
                       placeholder={intl.formatMessage({
-                        id: "MODEL.PHONE",
+                        id: "MODEL.PHONE"
                       })}
                       type="text"
                       className={`form-control ${getInputClasses(
@@ -379,7 +379,7 @@ function RegisterConfirm(props) {
                     <button
                       type="button"
                       className="toggle-password"
-                      onClick={() => setIsRevealPwd((prevState) => !prevState)}
+                      onClick={() => setIsRevealPwd(prevState => !prevState)}
                     >
                       <i
                         className={
@@ -407,7 +407,7 @@ function RegisterConfirm(props) {
                     </div>
                     <input
                       placeholder={intl.formatMessage({
-                        id: "MODEL.PASSWORDCONFIRM",
+                        id: "MODEL.PASSWORDCONFIRM"
                       })}
                       type={isRevealConfirm ? "text" : "password"}
                       className={`form-control ${getInputClasses("confirm")}`}
@@ -418,7 +418,7 @@ function RegisterConfirm(props) {
                       type="button"
                       className="toggle-password"
                       onClick={() =>
-                        setIsRevealConfirm((prevState) => !prevState)
+                        setIsRevealConfirm(prevState => !prevState)
                       }
                     >
                       <i
