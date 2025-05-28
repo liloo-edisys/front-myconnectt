@@ -19,7 +19,7 @@ const CompanyPage = ({
   getCompanies,
   getInvoiceTypes,
   getAccountGroups,
-  getPaymentChoices,
+  getPaymentChoices
 }) => {
   const history = useHistory();
 
@@ -31,7 +31,7 @@ const CompanyPage = ({
   }, [getCompanies, getInvoiceTypes, getAccountGroups, getPaymentChoices]);
 
   const companiesUIEvents = {
-    newWorksiteButtonClick: (data) => {
+    newWorksiteButtonClick: data => {
       history.push("/companies/create-worksite", data);
     },
     openEditCompanyDialog: (id, data) => {
@@ -43,9 +43,9 @@ const CompanyPage = ({
     openPreviewWorksiteDialog: (id, data) => {
       history.push(`/companies/${id}/preview`, data);
     },
-    openDeleteCompanyDialog: (data) => {
+    openDeleteCompanyDialog: data => {
       history.push(`/companies/deletecompany`, data);
-    },
+    }
   };
 
   const handleHideModal = () => {

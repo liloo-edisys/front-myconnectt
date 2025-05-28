@@ -19,7 +19,7 @@ import {
   getInvoicesTypes,
   getAccountGroups,
   getPaymentChoices,
-  getAPE,
+  getAPE
 } from "actions/shared/ListsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 
@@ -46,24 +46,24 @@ function CompanyCreateForm({ onHide, intl }) {
   const addressInputRef = useRef(null);
   const addressSuggestionsRef = useRef(null);
 
-  const handleCityInputChange = (value) => {
+  const handleCityInputChange = value => {
     setCityInputValue(value);
   };
 
-  const handleCompanyInputChange = (value) => {
+  const handleCompanyInputChange = value => {
     setCompanyInputValue(value);
   };
 
-  const handleChangeCity = (value) => {
+  const handleChangeCity = value => {
     setselectedCity(value);
   };
 
-  const handleChangeCompany = (value) => {
+  const handleChangeCompany = value => {
     setselectedCompany(value);
   };
 
   // Fonction pour rechercher les adresses avec votre API
-  const fetchAddressSuggestions = async (query) => {
+  const fetchAddressSuggestions = async query => {
     if (!query || query.length < 3) return;
 
     setAddressSearchLoading(true);
@@ -75,8 +75,8 @@ function CompanyCreateForm({ onHide, intl }) {
         )}`,
         {
           headers: {
-            accept: "text/plain",
-          },
+            accept: "text/plain"
+          }
         }
       );
 
@@ -126,7 +126,7 @@ function CompanyCreateForm({ onHide, intl }) {
     }, 1000);
   };
 
-  const loadCompanyOptions = (inputValue) => {
+  const loadCompanyOptions = inputValue => {
     console.log(
       `https://acceslibre.beta.gouv.fr/api/erps/?q=${inputValue}&&code_postal=${selectedCity.Code_postal}`
     );
@@ -134,8 +134,8 @@ function CompanyCreateForm({ onHide, intl }) {
       ? fetch(
           `https://acceslibre.beta.gouv.fr/api/erps/?q=${inputValue}&&code_postal=${selectedCity.Code_postal}`
         )
-          .then((res) => res.json())
-          .then((data) => data.etablissement)
+          .then(res => res.json())
+          .then(data => data.etablissement)
       : null;
   };
 
@@ -143,18 +143,18 @@ function CompanyCreateForm({ onHide, intl }) {
     invoiceTypes,
     accountGroups,
     paymentChoices,
-    apeNumber,
+    apeNumber
   } = useSelector(
-    (state) => ({
+    state => ({
       invoiceTypes: state.lists.invoiceTypes,
       accountGroups: state.lists.accountGroups,
       paymentChoices: state.lists.paymentChoices,
-      apeNumber: state.lists.apeNumber,
+      apeNumber: state.lists.apeNumber
     }),
     shallowEqual
   );
 
-  const formatTva = (value) => {
+  const formatTva = value => {
     if (!value) return 0;
     let siren = value.substring(0, value.length - 5);
     let test = [12 + 3 * (siren % 97)] % 97;
@@ -188,7 +188,7 @@ function CompanyCreateForm({ onHide, intl }) {
 
   // Effet pour fermer les suggestions lorsqu'on clique en dehors
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = event => {
       const addressContainer = document.getElementById("address-container");
       if (addressContainer && !addressContainer.contains(event.target)) {
         setAddressSuggestions([]);
@@ -259,7 +259,7 @@ function CompanyCreateForm({ onHide, intl }) {
       ? selectedCompany.libelle_nature_juridique_entreprise
       : "",
     apeNumber: "",
-    tvaNumber: selectedCompany ? formatTva(selectedCompany.siret) : "",
+    tvaNumber: selectedCompany ? formatTva(selectedCompany.siret) : ""
   };
 
   // Validation schema
@@ -284,7 +284,7 @@ function CompanyCreateForm({ onHide, intl }) {
       .test(
         "checkTva",
         intl.formatMessage({ id: "MESSAGE.INVALID.TVA" }),
-        (value) =>
+        value =>
           selectedCompany ? value === formatTva(selectedCompany.siret) : true
       ),
     address: Yup.string()
@@ -294,7 +294,7 @@ function CompanyCreateForm({ onHide, intl }) {
       .test(
         "len",
         intl.formatMessage({ id: "MESSAGE.MIN.5.NUMBERS" }),
-        (val) => val && val.length === 5
+        val => val && val.length === 5
       )
       .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
     city: Yup.string().required(
@@ -306,7 +306,7 @@ function CompanyCreateForm({ onHide, intl }) {
         intl.formatMessage({ id: "MESSAGE.FORMAT.PHONE" })
       )
       .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" }))
-      .typeError(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
+      .typeError(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" }))
   });
 
   const customStyles = {
@@ -317,18 +317,18 @@ function CompanyCreateForm({ onHide, intl }) {
       borderColor: "transparent",
       boxShadow: null,
       "&:hover": {
-        borderColor: "transparent",
-      },
+        borderColor: "transparent"
+      }
     }),
-    menu: (base) => ({
+    menu: base => ({
       ...base,
       borderRadius: 0,
-      marginTop: 0,
+      marginTop: 0
     }),
-    menuList: (base) => ({
+    menuList: base => ({
       ...base,
-      padding: 0,
-    }),
+      padding: 0
+    })
   };
 
   const handleChangePhone = (setFieldValue, setFieldTouched, e) => {
@@ -353,8 +353,8 @@ function CompanyCreateForm({ onHide, intl }) {
           loadingMessage={() =>
             intl.formatMessage({ id: "MESSAGE.SEARCH.ONGOING" })
           }
-          getOptionLabel={(e) => `${e.Nom_commune} (${e.Code_postal})`}
-          getOptionValue={(e) => e.Code_postal}
+          getOptionLabel={e => `${e.Nom_commune} (${e.Code_postal})`}
+          getOptionValue={e => e.Code_postal}
           loadOptions={loadOptions}
           onInputChange={handleCityInputChange}
           onChange={handleChangeCity}
@@ -363,7 +363,7 @@ function CompanyCreateForm({ onHide, intl }) {
           isSearchable
           components={{
             DropdownIndicator: () => null,
-            IndicatorSeparator: () => null,
+            IndicatorSeparator: () => null
           }}
           styles={customStyles}
         />
@@ -378,8 +378,8 @@ function CompanyCreateForm({ onHide, intl }) {
           loadingMessage={() =>
             intl.formatMessage({ id: "MESSAGE.SEARCH.ONGOING" })
           }
-          getOptionLabel={(e) => `${e.l1_normalisee} SIRET(${e.siret})`}
-          getOptionValue={(e) => e.siret}
+          getOptionLabel={e => `${e.l1_normalisee} SIRET(${e.siret})`}
+          getOptionValue={e => e.siret}
           loadOptions={loadCompanyOptions}
           onInputChange={handleCompanyInputChange}
           onChange={handleChangeCompany}
@@ -388,7 +388,7 @@ function CompanyCreateForm({ onHide, intl }) {
           isSearchable
           components={{
             DropdownIndicator: () => null,
-            IndicatorSeparator: () => null,
+            IndicatorSeparator: () => null
           }}
           styles={customStyles}
         />
@@ -401,7 +401,7 @@ function CompanyCreateForm({ onHide, intl }) {
           enableReinitialize={true}
           initialValues={newInitialValues}
           validationSchema={CompanyCreateSchema}
-          onSubmit={(values) => {
+          onSubmit={values => {
             let data = { ...values, tenantID: TENANTID };
             dispatch(createCompany.request(data));
             onHide();
@@ -413,7 +413,7 @@ function CompanyCreateForm({ onHide, intl }) {
             touched,
             values,
             setFieldValue,
-            setFieldTouched,
+            setFieldTouched
           }) => (
             <>
               <Modal.Body className="overlay overlay-block cursor-default">
@@ -435,7 +435,7 @@ function CompanyCreateForm({ onHide, intl }) {
                           component={Input}
                           disabled
                           placeholder={intl.formatMessage({
-                            id: "AUTH.REGISTER.COMPANY_NAME",
+                            id: "AUTH.REGISTER.COMPANY_NAME"
                           })}
                         />
                       </div>
@@ -459,7 +459,7 @@ function CompanyCreateForm({ onHide, intl }) {
                           component={Input}
                           disabled
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.SIRET",
+                            id: "MODEL.ACCOUNT.SIRET"
                           })}
                         />
                       </div>
@@ -486,11 +486,11 @@ function CompanyCreateForm({ onHide, intl }) {
                           <option disabled value="">
                             --{" "}
                             {intl.formatMessage({
-                              id: "COLUMN.APE.NAF.NUMBER",
+                              id: "COLUMN.APE.NAF.NUMBER"
                             })}{" "}
                             --
                           </option>
-                          {apeNumber.map((choice) => {
+                          {apeNumber.map(choice => {
                             return (
                               <option key={choice.id} value={choice.code}>
                                 {choice.code}-{choice.description}
@@ -522,7 +522,7 @@ function CompanyCreateForm({ onHide, intl }) {
                           component={Input}
                           disabled
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.COMPANYSTATUS",
+                            id: "MODEL.ACCOUNT.COMPANYSTATUS"
                           })}
                         />
                       </div>
@@ -546,7 +546,7 @@ function CompanyCreateForm({ onHide, intl }) {
                           component={Input}
                           disabled
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.TVANUMBER",
+                            id: "MODEL.ACCOUNT.TVANUMBER"
                           })}
                         />
                       </div>
@@ -584,7 +584,7 @@ function CompanyCreateForm({ onHide, intl }) {
                               }`}
                               name="address"
                               value={values.address || address}
-                              onChange={(e) => {
+                              onChange={e => {
                                 const query = e.target.value;
                                 setAddress(query);
                                 setFieldValue("address", query);
@@ -604,7 +604,7 @@ function CompanyCreateForm({ onHide, intl }) {
                                   fetchAddressSuggestions(query);
                                 }, 300);
                               }}
-                              onKeyDown={(e) => {
+                              onKeyDown={e => {
                                 // Navigation avec les flèches dans les suggestions
                                 if (addressSuggestions.length > 0) {
                                   if (e.key === "ArrowDown") {
@@ -638,7 +638,7 @@ function CompanyCreateForm({ onHide, intl }) {
                                 }
                               }}
                               placeholder={intl.formatMessage({
-                                id: "MODEL.ACCOUNT.ADDRESS",
+                                id: "MODEL.ACCOUNT.ADDRESS"
                               })}
                               autoComplete="off"
                               ref={addressInputRef}
@@ -684,9 +684,9 @@ function CompanyCreateForm({ onHide, intl }) {
                               style={{
                                 zIndex: 1000,
                                 maxHeight: "200px",
-                                overflowY: "auto",
+                                overflowY: "auto"
                               }}
-                              onClick={(e) => e.stopPropagation()}
+                              onClick={e => e.stopPropagation()}
                             >
                               {addressSuggestions.map((suggestion, index) => (
                                 <div
@@ -698,7 +698,7 @@ function CompanyCreateForm({ onHide, intl }) {
                                   }`}
                                   style={{
                                     cursor: "pointer",
-                                    transition: "background-color 0.2s ease",
+                                    transition: "background-color 0.2s ease"
                                   }}
                                   onMouseEnter={() =>
                                     setSelectedSuggestionIndex(index)
@@ -747,7 +747,7 @@ function CompanyCreateForm({ onHide, intl }) {
                           name="additionaladdress"
                           component={Input}
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.ADDITIONALADDRESS",
+                            id: "MODEL.ACCOUNT.ADDITIONALADDRESS"
                           })}
                         />
                       </div>
@@ -770,7 +770,7 @@ function CompanyCreateForm({ onHide, intl }) {
                           name="postalcode"
                           component={Input}
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.POSTALCODE",
+                            id: "MODEL.ACCOUNT.POSTALCODE"
                           })}
                         />
                       </div>
@@ -793,7 +793,7 @@ function CompanyCreateForm({ onHide, intl }) {
                           name="city"
                           component={Input}
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.CITY",
+                            id: "MODEL.ACCOUNT.CITY"
                           })}
                         />
                       </div>
@@ -814,7 +814,7 @@ function CompanyCreateForm({ onHide, intl }) {
                         </div>
                         <Field
                           name="phoneNumber"
-                          onChange={(e) =>
+                          onChange={e =>
                             handleChangePhone(
                               setFieldValue,
                               setFieldTouched,
@@ -827,7 +827,7 @@ function CompanyCreateForm({ onHide, intl }) {
                           }
                           component={Input}
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.PHONENUMBER",
+                            id: "MODEL.ACCOUNT.PHONENUMBER"
                           })}
                         />
                       </div>
@@ -851,7 +851,7 @@ function CompanyCreateForm({ onHide, intl }) {
                           </span>
                         </div>
                         <Select className="form-control" name="paymentChoiceID">
-                          {paymentChoices.map((choice) => {
+                          {paymentChoices.map(choice => {
                             return (
                               <option key={choice.id} value={choice.id}>
                                 {choice.name}
@@ -873,7 +873,7 @@ function CompanyCreateForm({ onHide, intl }) {
                           </span>
                         </div>
                         <Select className="form-control" name="InvoiceTypeID">
-                          {invoiceTypes.map((invoice) => {
+                          {invoiceTypes.map(invoice => {
                             return (
                               <option key={invoice.id} value={invoice.id}>
                                 {invoice.name}
@@ -902,7 +902,7 @@ function CompanyCreateForm({ onHide, intl }) {
                           component={Input}
                           disabled
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.COEFFICIENT",
+                            id: "MODEL.ACCOUNT.COEFFICIENT"
                           })}
                         />
                       </div>
@@ -922,7 +922,7 @@ function CompanyCreateForm({ onHide, intl }) {
                           name="description"
                           component={Input}
                           placeholder={intl.formatMessage({
-                            id: "MODEL.ACCOUNT.DESCRIPTION",
+                            id: "MODEL.ACCOUNT.DESCRIPTION"
                           })}
                         />
                       </div>
