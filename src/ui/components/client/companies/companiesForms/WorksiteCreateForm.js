@@ -14,7 +14,7 @@ import * as Yup from "yup";
 import {
   getAPE,
   getInvoicesTypes,
-  getPaymentChoices
+  getPaymentChoices,
 } from "actions/shared/ListsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import AddressSearchInput from "../companiesForms/location-search-input/AddressSearchInput";
@@ -29,10 +29,10 @@ function WorksiteCreateForm({ onHide, intl, history }) {
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const { invoiceTypes, paymentChoices, apeNumber } = useSelector(
-    state => ({
+    (state) => ({
       invoiceTypes: state.lists.invoiceTypes,
       paymentChoices: state.lists.paymentChoices,
-      apeNumber: state.lists.apeNumber
+      apeNumber: state.lists.apeNumber,
     }),
     shallowEqual
   );
@@ -74,7 +74,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
     paymentChoiceID: 1,
     apeNumber: "",
     tvaNumber: "",
-    companyStatus: ""
+    companyStatus: "",
   });
 
   // Validation schema
@@ -100,29 +100,19 @@ function WorksiteCreateForm({ onHide, intl, history }) {
         intl.formatMessage({ id: "MESSAGE.FORMAT.PHONE" })
       )
       .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" }))
-      .typeError(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" }))
+      .typeError(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
   });
 
   const handleChangePhone = (setFieldValue, setFieldTouched, e) => {
-    setPhoneNumber(e && e.replace(/\s/g, ""));
+    const cleanedValue = e && e.replace(/\s/g, "");
+    setPhoneNumber(cleanedValue);
 
     if (setFieldTouched) {
       setFieldTouched("phoneNumber", true);
     }
     if (setFieldValue) {
-      setFieldValue("phoneNumber", e && e.replace(/\s/g, ""));
+      setFieldValue("phoneNumber", cleanedValue);
     }
-  };
-
-  const handleSubmit = values => {
-    let data = {
-      ...values,
-      tenantID: currentCompany.tenantID,
-      parentID: currentCompany.id,
-      invoiceTypeID: parseInt(values.InvoiceTypeID)
-    };
-    dispatch(createCompany.request(data));
-    onHide();
   };
 
   return (
@@ -131,9 +121,24 @@ function WorksiteCreateForm({ onHide, intl, history }) {
         enableReinitialize={false} // Désactiver la réinitialisation automatique
         initialValues={initialValues}
         validationSchema={CompanyCreateSchema}
-        onSubmit={handleSubmit}
+        onSubmit={(values) => {
+          let data = {
+            ...values,
+            tenantID: currentCompany.tenantID,
+            parentID: currentCompany.id,
+            invoiceTypeID: parseInt(values.InvoiceTypeID),
+          };
+          dispatch(createCompany.request(data), onHide());
+        }}
       >
-        {({ errors, touched, values, setFieldValue, setFieldTouched }) => (
+        {({
+          handleSubmit,
+          errors,
+          touched,
+          values,
+          setFieldValue,
+          setFieldTouched,
+        }) => (
           <>
             <Modal.Body className="overlay overlay-block cursor-default">
               <Form className="form form-label-right">
@@ -153,7 +158,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         name="name"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "AUTH.REGISTER.COMPANY_NAME"
+                          id: "AUTH.REGISTER.COMPANY_NAME",
                         })}
                       />
                     </div>
@@ -176,7 +181,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         name="companyStatus"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.COMPANYSTATUS"
+                          id: "MODEL.ACCOUNT.COMPANYSTATUS",
                         })}
                       />
                     </div>
@@ -198,8 +203,8 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         </span>
                       </div>
                       <AddressSearchInput
-                        address={address} // Utiliser address en priorité puis values.address
-                        setAddress={newAddress => {
+                        address={address || values.address}
+                        setAddress={(newAddress) => {
                           setAddress(newAddress);
                           setFieldValue("address", newAddress);
                         }}
@@ -208,9 +213,10 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         name="address"
                         hasError={errors.address && touched.address}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.ADDRESS"
+                          id: "MODEL.ACCOUNT.ADDRESS",
                         })}
-                        onAddressSelect={suggestion => {
+                        onAddressSelect={(suggestion) => {
+                          console.log("Suggestion reçue:", suggestion); // Pour débugger
                           setAddress(suggestion.freeformAddress);
                           setPostal(suggestion.postalCode);
                           setCity(suggestion.localName);
@@ -222,12 +228,12 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         }}
                         customStyles={{
                           container: {
-                            flex: 1
+                            flex: 1,
                           },
                           input: {
                             border: "none",
-                            boxShadow: "none"
-                          }
+                            boxShadow: "none",
+                          },
                         }}
                       />
                     </div>
@@ -252,7 +258,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         name="additionalAddress"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.ADDITIONALADDRESS"
+                          id: "MODEL.ACCOUNT.ADDITIONALADDRESS",
                         })}
                       />
                     </div>
@@ -273,11 +279,11 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                       </div>
                       <Field
                         name="postalcode"
-                        value={values.postalcode || postal} // Utiliser values.postalcode
+                        value={values.postalcode || postal}
                         disabled
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.POSTALCODE"
+                          id: "MODEL.ACCOUNT.POSTALCODE",
                         })}
                       />
                     </div>
@@ -298,11 +304,11 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                       </div>
                       <Field
                         name="city"
-                        value={values.city || city} // Utiliser values.city
+                        value={values.city || city}
                         disabled
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.CITY"
+                          id: "MODEL.ACCOUNT.CITY",
                         })}
                       />
                     </div>
@@ -323,7 +329,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                       </div>
                       <Field
                         name="phoneNumber"
-                        onChange={e =>
+                        onChange={(e) =>
                           handleChangePhone(
                             setFieldValue,
                             setFieldTouched,
@@ -331,12 +337,14 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                           )
                         }
                         value={
-                          values.phoneNumber &&
-                          values.phoneNumber.match(/.{1,2}/g)?.join(" ")
+                          (values.phoneNumber || phoneNumber) &&
+                          (values.phoneNumber || phoneNumber)
+                            .match(/.{1,2}/g)
+                            ?.join(" ")
                         }
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.PHONENUMBER"
+                          id: "MODEL.ACCOUNT.PHONENUMBER",
                         })}
                       />
                     </div>
@@ -359,7 +367,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         </span>
                       </div>
                       <Select className="form-control" name="paymentChoiceID">
-                        {paymentChoices.map(choice => {
+                        {paymentChoices.map((choice) => {
                           return (
                             <option key={choice.id} value={choice.id}>
                               {choice.name}
@@ -381,7 +389,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         </span>
                       </div>
                       <Select className="form-control" name="invoiceTypeID">
-                        {invoiceTypes.map(invoice => {
+                        {invoiceTypes.map((invoice) => {
                           return (
                             <option key={invoice.id} value={invoice.id}>
                               {invoice.name}
@@ -409,7 +417,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         name="description"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.DESCRIPTION"
+                          id: "MODEL.ACCOUNT.DESCRIPTION",
                         })}
                       />
                     </div>
@@ -428,6 +436,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
               <> </>
               <button
                 type="submit"
+                onClick={handleSubmit}
                 className="btn btn-primary btn-shadow font-weight-bold px-9 py-4 my-3 mx-4"
               >
                 <FormattedMessage id="BUTTON.SAVE" />
