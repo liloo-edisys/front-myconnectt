@@ -14,23 +14,26 @@ import * as Yup from "yup";
 import {
   getAPE,
   getInvoicesTypes,
-  getPaymentChoices
+  getPaymentChoices,
 } from "actions/shared/ListsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import LocationSearchInput from "./location-search-input";
+import AddressSearchInput from "../companiesForms/location-search-input/AddressSearchInput";
 
 function WorksiteCreateForm({ onHide, intl, history }) {
   const dispatch = useDispatch();
 
   const [selectedCompany] = useState(null);
+  // const [selectedCompany, setSelectedCompany] = useState(
   const [address, setAddress] = useState("");
+  const [postal, setPostal] = useState("");
+  const [city, setCity] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const { invoiceTypes, paymentChoices, apeNumber } = useSelector(
-    state => ({
+    (state) => ({
       invoiceTypes: state.lists.invoiceTypes,
       paymentChoices: state.lists.paymentChoices,
-      apeNumber: state.lists.apeNumber
+      apeNumber: state.lists.apeNumber,
     }),
     shallowEqual
   );
@@ -61,7 +64,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
       selectedCompany && selectedCompany.l4_normalisee
         ? selectedCompany.l4_normalisee
         : "",
-    postalcode: selectedCompany ? selectedCompany.code_postal : "",
+    postalcode: postal,
     phoneNumber: null,
     acceptTerms: false,
     InvoiceTypeID: 1,
@@ -69,7 +72,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
     paymentChoiceID: 1,
     apeNumber: "",
     tvaNumber: "",
-    companyStatus: ""
+    companyStatus: "",
   };
 
   // Validation schema
@@ -101,7 +104,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
         intl.formatMessage({ id: "MESSAGE.FORMAT.PHONE" })
       )
       .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" }))
-      .typeError(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" }))
+      .typeError(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
   });
 
   const handleChangePhone = (setFieldValue, setFieldTouched, e) => {
@@ -123,12 +126,12 @@ function WorksiteCreateForm({ onHide, intl, history }) {
         validationSchema={CompanyCreateSchema}
         setFieldValue
         setFieldTouched
-        onSubmit={values => {
+        onSubmit={(values) => {
           let data = {
             ...values,
             tenantID: currentCompany.tenantID,
             parentID: currentCompany.id,
-            invoiceTypeID: parseInt(values.InvoiceTypeID)
+            invoiceTypeID: parseInt(values.InvoiceTypeID),
           };
           dispatch(createCompany.request(data), onHide());
         }}
@@ -139,7 +142,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
           touched,
           values,
           setFieldValue,
-          setFieldTouched
+          setFieldTouched,
         }) => (
           <>
             <Modal.Body className="overlay overlay-block cursor-default">
@@ -160,7 +163,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         name="name"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "AUTH.REGISTER.COMPANY_NAME"
+                          id: "AUTH.REGISTER.COMPANY_NAME",
                         })}
                       />
                     </div>
@@ -183,7 +186,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         name="companyStatus"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.COMPANYSTATUS"
+                          id: "MODEL.ACCOUNT.COMPANYSTATUS",
                         })}
                       />
                     </div>
@@ -194,9 +197,8 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                 </div>
                 <div className="separator separator-solid-primary mt-10 mb-5 mx-30"></div>
                 <div className="form-group row">
-                  {/* Adresse */}
                   <div className="col-lg-6">
-                    <label className=" col-form-label">
+                    <label className="col-form-label">
                       <FormattedMessage id="MODEL.ACCOUNT.ADDRESS" />
                     </label>
                     <div className="input-group">
@@ -205,16 +207,38 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                           <i className="icon-xl flaticon-map-location text-primary"></i>
                         </span>
                       </div>
-                      <LocationSearchInput
+                      {/* Remplacement de LocationSearchInput */}
+                      <AddressSearchInput
                         address={address}
                         setAddress={setAddress}
                         setFieldValue={setFieldValue}
                         intl={intl}
+                        name="address"
+                        hasError={errors.address && touched.address}
+                        placeholder={intl.formatMessage({
+                          id: "MODEL.ACCOUNT.ADDRESS",
+                        })}
+                        onAddressSelect={(suggestion) => {
+                          setPostal(suggestion.postalCode);
+                          setCity(suggestion.localName);
+                        }}
+                        customStyles={{
+                          container: {
+                            flex: 1, // Pour que le composant prenne toute la largeur disponible
+                          },
+                          input: {
+                            border: "none", // Enlever la bordure car elle est gérée par input-group
+                            boxShadow: "none",
+                          },
+                        }}
                       />
                     </div>
-                    {touched.address && errors.address ? (
-                      <div className="asterisk">{errors["address"]}</div>
-                    ) : null}
+                    {/* Affichage des erreurs */}
+                    {errors.address && touched.address && (
+                      <div className="invalid-feedback d-block">
+                        {errors.address}
+                      </div>
+                    )}
                   </div>
                   {/* Complément d’adresse */}
                   <div className="col-lg-6">
@@ -231,7 +255,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         name="additionalAddress"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.ADDITIONALADDRESS"
+                          id: "MODEL.ACCOUNT.ADDITIONALADDRESS",
                         })}
                       />
                     </div>
@@ -252,10 +276,11 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                       </div>
                       <Field
                         name="postalcode"
+                        value={postal || ""}
                         disabled
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.POSTALCODE"
+                          id: "MODEL.ACCOUNT.POSTALCODE",
                         })}
                       />
                     </div>
@@ -279,7 +304,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         disabled
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.CITY"
+                          id: "MODEL.ACCOUNT.CITY",
                         })}
                       />
                     </div>
@@ -300,7 +325,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                       </div>
                       <Field
                         name="phoneNumber"
-                        onChange={e =>
+                        onChange={(e) =>
                           handleChangePhone(
                             setFieldValue,
                             setFieldTouched,
@@ -312,7 +337,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         }
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.PHONENUMBER"
+                          id: "MODEL.ACCOUNT.PHONENUMBER",
                         })}
                       />
                     </div>
@@ -335,7 +360,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         </span>
                       </div>
                       <Select className="form-control" name="paymentChoiceID">
-                        {paymentChoices.map(choice => {
+                        {paymentChoices.map((choice) => {
                           return (
                             <option key={choice.id} value={choice.id}>
                               {choice.name}
@@ -357,7 +382,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         </span>
                       </div>
                       <Select className="form-control" name="invoiceTypeID">
-                        {invoiceTypes.map(invoice => {
+                        {invoiceTypes.map((invoice) => {
                           return (
                             <option key={invoice.id} value={invoice.id}>
                               {invoice.name}
@@ -385,7 +410,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         name="description"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.DESCRIPTION"
+                          id: "MODEL.ACCOUNT.DESCRIPTION",
                         })}
                       />
                     </div>

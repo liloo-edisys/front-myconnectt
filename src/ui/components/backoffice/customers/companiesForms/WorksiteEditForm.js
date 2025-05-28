@@ -16,19 +16,19 @@ import * as Yup from "yup";
 import {
   getInvoicesTypes,
   getPaymentChoices,
-  getAPE
+  getAPE,
 } from "../../../../../business/actions/shared/ListsActions";
-import LocationSearchInput from "./location-search-input";
+import AddressSearchInput from "./location-search-input/AddressSearchInput";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
 function WorksiteEditForm({ onHide, intl, history, getData }) {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const [address, setAddress] = useState("");
+
   const [
     commercialAgreementsValidated,
-    setCommercialAgreementsValidated
+    setCommercialAgreementsValidated,
   ] = useState(false);
   const [currentCompany, setCurrentCompany] = useState(history.location.state);
   const [outstandingsValidated, setOutstandingsValidated] = useState(false);
@@ -36,16 +36,24 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
     false
   );
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [location, setLocation] = useState(null);
+  const [address, setAddress] = useState(
+    currentCompany ? currentCompany.address : ""
+  );
+  const [postal, setPostal] = useState(
+    currentCompany ? currentCompany.postalCode : ""
+  );
+  const [city, setCity] = useState(currentCompany ? currentCompany.city : "");
 
   const { invoiceTypes, paymentChoices, apeNumber } = useSelector(
-    state => ({
+    (state) => ({
       invoiceTypes: state.lists.invoiceTypes,
       paymentChoices: state.lists.paymentChoices,
-      apeNumber: state.lists.apeNumber
+      apeNumber: state.lists.apeNumber,
     }),
     shallowEqual
   );
-  const useMountEffect = fun => useEffect(fun, []);
+  const useMountEffect = (fun) => useEffect(fun, []);
 
   useMountEffect(() => {
     dispatch(getInvoicesTypes.request());
@@ -58,7 +66,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
     if (id) {
       const COMPANIES_URL =
         process.env.REACT_APP_WEBAPI_URL + "api/Account/" + id;
-      axios.get(COMPANIES_URL).then(res => {
+      axios.get(COMPANIES_URL).then((res) => {
         setCurrentCompany(res.data);
         setAddress(res.data.address);
         setPhoneNumber(
@@ -96,7 +104,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
     { name: intl.formatMessage({ id: "PAYMENT.60.DAYS.BILL" }), id: 2 },
     { name: intl.formatMessage({ id: "PAYMENT.30.DAYS.END.MONTH" }), id: 3 },
     { name: intl.formatMessage({ id: "PAYMENT.45.DAYS.END.MONTH" }), id: 4 },
-    { name: intl.formatMessage({ id: "PAYMENT.BILL.RECEIVED" }), id: 5 }
+    { name: intl.formatMessage({ id: "PAYMENT.BILL.RECEIVED" }), id: 5 },
   ];
 
   const sendAnael = () => {
@@ -106,14 +114,14 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
           "api/account/SendCustomerToAnael/" +
           id
       )
-      .then(res => {
+      .then((res) => {
         toastr.success(
           intl.formatMessage({ id: "TITLE.CHANTIER.EDIT" }),
           intl.formatMessage({ id: "MESSAGE.CHANTIER.ANAEL.SENT" })
         );
         onHide();
       })
-      .catch(err => {
+      .catch((err) => {
         let msg = err.response.data
           ? err.response.data
           : intl.formatMessage({ id: "TEXT.ERROR.FRIENDLY" });
@@ -128,10 +136,10 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
     apeNumber: currentCompany ? currentCompany.apeNumber : "",
     companyStatus: currentCompany ? currentCompany.companyStatus : "",
     tvaNumber: currentCompany ? currentCompany.tvaNumber : "",
-    address: currentCompany ? currentCompany.address : "",
+    address: address,
     additionaladdress: currentCompany ? currentCompany.additionalAddress : "",
-    postalCode: currentCompany ? currentCompany.postalCode : "",
-    city: currentCompany ? currentCompany.city : "",
+    postalCode: postal,
+    city: city,
     coefficient: currentCompany ? currentCompany.coefficient : "",
     phoneNumber: currentCompany ? currentCompany.phoneNumber : "",
     description: currentCompany ? currentCompany.description : "",
@@ -149,7 +157,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
     paymentChoiceID:
       currentCompany && currentCompany.paymentChoiceID
         ? currentCompany.paymentChoiceID
-        : 1
+        : 1,
   };
   // Validation schema
   const CompanyCreateSchema = Yup.object().shape({
@@ -176,7 +184,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
       .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
     anaelID: Yup.string()
       .min(9, intl.formatMessage({ id: "WARNING.ANAEL.LENGTH" }))
-      .max(9, intl.formatMessage({ id: "WARNING.ANAEL.LENGTH" }))
+      .max(9, intl.formatMessage({ id: "WARNING.ANAEL.LENGTH" })),
   });
 
   return (
@@ -187,14 +195,14 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
         validationSchema={CompanyCreateSchema}
         setFieldValue
         setFieldTouched
-        onSubmit={values => {
+        onSubmit={(values) => {
           let data = {
             ...values,
             tenantID: currentCompany.tenantID,
             commercialAgreementsValidated,
             outstandingsValidated,
             commercialContractSigned,
-            parentID: currentCompany.parentID
+            parentID: currentCompany.parentID,
           };
           dispatch(
             updateCompany.request(data),
@@ -211,7 +219,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
           touched,
           values,
           setFieldValue,
-          setFieldTouched
+          setFieldTouched,
         }) => (
           <>
             <Modal.Body className="overlay overlay-block cursor-default">
@@ -232,7 +240,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                         name="name"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.NAME"
+                          id: "MODEL.ACCOUNT.NAME",
                         })}
                       />
                     </div>
@@ -252,7 +260,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                         name="companyStatus"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.COMPANYSTATUS"
+                          id: "MODEL.ACCOUNT.COMPANYSTATUS",
                         })}
                       />
                     </div>
@@ -271,7 +279,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                         name="anaelID"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "TEXT.ANAEL.ID"
+                          id: "TEXT.ANAEL.ID",
                         })}
                       />
                       {touched.anaelID && errors.anaelID ? (
@@ -284,7 +292,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                 <div className="form-group row">
                   {/* Adresse */}
                   <div className="col-lg-6">
-                    <label className=" col-form-label">
+                    <label className="col-form-label">
                       <FormattedMessage id="MODEL.ACCOUNT.ADDRESS" />
                     </label>
                     <div className="input-group">
@@ -293,13 +301,38 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                           <i className="icon-xl flaticon-map-location text-primary"></i>
                         </span>
                       </div>
-                      <LocationSearchInput
+                      {/* Remplacement de LocationSearchInput */}
+                      <AddressSearchInput
                         address={address}
                         setAddress={setAddress}
                         setFieldValue={setFieldValue}
                         intl={intl}
+                        name="address"
+                        hasError={errors.address && touched.address}
+                        placeholder={intl.formatMessage({
+                          id: "MODEL.ACCOUNT.ADDRESS",
+                        })}
+                        onAddressSelect={(suggestion) => {
+                          setPostal(suggestion.postalCode);
+                          setCity(suggestion.freeformAddress);
+                        }}
+                        customStyles={{
+                          container: {
+                            flex: 1, // Pour que le composant prenne toute la largeur disponible
+                          },
+                          input: {
+                            border: "none", // Enlever la bordure car elle est gérée par input-group
+                            boxShadow: "none",
+                          },
+                        }}
                       />
                     </div>
+                    {/* Affichage des erreurs */}
+                    {errors.address && touched.address && (
+                      <div className="invalid-feedback d-block">
+                        {errors.address}
+                      </div>
+                    )}
                   </div>
                   {/* Complément d’adresse */}
                   <div className="col-lg-6">
@@ -316,7 +349,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                         name="additionaladdress"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.ADDITIONALADDRESS"
+                          id: "MODEL.ACCOUNT.ADDITIONALADDRESS",
                         })}
                       />
                     </div>
@@ -340,7 +373,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                         disabled
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.POSTALCODE"
+                          id: "MODEL.ACCOUNT.POSTALCODE",
                         })}
                       />
                     </div>
@@ -361,7 +394,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                         disabled
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.CITY"
+                          id: "MODEL.ACCOUNT.CITY",
                         })}
                       />
                     </div>
@@ -380,7 +413,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                       <Field
                         name="phoneNumber"
                         component={Input}
-                        onChange={e =>
+                        onChange={(e) =>
                           handleChangePhone(
                             setFieldValue,
                             setFieldTouched,
@@ -391,7 +424,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                           phoneNumber && phoneNumber.match(/.{1,2}/g).join(" ")
                         }
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.PHONENUMBER"
+                          id: "MODEL.ACCOUNT.PHONENUMBER",
                         })}
                       />
                     </div>
@@ -412,7 +445,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                         </span>
                       </div>
                       <Select className="form-control" name="paymentChoiceID">
-                        {paymentChoices.map(choice => {
+                        {paymentChoices.map((choice) => {
                           return (
                             <option key={choice.id} value={choice.id}>
                               {choice.name}
@@ -437,10 +470,10 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                         className="form-control"
                         name="paymentCondition"
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.PAYMENT_CONDITION"
+                          id: "MODEL.ACCOUNT.PAYMENT_CONDITION",
                         })}
                       >
-                        {paymentConditions.map(choice => {
+                        {paymentConditions.map((choice) => {
                           return (
                             <option
                               key={parseInt(choice.id)}
@@ -465,7 +498,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                         </span>
                       </div>
                       <Select className="form-control" name="invoiceTypeID">
-                        {invoiceTypes.map(invoice => {
+                        {invoiceTypes.map((invoice) => {
                           return (
                             <option key={invoice.id} value={invoice.id}>
                               {invoice.name}
@@ -493,7 +526,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                         name="description"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.DESCRIPTION"
+                          id: "MODEL.ACCOUNT.DESCRIPTION",
                         })}
                       />
                     </div>
@@ -513,7 +546,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                         name="coefficient"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.COEFFICIENT"
+                          id: "MODEL.ACCOUNT.COEFFICIENT",
                         })}
                       />
                     </div>
