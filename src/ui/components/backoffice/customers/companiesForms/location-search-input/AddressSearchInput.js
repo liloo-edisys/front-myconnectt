@@ -34,7 +34,7 @@ const AddressSearchInput = ({
   apiUrl = "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Map/search",
   postalCode,
   setPostalCode,
-  postalCodeName = "postalCode",
+  postalCodeName = "postalCode"
 }) => {
   // États locaux
   const [addressSuggestions, setAddressSuggestions] = useState([]);
@@ -56,7 +56,7 @@ const AddressSearchInput = ({
   );
 
   // Fonction pour rechercher les adresses
-  const fetchAddressSuggestions = async (query) => {
+  const fetchAddressSuggestions = async query => {
     if (!query || query.length < 3) return;
 
     setAddressSearchLoading(true);
@@ -66,8 +66,8 @@ const AddressSearchInput = ({
         `${apiUrl}?query=${encodeURIComponent(query)}`,
         {
           headers: {
-            accept: "text/plain",
-          },
+            accept: "text/plain"
+          }
         }
       );
 
@@ -82,7 +82,7 @@ const AddressSearchInput = ({
   };
 
   // Fonction pour sélectionner une adresse
-  const selectAddress = (suggestion) => {
+  const selectAddress = suggestion => {
     const addressText = suggestion.freeformAddress;
 
     // Mettre à jour l'adresse locale
@@ -111,7 +111,7 @@ const AddressSearchInput = ({
         freeformAddress: suggestion.freeformAddress || "",
         localName: suggestion.localName || "",
         position: suggestion.position || "",
-        postalCode: suggestion.postalCode || "",
+        postalCode: suggestion.postalCode || ""
       };
       onAddressSelect(addressData);
     }
@@ -145,7 +145,7 @@ const AddressSearchInput = ({
   };
 
   // Gestion du changement d'input
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const query = e.target.value;
     setAddress(query);
 
@@ -170,7 +170,7 @@ const AddressSearchInput = ({
   };
 
   // Gestion de la navigation au clavier
-  const handleKeyDown = (e) => {
+  const handleKeyDown = e => {
     if (addressSuggestions.length > 0) {
       if (e.key === "ArrowDown") {
         e.preventDefault();
@@ -198,7 +198,7 @@ const AddressSearchInput = ({
 
   // Effet pour fermer les suggestions lorsqu'on clique en dehors
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = event => {
       if (
         containerRef.current &&
         !containerRef.current.contains(event.target)
@@ -254,16 +254,16 @@ const AddressSearchInput = ({
     container: {
       position: "relative",
       width: "100%",
-      ...customStyles.container,
+      ...customStyles.container
     },
     inputGroup: {
       display: "flex",
       alignItems: "center",
-      ...customStyles.inputGroup,
+      ...customStyles.inputGroup
     },
     input: {
       flex: 1,
-      ...customStyles.input,
+      ...customStyles.input
     },
     loadingIndicator: {
       position: "absolute",
@@ -271,7 +271,7 @@ const AddressSearchInput = ({
       top: "50%",
       transform: "translateY(-50%)",
       pointerEvents: "none",
-      ...customStyles.loadingIndicator,
+      ...customStyles.loadingIndicator
     },
     clearButton: {
       position: "absolute",
@@ -283,7 +283,7 @@ const AddressSearchInput = ({
       cursor: "pointer",
       fontSize: "16px",
       color: "#6c757d",
-      ...customStyles.clearButton,
+      ...customStyles.clearButton
     },
     suggestionsContainer: {
       position: "absolute",
@@ -296,19 +296,19 @@ const AddressSearchInput = ({
       zIndex: 1000,
       maxHeight: "200px",
       overflowY: "auto",
-      ...customStyles.suggestionsContainer,
+      ...customStyles.suggestionsContainer
     },
     suggestionItem: {
       padding: "8px 12px",
       cursor: "pointer",
       borderBottom: "1px solid #f8f9fa",
       transition: "background-color 0.2s ease",
-      ...customStyles.suggestionItem,
+      ...customStyles.suggestionItem
     },
     suggestionItemActive: {
       backgroundColor: "#f8f9fa",
-      ...customStyles.suggestionItemActive,
-    },
+      ...customStyles.suggestionItemActive
+    }
   };
 
   return (
@@ -366,7 +366,7 @@ const AddressSearchInput = ({
         <div
           ref={addressSuggestionsRef}
           style={defaultStyles.suggestionsContainer}
-          onClick={(e) => e.stopPropagation()}
+          onClick={e => e.stopPropagation()}
         >
           {addressSuggestions.map((suggestion, index) => (
             <div
@@ -375,7 +375,7 @@ const AddressSearchInput = ({
                 ...defaultStyles.suggestionItem,
                 ...(selectedSuggestionIndex === index
                   ? defaultStyles.suggestionItemActive
-                  : {}),
+                  : {})
               }}
               onMouseEnter={() => setSelectedSuggestionIndex(index)}
               onClick={() => selectAddress(suggestion)}

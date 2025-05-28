@@ -14,7 +14,7 @@ import * as Yup from "yup";
 import {
   getAPE,
   getInvoicesTypes,
-  getPaymentChoices,
+  getPaymentChoices
 } from "actions/shared/ListsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import AddressSearchInput from "./location-search-input/AddressSearchInput";
@@ -29,10 +29,10 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const { invoiceTypes, paymentChoices, apeNumber } = useSelector(
-    (state) => ({
+    state => ({
       invoiceTypes: state.lists.invoiceTypes,
       paymentChoices: state.lists.paymentChoices,
-      apeNumber: state.lists.apeNumber,
+      apeNumber: state.lists.apeNumber
     }),
     shallowEqual
   );
@@ -81,7 +81,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
     tvaNumber: "",
     companyStatus: "",
     anaelID: "",
-    position: location ? location.position : null,
+    position: location ? location.position : null
   };
 
   // Validation schema
@@ -116,7 +116,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
       .typeError(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
     anaelID: Yup.string()
       .min(9, intl.formatMessage({ id: "WARNING.ANAEL.LENGTH" }))
-      .max(9, intl.formatMessage({ id: "WARNING.ANAEL.LENGTH" })),
+      .max(9, intl.formatMessage({ id: "WARNING.ANAEL.LENGTH" }))
   });
 
   return (
@@ -127,12 +127,12 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
         validationSchema={CompanyCreateSchema}
         setFieldValue
         setFieldTouched
-        onSubmit={(values) => {
+        onSubmit={values => {
           let data = {
             ...values,
             tenantID: currentCompany.tenantID,
             parentID: currentCompany.id,
-            invoiceTypeID: parseInt(values.InvoiceTypeID),
+            invoiceTypeID: parseInt(values.InvoiceTypeID)
           };
           setLatestClientEdited(currentCompany.id, dispatch);
           dispatch(createCompany.request(data, getData), onHide());
@@ -144,7 +144,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
           touched,
           values,
           setFieldValue,
-          setFieldTouched,
+          setFieldTouched
         }) => (
           <>
             <Modal.Body className="overlay overlay-block cursor-default">
@@ -165,7 +165,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
                         name="name"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "AUTH.REGISTER.COMPANY_NAME",
+                          id: "AUTH.REGISTER.COMPANY_NAME"
                         })}
                       />
                     </div>
@@ -188,7 +188,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
                         name="companyStatus"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.COMPANYSTATUS",
+                          id: "MODEL.ACCOUNT.COMPANYSTATUS"
                         })}
                       />
                     </div>
@@ -210,7 +210,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
                         name="anaelID"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "TEXT.ANAEL.ID",
+                          id: "TEXT.ANAEL.ID"
                         })}
                       />
                     </div>
@@ -241,19 +241,19 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
                         name="address"
                         hasError={errors.address && touched.address}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.ADDRESS",
+                          id: "MODEL.ACCOUNT.ADDRESS"
                         })}
-                        onAddressSelect={(suggestion) => {
+                        onAddressSelect={suggestion => {
                           setLocation(suggestion);
                         }}
                         customStyles={{
                           container: {
-                            flex: 1, // Pour que le composant prenne toute la largeur disponible
+                            flex: 1 // Pour que le composant prenne toute la largeur disponible
                           },
                           input: {
                             border: "none", // Enlever la bordure car elle est gérée par input-group
-                            boxShadow: "none",
-                          },
+                            boxShadow: "none"
+                          }
                         }}
                       />
                     </div>
@@ -279,7 +279,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
                         name="additionalAddress"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.ADDITIONALADDRESS",
+                          id: "MODEL.ACCOUNT.ADDITIONALADDRESS"
                         })}
                       />
                     </div>
@@ -303,7 +303,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
                         disabled
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.POSTALCODE",
+                          id: "MODEL.ACCOUNT.POSTALCODE"
                         })}
                       />
                     </div>
@@ -327,7 +327,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
                         disabled
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.CITY",
+                          id: "MODEL.ACCOUNT.CITY"
                         })}
                       />
                     </div>
@@ -349,7 +349,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
                       <Field
                         name="phoneNumber"
                         component={Input}
-                        onChange={(e) =>
+                        onChange={e =>
                           handleChangePhone(
                             setFieldValue,
                             setFieldTouched,
@@ -360,7 +360,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
                           phoneNumber && phoneNumber.match(/.{1,2}/g).join(" ")
                         }
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.PHONENUMBER",
+                          id: "MODEL.ACCOUNT.PHONENUMBER"
                         })}
                       />
                     </div>
@@ -383,7 +383,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
                         </span>
                       </div>
                       <Select className="form-control" name="paymentChoiceID">
-                        {paymentChoices.map((choice) => {
+                        {paymentChoices.map(choice => {
                           return (
                             <option key={choice.id} value={choice.id}>
                               {choice.name}
@@ -405,7 +405,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
                         </span>
                       </div>
                       <Select className="form-control" name="invoiceTypeID">
-                        {invoiceTypes.map((invoice) => {
+                        {invoiceTypes.map(invoice => {
                           return (
                             <option key={invoice.id} value={invoice.id}>
                               {invoice.name}
@@ -433,7 +433,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
                         name="description"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.DESCRIPTION",
+                          id: "MODEL.ACCOUNT.DESCRIPTION"
                         })}
                       />
                     </div>

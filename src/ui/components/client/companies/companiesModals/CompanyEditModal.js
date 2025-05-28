@@ -9,8 +9,8 @@ import CompanyEditForm from "../companiesForms/CompanyEditForm";
 
 export function CompanyCreateHeader({ id, companyName }) {
   const { actionsLoading } = useSelector(
-    (state) => ({
-      actionsLoading: state.companies.loading,
+    state => ({
+      actionsLoading: state.companies.loading
     }),
     shallowEqual
   );

@@ -18,11 +18,11 @@ function FormStepSix(props) {
   const [loading, setLoading] = useState(false);
 
   const { parsed, jobSkills, updateInterimaireIdentityLoading } = useSelector(
-    (state) => ({
+    state => ({
       jobSkills: state.lists.jobSkills,
       parsed: state.interimairesReducerData.interimaire,
       updateInterimaireIdentityLoading:
-        state.interimairesReducerData.updateInterimaireIdentityLoading,
+        state.interimairesReducerData.updateInterimaireIdentityLoading
     }),
     shallowEqual
   );
@@ -32,7 +32,7 @@ function FormStepSix(props) {
   const [role, setRole] = useLocalStorage("selectedRoles", []);
   const [distance, setDistance] = useLocalStorage("PostalCodeSearchZone", 50);
 
-  const handleChangeDistance = (event) => {
+  const handleChangeDistance = event => {
     const value = parseInt(event.target.value, 10);
     setDistance(value);
     props.formik.setFieldValue("PostalCodeSearchZone", value);
@@ -48,22 +48,20 @@ function FormStepSix(props) {
 
       // Initialiser les compétences directement depuis parsed et jobSkills
       if (parsed?.applicantArraySkills?.length > 0) {
-        const skillPromises = parsed.applicantArraySkills.map(
-          async (skillId) => {
-            try {
-              const skillResponse = await axios.get(
-                `${api}api/JobSkill/${skillId}`
-              );
-              return {
-                value: skillId,
-                label: skillResponse.data.name,
-              };
-            } catch (error) {
-              console.error(`Error fetching skill ${skillId}:`, error);
-              return null;
-            }
+        const skillPromises = parsed.applicantArraySkills.map(async skillId => {
+          try {
+            const skillResponse = await axios.get(
+              `${api}api/JobSkill/${skillId}`
+            );
+            return {
+              value: skillId,
+              label: skillResponse.data.name
+            };
+          } catch (error) {
+            console.error(`Error fetching skill ${skillId}:`, error);
+            return null;
           }
-        );
+        });
 
         const resolvedSkills = (await Promise.all(skillPromises)).filter(
           Boolean
@@ -74,14 +72,14 @@ function FormStepSix(props) {
       // Initialiser les rôles depuis missionArrayDesiredJobTitles
       if (parsed?.missionArrayDesiredJobTitles?.length > 0) {
         const rolePromises = parsed.missionArrayDesiredJobTitles.map(
-          async (titleId) => {
+          async titleId => {
             try {
               const titleResponse = await axios.get(
                 `${api}api/JobTitle/${titleId}`
               );
               return {
                 value: titleId,
-                label: titleResponse.data.name,
+                label: titleResponse.data.name
               };
             } catch (error) {
               console.error(`Error fetching job title ${titleId}:`, error);
@@ -106,12 +104,12 @@ function FormStepSix(props) {
   }, [parsed, jobSkills, api]);
 
   const handleSkillChange = React.useCallback(
-    (newValue) => {
+    newValue => {
       setSelectedSkills(newValue || []);
       if (props.formik.values) {
         props.formik.setFieldValue(
           "applicantArraySkills",
-          (newValue || []).map((skill) => skill.value)
+          (newValue || []).map(skill => skill.value)
         );
       }
     },
@@ -127,11 +125,11 @@ function FormStepSix(props) {
       }
 
       try {
-        const jobTitleIds = role.map((item) => item.value);
+        const jobTitleIds = role.map(item => item.value);
         console.log("Fetching skills for job titles:", jobTitleIds);
 
         const params = new URLSearchParams();
-        jobTitleIds.forEach((id) => params.append("JobTitles", id));
+        jobTitleIds.forEach(id => params.append("JobTitles", id));
 
         console.log(
           "API call URL:",
@@ -145,16 +143,16 @@ function FormStepSix(props) {
 
         if (response.data) {
           const formattedSkills = response.data
-            .filter((skill) => {
+            .filter(skill => {
               if (!skill?.name || !skill?.id) {
                 console.warn("Found invalid skill:", skill);
                 return false;
               }
               return true;
             })
-            .map((skill) => ({
+            .map(skill => ({
               label: skill.name,
-              value: skill.id,
+              value: skill.id
             }));
 
           console.log("Formatted skills:", formattedSkills);
@@ -168,7 +166,7 @@ function FormStepSix(props) {
         console.error("Error details:", {
           message: err.message,
           response: err.response?.data,
-          status: err.response?.status,
+          status: err.response?.status
         });
         toastr.error("Error", "Unable to load skills");
         setSkillsList([]);
@@ -183,7 +181,7 @@ function FormStepSix(props) {
   }, [jobSkills]);
 
   const handleChangeRole = React.useCallback(
-    (newValue) => {
+    newValue => {
       if (newValue && newValue.length > 8) {
         setRole(newValue.slice(0, 7));
         toastr.warning(
@@ -206,30 +204,30 @@ function FormStepSix(props) {
       borderColor: "transparent",
       boxShadow: null,
       "&:hover": {
-        borderColor: "transparent",
-      },
+        borderColor: "transparent"
+      }
     }),
-    menu: (base) => ({
+    menu: base => ({
       ...base,
       borderRadius: 0,
-      marginTop: 0,
+      marginTop: 0
     }),
-    menuList: (base) => ({
+    menuList: base => ({
       ...base,
-      padding: 0,
-    }),
+      padding: 0
+    })
   };
 
   const handleChangePage = async () => {
     setLoading(true);
     try {
-      const filteredSkills = selectedSkills.map((skill) => skill.value);
-      const filteredRole = role.map((r) => r.value);
+      const filteredSkills = selectedSkills.map(skill => skill.value);
+      const filteredRole = role.map(r => r.value);
 
       const body = {
         ...parsed,
         applicantArraySkills: filteredSkills,
-        missionArrayDesiredJobTitles: filteredRole,
+        missionArrayDesiredJobTitles: filteredRole
       };
       await dispatch(updateApplicant.request(body));
     } catch (err) {
@@ -339,7 +337,7 @@ function FormStepSix(props) {
                                       1000) *
                                       100}%, #e9ecef ${((distance || 0) /
                                       1000) *
-                                      100}%, #e9ecef 100%)`,
+                                      100}%, #e9ecef 100%)`
                                   }}
                                 />
                               </div>
