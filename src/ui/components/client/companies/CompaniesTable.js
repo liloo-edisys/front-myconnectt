@@ -6,7 +6,7 @@ import { useIntl } from "react-intl";
 
 import {
   NoRecordsFoundMessage,
-  PleaseWaitMessage
+  PleaseWaitMessage,
 } from "../../../../_metronic/_helpers";
 
 import CompanyCreateModal from "./companiesModals/CompanyCreateModal";
@@ -14,28 +14,22 @@ import { useCompaniesUIContext } from "./CompaniesUIContext";
 import ActionsColumnFormatter from "./customers-table/column-formatters/ActionsColumnFormatter";
 import { shallowEqual, useSelector } from "react-redux";
 
-function CompaniesTable({
-  companies,
-  createCompany,
-  handleClose,
-  show,
-  worksites
-}) {
+function CompaniesTable({ companies, handleClose, show, worksites }) {
   const intl = useIntl(); // intl extracted from useIntl hook
-  const formatWorksite = id => {
+  const formatWorksite = (id) => {
     if (worksites.length) {
-      return worksites.filter(worksite => worksite.parentID === id);
+      return worksites.filter((worksite) => worksite.parentID === id);
     }
     return [];
   };
   const { user } = useSelector(
-    state => ({
-      user: state.contacts.user
+    (state) => ({
+      user: state.contacts.user,
     }),
     shallowEqual
   );
   const expandRow = {
-    renderer: row => (
+    renderer: (row) => (
       <div className="subtable">
         <BootstrapTable
           wrapperClasses=""
@@ -60,7 +54,7 @@ function CompaniesTable({
         );
       }
       return null;
-    }
+    },
   };
 
   const companiesUIContext = useCompaniesUIContext();
@@ -74,7 +68,7 @@ function CompaniesTable({
       openEditCompanyDialog: companiesUIContext.openEditCompanyDialog,
       openDeleteCompanyDialog: companiesUIContext.openDeleteCompanyDialog,
       openEditWorksiteDialog: companiesUIContext.openEditWorksiteDialog,
-      openPreviewWorksiteDialog: companiesUIContext.openPreviewWorksiteDialog
+      openPreviewWorksiteDialog: companiesUIContext.openPreviewWorksiteDialog,
     };
   }, [companiesUIContext]);
 
@@ -82,28 +76,28 @@ function CompaniesTable({
     {
       dataField: "name",
       text: intl.formatMessage({ id: "MODEL.ACCOUNT.NAME" }),
-      sort: true
+      sort: true,
     },
     {
       dataField: "siret",
       text: intl.formatMessage({ id: "MODEL.ACCOUNT.SIRET" }),
       sort: true,
       sortCaret: sortCaret,
-      headerSortingClasses
+      headerSortingClasses,
     },
     {
       dataField: "postalCode",
       text: intl.formatMessage({ id: "MODEL.ACCOUNT.POSTALCODE" }),
       sort: true,
       sortCaret: sortCaret,
-      headerSortingClasses
+      headerSortingClasses,
     },
     {
       dataField: "city",
       text: intl.formatMessage({ id: "MODEL.ACCOUNT.CITY" }),
       sort: true,
       sortCaret: sortCaret,
-      headerSortingClasses
+      headerSortingClasses,
     },
     {
       dataField: "action",
@@ -112,37 +106,37 @@ function CompaniesTable({
       classes: "text-right pr-0",
       headerClasses: "text-right pr-3",
       style: {
-        minWidth: "100px"
+        minWidth: "100px",
       },
       formatExtraData: {
         newWorksiteButtonClick: companiesUIProps.newWorksiteButtonClick,
         openEditCompanyDialog: companiesUIProps.openEditCompanyDialog,
         openDeleteCompanyDialog: companiesUIProps.openDeleteCompanyDialog,
         openPreviewWorksiteDialog: companiesUIProps.openPreviewWorksiteDialog,
-        user: user
-      }
-    }
+        user: user,
+      },
+    },
   ];
 
   let worksiteColumns = [
     {
       dataField: "name",
       text: intl.formatMessage({ id: "MODEL.ACCOUNT.SITE.NAME" }),
-      sort: true
+      sort: true,
     },
     {
       dataField: "postalCode",
       text: intl.formatMessage({ id: "MODEL.ACCOUNT.POSTALCODE" }),
       sort: true,
       sortCaret: sortCaret,
-      headerSortingClasses
+      headerSortingClasses,
     },
     {
       dataField: "city",
       text: intl.formatMessage({ id: "MODEL.ACCOUNT.CITY" }),
       sort: true,
       sortCaret: sortCaret,
-      headerSortingClasses
+      headerSortingClasses,
     },
     {
       dataField: "action",
@@ -151,24 +145,20 @@ function CompaniesTable({
       classes: "text-right pr-0",
       headerClasses: "text-right pr-3",
       style: {
-        minWidth: "100px"
+        minWidth: "100px",
       },
       formatExtraData: {
         openEditWorksiteDialog: companiesUIProps.openEditWorksiteDialog,
         openDeleteCompanyDialog: companiesUIProps.openDeleteCompanyDialog,
         openPreviewWorksiteDialog: companiesUIProps.openPreviewWorksiteDialog,
-        user: user
-      }
-    }
+        user: user,
+      },
+    },
   ];
 
   return (
     <div>
-      <CompanyCreateModal
-        createCompany={createCompany}
-        onHide={handleClose}
-        show={show}
-      />
+      <CompanyCreateModal onHide={handleClose} show={show} />
       <BootstrapTable
         wrapperClasses="table-responsive"
         bordered={false}

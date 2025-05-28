@@ -7,12 +7,12 @@ import {
   Card,
   CardHeader,
   CardBody,
-  CardHeaderToolbar
+  CardHeaderToolbar,
 } from "../../../../_metronic/_partials/controls";
 
 import CompaniesTable from "./CompaniesTable";
 
-function CompaniesCard({ createCompany, companies }) {
+function CompaniesCard({ companies }) {
   const [show, setShow] = useState(null);
   const intl = useIntl();
 
@@ -22,16 +22,16 @@ function CompaniesCard({ createCompany, companies }) {
 
   console.log("<--------- CompaniesCard show value --------->", show);
 
-  const handleShow = id => () => {
+  const handleShow = (id) => () => {
     setShow(id);
   };
 
   const filteredCompanies = companies.length
-    ? companies.filter(company => company.parentID === null)
+    ? companies.filter((company) => company.parentID === null)
     : [];
 
   const worksites = companies.length
-    ? companies.filter(company => company.parentID !== null)
+    ? companies.filter((company) => company.parentID !== null)
     : [];
 
   return (
@@ -49,7 +49,6 @@ function CompaniesCard({ createCompany, companies }) {
       </CardHeader>
       <CardBody>
         <CompaniesTable
-          createCompany={createCompany}
           companies={filteredCompanies}
           handleClose={handleClose}
           worksites={worksites}

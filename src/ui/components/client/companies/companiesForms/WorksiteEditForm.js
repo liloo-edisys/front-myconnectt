@@ -15,10 +15,10 @@ import * as Yup from "yup";
 import {
   getInvoicesTypes,
   getPaymentChoices,
-  getAPE
+  getAPE,
 } from "../../../../../business/actions/shared/ListsActions";
 import { checkFields } from "actions/client/CompaniesActions";
-import LocationSearchInput from "./location-search-input";
+import AddressSearchInput from "../companiesForms/location-search-input/AddressSearchInput";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
@@ -27,17 +27,19 @@ function WorksiteEditForm({ onHide, intl, history }) {
   const dispatch = useDispatch();
   const [currentCompany, setCurrentCompany] = useState(history.location.state);
   const [address, setAddress] = useState("");
+  const [postal, setPostal] = useState("");
+  const [city, setCity] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const { invoiceTypes, paymentChoices, apeNumber } = useSelector(
-    state => ({
+    (state) => ({
       invoiceTypes: state.lists.invoiceTypes,
       paymentChoices: state.lists.paymentChoices,
-      apeNumber: state.lists.apeNumber
+      apeNumber: state.lists.apeNumber,
     }),
     shallowEqual
   );
-  const useMountEffect = fun => useEffect(fun, []);
+  const useMountEffect = (fun) => useEffect(fun, []);
 
   useMountEffect(() => {
     dispatch(getInvoicesTypes.request());
@@ -48,7 +50,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
     if (id) {
       const COMPANIES_URL =
         process.env.REACT_APP_WEBAPI_URL + "api/Account/" + id;
-      axios.get(COMPANIES_URL).then(res => {
+      axios.get(COMPANIES_URL).then((res) => {
         setCurrentCompany(res.data);
         setAddress(res.data.address);
         setPhoneNumber(
@@ -79,7 +81,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
     { name: intl.formatMessage({ id: "PAYMENT.60.DAYS.BILL" }), id: 2 },
     { name: intl.formatMessage({ id: "PAYMENT.30.DAYS.END.MONTH" }), id: 3 },
     { name: intl.formatMessage({ id: "PAYMENT.45.DAYS.END.MONTH" }), id: 4 },
-    { name: intl.formatMessage({ id: "PAYMENT.BILL.RECEIVED" }), id: 5 }
+    { name: intl.formatMessage({ id: "PAYMENT.BILL.RECEIVED" }), id: 5 },
   ];
 
   const initialValues = {
@@ -109,7 +111,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
     paymentChoiceID:
       currentCompany && currentCompany.paymentChoiceID
         ? currentCompany.paymentChoiceID
-        : 1
+        : 1,
   };
 
   // Validation schema
@@ -134,7 +136,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
         /^(\+33|0)(1|2|3|4|5|6|7|8|9)\d{8}$/,
         intl.formatMessage({ id: "MESSAGE.FORMAT.PHONE" })
       )
-      .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" }))
+      .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
   });
 
   return (
@@ -145,16 +147,23 @@ function WorksiteEditForm({ onHide, intl, history }) {
         validationSchema={CompanyCreateSchema}
         setFieldValue
         setFieldTouched
-        onSubmit={values => {
+        onSubmit={(values) => {
           let data = {
             ...values,
             tenantID: currentCompany.tenantID,
-            parentID: currentCompany.parentID
+            parentID: currentCompany.parentID,
           };
           dispatch(updateCompany.request(data), onHide());
         }}
       >
-        {({ handleSubmit, values, setFieldValue, setFieldTouched }) => (
+        {({
+          handleSubmit,
+          values,
+          errors,
+          touched,
+          setFieldValue,
+          setFieldTouched,
+        }) => (
           <>
             <Modal.Body className="overlay overlay-block cursor-default">
               <Form className="form form-label-right">
@@ -174,7 +183,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
                         name="name"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.NAME"
+                          id: "MODEL.ACCOUNT.NAME",
                         })}
                       />
                     </div>
@@ -194,7 +203,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
                         name="companyStatus"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.COMPANYSTATUS"
+                          id: "MODEL.ACCOUNT.COMPANYSTATUS",
                         })}
                       />
                     </div>
@@ -205,7 +214,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
                 <div className="form-group row">
                   {/* Adresse */}
                   <div className="col-lg-6">
-                    <label className=" col-form-label">
+                    <label className="col-form-label">
                       <FormattedMessage id="MODEL.ACCOUNT.ADDRESS" />
                     </label>
                     <div className="input-group">
@@ -214,13 +223,45 @@ function WorksiteEditForm({ onHide, intl, history }) {
                           <i className="icon-xl flaticon-map-location text-primary"></i>
                         </span>
                       </div>
-                      <LocationSearchInput
-                        address={address}
-                        setAddress={setAddress}
+                      <AddressSearchInput
+                        address={address} // Utiliser address en priorité puis values.address
+                        setAddress={(newAddress) => {
+                          setAddress(newAddress);
+                          setFieldValue("address", newAddress);
+                        }}
                         setFieldValue={setFieldValue}
                         intl={intl}
+                        name="address"
+                        hasError={errors.address && touched.address}
+                        placeholder={intl.formatMessage({
+                          id: "MODEL.ACCOUNT.ADDRESS",
+                        })}
+                        onAddressSelect={(suggestion) => {
+                          setAddress(suggestion.freeformAddress);
+                          setPostal(suggestion.postalCode);
+                          setCity(suggestion.localName);
+
+                          // Mettre à jour les valeurs Formik
+                          setFieldValue("address", suggestion.freeformAddress);
+                          setFieldValue("postalcode", suggestion.postalCode);
+                          setFieldValue("city", suggestion.localName);
+                        }}
+                        customStyles={{
+                          container: {
+                            flex: 1,
+                          },
+                          input: {
+                            border: "none",
+                            boxShadow: "none",
+                          },
+                        }}
                       />
                     </div>
+                    {errors.address && touched.address && (
+                      <div className="invalid-feedback d-block">
+                        {errors.address}
+                      </div>
+                    )}
                   </div>
                   {/* Complément d’adresse */}
                   <div className="col-lg-6">
@@ -237,7 +278,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
                         name="additionaladdress"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.ADDITIONALADDRESS"
+                          id: "MODEL.ACCOUNT.ADDITIONALADDRESS",
                         })}
                       />
                     </div>
@@ -261,7 +302,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
                         disabled
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.POSTALCODE"
+                          id: "MODEL.ACCOUNT.POSTALCODE",
                         })}
                       />
                     </div>
@@ -282,7 +323,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
                         disabled
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.CITY"
+                          id: "MODEL.ACCOUNT.CITY",
                         })}
                       />
                     </div>
@@ -300,7 +341,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
                       </div>
                       <Field
                         name="phoneNumber"
-                        onChange={e =>
+                        onChange={(e) =>
                           handleChangePhone(
                             setFieldValue,
                             setFieldTouched,
@@ -312,7 +353,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
                         }
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.PHONENUMBER"
+                          id: "MODEL.ACCOUNT.PHONENUMBER",
                         })}
                       />
                     </div>
@@ -333,7 +374,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
                         </span>
                       </div>
                       <Select className="form-control" name="paymentChoiceID">
-                        {paymentChoices.map(choice => {
+                        {paymentChoices.map((choice) => {
                           return (
                             <option key={choice.id} value={choice.id}>
                               {choice.name}
@@ -359,10 +400,10 @@ function WorksiteEditForm({ onHide, intl, history }) {
                         name="paymentCondition"
                         disabled
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.PAYMENT_CONDITION"
+                          id: "MODEL.ACCOUNT.PAYMENT_CONDITION",
                         })}
                       >
-                        {paymentConditions.map(choice => {
+                        {paymentConditions.map((choice) => {
                           return (
                             <option
                               key={parseInt(choice.id)}
@@ -387,7 +428,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
                         </span>
                       </div>
                       <Select className="form-control" name="invoiceTypeID">
-                        {invoiceTypes.map(invoice => {
+                        {invoiceTypes.map((invoice) => {
                           return (
                             <option key={invoice.id} value={invoice.id}>
                               {invoice.name}
@@ -415,7 +456,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
                         name="description"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.DESCRIPTION"
+                          id: "MODEL.ACCOUNT.DESCRIPTION",
                         })}
                       />
                     </div>
@@ -436,7 +477,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
                         component={Input}
                         disabled
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.COEFFICIENT"
+                          id: "MODEL.ACCOUNT.COEFFICIENT",
                         })}
                       />
                     </div>
