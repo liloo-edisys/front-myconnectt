@@ -14,7 +14,7 @@ import * as Yup from "yup";
 import {
   getAPE,
   getInvoicesTypes,
-  getPaymentChoices,
+  getPaymentChoices
 } from "actions/shared/ListsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import AddressSearchInput from "../companiesForms/location-search-input/AddressSearchInput";
@@ -29,10 +29,10 @@ function WorksiteCreateForm({ onHide, intl, history }) {
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const { invoiceTypes, paymentChoices, apeNumber } = useSelector(
-    (state) => ({
+    state => ({
       invoiceTypes: state.lists.invoiceTypes,
       paymentChoices: state.lists.paymentChoices,
-      apeNumber: state.lists.apeNumber,
+      apeNumber: state.lists.apeNumber
     }),
     shallowEqual
   );
@@ -74,7 +74,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
     paymentChoiceID: 1,
     apeNumber: "",
     tvaNumber: "",
-    companyStatus: "",
+    companyStatus: ""
   });
 
   // Validation schema
@@ -100,7 +100,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
         intl.formatMessage({ id: "MESSAGE.FORMAT.PHONE" })
       )
       .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" }))
-      .typeError(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
+      .typeError(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" }))
   });
 
   const handleChangePhone = (setFieldValue, setFieldTouched, e) => {
@@ -121,12 +121,12 @@ function WorksiteCreateForm({ onHide, intl, history }) {
         enableReinitialize={false} // Désactiver la réinitialisation automatique
         initialValues={initialValues}
         validationSchema={CompanyCreateSchema}
-        onSubmit={(values) => {
+        onSubmit={values => {
           let data = {
             ...values,
             tenantID: currentCompany.tenantID,
             parentID: currentCompany.id,
-            invoiceTypeID: parseInt(values.InvoiceTypeID),
+            invoiceTypeID: parseInt(values.InvoiceTypeID)
           };
           dispatch(createCompany.request(data), onHide());
         }}
@@ -137,7 +137,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
           touched,
           values,
           setFieldValue,
-          setFieldTouched,
+          setFieldTouched
         }) => (
           <>
             <Modal.Body className="overlay overlay-block cursor-default">
@@ -158,7 +158,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         name="name"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "AUTH.REGISTER.COMPANY_NAME",
+                          id: "AUTH.REGISTER.COMPANY_NAME"
                         })}
                       />
                     </div>
@@ -181,7 +181,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         name="companyStatus"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.COMPANYSTATUS",
+                          id: "MODEL.ACCOUNT.COMPANYSTATUS"
                         })}
                       />
                     </div>
@@ -204,7 +204,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                       </div>
                       <AddressSearchInput
                         address={address || values.address}
-                        setAddress={(newAddress) => {
+                        setAddress={newAddress => {
                           setAddress(newAddress);
                           setFieldValue("address", newAddress);
                         }}
@@ -213,9 +213,9 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         name="address"
                         hasError={errors.address && touched.address}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.ADDRESS",
+                          id: "MODEL.ACCOUNT.ADDRESS"
                         })}
-                        onAddressSelect={(suggestion) => {
+                        onAddressSelect={suggestion => {
                           console.log("Suggestion reçue:", suggestion); // Pour débugger
                           setAddress(suggestion.freeformAddress);
                           setPostal(suggestion.postalCode);
@@ -228,12 +228,12 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         }}
                         customStyles={{
                           container: {
-                            flex: 1,
+                            flex: 1
                           },
                           input: {
                             border: "none",
-                            boxShadow: "none",
-                          },
+                            boxShadow: "none"
+                          }
                         }}
                       />
                     </div>
@@ -258,7 +258,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         name="additionalAddress"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.ADDITIONALADDRESS",
+                          id: "MODEL.ACCOUNT.ADDITIONALADDRESS"
                         })}
                       />
                     </div>
@@ -283,7 +283,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         disabled
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.POSTALCODE",
+                          id: "MODEL.ACCOUNT.POSTALCODE"
                         })}
                       />
                     </div>
@@ -308,7 +308,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         disabled
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.CITY",
+                          id: "MODEL.ACCOUNT.CITY"
                         })}
                       />
                     </div>
@@ -329,7 +329,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                       </div>
                       <Field
                         name="phoneNumber"
-                        onChange={(e) =>
+                        onChange={e =>
                           handleChangePhone(
                             setFieldValue,
                             setFieldTouched,
@@ -344,7 +344,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         }
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.PHONENUMBER",
+                          id: "MODEL.ACCOUNT.PHONENUMBER"
                         })}
                       />
                     </div>
@@ -367,7 +367,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         </span>
                       </div>
                       <Select className="form-control" name="paymentChoiceID">
-                        {paymentChoices.map((choice) => {
+                        {paymentChoices.map(choice => {
                           return (
                             <option key={choice.id} value={choice.id}>
                               {choice.name}
@@ -389,7 +389,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         </span>
                       </div>
                       <Select className="form-control" name="invoiceTypeID">
-                        {invoiceTypes.map((invoice) => {
+                        {invoiceTypes.map(invoice => {
                           return (
                             <option key={invoice.id} value={invoice.id}>
                               {invoice.name}
@@ -417,7 +417,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                         name="description"
                         component={Input}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.DESCRIPTION",
+                          id: "MODEL.ACCOUNT.DESCRIPTION"
                         })}
                       />
                     </div>
