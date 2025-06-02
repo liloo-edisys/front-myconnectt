@@ -15,7 +15,7 @@ import Select from "react-select";
 import {
   createMission,
   updateMission,
-  getHabilitationsList,
+  getHabilitationsList
 } from "actions/client/MissionsActions";
 import { Input } from "metronic/_partials/controls";
 import useLocalStorage from "../../../shared/PersistState";
@@ -29,7 +29,7 @@ import TimePicker from "rc-time-picker";
 import {
   getDriverLicences,
   getMissionEquipment,
-  getMissionReasons,
+  getMissionReasons
 } from "../../../../../business/actions/shared/ListsActions";
 import { toastr } from "react-redux-toastr";
 
@@ -45,9 +45,9 @@ function FormStepFour(props) {
     template,
     newMission,
     isTemplate,
-    isDuplicate,
+    isDuplicate
   } = useSelector(
-    (state) => ({
+    state => ({
       saveMissionSuccess: state.missionsReducerData.saveMissionSuccess,
       missionsReasons: state.lists.missionsReasons,
       driverLicenses: state.lists.driverLicenses,
@@ -55,7 +55,7 @@ function FormStepFour(props) {
       template: state.missionsReducerData.mission,
       newMission: state.missionsReducerData.lastCreatedMission,
       isTemplate: !isNullOrEmpty(state.missionsReducerData.currentTemplate),
-      isDuplicate: !isNullOrEmpty(state.missionsReducerData.currentDuplicate),
+      isDuplicate: !isNullOrEmpty(state.missionsReducerData.currentDuplicate)
     }),
     shallowEqual
   );
@@ -257,26 +257,26 @@ function FormStepFour(props) {
       borderColor: "transparent",
       boxShadow: null,
       "&:hover": {
-        borderColor: "transparent",
-      },
+        borderColor: "transparent"
+      }
     }),
-    menu: (base) => ({
+    menu: base => ({
       ...base,
       borderRadius: 0,
-      marginTop: 0,
+      marginTop: 0
     }),
-    menuList: (base) => ({
+    menuList: base => ({
       ...base,
-      padding: 0,
-    }),
+      padding: 0
+    })
   };
 
-  const formatEquipment = (data) => {
+  const formatEquipment = data => {
     if (missionEquipment.length) {
       let newArray = [];
       !isNullOrEmpty(data) &&
-        data.map((eq) => {
-          let value = missionEquipment.filter((l) => l.id === eq);
+        data.map(eq => {
+          let value = missionEquipment.filter(l => l.id === eq);
           if (!isNullOrEmpty(value)) {
             newArray.push(
               createOption(
@@ -290,11 +290,11 @@ function FormStepFour(props) {
     }
   };
 
-  const formatLicenses = (data) => {
+  const formatLicenses = data => {
     if (driverLicenses.length) {
       let newArray = [];
-      data.map((license) => {
-        let value = driverLicenses.filter((l) => l.id === license);
+      data.map(license => {
+        let value = driverLicenses.filter(l => l.id === license);
         if (!isNullOrEmpty(value)) {
           newArray.push(
             createOption(
@@ -307,18 +307,17 @@ function FormStepFour(props) {
       setSelectedLicences(newArray);
     }
   };
-  const handleChangeEquipment = (newValue) => {
+  const handleChangeEquipment = newValue => {
     let formikEquipment = [];
     let newArray = [...selectedEquipment];
     let difference =
-      newValue !== null &&
-      selectedEquipment.filter((x) => !newValue.includes(x)); // calculates diff
+      newValue !== null && selectedEquipment.filter(x => !newValue.includes(x)); // calculates diff
     if (!difference.length && newValue === null) {
       newArray = [];
     } else if (difference.length) {
-      let filteredArray = selectedEquipment.filter((x) => newValue.includes(x));
+      let filteredArray = selectedEquipment.filter(x => newValue.includes(x));
       newArray = [];
-      filteredArray.map((tag) =>
+      filteredArray.map(tag =>
         newArray.push(createOption(tag.label, tag.value))
       );
     } else {
@@ -331,31 +330,31 @@ function FormStepFour(props) {
     }
 
     newValue !== null &&
-      newValue.map((value) => {
+      newValue.map(value => {
         return formikEquipment.push(value.value);
       });
     setSelectedEquipment(newArray);
     props.formik.setFieldValue("missionArrayEquipments", formikEquipment);
   };
 
-  const formatFormik = (values) => {
+  const formatFormik = values => {
     let formatedValues = [];
-    values.map((value) => {
+    values.map(value => {
       return formatedValues.push(value.value);
     });
     return formatedValues;
   };
 
-  const handleChangeLicense = (newValue) => {
+  const handleChangeLicense = newValue => {
     let newArray = [...selectedLicense];
     let difference =
-      newValue !== null && selectedLicense.filter((x) => !newValue.includes(x));
+      newValue !== null && selectedLicense.filter(x => !newValue.includes(x));
     if (!difference.length && newValue === null) {
       newArray = [];
     } else if (difference.length) {
-      let filteredArray = selectedLicense.filter((x) => newValue.includes(x));
+      let filteredArray = selectedLicense.filter(x => newValue.includes(x));
       newArray = [];
-      filteredArray.map((tag) => {
+      filteredArray.map(tag => {
         return newArray.push(createOption(tag.label, tag.value));
       });
     } else {
@@ -380,7 +379,7 @@ function FormStepFour(props) {
         <div className="d-flex align-items-center">
           <Field
             checked={selecteReasons === reason.id}
-            onClick={(e) => {
+            onClick={e => {
               reason.id === 1 && setReasonExtra("");
               setSelectedReasons(reason.id);
               props.formik.setFieldValue(
@@ -400,17 +399,17 @@ function FormStepFour(props) {
 
   const createOption = (label, value) => ({
     label,
-    value,
+    value
   });
-  let formatedLicenses = driverLicenses.map((license) => {
+  let formatedLicenses = driverLicenses.map(license => {
     return license && createOption(license.name, license.id);
   });
 
-  let formatedEquipment = missionEquipment.map((equipment) => {
+  let formatedEquipment = missionEquipment.map(equipment => {
     return equipment && createOption(equipment.name, equipment.id);
   });
 
-  const handleChangeEndHour = (value) => {
+  const handleChangeEndHour = value => {
     onChangeEndHour(value);
     props.formik.setFieldValue(
       "missionFirstDayMeetingTime",
@@ -424,7 +423,7 @@ function FormStepFour(props) {
       delete data["missionHasVehicle"];
     dispatch(
       countMatching.request({
-        ...data,
+        ...data
       })
     );
   };
@@ -434,7 +433,7 @@ function FormStepFour(props) {
     selectedEquipment,
     selectedLicense,
     selectedTags,
-    selectedLanguage,
+    selectedLanguage
   ]);
   if (saveMissionSuccess === true) {
     return <Redirect to="/mission-create/final-step" />;
@@ -477,9 +476,9 @@ function FormStepFour(props) {
                             className="col-lg-12 form-control"
                             type="text"
                             placeholder={intl.formatMessage({
-                              id: "MODEL.VACANCY.CONTACT_NAME",
+                              id: "MODEL.VACANCY.CONTACT_NAME"
                             })}
-                            onChange={(e) => {
+                            onChange={e => {
                               setContactName(e.target.value);
                               e.persist = () => {};
                               props.formik.setFieldValue(
@@ -516,10 +515,10 @@ function FormStepFour(props) {
                             type="text"
                             maxLength="210"
                             placeholder={intl.formatMessage({
-                              id: "MODEL.VACANCY.35H",
+                              id: "MODEL.VACANCY.35H"
                             })}
                             value={hoursInfo}
-                            onChange={(e) => {
+                            onChange={e => {
                               setHoursInfos(e.target.value);
                               props.formik.setFieldValue(
                                 "mission35HInformation",
@@ -546,7 +545,7 @@ function FormStepFour(props) {
                           </div>
                           <Select
                             isMulti
-                            onChange={(e) => handleChangeEquipment(e)}
+                            onChange={e => handleChangeEquipment(e)}
                             options={formatedEquipment}
                             styles={customStyles}
                             value={selectedEquipment}
@@ -592,9 +591,9 @@ function FormStepFour(props) {
                             type="text"
                             maxLength="140"
                             placeholder={intl.formatMessage({
-                              id: "MODEL.VACANCY.JUSTIFICATION",
+                              id: "MODEL.VACANCY.JUSTIFICATION"
                             })}
-                            onChange={(e) => {
+                            onChange={e => {
                               setReasonExtra(e.target.value);
 
                               props.formik.setFieldValue(
@@ -634,10 +633,10 @@ function FormStepFour(props) {
                             className="col-lg-12 form-control"
                             type="text"
                             placeholder={intl.formatMessage({
-                              id: "MODEL.VACANCY.VEHICLE",
+                              id: "MODEL.VACANCY.VEHICLE"
                             })}
                             value={selecteVehicules}
-                            onChange={(e) => {
+                            onChange={e => {
                               setSelecteVehicules(e.target.value);
                               props.formik.setFieldValue(
                                 "missionHasVehicle",
@@ -682,7 +681,7 @@ function FormStepFour(props) {
                           </div>
                           <Select
                             isMulti
-                            onChange={(e) => handleChangeLicense(e)}
+                            onChange={e => handleChangeLicense(e)}
                             options={formatedLicenses}
                             styles={customStyles}
                             value={selectedLicense}
@@ -727,9 +726,9 @@ function FormStepFour(props) {
                                 className="col-lg-12 form-control"
                                 type="text"
                                 placeholder={intl.formatMessage({
-                                  id: "MODEL.VACANCY.MEETING_CONTACT",
+                                  id: "MODEL.VACANCY.MEETING_CONTACT"
                                 })}
-                                onChange={(e) => {
+                                onChange={e => {
                                   props.formik.setFieldValue(
                                     "missionFirstDayContactName",
                                     e.target.value
@@ -757,9 +756,9 @@ function FormStepFour(props) {
                                 className="col-lg-12 form-control"
                                 type="text"
                                 placeholder={intl.formatMessage({
-                                  id: "MODEL.VACANCY.MEETING_PHONE",
+                                  id: "MODEL.VACANCY.MEETING_PHONE"
                                 })}
-                                onChange={(e) => {
+                                onChange={e => {
                                   props.formik.setFieldValue(
                                     "missionFirstDayContactPhone",
                                     e.target.value
@@ -792,7 +791,7 @@ function FormStepFour(props) {
                                     ? moment(endHour)
                                     : null
                                 }
-                                onChange={(e) => {
+                                onChange={e => {
                                   handleChangeEndHour(e);
                                   onChangeEndHour(e);
                                 }}
@@ -800,7 +799,7 @@ function FormStepFour(props) {
                                 clearIcon={false}
                                 onBlur={props.formik.handleBlur}
                                 name="missionFirstDayMeetingTime"
-                                addon={(panel) => (
+                                addon={panel => (
                                   <button
                                     type="button"
                                     className="btn btn-light-primary btn-shadow m-0 p-0 font-weight-bold px-5 py-1 my-3 mx-4"
@@ -833,9 +832,9 @@ function FormStepFour(props) {
                                 className="col-lg-12 form-control"
                                 type="text"
                                 placeholder={intl.formatMessage({
-                                  id: "MODEL.VACANCY.MEETING_PLACE",
+                                  id: "MODEL.VACANCY.MEETING_PLACE"
                                 })}
-                                onChange={(e) => {
+                                onChange={e => {
                                   props.formik.setFieldValue(
                                     "missionFirstDayAddress",
                                     e.target.value
@@ -863,9 +862,9 @@ function FormStepFour(props) {
                                 className="col-lg-12 form-control"
                                 type="text"
                                 placeholder={intl.formatMessage({
-                                  id: "MODEL.ACCOUNT.ADDITIONALADDRESS",
+                                  id: "MODEL.ACCOUNT.ADDITIONALADDRESS"
                                 })}
-                                onChange={(e) => {
+                                onChange={e => {
                                   props.formik.setFieldValue(
                                     "missionFirstDayAdditionalAddress",
                                     e.target.value
@@ -894,9 +893,9 @@ function FormStepFour(props) {
                                 className="col-lg-12 form-control"
                                 type="text"
                                 placeholder={intl.formatMessage({
-                                  id: "MODEL.ACCOUNT.POSTALCODE",
+                                  id: "MODEL.ACCOUNT.POSTALCODE"
                                 })}
-                                onChange={(e) => {
+                                onChange={e => {
                                   props.formik.setFieldValue(
                                     "missionFirstDayPostalCode",
                                     e.target.value
@@ -925,9 +924,9 @@ function FormStepFour(props) {
                                 className="col-lg-12 form-control"
                                 type="text"
                                 placeholder={intl.formatMessage({
-                                  id: "MODEL.ACCOUNT.CITY",
+                                  id: "MODEL.ACCOUNT.CITY"
                                 })}
-                                onChange={(e) => {
+                                onChange={e => {
                                   props.formik.setFieldValue(
                                     "missionFirstDayCity",
                                     e.target.value
@@ -973,15 +972,15 @@ function FormStepFour(props) {
                                       ...props.formik.values,
                                       MissionIsValidated: false,
                                       IsCreateTemplate: true,
-                                      id: template.id,
+                                      id: template.id
                                     })
                                   )
                                 : toastr.error(
                                     intl.formatMessage({
-                                      id: "VALIDATION.REQUIRED_FIELDS.TITLE",
+                                      id: "VALIDATION.REQUIRED_FIELDS.TITLE"
                                     }),
                                     intl.formatMessage({
-                                      id: "VALIDATION.REQUIRED_FIELDS.DESC",
+                                      id: "VALIDATION.REQUIRED_FIELDS.DESC"
                                     })
                                   );
                               props.formik.setFieldTouched(
@@ -1018,15 +1017,15 @@ function FormStepFour(props) {
                                 ? dispatch(
                                     createMission.request({
                                       ...props.formik.values,
-                                      saveMission: true,
+                                      saveMission: true
                                     })
                                   )
                                 : toastr.error(
                                     intl.formatMessage({
-                                      id: "VALIDATION.REQUIRED_FIELDS.TITLE",
+                                      id: "VALIDATION.REQUIRED_FIELDS.TITLE"
                                     }),
                                     intl.formatMessage({
-                                      id: "VALIDATION.REQUIRED_FIELDS.DESC",
+                                      id: "VALIDATION.REQUIRED_FIELDS.DESC"
                                     })
                                   );
                               props.formik.setFieldTouched(
