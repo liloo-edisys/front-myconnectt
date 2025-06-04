@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
 
 import Moment from "moment";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import {
   validateMission,
   resetMission,
-  getHabilitationsList
+  getHabilitationsList,
 } from "actions/client/MissionsActions";
 import { Redirect } from "react-router";
+import { Link } from "react-router-dom";
+import BootstrapTable from "react-bootstrap-table-next";
 
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import RecurrenceModal from "./ReccurenceModal";
 import {
   getJobTitles,
   getMissionExperiences,
@@ -21,16 +22,17 @@ import {
   getLanguages,
   getJobSkills,
   getJobTags,
-  getMissionEquipment
+  getMissionEquipment,
 } from "actions/shared/ListsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { getMission } from "api/client/MissionsApi";
 import {
   deleteCurrentDuplicate,
-  deleteCurrentTemplate
+  deleteCurrentTemplate,
 } from "actions/client/MissionsActions";
 import { deleteFromStorage } from "../../../shared/DeleteFromStorage";
 import SimulatorModal from "./SimulatorModal";
+import RecurrenceModal from "./ReccurenceModal";
 import axios from "axios";
 function FinalStep(props) {
   const dispatch = useDispatch();
@@ -47,9 +49,9 @@ function FinalStep(props) {
     missionRemuneration,
     missionToDisplay,
     loading,
-    habilitations
+    habilitations,
   } = useSelector(
-    state => ({
+    (state) => ({
       updateMissionSuccess: state.missionsReducerData.updateMissionSuccess,
       missionExperiences: state.lists.missionExperiences,
       missionsReasons: state.lists.missionsReasons,
@@ -62,10 +64,11 @@ function FinalStep(props) {
       missionEquipment: state.lists.missionEquipment,
       missionToDisplay: state.missionsReducerData.lastCreatedMission,
       loading: state.missionsReducerData.loading,
-      habilitations: state.missionsReducerData.habilitations
+      habilitations: state.missionsReducerData.habilitations,
     }),
     shallowEqual
   );
+  const intl = useIntl();
   const [agreementValidated, setAgreementValidated] = useState(false);
   const [toggleSimulator, setToogleSimilator] = useState(false);
   let isPreview = localStorage.getItem("isPreview");
@@ -74,9 +77,76 @@ function FinalStep(props) {
   const [selectedRecurrenceType, setSelectedRecurrenceType] = useState(0);
   const [nextDate, setNextDate] = useState(null);
   const [isLoading, setIsLoading] = useState({ initial: true });
-  const [recurrenceTypes, setRecurrenceTypes] = useState([]);
+  const [recurrenceTypes, setRecurrenceTypes] = useState();
 
-  const useMountEffect = fun => useEffect(fun, []);
+  const fetchExistingRecurrence = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_WEBAPI_URL}api/VacancyOfferProgram/ByVacancyId/${missionToDisplay.id}`,
+        {
+          headers: { accept: "text/plain" },
+        }
+      );
+      await console.log("fetchExistingRecurrence ---------> ", response.data);
+
+      setExistingRecurrence(response?.data?.recurrenceTypeName);
+      // Si la réponse est null ou undefined après un delete, on met typeID à 0
+      if (!response.data) {
+        setSelectedRecurrenceType(0);
+        setNextDate(null);
+      } else {
+        if (response.data.typeID) {
+          setSelectedRecurrenceType(response.data.typeID);
+          console.log(
+            "selectedRecurrenceType -----------------> ",
+            selectedRecurrenceType
+          );
+        }
+        if (response.data.nextDate) {
+          setNextDate(response.data.nextDate);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching existing recurrence:", error);
+      setExistingRecurrence(null);
+      // En cas d'erreur (y compris après un delete), on met typeID à 0
+      setSelectedRecurrenceType(0);
+      setNextDate(null);
+    } finally {
+      setIsLoading((prev) => ({ ...prev, initial: false }));
+    }
+  };
+
+  const fetchRecurrenceTypes = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_WEBAPI_URL}api/VacancyOfferProgram/Types`,
+        {
+          headers: { accept: "text/plain" },
+        }
+      );
+      if (response.data) {
+        setRecurrenceTypes(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching recurrence types:", error);
+      setRecurrenceTypes([]);
+    }
+  };
+
+  // Modifiez la fonction handleClickAddReccurence
+  const handleClickAddReccurence = () => {
+    setShowRecurrenceModal(true);
+  };
+
+  // Ajoutez la fonction pour fermer le modal
+  const handleCloseRecurrenceModal = async () => {
+    setShowRecurrenceModal(false);
+    await fetchRecurrenceTypes();
+    fetchExistingRecurrence();
+  };
+
+  const useMountEffect = (fun) => useEffect(fun, []);
   useEffect(() => {
     //mouse moves
     return () => {
@@ -95,20 +165,23 @@ function FinalStep(props) {
     dispatch(getJobTags.request());
     dispatch(getMissionEquipment.request());
     getHabilitationsList(dispatch);
+    fetchExistingRecurrence();
+    fetchRecurrenceTypes();
+    console.log("missionToDisplay -------> ", missionToDisplay);
   }, [dispatch]);
 
   useEffect(() => {
     if (missionToDisplay) {
       let body = {
         id1: missionToDisplay.accountID,
-        id2: missionToDisplay.jobTitleID
+        id2: missionToDisplay.jobTitleID,
       };
       axios
         .post(
           `${process.env.REACT_APP_WEBAPI_URL}api/CommercialAgreement/GetCommercialAgreement`,
           body
         )
-        .then(res => {
+        .then((res) => {
           if (res.data.isValidated) {
             setAgreementValidated(true);
           }
@@ -118,30 +191,14 @@ function FinalStep(props) {
 
   const formatReason = () => {
     let reason = missionsReasons.filter(
-      reason => reason.id === missionToDisplay.missionReasonID
+      (reason) => reason.id === missionToDisplay.missionReasonID
     );
     return reason.length && reason[0].name;
-  };
-  const deleteItems = () => {
-    var result = {};
-    for (var type in window.localStorage)
-      if (!type.includes("persist")) result[type] = window.localStorage[type];
-    for (var item in result) deleteFromStorage(item);
-    return;
-  };
-  const handleClickEdit = () => {
-    deleteItems();
-    dispatch(deleteCurrentDuplicate.request());
-    dispatch(deleteCurrentTemplate.request());
-    getMission(missionToDisplay.id)
-      .then(localStorage.setItem("id", missionToDisplay.id))
-      .then(deleteItems())
-      .then(props.history.push("/mission-create/step-one"));
   };
 
   const formatExperiences = () => {
     let xp = missionExperiences.filter(
-      xp => xp.id === missionToDisplay.missionExperienceID
+      (xp) => xp.id === missionToDisplay.missionExperienceID
     );
     return xp.length ? xp[0].name : null;
   };
@@ -152,8 +209,8 @@ function FinalStep(props) {
       missionToDisplay.vacancyApplicationCriteriaArrayRequiredEducationLevels
     ) {
       missionToDisplay.vacancyApplicationCriteriaArrayRequiredEducationLevels.map(
-        diploma => {
-          let label = educationLevels.filter(l => l.id === diploma);
+        (diploma) => {
+          let label = educationLevels.filter((l) => l.id === diploma);
           return (diplomas = diplomas.concat(
             label.length && label[0].name + " - "
           ));
@@ -167,8 +224,8 @@ function FinalStep(props) {
     let langs = "";
     if (missionToDisplay.vacancyApplicationCriteriaArrayLanguagesWithLevel) {
       missionToDisplay.vacancyApplicationCriteriaArrayLanguagesWithLevel.map(
-        language => {
-          let label = languages.filter(l => l.id === language);
+        (language) => {
+          let label = languages.filter((l) => l.id === language);
           return (langs = langs.concat(
             label.length && label[0].frenchName + " - "
           ));
@@ -182,8 +239,8 @@ function FinalStep(props) {
     let skills = "";
     if (missionToDisplay.vacancyApplicationCriteriaArrayComputerSkills) {
       missionToDisplay.vacancyApplicationCriteriaArrayComputerSkills.map(
-        skill => {
-          let label = jobSkills.filter(jobSkill => jobSkill.id === skill);
+        (skill) => {
+          let label = jobSkills.filter((jobSkill) => jobSkill.id === skill);
           return (skills = skills.concat(
             label.length && label[0].name + " - "
           ));
@@ -196,8 +253,8 @@ function FinalStep(props) {
   const formatTags = () => {
     let tags = "";
     if (missionToDisplay.vacancyApplicationCriteriaArrayJobTags) {
-      missionToDisplay.vacancyApplicationCriteriaArrayJobTags.map(tag => {
-        let label = jobTags.filter(jobTag => jobTag.id === tag);
+      missionToDisplay.vacancyApplicationCriteriaArrayJobTags.map((tag) => {
+        let label = jobTags.filter((jobTag) => jobTag.id === tag);
         return (tags = tags.concat(label.length && label[0].name + " - "));
       });
     }
@@ -218,9 +275,9 @@ function FinalStep(props) {
 
   const formatRemuneration = () => {
     if (missionToDisplay && missionToDisplay.missionRemunerationItems) {
-      return missionToDisplay.missionRemunerationItems.map(salary => {
+      return missionToDisplay.missionRemunerationItems.map((salary) => {
         let label = missionRemuneration.filter(
-          remuneration => remuneration.id === salary.missionRemunerationID
+          (remuneration) => remuneration.id === salary.missionRemunerationID
         );
         return (
           <div className="d-flex col-lg-12">
@@ -247,8 +304,10 @@ function FinalStep(props) {
   const formatEquipment = () => {
     let equipements = "";
     if (missionToDisplay.missionArrayEquipments) {
-      missionToDisplay.missionArrayEquipments.map(eq => {
-        let label = missionEquipment.filter(equipement => equipement.id === eq);
+      missionToDisplay.missionArrayEquipments.map((eq) => {
+        let label = missionEquipment.filter(
+          (equipement) => equipement.id === eq
+        );
         return (equipements = equipements.concat(
           label.length && label[0].name + " - "
         ));
@@ -260,8 +319,8 @@ function FinalStep(props) {
   const formatLicenses = () => {
     let licenses = "";
     if (missionToDisplay.missionArrayDriverLicenses) {
-      missionToDisplay.missionArrayDriverLicenses.map(license => {
-        let label = driverLicenses.filter(lic => lic.id === license);
+      missionToDisplay.missionArrayDriverLicenses.map((license) => {
+        let label = driverLicenses.filter((lic) => lic.id === license);
         return (licenses = licenses.concat(
           label.length && label[0].name + " - "
         ));
@@ -279,7 +338,7 @@ function FinalStep(props) {
           {
             ...missionToDisplay,
             MissionIsValidated: true,
-            IsCreateTemplate: true
+            IsCreateTemplate: true,
           },
           { id: missionToDisplay.id }
         )
@@ -296,64 +355,11 @@ function FinalStep(props) {
           {
             ...missionToDisplay,
             MissionIsValidated: true,
-            IsCreateTemplate: false
+            IsCreateTemplate: false,
           },
           { id: missionToDisplay.id }
         )
       );
-    }
-  };
-
-  const fetchRecurrenceTypes = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_WEBAPI_URL}api/VacancyOfferProgram/Types`,
-        {
-          headers: { accept: "text/plain" }
-        }
-      );
-      if (response.data) {
-        setRecurrenceTypes(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching recurrence types:", error);
-      setRecurrenceTypes([]);
-    }
-  };
-
-  const fetchExistingRecurrence = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_WEBAPI_URL}api/VacancyOfferProgram/ByVacancyId/${missionToDisplay.id}`,
-        {
-          headers: { accept: "text/plain" }
-        }
-      );
-      setExistingRecurrence(response.data);
-      // Si la réponse est null ou undefined après un delete, on met typeID à 0
-      if (!response.data) {
-        setSelectedRecurrenceType(0);
-        setNextDate(null);
-      } else {
-        if (response.data.typeID) {
-          setSelectedRecurrenceType(response.data.typeID);
-          console.log(
-            "selectedRecurrenceType -----------------> ",
-            selectedRecurrenceType
-          );
-        }
-        if (response.data.nextDate) {
-          setNextDate(response.data.nextDate);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching existing recurrence:", error);
-      setExistingRecurrence(null);
-      // En cas d'erreur (y compris après un delete), on met typeID à 0
-      setSelectedRecurrenceType(0);
-      setNextDate(null);
-    } finally {
-      setIsLoading(prev => ({ ...prev, initial: false }));
     }
   };
 
@@ -365,16 +371,6 @@ function FinalStep(props) {
     setToogleSimilator(false);
   };
 
-  const handleClickAddReccurence = () => {
-    setShowRecurrenceModal(true);
-  };
-
-  const handleCloseRecurrenceModal = async () => {
-    setShowRecurrenceModal(false);
-    await fetchRecurrenceTypes();
-    fetchExistingRecurrence();
-  };
-
   const formatHabilitations = () => {
     let skills = [];
     var outStr = "";
@@ -383,14 +379,117 @@ function FinalStep(props) {
       !isNullOrEmpty(missionToDisplay) &&
       missionToDisplay.missionArrayHabilitations
     ) {
-      missionToDisplay.missionArrayHabilitations.map(skill => {
-        let label = habilitations.filter(jobSkill => jobSkill.id === skill);
+      missionToDisplay.missionArrayHabilitations.map((skill) => {
+        let label = habilitations.filter((jobSkill) => jobSkill.id === skill);
         return skills.push(label.length && label[0].name);
       });
     }
     outStr = skills.join(" - ");
     return outStr;
   };
+
+  const applicationStatus = [
+    {
+      name: intl.formatMessage({ id: "STATUS.MATCHING.DENIED" }),
+      id: 0,
+      color: "label font-weight-bold label-light-gray label-inline",
+    },
+    {
+      name: intl.formatMessage({ id: "STATUS.APPLICANT.INVITED" }),
+      id: 1,
+      color: "label font-weight-bold label-light-primary label-inline",
+    },
+    {
+      name: intl.formatMessage({ id: "STATUS.SPONTANEOUS.APPLICATION" }),
+      id: 2,
+      color: "label font-weight-bold label-light-primary label-inline",
+    },
+    {
+      name: intl.formatMessage({ id: "STATUS.APPLICATION.DECLINED" }),
+      id: 3,
+      color: "label font-weight-bold label-light-danger label-inline",
+    },
+    {
+      name: intl.formatMessage({ id: "STATUS.APPLICATION.DENIED" }),
+      id: 4,
+      color: "label font-weight-bold label-light-danger label-inline",
+    },
+    {
+      name: intl.formatMessage({ id: "STATUS.SELECTED" }),
+      id: 5,
+      color: "label font-weight-bold label-light-success label-inline",
+    },
+    {
+      name: intl.formatMessage({ id: "STATUS.CANCEL.VACANCY" }),
+      id: 6,
+      color: "label font-weight-bold label-light-success label-inline",
+    },
+  ];
+
+  let columns = [
+    {
+      dataField: "creationDate",
+      text: intl.formatMessage({ id: "COLUMN.DATE" }),
+      formatter: (value) => (
+        <span>{new Date(value).toLocaleDateString("fr-FR")}</span>
+      ),
+    },
+    {
+      dataField: "status",
+      text: intl.formatMessage({ id: "COLUMN.STATUS" }),
+      formatter: (value) => (
+        <div
+          className={
+            applicationStatus[value] ? applicationStatus[value].color : ""
+          }
+        >
+          {applicationStatus[value] ? applicationStatus[value].name : ""}
+        </div>
+      ),
+    },
+    {
+      dataField: "applicant",
+      text: intl.formatMessage({ id: "TEXT.APPLICANT" }),
+      formatter: (value) => (
+        <span>
+          {value.firstname} {value.lastname}
+        </span>
+      ),
+    },
+    {
+      text: intl.formatMessage({ id: "MODEL.VACANCY.MEETING_PHONE" }),
+      formatter: (value, row) => (
+        <span>
+          {row.applicant.mobilePhoneNumber
+            ? row.applicant.mobilePhoneNumber.match(/.{1,2}/g).join(" ")
+            : row.applicant.mobilePhoneNumber}
+        </span>
+      ),
+    },
+    {
+      text: intl.formatMessage({ id: "MODEL.EMAIL" }),
+      formatter: (value, row) => <span>{row.applicant.user.email}</span>,
+    },
+    {
+      text: intl.formatMessage({ id: "COLUMN.ACTION" }),
+      formatter: (value, row) => (
+        <div>
+          <Link
+            to={`/interimaire/edit/${row.applicantID}`}
+            className="btn btn-light-warning mr-2"
+          >
+            <FormattedMessage id="BUTTON.EDIT" />
+          </Link>
+          {row.status === 1 ||
+            (row.status === 2 && (
+              <div className="btn btn-light-success mr-2">
+                <FormattedMessage id="CANDIDATE.ACCEPT.TITLE" />
+              </div>
+            ))}
+        </div>
+      ),
+    },
+  ];
 
   if (loading) {
     return (
@@ -470,20 +569,6 @@ function FinalStep(props) {
                   isPreview !== "true" ? (
                     <div className="my-lg-0 my-3">
                       <button
-                        onClick={() => handleClickAddReccurence()}
-                        type="button"
-                        className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
-                      >
-                        <FormattedMessage id={"BUTTON.OFFER.PROGRAM"} />
-                      </button>
-                      <button
-                        onClick={() => handleClickEdit()}
-                        type="button"
-                        className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
-                      >
-                        <FormattedMessage id="BUTTON.EDIT" />
-                      </button>
-                      <button
                         onClick={showSimulator}
                         type="button"
                         className="btn btn-warning btn-shadow font-weight-bold px-9 py-4 my-3 mx-4"
@@ -508,6 +593,13 @@ function FinalStep(props) {
                     </div>
                   ) : (
                     <div>
+                      {/* <button
+                        onClick={() => handleClickAddReccurence()}
+                        type="button"
+                        className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
+                      >
+                        <FormattedMessage id={"BUTTON.OFFER.PROGRAM"} />
+                      </button> */}
                       {missionToDisplay.status !== 2 &&
                         missionToDisplay.status !== 3 &&
                         missionToDisplay.status !== 4 && (
@@ -519,7 +611,11 @@ function FinalStep(props) {
                             <FormattedMessage id={"BUTTON.OFFER.PROGRAM"} />
                           </button>
                         )}
-
+                      <RecurrenceModal
+                        show={showRecurrenceModal}
+                        onHide={handleCloseRecurrenceModal}
+                        vacancyID={missionToDisplay.id}
+                      />
                       <button
                         onClick={showSimulator}
                         type="button"
@@ -539,11 +635,6 @@ function FinalStep(props) {
                       </button>
                     </div>
                   )}
-                  <RecurrenceModal
-                    show={showRecurrenceModal}
-                    onHide={handleCloseRecurrenceModal}
-                    vacancyID={missionToDisplay.id}
-                  />
                 </div>
                 <div className="d-flex flex-wrap justify-content-between mt-1">
                   <div className="d-flex flex-column flex-grow-1 pr-8">
@@ -557,7 +648,6 @@ function FinalStep(props) {
                 </div>
               </div>
             </div>
-
             <div className="separator separator-solid"></div>
             <div className="d-flex align-items-center flex-wrap mt-8">
               <div className="d-flex align-items-center flex-lg-fill mr-5 mb-2">
@@ -654,9 +744,9 @@ function FinalStep(props) {
           </div>
         </div>
 
-        <div className="row">
-          <div className="col-lg-8">
-            <div className="card card-custom card-stretch gutter-b">
+        <div className="row flex-row">
+          <div className="col-lg-6">
+            <div className="card card-custom gutter-b">
               <div className="card-header border-0 pt-5">
                 <h3 className="card-title align-items-start flex-column">
                   <span className="card-label font-weight-bolder text-dark">
@@ -779,7 +869,7 @@ function FinalStep(props) {
                   <div className="d-flex col-lg-12 flex-row ml-3">
                     <div className="col-lg-3">
                       <p className="block-title">
-                        Nombre d'heure hebdomadaires
+                        <FormattedMessage id="MODEL.VACANCY.NBR_HOUR" />
                       </p>
                     </div>
                     <div className="col-lg-3">
@@ -992,7 +1082,7 @@ function FinalStep(props) {
                   </div>
                   <div className="d-flex col-lg-12 flex-row ml-3">
                     <div className="col-lg-3">
-                      <p className="block-title">Heure de rendez-vous</p>
+                      <p className="block-title">Heure du rendez-vous</p>
                     </div>
                     <div className="col-lg-3">
                       <p className="font-weight-bolder">
@@ -1003,49 +1093,58 @@ function FinalStep(props) {
                     </div>
                   </div>
                 </div>
-                <div>
-                  <div className="d-flex flex-row mt-5">
+                {/* Fin Premier Jour */}
+                {/* Récurrence */}
+                <div className="row d-flex flex-column col-lg-12 justifify-content-center">
+                  {existingRecurrence && (
                     <div>
-                      <i className="far fa-user icon-xl icon-blue"></i>
+                      <div className="d-flex flex-row mt-5">
+                        <div>
+                          <i className="far fa-user icon-xl icon-blue"></i>
+                        </div>
+                        <div className="d-flex flex-column ml-3">
+                          <h3 className="group-title">
+                            <FormattedMessage id="TEXT.RECURRENCE" />
+                          </h3>
+                        </div>
+                      </div>
+                      <div className="d-flex flex-row col-lg-12 justify-content-around ml-3">
+                        <div className="col-lg-3">
+                          <p className="block-title">
+                            <FormattedMessage id="TEXT.RECURRENCE.TYPE" />
+                          </p>
+                        </div>
+                        <div className="col-lg-3">
+                          <p className="font-weight-bolder">
+                            {existingRecurrence || ""}
+                          </p>
+                        </div>
+                        <div className="col-lg-3">
+                          <p className="block-title">
+                            <FormattedMessage id="TEXT.RECURRENCE_NEXT_DATE" />
+                          </p>
+                        </div>
+                        <div className="col-lg-3">
+                          <p className="font-weight-bolder">
+                            {nextDate
+                              ? Moment(nextDate)
+                                  .locale("fr")
+                                  .format("DD MMMM YYYY")
+                              : ""}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="d-flex flex-column ml-3">
-                      <h3 className="group-title">
-                        <FormattedMessage id="TEXT.RECURRENCE" />
-                      </h3>
-                    </div>
-                  </div>
-                  <div className="d-flex flex-row col-lg-12 justify-content-around ml-3">
-                    <div className="col-lg-3">
-                      <p className="block-title">
-                        <FormattedMessage id="TEXT.RECURRENCE.TYPE" />
-                      </p>
-                    </div>
-                    <div className="col-lg-3">
-                      <p className="font-weight-bolder">
-                        {existingRecurrence?.recurrenceTypeName || ""}
-                      </p>
-                    </div>
-                    <div className="col-lg-3">
-                      <p className="block-title">
-                        <FormattedMessage id="TEXT.RECURRENCE_NEXT_DATE" />
-                      </p>
-                    </div>
-                    <div className="col-lg-3">
-                      <p className="font-weight-bolder">
-                        {nextDate
-                          ? Moment(nextDate)
-                              .locale("fr")
-                              .format("DD MMMM YYYY")
-                          : ""}
-                      </p>
-                    </div>
-                  </div>
+                  )}
                 </div>
+                {/* Fin récurrence */}
               </div>
             </div>
           </div>
-          <div className="col-lg-4">
-            <div className="card card-custom card-stretch gutter-b">
+
+          {/* Colonne pour le profil recherché */}
+          <div className="col-lg-6">
+            <div className="card card-custom gutter-b">
               <div className="card-header border-0">
                 <h3 className="card-title font-weight-bolder text-dark">
                   Profil recherché
