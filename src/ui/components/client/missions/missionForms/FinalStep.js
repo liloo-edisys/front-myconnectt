@@ -5,7 +5,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import {
   validateMission,
   resetMission,
-  getHabilitationsList,
+  getHabilitationsList
 } from "actions/client/MissionsActions";
 import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
@@ -22,13 +22,13 @@ import {
   getLanguages,
   getJobSkills,
   getJobTags,
-  getMissionEquipment,
+  getMissionEquipment
 } from "actions/shared/ListsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { getMission } from "api/client/MissionsApi";
 import {
   deleteCurrentDuplicate,
-  deleteCurrentTemplate,
+  deleteCurrentTemplate
 } from "actions/client/MissionsActions";
 import { deleteFromStorage } from "../../../shared/DeleteFromStorage";
 import SimulatorModal from "./SimulatorModal";
@@ -49,9 +49,9 @@ function FinalStep(props) {
     missionRemuneration,
     missionToDisplay,
     loading,
-    habilitations,
+    habilitations
   } = useSelector(
-    (state) => ({
+    state => ({
       updateMissionSuccess: state.missionsReducerData.updateMissionSuccess,
       missionExperiences: state.lists.missionExperiences,
       missionsReasons: state.lists.missionsReasons,
@@ -64,7 +64,7 @@ function FinalStep(props) {
       missionEquipment: state.lists.missionEquipment,
       missionToDisplay: state.missionsReducerData.lastCreatedMission,
       loading: state.missionsReducerData.loading,
-      habilitations: state.missionsReducerData.habilitations,
+      habilitations: state.missionsReducerData.habilitations
     }),
     shallowEqual
   );
@@ -84,7 +84,7 @@ function FinalStep(props) {
       const response = await axios.get(
         `${process.env.REACT_APP_WEBAPI_URL}api/VacancyOfferProgram/ByVacancyId/${missionToDisplay.id}`,
         {
-          headers: { accept: "text/plain" },
+          headers: { accept: "text/plain" }
         }
       );
       await console.log("fetchExistingRecurrence ---------> ", response.data);
@@ -113,7 +113,7 @@ function FinalStep(props) {
       setSelectedRecurrenceType(0);
       setNextDate(null);
     } finally {
-      setIsLoading((prev) => ({ ...prev, initial: false }));
+      setIsLoading(prev => ({ ...prev, initial: false }));
     }
   };
 
@@ -122,7 +122,7 @@ function FinalStep(props) {
       const response = await axios.get(
         `${process.env.REACT_APP_WEBAPI_URL}api/VacancyOfferProgram/Types`,
         {
-          headers: { accept: "text/plain" },
+          headers: { accept: "text/plain" }
         }
       );
       if (response.data) {
@@ -146,7 +146,7 @@ function FinalStep(props) {
     fetchExistingRecurrence();
   };
 
-  const useMountEffect = (fun) => useEffect(fun, []);
+  const useMountEffect = fun => useEffect(fun, []);
   useEffect(() => {
     //mouse moves
     return () => {
@@ -174,14 +174,14 @@ function FinalStep(props) {
     if (missionToDisplay) {
       let body = {
         id1: missionToDisplay.accountID,
-        id2: missionToDisplay.jobTitleID,
+        id2: missionToDisplay.jobTitleID
       };
       axios
         .post(
           `${process.env.REACT_APP_WEBAPI_URL}api/CommercialAgreement/GetCommercialAgreement`,
           body
         )
-        .then((res) => {
+        .then(res => {
           if (res.data.isValidated) {
             setAgreementValidated(true);
           }
@@ -191,14 +191,14 @@ function FinalStep(props) {
 
   const formatReason = () => {
     let reason = missionsReasons.filter(
-      (reason) => reason.id === missionToDisplay.missionReasonID
+      reason => reason.id === missionToDisplay.missionReasonID
     );
     return reason.length && reason[0].name;
   };
 
   const formatExperiences = () => {
     let xp = missionExperiences.filter(
-      (xp) => xp.id === missionToDisplay.missionExperienceID
+      xp => xp.id === missionToDisplay.missionExperienceID
     );
     return xp.length ? xp[0].name : null;
   };
@@ -209,8 +209,8 @@ function FinalStep(props) {
       missionToDisplay.vacancyApplicationCriteriaArrayRequiredEducationLevels
     ) {
       missionToDisplay.vacancyApplicationCriteriaArrayRequiredEducationLevels.map(
-        (diploma) => {
-          let label = educationLevels.filter((l) => l.id === diploma);
+        diploma => {
+          let label = educationLevels.filter(l => l.id === diploma);
           return (diplomas = diplomas.concat(
             label.length && label[0].name + " - "
           ));
@@ -224,8 +224,8 @@ function FinalStep(props) {
     let langs = "";
     if (missionToDisplay.vacancyApplicationCriteriaArrayLanguagesWithLevel) {
       missionToDisplay.vacancyApplicationCriteriaArrayLanguagesWithLevel.map(
-        (language) => {
-          let label = languages.filter((l) => l.id === language);
+        language => {
+          let label = languages.filter(l => l.id === language);
           return (langs = langs.concat(
             label.length && label[0].frenchName + " - "
           ));
@@ -239,8 +239,8 @@ function FinalStep(props) {
     let skills = "";
     if (missionToDisplay.vacancyApplicationCriteriaArrayComputerSkills) {
       missionToDisplay.vacancyApplicationCriteriaArrayComputerSkills.map(
-        (skill) => {
-          let label = jobSkills.filter((jobSkill) => jobSkill.id === skill);
+        skill => {
+          let label = jobSkills.filter(jobSkill => jobSkill.id === skill);
           return (skills = skills.concat(
             label.length && label[0].name + " - "
           ));
@@ -253,8 +253,8 @@ function FinalStep(props) {
   const formatTags = () => {
     let tags = "";
     if (missionToDisplay.vacancyApplicationCriteriaArrayJobTags) {
-      missionToDisplay.vacancyApplicationCriteriaArrayJobTags.map((tag) => {
-        let label = jobTags.filter((jobTag) => jobTag.id === tag);
+      missionToDisplay.vacancyApplicationCriteriaArrayJobTags.map(tag => {
+        let label = jobTags.filter(jobTag => jobTag.id === tag);
         return (tags = tags.concat(label.length && label[0].name + " - "));
       });
     }
@@ -275,9 +275,9 @@ function FinalStep(props) {
 
   const formatRemuneration = () => {
     if (missionToDisplay && missionToDisplay.missionRemunerationItems) {
-      return missionToDisplay.missionRemunerationItems.map((salary) => {
+      return missionToDisplay.missionRemunerationItems.map(salary => {
         let label = missionRemuneration.filter(
-          (remuneration) => remuneration.id === salary.missionRemunerationID
+          remuneration => remuneration.id === salary.missionRemunerationID
         );
         return (
           <div className="d-flex col-lg-12">
@@ -304,10 +304,8 @@ function FinalStep(props) {
   const formatEquipment = () => {
     let equipements = "";
     if (missionToDisplay.missionArrayEquipments) {
-      missionToDisplay.missionArrayEquipments.map((eq) => {
-        let label = missionEquipment.filter(
-          (equipement) => equipement.id === eq
-        );
+      missionToDisplay.missionArrayEquipments.map(eq => {
+        let label = missionEquipment.filter(equipement => equipement.id === eq);
         return (equipements = equipements.concat(
           label.length && label[0].name + " - "
         ));
@@ -319,8 +317,8 @@ function FinalStep(props) {
   const formatLicenses = () => {
     let licenses = "";
     if (missionToDisplay.missionArrayDriverLicenses) {
-      missionToDisplay.missionArrayDriverLicenses.map((license) => {
-        let label = driverLicenses.filter((lic) => lic.id === license);
+      missionToDisplay.missionArrayDriverLicenses.map(license => {
+        let label = driverLicenses.filter(lic => lic.id === license);
         return (licenses = licenses.concat(
           label.length && label[0].name + " - "
         ));
@@ -338,7 +336,7 @@ function FinalStep(props) {
           {
             ...missionToDisplay,
             MissionIsValidated: true,
-            IsCreateTemplate: true,
+            IsCreateTemplate: true
           },
           { id: missionToDisplay.id }
         )
@@ -355,7 +353,7 @@ function FinalStep(props) {
           {
             ...missionToDisplay,
             MissionIsValidated: true,
-            IsCreateTemplate: false,
+            IsCreateTemplate: false
           },
           { id: missionToDisplay.id }
         )
@@ -379,8 +377,8 @@ function FinalStep(props) {
       !isNullOrEmpty(missionToDisplay) &&
       missionToDisplay.missionArrayHabilitations
     ) {
-      missionToDisplay.missionArrayHabilitations.map((skill) => {
-        let label = habilitations.filter((jobSkill) => jobSkill.id === skill);
+      missionToDisplay.missionArrayHabilitations.map(skill => {
+        let label = habilitations.filter(jobSkill => jobSkill.id === skill);
         return skills.push(label.length && label[0].name);
       });
     }
@@ -392,52 +390,52 @@ function FinalStep(props) {
     {
       name: intl.formatMessage({ id: "STATUS.MATCHING.DENIED" }),
       id: 0,
-      color: "label font-weight-bold label-light-gray label-inline",
+      color: "label font-weight-bold label-light-gray label-inline"
     },
     {
       name: intl.formatMessage({ id: "STATUS.APPLICANT.INVITED" }),
       id: 1,
-      color: "label font-weight-bold label-light-primary label-inline",
+      color: "label font-weight-bold label-light-primary label-inline"
     },
     {
       name: intl.formatMessage({ id: "STATUS.SPONTANEOUS.APPLICATION" }),
       id: 2,
-      color: "label font-weight-bold label-light-primary label-inline",
+      color: "label font-weight-bold label-light-primary label-inline"
     },
     {
       name: intl.formatMessage({ id: "STATUS.APPLICATION.DECLINED" }),
       id: 3,
-      color: "label font-weight-bold label-light-danger label-inline",
+      color: "label font-weight-bold label-light-danger label-inline"
     },
     {
       name: intl.formatMessage({ id: "STATUS.APPLICATION.DENIED" }),
       id: 4,
-      color: "label font-weight-bold label-light-danger label-inline",
+      color: "label font-weight-bold label-light-danger label-inline"
     },
     {
       name: intl.formatMessage({ id: "STATUS.SELECTED" }),
       id: 5,
-      color: "label font-weight-bold label-light-success label-inline",
+      color: "label font-weight-bold label-light-success label-inline"
     },
     {
       name: intl.formatMessage({ id: "STATUS.CANCEL.VACANCY" }),
       id: 6,
-      color: "label font-weight-bold label-light-success label-inline",
-    },
+      color: "label font-weight-bold label-light-success label-inline"
+    }
   ];
 
   let columns = [
     {
       dataField: "creationDate",
       text: intl.formatMessage({ id: "COLUMN.DATE" }),
-      formatter: (value) => (
+      formatter: value => (
         <span>{new Date(value).toLocaleDateString("fr-FR")}</span>
-      ),
+      )
     },
     {
       dataField: "status",
       text: intl.formatMessage({ id: "COLUMN.STATUS" }),
-      formatter: (value) => (
+      formatter: value => (
         <div
           className={
             applicationStatus[value] ? applicationStatus[value].color : ""
@@ -445,16 +443,16 @@ function FinalStep(props) {
         >
           {applicationStatus[value] ? applicationStatus[value].name : ""}
         </div>
-      ),
+      )
     },
     {
       dataField: "applicant",
       text: intl.formatMessage({ id: "TEXT.APPLICANT" }),
-      formatter: (value) => (
+      formatter: value => (
         <span>
           {value.firstname} {value.lastname}
         </span>
-      ),
+      )
     },
     {
       text: intl.formatMessage({ id: "MODEL.VACANCY.MEETING_PHONE" }),
@@ -464,11 +462,11 @@ function FinalStep(props) {
             ? row.applicant.mobilePhoneNumber.match(/.{1,2}/g).join(" ")
             : row.applicant.mobilePhoneNumber}
         </span>
-      ),
+      )
     },
     {
       text: intl.formatMessage({ id: "MODEL.EMAIL" }),
-      formatter: (value, row) => <span>{row.applicant.user.email}</span>,
+      formatter: (value, row) => <span>{row.applicant.user.email}</span>
     },
     {
       text: intl.formatMessage({ id: "COLUMN.ACTION" }),
@@ -487,8 +485,8 @@ function FinalStep(props) {
               </div>
             ))}
         </div>
-      ),
-    },
+      )
+    }
   ];
 
   if (loading) {
