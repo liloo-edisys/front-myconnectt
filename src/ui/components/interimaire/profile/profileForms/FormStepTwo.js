@@ -29,7 +29,7 @@ import axios from "axios";
 
 const EnumSexe = {
   Men: 0,
-  Women: 1,
+  Women: 1
 };
 
 function FormStepTwo(props, formik) {
@@ -40,15 +40,15 @@ function FormStepTwo(props, formik) {
     titleTypes,
     parsed,
     nationalitiesList,
-    updateInterimaireIdentityLoading,
+    updateInterimaireIdentityLoading
   } = useSelector(
-    (state) => ({
+    state => ({
       user: state.user.user,
       titleTypes: state.lists.titleTypes,
       parsed: state.interimairesReducerData.interimaire,
       updateInterimaireIdentityLoading:
         state.interimairesReducerData.updateInterimaireIdentityLoading,
-      nationalitiesList: state.interimairesReducerData.nationalitiesList,
+      nationalitiesList: state.interimairesReducerData.nationalitiesList
     }),
     shallowEqual
   );
@@ -174,41 +174,41 @@ function FormStepTwo(props, formik) {
 
   console.log("parsed ------->", parsed);
 
-  const handleChangeFirstName = (e) => {
+  const handleChangeFirstName = e => {
     setFirstName(e);
     props.formik.setFieldTouched("firstname", true);
     props.formik.setFieldValue("firstname", e);
   };
 
-  const handleChangeBirthDate = (e) => {
+  const handleChangeBirthDate = e => {
     setBirthDate(e);
     props.formik.setFieldTouched("birthDate", true);
     props.formik.setFieldValue("birthDate", e);
   };
 
-  const handleChangeBirthPlace = (e) => {
+  const handleChangeBirthPlace = e => {
     e !== null ? setBirthPlace(e) : setBirthPlace(null);
     props.formik.setFieldTouched("birthPlace", true);
     props.formik.setFieldValue("birthPlace", e);
   };
 
-  const handleChangeLastName = (e) => {
+  const handleChangeLastName = e => {
     setLastName(e);
     props.formik.setFieldTouched("lastname", true);
     props.formik.setFieldValue("lastname", e);
   };
 
-  const handleChangeBirthName = (e) => {
+  const handleChangeBirthName = e => {
     setMaidenName(e);
     props.formik.setFieldValue("maidenName", e);
   };
 
-  const handleChangeEmail = (e) => {
+  const handleChangeEmail = e => {
     setEmail(e);
     props.formik.setFieldValue("email", e);
   };
 
-  const handleChangeMobilePhone = (e) => {
+  const handleChangeMobilePhone = e => {
     setMobilePhoneNumber(e.replace(/\s/g, ""));
     props.formik.setFieldTouched("mobilePhoneNumber", true);
     props.formik.setFieldValue("mobilePhoneNumber", e.replace(/\s/g, ""));
@@ -223,8 +223,8 @@ function FormStepTwo(props, formik) {
         "",
         {
           headers: {
-            accept: "*/*",
-          },
+            accept: "*/*"
+          }
         }
       );
 
@@ -232,7 +232,7 @@ function FormStepTwo(props, formik) {
         freeformAddress,
         postalCode: locationPostalCode,
         localName,
-        position,
+        position
       } = response.data;
 
       // Mettre à jour les champs
@@ -261,7 +261,7 @@ function FormStepTwo(props, formik) {
   };
 
   // Fonction pour rechercher des adresses
-  const searchAddresses = async (query) => {
+  const searchAddresses = async query => {
     if (!query || query.length < 3) {
       setAddressSuggestions([]);
       setShowSuggestions(false);
@@ -276,8 +276,8 @@ function FormStepTwo(props, formik) {
         )}`,
         {
           headers: {
-            accept: "text/plain",
-          },
+            accept: "text/plain"
+          }
         }
       );
 
@@ -292,7 +292,7 @@ function FormStepTwo(props, formik) {
   };
 
   // Fonction pour gérer le changement d'adresse
-  const handleChangeAddress = (e) => {
+  const handleChangeAddress = e => {
     const value = typeof e === "string" ? e : e.target.value;
     setAddress(value);
     props.formik.setFieldValue("address", value);
@@ -303,20 +303,20 @@ function FormStepTwo(props, formik) {
   };
 
   // Fonction pour gérer le changement d'adresse additionnelle (simple champ texte)
-  const handleChangeAdditionalAddress = (e) => {
+  const handleChangeAdditionalAddress = e => {
     const value = typeof e === "string" ? e : e.target.value;
     setAdditionalAddress(value);
     props.formik.setFieldValue("additionalAddress", value);
   };
 
   // Fonction pour sélectionner une adresse dans les suggestions
-  const handleAddressSuggestionSelect = (suggestion) => {
+  const handleAddressSuggestionSelect = suggestion => {
     // Extraire les informations pertinentes
     const {
       freeformAddress,
       postalCode: suggestionPostalCode,
       localName,
-      position,
+      position
     } = suggestion;
 
     // Mettre à jour les champs
@@ -336,13 +336,13 @@ function FormStepTwo(props, formik) {
     setShowSuggestions(false);
   };
 
-  const handleChangeGender = (e) => {
+  const handleChangeGender = e => {
     setGender(parseInt(e));
     props.formik.setFieldValue("sexe", parseInt(e));
     props.formik.setFieldTouched("sexe", true);
   };
 
-  const handleChangePostalCode = (e) => {
+  const handleChangePostalCode = e => {
     setPostalCode(e);
     props.formik.setFieldValue("postalCode", e);
     props.formik.setFieldTouched("postalCode");
@@ -361,19 +361,19 @@ function FormStepTwo(props, formik) {
     }
   }, [mobilePhoneNumber]);
 
-  const handleChangeCity = (e) => {
+  const handleChangeCity = e => {
     setCity(e);
     props.formik.setFieldValue("city", e);
   };
 
-  const handleChangeSelectedGender = (e) => {
+  const handleChangeSelectedGender = e => {
     // Si la valeur est "0" ou une chaîne vide, définir comme null
     const value = e === "0" || e === "" ? null : parseInt(e);
     setSelectedGender(value);
     props.formik.setFieldValue("titleTypeID", value);
   };
 
-  const handleChangeNationality = (e) => {
+  const handleChangeNationality = e => {
     setNationality(parseInt(e));
     props.formik.setFieldValue("nationalityID", parseInt(e));
   };
@@ -399,7 +399,7 @@ function FormStepTwo(props, formik) {
         ...props.formik.values,
         anaelID: parsed.anaelID,
         position: position,
-        missionArrayDesiredJobTitles: parsed.missionArrayDesiredJobTitles,
+        missionArrayDesiredJobTitles: parsed.missionArrayDesiredJobTitles
       };
       dispatch(updateApplicant.request(body));
     } else {
@@ -409,7 +409,7 @@ function FormStepTwo(props, formik) {
     }
   };
 
-  const photoUpload = (e) => {
+  const photoUpload = e => {
     e.preventDefault();
     let stringBase64;
     const reader = new FileReader();
@@ -421,7 +421,7 @@ function FormStepTwo(props, formik) {
       stringBase64 = reader.result.split(",")[1];
       let appPicture = {
         fileName: fileName,
-        base64: stringBase64,
+        base64: stringBase64
       };
       props.formik.setFieldValue("applicantPicture", appPicture);
     };
@@ -500,7 +500,7 @@ function FormStepTwo(props, formik) {
                           <div className="avatar-container">
                             <Edit>
                               <ImgUpload
-                                onChange={(e) => photoUpload(e)}
+                                onChange={e => photoUpload(e)}
                                 src={previewUrl}
                               />
                             </Edit>
@@ -514,7 +514,7 @@ function FormStepTwo(props, formik) {
                                 id="photo-upload"
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) => photoUpload(e)}
+                                onChange={e => photoUpload(e)}
                               />
                             </label>
                           </div>
@@ -539,7 +539,7 @@ function FormStepTwo(props, formik) {
                                       <select
                                         className="form-control h-auto py-5 px-6"
                                         name="titleTypeID"
-                                        onChange={(e) => {
+                                        onChange={e => {
                                           handleChangeSelectedGender(
                                             e.target.value
                                           );
@@ -548,11 +548,11 @@ function FormStepTwo(props, formik) {
                                         <option disabled selected value="0">
                                           --{" "}
                                           {intl.formatMessage({
-                                            id: "MODEL.CIVILITY",
+                                            id: "MODEL.CIVILITY"
                                           })}{" "}
                                           --
                                         </option>
-                                        {titleTypes.map((gender) => (
+                                        {titleTypes.map(gender => (
                                           <option
                                             key={gender.id}
                                             label={gender.name}
@@ -588,12 +588,12 @@ function FormStepTwo(props, formik) {
                                   </div>
                                   <input
                                     placeholder={intl.formatMessage({
-                                      id: "MODEL.FIRSTNAME",
+                                      id: "MODEL.FIRSTNAME"
                                     })}
                                     type="text"
                                     className={`form-control h-auto py-5 px-6`}
                                     name="firstname"
-                                    onChange={(e) =>
+                                    onChange={e =>
                                       handleChangeFirstName(e.target.value)
                                     }
                                     value={firstName}
@@ -621,12 +621,12 @@ function FormStepTwo(props, formik) {
                                 </div>
                                 <input
                                   placeholder={intl.formatMessage({
-                                    id: "MODEL.LASTNAME",
+                                    id: "MODEL.LASTNAME"
                                   })}
                                   type="text"
                                   className={`form-control h-auto py-5 px-6`}
                                   name="lastname"
-                                  onChange={(e) =>
+                                  onChange={e =>
                                     handleChangeLastName(e.target.value)
                                   }
                                   value={lastName}
@@ -652,12 +652,12 @@ function FormStepTwo(props, formik) {
                                 </div>
                                 <input
                                   placeholder={intl.formatMessage({
-                                    id: "MODEL.BIRTHNAME",
+                                    id: "MODEL.BIRTHNAME"
                                   })}
                                   type="text"
                                   className={`form-control h-auto py-5 px-6`}
                                   name="maidenName"
-                                  onChange={(e) =>
+                                  onChange={e =>
                                     handleChangeBirthName(e.target.value)
                                   }
                                   value={maidenName}
@@ -687,7 +687,7 @@ function FormStepTwo(props, formik) {
                                       <select
                                         className="form-control h-auto py-5 px-6"
                                         name="sexe"
-                                        onChange={(e) => {
+                                        onChange={e => {
                                           handleChangeGender(e.target.value);
                                         }}
                                       >
@@ -699,7 +699,7 @@ function FormStepTwo(props, formik) {
                                           --{" "}
                                           {intl.formatMessage({
                                             id: "MODEL.GENDER",
-                                            defaultMessage: "Sexe",
+                                            defaultMessage: "Sexe"
                                           })}{" "}
                                           --
                                         </option>
@@ -708,7 +708,7 @@ function FormStepTwo(props, formik) {
                                           selected={gender === EnumSexe.Men}
                                         >
                                           {intl.formatMessage({
-                                            id: "MODEL.GENDER.MEN",
+                                            id: "MODEL.GENDER.MEN"
                                           })}
                                         </option>
                                         <option
@@ -716,7 +716,7 @@ function FormStepTwo(props, formik) {
                                           selected={gender === EnumSexe.Women}
                                         >
                                           {intl.formatMessage({
-                                            id: "MODEL.GENDER.WOMEN",
+                                            id: "MODEL.GENDER.WOMEN"
                                           })}
                                         </option>
                                       </select>
@@ -749,14 +749,12 @@ function FormStepTwo(props, formik) {
                             </div>
                             <input
                               placeholder={intl.formatMessage({
-                                id: "MODEL.EMAIL",
+                                id: "MODEL.EMAIL"
                               })}
                               type="text"
                               className={`form-control h-auto py-5 px-6`}
                               name="email"
-                              onChange={(e) =>
-                                handleChangeEmail(e.target.value)
-                              }
+                              onChange={e => handleChangeEmail(e.target.value)}
                               value={email}
                               disabled
                             />
@@ -776,12 +774,12 @@ function FormStepTwo(props, formik) {
                             </div>
                             <input
                               placeholder={intl.formatMessage({
-                                id: "MODEL.PHONE",
+                                id: "MODEL.PHONE"
                               })}
                               type="text"
                               className={`form-control h-auto py-5 px-6`}
                               name="mobilePhoneNumber"
-                              onChange={(e) =>
+                              onChange={e =>
                                 handleChangeMobilePhone(e.target.value)
                               }
                               value={
@@ -831,7 +829,7 @@ function FormStepTwo(props, formik) {
                               style={{
                                 width: "100%",
                                 display: "flex",
-                                position: "relative",
+                                position: "relative"
                               }}
                             >
                               <div className="input-group-prepend">
@@ -845,7 +843,7 @@ function FormStepTwo(props, formik) {
                               <input
                                 className="form-control h-auto py-5 px-6"
                                 placeholder={intl.formatMessage({
-                                  id: "MODEL.ACCOUNT.ADDRESS",
+                                  id: "MODEL.ACCOUNT.ADDRESS"
                                 })}
                                 value={address}
                                 onChange={handleChangeAddress}
@@ -876,14 +874,14 @@ function FormStepTwo(props, formik) {
                                       backgroundColor: "#ffffff",
                                       border: "1px solid #e6e6e6",
                                       borderRadius: "0 0 5px 5px",
-                                      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                                      boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
                                     }}
                                   >
                                     {isLoadingAddresses && (
                                       <div
                                         style={{
                                           padding: "10px",
-                                          textAlign: "center",
+                                          textAlign: "center"
                                         }}
                                       >
                                         <FormattedMessage id="MESSAGE.SEARCH.ONGOING" />
@@ -910,13 +908,13 @@ function FormStepTwo(props, formik) {
                                                   : "none",
                                               backgroundColor: "#ffffff",
                                               transition:
-                                                "background-color 0.2s",
+                                                "background-color 0.2s"
                                             }}
-                                            onMouseOver={(e) =>
+                                            onMouseOver={e =>
                                               (e.currentTarget.style.backgroundColor =
                                                 "#f7f7f7")
                                             }
-                                            onMouseOut={(e) =>
+                                            onMouseOut={e =>
                                               (e.currentTarget.style.backgroundColor =
                                                 "#ffffff")
                                             }
@@ -927,7 +925,7 @@ function FormStepTwo(props, formik) {
                                             <div
                                               style={{
                                                 fontSize: "12px",
-                                                color: "#616061",
+                                                color: "#616061"
                                               }}
                                             >
                                               {suggestion.postalCode}{" "}
@@ -961,12 +959,12 @@ function FormStepTwo(props, formik) {
                             </div>
                             <input
                               placeholder={intl.formatMessage({
-                                id: "MODEL.ACCOUNT.ADDITIONALADDRESS",
+                                id: "MODEL.ACCOUNT.ADDITIONALADDRESS"
                               })}
                               type="text"
                               className={`form-control h-auto py-5 px-6`}
                               name="additionalAddress"
-                              onChange={(e) =>
+                              onChange={e =>
                                 handleChangeAdditionalAddress(e.target.value)
                               }
                               value={additionalAddress}
@@ -989,12 +987,12 @@ function FormStepTwo(props, formik) {
                             <input
                               disabled
                               placeholder={intl.formatMessage({
-                                id: "MODEL.ACCOUNT.POSTALCODE",
+                                id: "MODEL.ACCOUNT.POSTALCODE"
                               })}
                               type="text"
                               className={`form-control h-auto py-5 px-6`}
                               name="postalCode"
-                              onChange={(e) =>
+                              onChange={e =>
                                 handleChangePostalCode(e.target.value)
                               }
                               value={postalCode}
@@ -1022,12 +1020,12 @@ function FormStepTwo(props, formik) {
                             <input
                               disabled
                               placeholder={intl.formatMessage({
-                                id: "MODEL.ACCOUNT.CITY",
+                                id: "MODEL.ACCOUNT.CITY"
                               })}
                               type="text"
                               className={`form-control h-auto py-5 px-6`}
                               name="city"
-                              onChange={(e) => handleChangeCity(e.target.value)}
+                              onChange={e => handleChangeCity(e.target.value)}
                               value={city}
                             />
                           </div>
@@ -1054,18 +1052,18 @@ function FormStepTwo(props, formik) {
                             <select
                               className="form-control h-auto py-5 px-6"
                               name="nationalityID"
-                              onChange={(e) => {
+                              onChange={e => {
                                 handleChangeNationality(e.target.value);
                               }}
                             >
                               <option disabled selected value="0">
                                 --{" "}
                                 {intl.formatMessage({
-                                  id: "MESSAGE.SELECT.NATIONALITY",
+                                  id: "MESSAGE.SELECT.NATIONALITY"
                                 })}{" "}
                                 --
                               </option>
-                              {nationalitiesList.map((nationality) => (
+                              {nationalitiesList.map(nationality => (
                                 <option
                                   key={nationality.id}
                                   label={nationality.frenchName}
@@ -1096,7 +1094,7 @@ function FormStepTwo(props, formik) {
                             <ReactDatePicker
                               className={`form-control h-auto py-5 px-6 date-input-content`}
                               style={{ width: "100%" }}
-                              onChange={(val) => {
+                              onChange={val => {
                                 handleChangeBirthDate(
                                   moment(val)
                                     .locale("fr")
@@ -1156,12 +1154,12 @@ function FormStepTwo(props, formik) {
                             </div>
                             <input
                               placeholder={intl.formatMessage({
-                                id: "TEXT.BIRTH.LOCATION",
+                                id: "TEXT.BIRTH.LOCATION"
                               })}
                               type="text"
                               className={`form-control h-auto py-5 px-6`}
                               name="birthPlace"
-                              onChange={(e) =>
+                              onChange={e =>
                                 handleChangeBirthPlace(e.target.value)
                               }
                               value={birthPlace}
