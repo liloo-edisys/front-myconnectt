@@ -44,7 +44,6 @@ function FormStepSix(props) {
     props.formik.setFieldValue("PostalCodeSearchZone", value);
   };
 
-  console.log("FormStepSix - parsed --------> ", parsed);
 
   const initializeData = async () => {
     try {

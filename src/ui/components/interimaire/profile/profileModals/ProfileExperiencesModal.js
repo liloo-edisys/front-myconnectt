@@ -12,21 +12,23 @@ import { getJobTitles } from "actions/shared/ListsActions";
 registerLocale("fr", fr);
 const TENANTID = +process.env.REACT_APP_TENANT_ID;
 const newID = 0;
+
 export function ProfileExperiencesModal({
   show,
   onHide,
   intl,
   handleEditExperience,
   handleUpdateExperience,
-  row
+  row,
 }) {
   const dispatch = useDispatch();
 
-  const useMountEffect = fun => useEffect(fun, []);
+  const useMountEffect = (fun) => useEffect(fun, []);
 
   useMountEffect(() => {
     dispatch(getJobTitles.request());
   }, []);
+
   const [jobTitle, setJobTitle] = useState("");
   const [company, setCompany] = useState("");
   const [startDate, setStartDate] = useState(null);
@@ -39,12 +41,26 @@ export function ProfileExperiencesModal({
   const [companyErr, setCompanyErr] = useState(false);
 
   const { user, jobTitleList } = useSelector(
-    state => ({
+    (state) => ({
       user: state.auth.user,
-      jobTitleList: state.lists.jobTitles
+      jobTitleList: state.lists.jobTitles,
     }),
     shallowEqual
   );
+
+  // Fonction pour récupérer missionArrayDesiredJobTitles depuis localStorage
+  const getMissionArrayDesiredJobTitles = () => {
+    try {
+      const storedValue = localStorage.getItem("missionArrayDesiredJobTitles");
+      return storedValue ? JSON.parse(storedValue) : [];
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération de missionArrayDesiredJobTitles:",
+        error
+      );
+      return [];
+    }
+  };
 
   const checkFields = () => {
     if (isNullOrEmpty(jobTitle) || isNullOrEmpty(company)) {
@@ -53,48 +69,35 @@ export function ProfileExperiencesModal({
   };
 
   const handleValidate = () => {
+    // Récupération des données depuis localStorage
+    const missionArrayDesiredJobTitles = getMissionArrayDesiredJobTitles();
+
+    const experienceData = {
+      jobTitle: jobTitle,
+      employerNameAndPlace: company,
+      startDate: startDate,
+      endDate: endDate,
+      id: isNullOrEmpty(row) ? newID : row.id,
+      isDeleted: null,
+      deleteDate: null,
+      tenantID: TENANTID,
+      tenant: null,
+      creationDate: null,
+      lastModifiedDate: null,
+      timestamp: null,
+      applicantID: user.applicantID,
+      applicant: null,
+      place: location,
+      description: desc,
+      isCurrentItem: current === true ? "true" : "false",
+      missionArrayDesiredJobTitles: missionArrayDesiredJobTitles, // Ajout des données localStorage
+    };
+
     isNullOrEmpty(row)
-      ? handleEditExperience({
-          jobTitle: jobTitle,
-          employerNameAndPlace: company,
-          startDate: startDate,
-          endDate: endDate,
-          id: newID,
-          isDeleted: null,
-          deleteDate: null,
-          tenantID: TENANTID,
-          tenant: null,
-          creationDate: null,
-          lastModifiedDate: null,
-          timestamp: null,
-          applicantID: user.applicantID,
-          applicant: null,
-          place: location,
-          description: desc,
-          isCurrentItem: current === true ? "true" : "false"
-        })
-      : handleUpdateExperience(
-          {
-            jobTitle: jobTitle,
-            employerNameAndPlace: company,
-            startDate: startDate,
-            endDate: endDate,
-            id: row.id,
-            isDeleted: null,
-            deleteDate: null,
-            tenantID: TENANTID,
-            tenant: null,
-            creationDate: null,
-            lastModifiedDate: null,
-            timestamp: null,
-            applicantID: user.applicantID,
-            applicant: null,
-            place: location,
-            description: desc,
-            isCurrentItem: current === true ? "true" : "false"
-          },
-          row.index
-        );
+      ? handleEditExperience(experienceData)
+      : handleUpdateExperience(experienceData, row.index);
+
+    // Reset des champs
     setJobTitle("");
     setCompany("");
     setStartDate(null);
@@ -125,9 +128,11 @@ export function ProfileExperiencesModal({
       row.place && setLocation(row.place);
     }
   }, [row, current]);
-  const handleChangeJobTitle = e => {
+
+  const handleChangeJobTitle = (e) => {
     setJobTitle(e.target.value);
   };
+
   return (
     <Modal
       show={show}
@@ -165,14 +170,14 @@ export function ProfileExperiencesModal({
                         className={`form-control h-auto py-5 px-6`}
                         name="jobTitleID"
                         value={jobTitle}
-                        onChange={e => {
+                        onChange={(e) => {
                           handleChangeJobTitle(e);
                         }}
                       >
                         <option disabled selected value="">
                           -- {intl.formatMessage({ id: "MODEL.JOBTITLE" })} --
                         </option>
-                        {jobTitleList.map(job => (
+                        {jobTitleList.map((job) => (
                           <option
                             key={job.id}
                             selected={jobTitle === job.name}
@@ -201,12 +206,12 @@ export function ProfileExperiencesModal({
                       </div>
                       <input
                         placeholder={intl.formatMessage({
-                          id: "TEXT.COMPANY"
+                          id: "TEXT.COMPANY",
                         })}
                         type="text"
                         className={`form-control h-auto py-5 px-6`}
                         name="firstname"
-                        onChange={e => setCompany(e.target.value)}
+                        onChange={(e) => setCompany(e.target.value)}
                         value={company}
                       />
                     </div>
@@ -234,7 +239,7 @@ export function ProfileExperiencesModal({
                         yearItemNumber={9}
                         locale="fr"
                         selected={(startDate && new Date(startDate)) || null}
-                        onChange={val => {
+                        onChange={(val) => {
                           setStartDate(
                             moment(val)
                               .locale("fr")
@@ -267,7 +272,7 @@ export function ProfileExperiencesModal({
                         locale="fr"
                         minDate={(startDate && new Date(startDate)) || null}
                         selected={(endDate && new Date(endDate)) || null}
-                        onChange={val => {
+                        onChange={(val) => {
                           setEndDate(
                             moment(val)
                               .locale("fr")
@@ -296,12 +301,12 @@ export function ProfileExperiencesModal({
                       </div>
                       <input
                         placeholder={intl.formatMessage({
-                          id: "MODEL.VACANCY.LOCATION"
+                          id: "MODEL.VACANCY.LOCATION",
                         })}
                         type="text"
                         className={`form-control h-auto py-5 px-6`}
                         name="firstname"
-                        onChange={e => setLocation(e.target.value)}
+                        onChange={(e) => setLocation(e.target.value)}
                         value={location}
                       />
                     </div>
@@ -326,10 +331,10 @@ export function ProfileExperiencesModal({
                         type="text"
                         maxLength="210"
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.DESCRIPTION"
+                          id: "MODEL.ACCOUNT.DESCRIPTION",
                         })}
                         value={desc}
-                        onChange={e => {
+                        onChange={(e) => {
                           setDesc(e.target.value);
                         }}
                       />

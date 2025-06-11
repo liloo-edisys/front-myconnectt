@@ -1,125 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import SVG from "react-inlinesvg";
-import { Formik, Form } from "formik";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import InputRange from "react-input-range";
-import Select from "react-select";
-import * as Yup from "yup";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useHistory } from "react-router-dom";
+import { FormattedMessage } from "react-intl";
 import { Zoom } from "react-reveal";
 import { toAbsoluteUrl } from "../../../../../../_metronic/_helpers";
-import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
 import "./styles.scss";
-import useLocalStorage from "../../../../shared/PersistState";
-import { goToNextStep } from "../../../../../../business/actions/interimaire/InterimairesActions";
-import axios from "axios";
 
 function ActivityDomain(props) {
-  const intl = useIntl();
-  const dispatch = useDispatch();
-  const { interimaire, step } = useSelector(
-    state => state.interimairesReducerData
-  );
-  const [role, setRole] = useState([]);
-  const [jobTitles, setJobTitles] = useState([]);
-  const [distance, setDistance] = useState(50);
-  const initialValues = {
-    postalCodeSearchZone: 0,
-    arrayActivityDomains: []
-  };
-  const RegistrationSchema = Yup.object().shape({
-    postalCodeSearchZone: Yup.number()
-      .positive()
-      .integer()
-      .min(0, intl.formatMessage({ id: "TEXT.DISTANCE.INDICATION" })),
-    arrayActivityDomains: Yup.array().min(
-      1,
-      intl.formatMessage({ id: "TEXT.POSTE.MINIMUM" })
-    )
-  });
-  const customStyles = {
-    control: (base, state) => ({
-      ...base,
-      background: "transparent",
-      margin: "-9px",
-      borderRadius: state.isFocused ? "3px 3px 0 0" : 3,
-      borderColor: "transparent",
-      boxShadow: null,
-      "&:hover": {
-        borderColor: "transparent"
-      }
-    }),
-    menu: base => ({
-      ...base,
-      borderRadius: 0,
-      marginTop: 0
-    }),
-    menuList: base => ({
-      ...base,
-      padding: 0
-    })
+  const history = useHistory();
+
+  const handleRedirect = () => {
+    history.push('/int-profile-edit/step-six');
   };
 
-  useEffect(() => {
-    //api/JobTitle
-    let URL = `${process.env.REACT_APP_WEBAPI_URL}api/ActivityDomain`;
-    isNullOrEmpty(jobTitles) &&
-      axios
-        .get(URL)
-        .then(res => {
-          setJobTitles(res.data);
-        })
-        .catch(err => console.log(err));
-  }, []);
-
-  const handleChangeDistance = (setFieldValue, value) => {
-    setDistance(value.value);
-    setFieldValue("postalCodeSearchZone", value.value);
-  };
-
-  const createOption = (label, value) => ({
-    label,
-    value
-  });
-
-  let formatedRole = jobTitles.map(equipment => {
-    return equipment && createOption(equipment.name, equipment.id);
-  });
-  const handleChangeRole = (setFieldValue, values, newValue) => {
-    let formikEquipment = [];
-    let newArray = !isNullOrEmpty(role) ? [...role] : [];
-    let difference =
-      newValue !== null &&
-      role !== null &&
-      role.filter(x => !newValue.includes(x));
-    if (newValue === null) {
-      newArray = [];
-    } else if (difference.length) {
-      let filteredArray = role.filter(x => newValue.includes(x));
-      newArray = [];
-      filteredArray.map(tag =>
-        newArray.push(createOption(tag.label, tag.value))
-      );
-    } else {
-      newArray.push(
-        createOption(
-          newValue[newValue.length - 1].label,
-          newValue[newValue.length - 1].value
-        )
-      );
-    }
-
-    newValue !== null &&
-      newValue.map(value => {
-        return (
-          values.arrayActivityDomains !== null &&
-          !values.arrayActivityDomains.includes(value) &&
-          formikEquipment.push(value.value)
-        );
-      });
-    setRole(newArray);
-    setFieldValue("arrayActivityDomains", formikEquipment);
-  };
   return (
     <div style={{ margin: 10 }}>
       <div className="card card-custom title_container_radius">
@@ -150,119 +43,28 @@ function ActivityDomain(props) {
               </div>
             </div>
           </div>
-          <div>
-            <Formik
-              enableReinitialize={true}
-              initialValues={initialValues}
-              validationSchema={RegistrationSchema}
-              setFieldValue
-              onSubmit={(values, { setSubmitting }) => {
-                const newInterimaire = {
-                  ...interimaire,
-                  postalCodeSearchZone: values.postalCodeSearchZone,
-                  arrayActivityDomains: values.arrayActivityDomains
-                };
-                goToNextStep(newInterimaire, step, dispatch);
-                //goToNextStep(dispatch);
-                /*enableLoading();
-                                registerAccount(values)
-                                  .then(response => {
-                                    disableLoading();
-                                    response && history.push("/");
-                                  })
-                                  .catch(() => {
-                                    setSubmitting(true);
-                                    disableLoading();
-                                  });*/
-              }}
-            >
-              {({
-                values,
-                touched,
-                errors,
-                status,
-                handleSubmit,
-                setFieldValue
-              }) => (
-                <Form
-                  id="kt_login_signin_form"
-                  className="form fv-plugins-bootstrap fv-plugins-framework animated animate__animated animate__backInUp"
-                  onSubmit={handleSubmit}
-                >
-                  <div className="padding-activity-title">
-                    <div className="form-group">
-                      <label>
-                        <FormattedMessage id="MATCHING.ACTIVITY.DOMAINS" />
-                        <span className="asterisk">*</span>
-                      </label>
-                      <div className="input-group">
-                        <div className="input-group-prepend">
-                          <span className="input-group-text">
-                            <i className="icon-xl far fa-list-alt text-primary"></i>
-                          </span>
-                        </div>
-                        <Select
-                          isMulti
-                          onChange={e =>
-                            handleChangeRole(setFieldValue, values, e)
-                          }
-                          options={formatedRole}
-                          styles={customStyles}
-                          value={role}
-                          className="col-lg-12 form-control"
-                        ></Select>
-                      </div>
-                    </div>
-                    {touched.arrayActivityDomains ? (
-                      <div className="fv-plugins-message-container">
-                        <div className="fv-help-block">
-                          {errors.arrayActivityDomains}
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-                  <div className="padding-activity-distance mb-20">
-                    <div className="col-xl-12">
-                      <div className="form-group">
-                        <label>
-                          <FormattedMessage id="MATCHING.TABLE.AREA" />
-                        </label>
-                        <div className="input-group mt-5">
-                          <InputRange
-                            formatLabel={value => `${value}km`}
-                            step={10}
-                            maxValue={1000}
-                            minValue={0}
-                            value={distance}
-                            onChange={value =>
-                              handleChangeDistance(setFieldValue, { value })
-                            }
-                          />
-                        </div>
-                      </div>
-                      {touched.postalCodeSearchZone ? (
-                        <div className="fv-plugins-message-container">
-                          <div className="fv-help-block">
-                            {errors.postalCodeSearchZone}
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <button
-                      type="submit"
-                      className="btn btn-primary font-weight-bold px-9 py-4 my-3 mx-4 btn-shadow"
-                      //onClick={() => goToNextStep(dispatch)}
-                    >
-                      <span>
-                        <FormattedMessage id="BUTTON.NEXT" />
-                      </span>
-                    </button>
-                  </div>
-                </Form>
-              )}
-            </Formik>
+          <div className="p-10 text-center">
+            <div className="mb-8">
+              <h3 className="font-weight-bold text-dark-75 mb-5">
+                Complétez votre profil professionnel
+              </h3>
+              <p className="text-muted font-size-lg">
+                Pour optimiser vos opportunités d'emploi, veuillez renseigner 
+                vos informations sur vos postes précédents et vos compétences 
+                dans la section dédiée de votre profil.
+              </p>
+            </div>
+            <div className="text-center">
+              <button
+                type="button"
+                className="btn btn-primary font-weight-bold px-9 py-4 my-3 mx-4 btn-shadow"
+                onClick={handleRedirect}
+              >
+                <span>
+                  Remplir mes informations professionnelles
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       </Zoom>
