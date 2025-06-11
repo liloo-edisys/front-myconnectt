@@ -50,7 +50,7 @@ function FormStepThree(props, formik) {
     year: "numeric"
   };
 
-  const { companies, parsed, updateInterimaireIdentityLoading } = useSelector(
+  const { parsed, updateInterimaireIdentityLoading } = useSelector(
     state => ({
       companies: state.companies.companies,
       parsed: state.interimairesReducerData.interimaire,
@@ -82,10 +82,6 @@ function FormStepThree(props, formik) {
 
   const [currentRow, setCurrentRow] = useState([]);
 
-  const createOption = (label, value) => ({
-    label,
-    value
-  });
   const onHide = () => {
     setShow(false);
     setShowDelete(false);
@@ -95,6 +91,26 @@ function FormStepThree(props, formik) {
   const [experiences, setExperiences] = useState(
     parsed && parsed.applicantExperiences ? parsed.applicantExperiences : []
   );
+
+  const saveArrayActivityDomains = (newMissionArrayDesiredJobTitles) => {
+      localStorage.setItem(
+        "missionArrayDesiredJobTitles",
+        JSON.stringify(newMissionArrayDesiredJobTitles)
+      );
+    };
+  
+    saveArrayActivityDomains(parsed.missionArrayDesiredJobTitles || []);
+  
+    useEffect(() => {
+      const saveArrayActivityDomains = (newMissionArrayDesiredJobTitles) => {
+        localStorage.setItem(
+          "missionArrayDesiredJobTitles",
+          JSON.stringify(newMissionArrayDesiredJobTitles)
+        );
+      };
+      saveArrayActivityDomains();
+      console.log("parsed value ------->", parsed.missionArrayDesiredJobTitles);
+    }, [parsed]);
 
   useEffect(() => {
     parsed &&
@@ -143,13 +159,6 @@ function FormStepThree(props, formik) {
       !isNullOrEmpty(experiences) &&
       props.formik.setFieldValue("applicantExperiences", experiences);
   }, [parsed]);
-  const useMountEffect = fun => useEffect(fun, []);
-  const filterXp = value => {
-    let filtered = _.filter(value, function(o) {
-      return o.isDeleted !== true;
-    });
-    return filtered;
-  };
   let formattedXp = () => {
     let xp = experiences.map((val, ix) => {
       val.keyField = ix;
@@ -157,23 +166,8 @@ function FormStepThree(props, formik) {
     });
     return xp;
   };
-  const handleEditExperience = xp => {
-    let newExperiences =
-      parsed && !isNullOrEmpty(parsed.applicantExperiences)
-        ? parsed.applicantExperiences
-        : [];
-    newExperiences.push({ ...xp, id: isNaN(xp.id) ? 0 : 0 });
-    props.formik.setFieldValue("applicantExperiences", newExperiences);
-    setExperiences(parsed.applicantExperiences);
-  };
 
-  const handleUpdateExperience = (xp, row) => {
-    let newExperiences = experiences;
-    newExperiences[row] = xp;
-    props.formik.setFieldValue("applicantExperiences", newExperiences);
-    setExperiences(newExperiences);
-  };
-  const deleteExperience = row => {
+  const deleteExperience = () => {
     let xp = formattedXp();
     const updatedHero = xp.filter(
       item => item.keyField !== currentRow.keyField
@@ -181,105 +175,15 @@ function FormStepThree(props, formik) {
     setExperiences(updatedHero);
     props.formik.setFieldValue("applicantExperiences", updatedHero);
   };
-  const { errors, touched } = useFormikContext();
-  /*let columns = [
-    {
-      dataField: "jobTitle",
-      text: intl.formatMessage({ id: "TEXT.PAST.JOB" }),
-      sort: true,
-      headerStyle: (colum, colIndex) => {
-        return { width: "180px" };
-      },
-    },
-    {
-      dataField: "startDate",
-      text: intl.formatMessage({ id: "TEXT.STARTDATE" }),
-      sort: true,
-      formatter: DateColumnFormatter,
-    },
-    {
-      dataField: "endDate",
-      text: intl.formatMessage({ id: "TEXT.ENDDATE" }),
-      sort: true,
-      formatter: DateColumnFormatter,
-    },
-    {
-      dataField: "employerNameAndPlace",
-      text: intl.formatMessage({ id: "TEXT.COMPANY" }),
-      sort: true,
-    },
-    {
-      dataField: "place",
-      text: intl.formatMessage({ id: "MODEL.LOCATION" }),
-      sort: true,
-    },
-    {
-      dataField: "isCurrentItem",
-      text: intl.formatMessage({ id: "MODEL.ACCOUNT.CURRENT" }),
-      formatter: (row, value) => <span>{row === "true" ? "oui" : "non"} </span>,
-      sort: true,
-    },
-    {
-      dataField: "description",
-      text: intl.formatMessage({ id: "MODEL.ACCOUNT.DESCRIPTION" }),
-      sort: true,
-    },
-
-    {
-      dataField: "action",
-      text: intl.formatMessage({ id: "MENU.ACTIONS" }),
-      classes: "text-right pr-0",
-      headerClasses: "text-right pr-3",
-      formatter: ActionsColumnFormatter,
-      style: {
-        minWidth: "100px",
-      },
-      formatExtraData: {
-        openEditModal: (row, rowIndex) => {
-          setShowEdit(true);
-          setCurrentRow({ ...row, index: rowIndex });
-        },
-        openDeleteModal: (row) => {
-          setShowDelete(true);
-          setCurrentRow(row);
-        },
-        deleteExperience: (row) => deleteExperience(row),
-        handleUpdateExperience: (row) => handleUpdateExperience(row),
-      },
-    },
-  ];*/
-
-  const NoDataIndication = () => {
-    return (
-      <div className="d-flex justify-content-center mt-5">
-        <div
-          className="alert alert-custom alert-notice alert-light-danger fade show px-5 py-0"
-          role="alert"
-        >
-          <div className="alert-icon">
-            <i className="flaticon-warning"></i>
-          </div>
-          <div className="alert-text">
-            <FormattedMessage id="MESSAGE.NO.EXPERIENCE" />
-          </div>
-        </div>
-      </div>
-    );
-  };
+  useFormikContext();
 
   const openDeleteModal = row => {
     setShowDelete(true);
     setCurrentRow(row);
   };
 
-  const openEditModal = (row, rowIndex) => {
-    setShowEdit(true);
-    setCurrentRow({ ...row, index: rowIndex });
-  };
-
   const getBase64 = file => {
     return new Promise(resolve => {
-      let fileInfo;
       let baseURL = "";
       // Make new FileReader
       let reader = new FileReader();
@@ -310,31 +214,16 @@ function FormStepThree(props, formik) {
         intl.formatMessage({ id: "TEXT.EXPERIENCE.ERROR" })
       );
     }
-    dispatch(updateApplicant.request(props.formik.values));
 
-    /*let errorArrayTemp = [];
-    const { applicantExperiences } = parsed;
-    for (let i = 0; i < applicantExperiences.length; i++) {
-      if (
-        !applicantExperiences[i].jobTitle ||
-        !applicantExperiences[i].employerNameAndPlace ||
-        !applicantExperiences[i].startDate ||
-        !applicantExperiences[i].endDate
-      ) {
-        if (applicantExperiences[i].id) {
-          errorArrayTemp.push(applicantExperiences[i].id);
-        } else {
-          errorArrayTemp.push(applicantExperiences[i].id_temp);
-        }
-      }
-    }
-    if (errorArrayTemp.length > 0) {
-      return setErrorArray(errorArrayTemp);
-    } else {
-      dispatch(updateApplicant.request(props.formik.values));
-    }*/
-    //props.history.push("/int-profile-edit/step-four");
+    // Préparer les données à envoyer avec missionArrayDesiredJobTitles
+    const dataToSend = {
+      ...props.formik.values,
+      missionArrayDesiredJobTitles: parsed.missionArrayDesiredJobTitles || []
+    };
+
+    dispatch(updateApplicant.request(dataToSend));
   };
+
   const { getRootProps, getInputProps } = useDropzone({
     accept: ".pdf, .doc, .docx",
     onDrop: acceptedFiles => {
@@ -554,7 +443,7 @@ function FormStepThree(props, formik) {
                         setEmptyArrayError={setEmptyArrayError}
                       />
                       <Row className="pt-5 ">
-                        {formattedXp().map((experience, i) => (
+                        {formattedXp().map((experience) => (
                           <Col
                             xl={4}
                             lg={12}
