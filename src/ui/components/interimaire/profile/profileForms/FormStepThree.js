@@ -40,10 +40,20 @@ import NewExperience from "../../home/fieldsets/new-experience/NewExperience";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { validateMission } from "../../../../../business/actions/client/MissionsActions";
 
+// =============================================
+// IMPORT DU CVDrawer
+// =============================================
+import CVDrawer, { useCVDrawer } from "../../../shared/CVDrawer/CVDrawer";
+
 function FormStepThree(props, formik) {
   const dispatch = useDispatch();
   const { intl } = props;
   const TENANTID = process.env.REACT_APP_TENANT_ID;
+
+  // =============================================
+  // HOOK CVDrawer
+  // =============================================
+  const { isOpen, currentPdfUrl, openDrawer, closeDrawer } = useCVDrawer();
 
   const optionsTime = {
     month: "short",
@@ -81,6 +91,22 @@ function FormStepThree(props, formik) {
   );
 
   const [currentRow, setCurrentRow] = useState([]);
+
+  // =============================================
+  // HANDLER POUR OUVRIR LE CVDrawer
+  // =============================================
+  const handleViewCV = (e) => {
+    e.preventDefault();
+    if (url) {
+      console.log("🔍 Ouverture CVDrawer avec URL:", url);
+      openDrawer(url);
+    } else {
+      toastr.error(
+        intl.formatMessage({ id: "ERROR" }),
+        "Aucun CV disponible pour l'affichage"
+      );
+    }
+  };
 
   const onHide = () => {
     setShow(false);
@@ -337,6 +363,7 @@ function FormStepThree(props, formik) {
   const onDeleteExperience = value => {
     setErrorArray(value);
   };
+
   return (
     <>
       <div className="d-flex flex-row">
@@ -370,14 +397,18 @@ function FormStepThree(props, formik) {
                             }
                           ></i>
                           <div>
-                            <a
+                            {/* =============================================
+                                REMPLACEMENT DU LIEN PAR LE BOUTON DRAWER
+                                ============================================= */}
+                            <button
                               className="btn btn-light-primary"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              href={`/document/display/${url}`}
+                              onClick={handleViewCV}
+                              disabled={!url}
+                              type="button"
                             >
+                              <i className="fas fa-eye mr-2"></i>
                               Voir mon CV
-                            </a>
+                            </button>
                             <div
                               {...getRootProps()}
                               className="btn btn-light-primary ml-5"
@@ -567,6 +598,33 @@ function FormStepThree(props, formik) {
       <div className="display_bottom_menu_profile">
         <MissionWizzardHeader props={props} />
       </div>
+
+      {/* =============================================
+          CVDrawer INTÉGRÉ
+          ============================================= */}
+      <CVDrawer
+        isOpen={isOpen}
+        onClose={closeDrawer}
+        pdfUrl={currentPdfUrl}
+        title="Mon CV"
+        width="70%"
+        position="left"
+        downloadFileName={
+          parsed?.primaryCurriculumVitaeFilename || "CV.pdf"
+        }
+        showControls={true}
+        backdrop={true}
+        onError={(error) => {
+          console.error('Erreur CVDrawer:', error);
+          toastr.error(
+            intl.formatMessage({ id: "ERROR" }),
+            "Erreur lors de l'affichage du CV"
+          );
+        }}
+        onLoad={(data) => {
+          console.log('CV chargé avec succès:', data);
+        }}
+      />
     </>
   );
 }
