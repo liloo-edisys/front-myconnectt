@@ -19,11 +19,11 @@ export function ProfileExperiencesModal({
   intl,
   handleEditExperience,
   handleUpdateExperience,
-  row,
+  row
 }) {
   const dispatch = useDispatch();
 
-  const useMountEffect = (fun) => useEffect(fun, []);
+  const useMountEffect = fun => useEffect(fun, []);
 
   useMountEffect(() => {
     dispatch(getJobTitles.request());
@@ -41,9 +41,9 @@ export function ProfileExperiencesModal({
   const [companyErr, setCompanyErr] = useState(false);
 
   const { user, jobTitleList } = useSelector(
-    (state) => ({
+    state => ({
       user: state.auth.user,
-      jobTitleList: state.lists.jobTitles,
+      jobTitleList: state.lists.jobTitles
     }),
     shallowEqual
   );
@@ -90,7 +90,7 @@ export function ProfileExperiencesModal({
       place: location,
       description: desc,
       isCurrentItem: current === true ? "true" : "false",
-      missionArrayDesiredJobTitles: missionArrayDesiredJobTitles, // Ajout des données localStorage
+      missionArrayDesiredJobTitles: missionArrayDesiredJobTitles // Ajout des données localStorage
     };
 
     isNullOrEmpty(row)
@@ -129,7 +129,7 @@ export function ProfileExperiencesModal({
     }
   }, [row, current]);
 
-  const handleChangeJobTitle = (e) => {
+  const handleChangeJobTitle = e => {
     setJobTitle(e.target.value);
   };
 
@@ -170,14 +170,14 @@ export function ProfileExperiencesModal({
                         className={`form-control h-auto py-5 px-6`}
                         name="jobTitleID"
                         value={jobTitle}
-                        onChange={(e) => {
+                        onChange={e => {
                           handleChangeJobTitle(e);
                         }}
                       >
                         <option disabled selected value="">
                           -- {intl.formatMessage({ id: "MODEL.JOBTITLE" })} --
                         </option>
-                        {jobTitleList.map((job) => (
+                        {jobTitleList.map(job => (
                           <option
                             key={job.id}
                             selected={jobTitle === job.name}
@@ -206,12 +206,12 @@ export function ProfileExperiencesModal({
                       </div>
                       <input
                         placeholder={intl.formatMessage({
-                          id: "TEXT.COMPANY",
+                          id: "TEXT.COMPANY"
                         })}
                         type="text"
                         className={`form-control h-auto py-5 px-6`}
                         name="firstname"
-                        onChange={(e) => setCompany(e.target.value)}
+                        onChange={e => setCompany(e.target.value)}
                         value={company}
                       />
                     </div>
@@ -239,7 +239,7 @@ export function ProfileExperiencesModal({
                         yearItemNumber={9}
                         locale="fr"
                         selected={(startDate && new Date(startDate)) || null}
-                        onChange={(val) => {
+                        onChange={val => {
                           setStartDate(
                             moment(val)
                               .locale("fr")
@@ -272,7 +272,7 @@ export function ProfileExperiencesModal({
                         locale="fr"
                         minDate={(startDate && new Date(startDate)) || null}
                         selected={(endDate && new Date(endDate)) || null}
-                        onChange={(val) => {
+                        onChange={val => {
                           setEndDate(
                             moment(val)
                               .locale("fr")
@@ -301,12 +301,12 @@ export function ProfileExperiencesModal({
                       </div>
                       <input
                         placeholder={intl.formatMessage({
-                          id: "MODEL.VACANCY.LOCATION",
+                          id: "MODEL.VACANCY.LOCATION"
                         })}
                         type="text"
                         className={`form-control h-auto py-5 px-6`}
                         name="firstname"
-                        onChange={(e) => setLocation(e.target.value)}
+                        onChange={e => setLocation(e.target.value)}
                         value={location}
                       />
                     </div>
@@ -331,10 +331,10 @@ export function ProfileExperiencesModal({
                         type="text"
                         maxLength="210"
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.DESCRIPTION",
+                          id: "MODEL.ACCOUNT.DESCRIPTION"
                         })}
                         value={desc}
-                        onChange={(e) => {
+                        onChange={e => {
                           setDesc(e.target.value);
                         }}
                       />

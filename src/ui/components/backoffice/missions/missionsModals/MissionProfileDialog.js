@@ -466,25 +466,27 @@ export function MissionProfileDialog({
             </div>
           </div>
           <div className="mb-5 ml-5 align-items-center d-flex flex-row">
-            <a
-              className="btn btn-light-info btn-shadow font-weight-bold px-9 py-4 m-2"
-              target="_blank"
-              rel="noopener noreferrer"
-              href={
-                applicant && state && state.status === 5
-                  ? `/document/display/${encoreUrl(
-                      applicant.primaryCurriculumVitaeUrl
-                    )}`
-                  : resume && `/document/display/${encoreUrl(resume)}`
-              }
-            >
-              <span className="navi-icon mr-2">
-                <i className="fas fa-id-badge"></i>
-              </span>
-              <span className="menu-text">
-                <FormattedMessage id="BUTTON.SHOW.CV" />
-              </span>
-            </a>
+            {applicant?.primaryCurriculumVitaeUrl && (
+              <a
+                className="btn btn-light-info btn-shadow font-weight-bold px-9 py-4 m-2"
+                target="_blank"
+                rel="noopener noreferrer"
+                href={
+                  applicant && state && state.status === 5
+                    ? `/document/display/${encoreUrl(
+                        applicant.primaryCurriculumVitaeUrl
+                      )}`
+                    : resume && `/document/display/${encoreUrl(resume)}`
+                }
+              >
+                <span className="navi-icon mr-2">
+                  <i className="fas fa-id-badge"></i>
+                </span>
+                <span className="menu-text">
+                  <FormattedMessage id="BUTTON.SHOW.CV" />
+                </span>
+              </a>
+            )}
             {state && state.status === 1 ? (
               <a
                 onClick={e => {
@@ -611,7 +613,9 @@ export function MissionProfileDialog({
                   <FormattedMessage id="TEXT.DENY" />
                 </a>
               </>
-            ) : null}
+            ) : (
+              <></>
+            )}
             <a
               className="btn btn-light-info btn-shadow font-weight-bold m-2"
               target="_blank"
@@ -619,7 +623,7 @@ export function MissionProfileDialog({
               href={
                 applicant && state && state.status === 5
                   ? `/document/display/${encoreUrl(
-                      applicant.primaryCurriculumVitaeUrl
+                      applicant?.primaryCurriculumVitaeUrl
                     )}`
                   : resume && `/document/display/${encoreUrl(resume)}`
               }

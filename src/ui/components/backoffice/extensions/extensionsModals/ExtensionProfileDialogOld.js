@@ -233,7 +233,7 @@ export function ExtensionProfileDialog({
                 <i className="fas fa-id-badge"></i>
               </span>
               <span className="menu-text">
-                <FormattedMessage id="BUTTON.SHOW.CV" />
+                {/* <FormattedMessage id="BUTTON.SHOW.CV" /> */}
               </span>
             </a>
           </div>

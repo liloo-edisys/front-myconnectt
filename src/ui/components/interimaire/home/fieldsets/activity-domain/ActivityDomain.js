@@ -10,7 +10,7 @@ function ActivityDomain(props) {
   const history = useHistory();
 
   const handleRedirect = () => {
-    history.push('/int-profile-edit/step-six');
+    history.push("/int-profile-edit/step-six");
   };
 
   return (
@@ -49,8 +49,8 @@ function ActivityDomain(props) {
                 Complétez votre profil professionnel
               </h3>
               <p className="text-muted font-size-lg">
-                Pour optimiser vos opportunités d'emploi, veuillez renseigner 
-                vos informations sur vos postes précédents et vos compétences 
+                Pour optimiser vos opportunités d'emploi, veuillez renseigner
+                vos informations sur vos postes précédents et vos compétences
                 dans la section dédiée de votre profil.
               </p>
             </div>
@@ -60,9 +60,7 @@ function ActivityDomain(props) {
                 className="btn btn-primary font-weight-bold px-9 py-4 my-3 mx-4 btn-shadow"
                 onClick={handleRedirect}
               >
-                <span>
-                  Remplir mes informations professionnelles
-                </span>
+                <span>Remplir mes informations professionnelles</span>
               </button>
             </div>
           </div>
