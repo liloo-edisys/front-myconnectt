@@ -560,26 +560,6 @@ const CVDrawer = ({
           {showControls && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               {/* Sélecteur de mode */}
-              {!isMobile && (
-                <div className="btn-group btn-group-sm mr-2">
-                  <button 
-                    className={`btn ${viewerMode === 'react-pdf' ? 'btn-primary' : 'btn-outline-secondary'}`}
-                    onClick={() => switchViewerMode('react-pdf')}
-                    title="Mode react-pdf"
-                    style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
-                  >
-                    PDF
-                  </button>
-                  <button 
-                    className={`btn ${viewerMode === 'iframe-google' ? 'btn-success' : 'btn-outline-secondary'}`}
-                    onClick={() => switchViewerMode('iframe-google')}
-                    title="Mode Google Docs"
-                    style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
-                  >
-                    DOC
-                  </button>
-                </div>
-              )}
 
               {/* Contrôles de zoom (react-pdf seulement) */}
               {!isMobile && viewerMode === 'react-pdf' && (
