@@ -15,17 +15,17 @@ export function MissionResumeDialog({ show, onHide, history, resumeRow }) {
   const resumeUserID = resumeRow && resumeRow.id;
 
   const dispatch = useDispatch();
-  
+
   // Hook CVDrawer
   const { isOpen, currentPdfUrl, openDrawer, closeDrawer } = useCVDrawer();
 
   // Fonction pour encoder les URLs
   function encodeUrl(str) {
     if (!str) return "";
-    
+
     let newUrl = "";
     const len = str.length;
-    
+
     for (let i = 0; i < len; i++) {
       let c = str.charAt(i);
       let code = str.charCodeAt(i);
@@ -43,11 +43,15 @@ export function MissionResumeDialog({ show, onHide, history, resumeRow }) {
         newUrl += c;
       }
     }
-    
+
     if (newUrl.indexOf(".doc") > 0 || newUrl.indexOf(".docx") > 0) {
       return "https://view.officeapps.live.com/op/embed.aspx?src=" + newUrl;
     } else {
-      return "https://docs.google.com/gview?url=" + newUrl + "&embedded=true&SameSite=None";
+      return (
+        "https://docs.google.com/gview?url=" +
+        newUrl +
+        "&embedded=true&SameSite=None"
+      );
     }
   }
 
@@ -75,7 +79,7 @@ export function MissionResumeDialog({ show, onHide, history, resumeRow }) {
     if (show && url) {
       const encodedUrl = encodeUrl(url);
       if (encodedUrl) {
-        console.log('🔍 Ouverture CVDrawer avec URL:', encodedUrl);
+        console.log("🔍 Ouverture CVDrawer avec URL:", encodedUrl);
         openDrawer(encodedUrl);
       }
     }
@@ -99,9 +103,12 @@ export function MissionResumeDialog({ show, onHide, history, resumeRow }) {
   // Obtenir le nom du candidat pour le titre
   const getCandidateName = () => {
     if (resumeRow) {
-      return `${resumeRow.firstname || ''} ${resumeRow.lastname || ''}`.trim() || 'Candidat';
+      return (
+        `${resumeRow.firstname || ""} ${resumeRow.lastname || ""}`.trim() ||
+        "Candidat"
+      );
     }
-    return 'CV Candidat';
+    return "CV Candidat";
   };
 
   return (
@@ -112,26 +119,26 @@ export function MissionResumeDialog({ show, onHide, history, resumeRow }) {
       title={`CV - ${getCandidateName()}`}
       width="100%"
       position="left"
-      downloadFileName={`CV_${getCandidateName().replace(/\s+/g, '_')}.pdf`}
+      downloadFileName={`CV_${getCandidateName().replace(/\s+/g, "_")}.pdf`}
       showControls={true}
       backdrop={true}
       overlay={true}
-      
       // Gestion des erreurs
-      onError={(error) => {
+      onError={error => {
         console.error("❌ Erreur CVDrawer:", error);
         toastr.error(
           intl.formatMessage({ id: "ERROR" }),
           "Impossible d'afficher le CV. Tentative avec une méthode alternative..."
         );
       }}
-      
       // Callback de succès
-      onLoad={(data) => {
+      onLoad={data => {
         console.log("✅ CV chargé avec succès:", data);
         toastr.success(
           intl.formatMessage({ id: "TEXT.SHOW_CV.TITLE" }),
-          `CV affiché (${data.numPages || 1} page${data.numPages > 1 ? 's' : ''})`
+          `CV affiché (${data.numPages || 1} page${
+            data.numPages > 1 ? "s" : ""
+          })`
         );
       }}
     />

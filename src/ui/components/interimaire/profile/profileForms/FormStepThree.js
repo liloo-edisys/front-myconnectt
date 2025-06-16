@@ -95,7 +95,7 @@ function FormStepThree(props, formik) {
   // =============================================
   // HANDLER POUR OUVRIR LE CVDrawer
   // =============================================
-  const handleViewCV = (e) => {
+  const handleViewCV = e => {
     e.preventDefault();
     if (url) {
       console.log("🔍 Ouverture CVDrawer avec URL:", url);
@@ -118,25 +118,25 @@ function FormStepThree(props, formik) {
     parsed && parsed.applicantExperiences ? parsed.applicantExperiences : []
   );
 
-  const saveArrayActivityDomains = (newMissionArrayDesiredJobTitles) => {
+  const saveArrayActivityDomains = newMissionArrayDesiredJobTitles => {
+    localStorage.setItem(
+      "missionArrayDesiredJobTitles",
+      JSON.stringify(newMissionArrayDesiredJobTitles)
+    );
+  };
+
+  saveArrayActivityDomains(parsed.missionArrayDesiredJobTitles || []);
+
+  useEffect(() => {
+    const saveArrayActivityDomains = newMissionArrayDesiredJobTitles => {
       localStorage.setItem(
         "missionArrayDesiredJobTitles",
         JSON.stringify(newMissionArrayDesiredJobTitles)
       );
     };
-  
-    saveArrayActivityDomains(parsed.missionArrayDesiredJobTitles || []);
-  
-    useEffect(() => {
-      const saveArrayActivityDomains = (newMissionArrayDesiredJobTitles) => {
-        localStorage.setItem(
-          "missionArrayDesiredJobTitles",
-          JSON.stringify(newMissionArrayDesiredJobTitles)
-        );
-      };
-      saveArrayActivityDomains();
-      console.log("parsed value ------->", parsed.missionArrayDesiredJobTitles);
-    }, [parsed]);
+    saveArrayActivityDomains();
+    console.log("parsed value ------->", parsed.missionArrayDesiredJobTitles);
+  }, [parsed]);
 
   useEffect(() => {
     parsed &&
@@ -474,7 +474,7 @@ function FormStepThree(props, formik) {
                         setEmptyArrayError={setEmptyArrayError}
                       />
                       <Row className="pt-5 ">
-                        {formattedXp().map((experience) => (
+                        {formattedXp().map(experience => (
                           <Col
                             xl={4}
                             lg={12}
@@ -609,20 +609,18 @@ function FormStepThree(props, formik) {
         title="Mon CV"
         width="70%"
         position="left"
-        downloadFileName={
-          parsed?.primaryCurriculumVitaeFilename || "CV.pdf"
-        }
+        downloadFileName={parsed?.primaryCurriculumVitaeFilename || "CV.pdf"}
         showControls={true}
         backdrop={true}
-        onError={(error) => {
-          console.error('Erreur CVDrawer:', error);
+        onError={error => {
+          console.error("Erreur CVDrawer:", error);
           toastr.error(
             intl.formatMessage({ id: "ERROR" }),
             "Erreur lors de l'affichage du CV"
           );
         }}
-        onLoad={(data) => {
-          console.log('CV chargé avec succès:', data);
+        onLoad={data => {
+          console.log("CV chargé avec succès:", data);
         }}
       />
     </>

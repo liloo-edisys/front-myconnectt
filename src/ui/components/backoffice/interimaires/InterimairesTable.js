@@ -11,7 +11,7 @@ import moment from "moment";
 import { getInterimairesList } from "actions/backoffice/AccountsActions";
 import paginationFactory, {
   PaginationListStandalone,
-  PaginationProvider,
+  PaginationProvider
 } from "react-bootstrap-table2-paginator";
 import DatePicker from "react-datepicker";
 import CVDrawer, { useCVDrawer } from "../../shared/CVDrawer/CVDrawer.js";
@@ -22,13 +22,13 @@ function InterimairesTable(props) {
   const { pathname } = useLocation();
   const dispatch = useDispatch();
   const intl = useIntl();
-  
+
   // États principaux
   const [pageSize, setPageSize] = useState(10);
   const [pageNumber, setPageNumber] = useState(1);
   const [iSExtensions, setIsExtension] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // États de filtrage
   const [isControl, setIsControl] = useState(
     pathname === "/interimaires-to-check" ? true : false
@@ -46,14 +46,19 @@ function InterimairesTable(props) {
   const [selectedPhone, setSelectedPhone] = useState("");
   const [selectedStatus, setSelectedStatus] = useState(0);
   const [selectedCreationDate, setSelectedCreationDate] = useState("");
-  
+
   // États pour modales
-  const [toggleApplicantDeleteModal, setToggleApplicantDeleteModal] = useState(null);
-  const [toggleSourcingScopTalentModal, setToggleSourcingScopTalentModal] = useState(false);
-  
+  const [toggleApplicantDeleteModal, setToggleApplicantDeleteModal] = useState(
+    null
+  );
+  const [
+    toggleSourcingScopTalentModal,
+    setToggleSourcingScopTalentModal
+  ] = useState(false);
+
   // Hook CVDrawer
   const { isOpen, currentPdfUrl, openDrawer, closeDrawer } = useCVDrawer();
-  
+
   // État pour stocker les infos de l'intérimaire actuel (pour le titre du CV)
   const [currentInterimaire, setCurrentInterimaire] = useState(null);
 
@@ -62,18 +67,18 @@ function InterimairesTable(props) {
     user,
     totalCount,
     interimairesList,
-    interimairesLoading,
-  } = useSelector((state) => ({
+    interimairesLoading
+  } = useSelector(state => ({
     totalCount: state.accountsReducerData.interimairesList.totalcount,
     user: state.recruiterReducerData.user,
     interimairesList: state.accountsReducerData.interimairesList,
-    interimairesLoading: state.accountsReducerData.interimairesLoading,
+    interimairesLoading: state.accountsReducerData.interimairesLoading
   }));
 
-  const { userAuth, jobTitleList, companies } = useSelector((state) => ({
+  const { userAuth, jobTitleList, companies } = useSelector(state => ({
     userAuth: state.auth.user,
     jobTitleList: state.lists.jobTitles,
-    companies: state.companies.companies,
+    companies: state.companies.companies
   }));
 
   // =============================================
@@ -83,10 +88,10 @@ function InterimairesTable(props) {
   // Fonction pour encoder les URLs
   function encodeUrl(str) {
     if (!str) return "";
-    
+
     let newUrl = "";
     const len = str.length;
-    
+
     for (let i = 0; i < len; i++) {
       let c = str.charAt(i);
       let code = str.charCodeAt(i);
@@ -104,12 +109,16 @@ function InterimairesTable(props) {
         newUrl += c;
       }
     }
-    
+
     // Détecter le type de fichier et construire l'URL appropriée
     if (newUrl.indexOf(".doc") > 0 || newUrl.indexOf(".docx") > 0) {
       return "https://view.officeapps.live.com/op/embed.aspx?src=" + newUrl;
     } else {
-      return "https://docs.google.com/gview?url=" + newUrl + "&embedded=true&SameSite=None";
+      return (
+        "https://docs.google.com/gview?url=" +
+        newUrl +
+        "&embedded=true&SameSite=None"
+      );
     }
   }
 
@@ -129,8 +138,8 @@ function InterimairesTable(props) {
 
       // Encoder l'URL pour la compatibilité
       const encodedUrl = encodeUrl(cvUrl);
-      
-      console.log('🔍 Ouverture CVDrawer:', {
+
+      console.log("🔍 Ouverture CVDrawer:", {
         original: cvUrl,
         encoded: encodedUrl,
         interimaire: `${rowData.firstname} ${rowData.lastname}`
@@ -138,9 +147,8 @@ function InterimairesTable(props) {
 
       // Ouvrir le CVDrawer avec l'URL encodée
       openDrawer(encodedUrl);
-      
     } catch (error) {
-      console.error('❌ Erreur lors de l\'ouverture du CV:', error);
+      console.error("❌ Erreur lors de l'ouverture du CV:", error);
       toastr.error(
         intl.formatMessage({ id: "ERROR" }),
         "Erreur lors de l'ouverture du CV"
@@ -164,14 +172,22 @@ function InterimairesTable(props) {
     { id: 1, value: 1, name: intl.formatMessage({ id: "STATUS.REGISTERED" }) },
     { id: 6, value: 6, name: intl.formatMessage({ id: "STATUS.CAN_MATCH" }) },
     { id: 2, value: 2, name: intl.formatMessage({ id: "TEXT.COMPLETE" }) },
-    { id: 3, value: 3, name: intl.formatMessage({ id: "STATUS.VALIDATED.BACKOFFICE" }) },
-    { id: 4, value: 4, name: intl.formatMessage({ id: "STATUS.ANAEL.UPDATED" }) },
-    { id: 5, value: 5, name: intl.formatMessage({ id: "STATUS.DISABLED" }) },
+    {
+      id: 3,
+      value: 3,
+      name: intl.formatMessage({ id: "STATUS.VALIDATED.BACKOFFICE" })
+    },
+    {
+      id: 4,
+      value: 4,
+      name: intl.formatMessage({ id: "STATUS.ANAEL.UPDATED" })
+    },
+    { id: 5, value: 5, name: intl.formatMessage({ id: "STATUS.DISABLED" }) }
   ];
 
   const dispoArray = [
     { id: 1, name: "Disponible" },
-    { id: 2, name: "Indisponible" },
+    { id: 2, name: "Indisponible" }
   ];
 
   const sortByArray = [
@@ -179,7 +195,7 @@ function InterimairesTable(props) {
     { id: 2, name: "Date de modification" },
     { id: 3, name: "Nom" },
     { id: 4, name: "Prénom" },
-    { id: 5, name: "Code postal" },
+    { id: 5, name: "Code postal" }
   ];
 
   // =============================================
@@ -200,21 +216,21 @@ function InterimairesTable(props) {
       availability: selectedAvailability,
       isDispo: +isDispo,
       sortBy: +sortBy,
-      isAscending: isAscending ? true : false,
+      isAscending: isAscending ? true : false
     };
-    
+
     if (isControl) {
       body = {
         ...body,
-        status: [1, 2, 6],
+        status: [1, 2, 6]
       };
     } else if (selectedStatus > 0) {
       body = {
         ...body,
-        status: [parseInt(selectedStatus)],
+        status: [parseInt(selectedStatus)]
       };
     }
-    
+
     getInterimairesList(body, dispatch);
     setIsExtension(true);
   };
@@ -235,30 +251,30 @@ function InterimairesTable(props) {
       isDispo: +isDispo,
       sortBy: +sortBy,
       isAscending: isAscending ? true : false,
-      hasExperience: withExperience,
+      hasExperience: withExperience
     };
-    
+
     if (selectedStatus > 0) {
       body = {
         ...body,
-        status: [parseInt(selectedStatus)],
+        status: [parseInt(selectedStatus)]
       };
     }
-    
+
     if (isControl) {
       body = {
         ...body,
-        status: [1, 2, 6],
+        status: [1, 2, 6]
       };
     }
-    
+
     if (selectedCreationDate) {
       body = {
         ...body,
-        creationDate: moment(selectedCreationDate).toDate(),
+        creationDate: moment(selectedCreationDate).toDate()
       };
     }
-    
+
     getInterimairesList(body, dispatch);
   };
 
@@ -278,43 +294,43 @@ function InterimairesTable(props) {
   const columns = [
     {
       dataField: "anaelID",
-      text: intl.formatMessage({ id: "COLUMN.ANAEL.ID" }),
+      text: intl.formatMessage({ id: "COLUMN.ANAEL.ID" })
     },
     {
       dataField: "id",
-      text: intl.formatMessage({ id: "COLUMN.MYCONNECTT.ID.INTERIMAIRE" }),
+      text: intl.formatMessage({ id: "COLUMN.MYCONNECTT.ID.INTERIMAIRE" })
     },
     {
       dataField: "lastname",
-      text: intl.formatMessage({ id: "COLUMN.NAME" }),
+      text: intl.formatMessage({ id: "COLUMN.NAME" })
     },
     {
       dataField: "firstname",
-      text: intl.formatMessage({ id: "MODEL.FIRSTNAME" }),
+      text: intl.formatMessage({ id: "MODEL.FIRSTNAME" })
     },
     {
       dataField: "postalCode",
-      text: intl.formatMessage({ id: "COLUMN.POSTALCODE.INTERIMAIRE" }),
+      text: intl.formatMessage({ id: "COLUMN.POSTALCODE.INTERIMAIRE" })
     },
     {
       dataField: "mobilePhoneNumber",
       text: intl.formatMessage({ id: "COLUMN.PHONE.NUMBER" }),
-      formatter: (value) => (
+      formatter: value => (
         <span>{value && value.match(/.{1,2}/g).join(" ")}</span>
-      ),
+      )
     },
     {
       dataField: "email",
-      text: intl.formatMessage({ id: "MODEL.EMAIL" }),
+      text: intl.formatMessage({ id: "MODEL.EMAIL" })
     },
     {
       dataField: "nationality.frenchName",
-      text: intl.formatMessage({ id: "COLUMN.NATIONALITY" }),
+      text: intl.formatMessage({ id: "COLUMN.NATIONALITY" })
     },
     {
       dataField: "applicantStatusID",
       text: intl.formatMessage({ id: "COLUMN.STATUS" }),
-      formatter: (value) => (
+      formatter: value => (
         <span>
           {value === 1
             ? intl.formatMessage({ id: "STATUS.REGISTERED" })
@@ -330,28 +346,28 @@ function InterimairesTable(props) {
             ? intl.formatMessage({ id: "STATUS.CAN_MATCH" })
             : intl.formatMessage({ id: "STATUS.REGISTERED" })}
         </span>
-      ),
+      )
     },
     {
       dataField: "creationDate",
       text: intl.formatMessage({ id: "COLUMN.CREATION.INTERIMAIRE" }),
-      formatter: (value) => (
+      formatter: value => (
         <span>{new Date(value).toLocaleDateString("fr-FR")}</span>
-      ),
+      )
     },
     {
       dataField: "lastModifiedDate",
       text: intl.formatMessage({ id: "COLUMN.MODIFICATION.INTERIMAIRE" }),
-      formatter: (value) => (
+      formatter: value => (
         <span>{new Date(value).toLocaleDateString("fr-FR")}</span>
-      ),
+      )
     },
     {
       dataField: "lastConnexionDate",
       text: intl.formatMessage({ id: "COLUMN.CONNEXION.INTERIMAIRE" }),
-      formatter: (value) => (
+      formatter: value => (
         <span>{value ? new Date(value).toLocaleDateString("fr-FR") : "-"}</span>
-      ),
+      )
     },
     {
       text: intl.formatMessage({ id: "COLUMN.ACTION" }),
@@ -363,7 +379,7 @@ function InterimairesTable(props) {
           >
             <FormattedMessage id="BUTTON.EDIT" />
           </Link>
-          
+
           <a
             title={intl.formatMessage({ id: "BUTTON.DELETE" })}
             className="btn btn-icon btn-light-danger mr-2 button-width"
@@ -373,12 +389,14 @@ function InterimairesTable(props) {
               <FormattedMessage id="BUTTON.DELETE" />
             </div>
           </a>
-          
+
           {/* Bouton CV avec CVDrawer intégré */}
           {row.primaryCurriculumVitaeUrl ? (
             <button
               className="btn btn-light-primary mr-2"
-              onClick={() => handleViewCVDrawer(row.primaryCurriculumVitaeUrl, row)}
+              onClick={() =>
+                handleViewCVDrawer(row.primaryCurriculumVitaeUrl, row)
+              }
               type="button"
               title="Afficher le CV"
             >
@@ -397,8 +415,8 @@ function InterimairesTable(props) {
             </button>
           )}
         </div>
-      ),
-    },
+      )
+    }
   ];
 
   // =============================================
@@ -433,7 +451,7 @@ function InterimairesTable(props) {
     onTableChange,
     totalSize,
     from,
-    to,
+    to
   }) => (
     <div>
       <PaginationProvider
@@ -450,7 +468,7 @@ function InterimairesTable(props) {
           nextPageText: ">",
           lastPageText: intl.formatMessage({ id: "END" }),
           nextPageTitle: ">",
-          prePageTitle: "<",
+          prePageTitle: "<"
         })}
       >
         {({ paginationProps, paginationTableProps }) => (
@@ -504,7 +522,7 @@ function InterimairesTable(props) {
           className="form-control"
           type="text"
           value={selectedPostalCode}
-          onChange={(e) => setSelectedPostalCode(e.target.value)}
+          onChange={e => setSelectedPostalCode(e.target.value)}
         />
         <small className="form-text text-muted">
           <FormattedMessage id="MODEL.POSTALCODE" />
@@ -521,7 +539,7 @@ function InterimairesTable(props) {
           className="form-control"
           type="text"
           value={selectedFirstName}
-          onChange={(e) => setSelectedFirstName(e.target.value)}
+          onChange={e => setSelectedFirstName(e.target.value)}
         />
         <small className="form-text text-muted">
           <FormattedMessage id="MODEL.FIRSTNAME" />
@@ -538,7 +556,7 @@ function InterimairesTable(props) {
           className="form-control"
           type="text"
           value={selectedLastName}
-          onChange={(e) => setSelectedLastName(e.target.value)}
+          onChange={e => setSelectedLastName(e.target.value)}
         />
         <small className="form-text text-muted">
           <FormattedMessage id="MODEL.LASTNAME" />
@@ -555,7 +573,7 @@ function InterimairesTable(props) {
           className="form-control"
           type="text"
           value={selectedEmail}
-          onChange={(e) => setSelectedEmail(e.target.value)}
+          onChange={e => setSelectedEmail(e.target.value)}
         />
         <small className="form-text text-muted">
           <FormattedMessage id="MODEL.EMAIL" />
@@ -571,7 +589,7 @@ function InterimairesTable(props) {
           className="col-lg-12 form-control"
           name="jobTitleID"
           value={selectedQualification}
-          onChange={(e) => setSelectedQualification(e.target.value)}
+          onChange={e => setSelectedQualification(e.target.value)}
         >
           <option value={0} style={{ color: "lightgrey" }}>
             -- {intl.formatMessage({ id: "TEXT.QUALIFICATION" })} --
@@ -597,7 +615,7 @@ function InterimairesTable(props) {
           className="form-control"
           type="text"
           value={selectedPhone}
-          onChange={(e) => setSelectedPhone(e.target.value)}
+          onChange={e => setSelectedPhone(e.target.value)}
         />
         <small className="form-text text-muted">
           <FormattedMessage id="COLUMN.PHONE.NUMBER" />
@@ -613,12 +631,12 @@ function InterimairesTable(props) {
           className="form-control form-control-lg p-2"
           name="statusID"
           value={selectedStatus}
-          onChange={(e) => setSelectedStatus(e.target.value)}
+          onChange={e => setSelectedStatus(e.target.value)}
         >
           <option value={0} style={{ color: "lightgrey" }}>
             -- {intl.formatMessage({ id: "COLUMN.STATUS" })} --
           </option>
-          {statusArray.map((status) => (
+          {statusArray.map(status => (
             <option key={status.id} label={status.name} value={status.id}>
               {status.name}
             </option>
@@ -638,12 +656,12 @@ function InterimairesTable(props) {
           className="form-control form-control-lg p-2"
           name="DispoId"
           value={isDispo}
-          onChange={(e) => setIsDispo(e.target.value)}
+          onChange={e => setIsDispo(e.target.value)}
         >
           <option value={0} style={{ color: "lightgray" }}>
             -- Disponibilité --
           </option>
-          {dispoArray.map((job) => (
+          {dispoArray.map(job => (
             <option key={job.id} label={job.name} value={job.id}>
               {job.name}
             </option>
@@ -662,7 +680,7 @@ function InterimairesTable(props) {
           style={{ width: "100%" }}
           dateFormat="dd/MM/yyyy"
           popperPlacement="top-start"
-          onChange={(val) => {
+          onChange={val => {
             setSelectedCreationDate(
               moment(val)
                 .locale("fr")
@@ -699,24 +717,27 @@ function InterimairesTable(props) {
       title={`CV - ${getCurrentInterimaireName()}`}
       width="75%"
       position="left"
-      downloadFileName={`CV_${getCurrentInterimaireName().replace(/\s+/g, '_')}.pdf`}
+      downloadFileName={`CV_${getCurrentInterimaireName().replace(
+        /\s+/g,
+        "_"
+      )}.pdf`}
       showControls={true}
       backdrop={true}
       overlay={true}
-      
-      onError={(error) => {
+      onError={error => {
         console.error("❌ Erreur CVDrawer:", error);
         toastr.error(
           intl.formatMessage({ id: "ERROR" }),
           "Impossible d'afficher le CV. Tentative avec une méthode alternative..."
         );
       }}
-      
-      onLoad={(data) => {
+      onLoad={data => {
         console.log("✅ CV chargé avec succès:", data);
         toastr.success(
           "CV chargé",
-          `Document affiché (${data.numPages || 1} page${data.numPages > 1 ? 's' : ''})`
+          `Document affiché (${data.numPages || 1} page${
+            data.numPages > 1 ? "s" : ""
+          })`
         );
       }}
     />
@@ -736,7 +757,7 @@ function InterimairesTable(props) {
           getData={onSearchFilteredContracts}
         />
       )}
-      
+
       {toggleApplicantDeleteModal != null && (
         <ApplicantDeleteModal
           applicant={toggleApplicantDeleteModal}
@@ -760,7 +781,7 @@ function InterimairesTable(props) {
         {renderStatusSelector()}
         {renderCreationDateSelector()}
         {renderIsDispo()}
-        
+
         <div className="col-lg-2 width-100">
           <div className="row">
             <label className="col-lg-8 width-100 d-flex col-form-label">
@@ -772,7 +793,7 @@ function InterimairesTable(props) {
                   <input
                     type="checkbox"
                     checked={isControl}
-                    onChange={(e) => setIsControl(!isControl)}
+                    onChange={e => setIsControl(!isControl)}
                   />
                   <span></span>
                 </label>
@@ -780,7 +801,7 @@ function InterimairesTable(props) {
             </div>
           </div>
         </div>
-        
+
         <div className="col-lg-2 width-100">
           <div className="row">
             <label className="col-lg-8 width-100 d-flex col-form-label">
@@ -792,7 +813,7 @@ function InterimairesTable(props) {
                   <input
                     type="checkbox"
                     checked={withExperience}
-                    onChange={(e) => setWithExperience(!withExperience)}
+                    onChange={e => setWithExperience(!withExperience)}
                   />
                   <span></span>
                 </label>
@@ -801,18 +822,20 @@ function InterimairesTable(props) {
           </div>
         </div>
 
-        <div style={{ display: "flex", width: "100%", justifyContent: "flex-end" }}>
+        <div
+          style={{ display: "flex", width: "100%", justifyContent: "flex-end" }}
+        >
           <div className="col-lg-2">
             <select
               className="form-control form-control-lg p-2"
               name="sortBy"
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
+              onChange={e => setSortBy(e.target.value)}
             >
               <option value={0} style={{ color: "lightgray" }}>
                 -- Trier par --
               </option>
-              {sortByArray.map((s) => (
+              {sortByArray.map(s => (
                 <option key={s.id} label={s.name} value={s.id}>
                   {s.name}
                 </option>
@@ -820,8 +843,11 @@ function InterimairesTable(props) {
             </select>
             <small className="form-text text-muted">Trier par</small>
           </div>
-          
-          <div className="row" style={{ display: "flex", width: "220px", marginTop: "-20px" }}>
+
+          <div
+            className="row"
+            style={{ display: "flex", width: "220px", marginTop: "-20px" }}
+          >
             <label
               className="col-lg-8 width-100 d-flex col-form-label"
               style={{ paddingTop: "34px" }}
@@ -833,13 +859,13 @@ function InterimairesTable(props) {
                 <input
                   type="checkbox"
                   checked={isAscending}
-                  onChange={(e) => setIsAscending(!isAscending)}
+                  onChange={e => setIsAscending(!isAscending)}
                 />
                 <span></span>
               </label>
             </span>
           </div>
-          
+
           <button
             onClick={onSearchFilteredContracts}
             className="btn btn-success font-weight-bold ml-10 mb-10 px-10"
@@ -849,7 +875,7 @@ function InterimairesTable(props) {
               <FormattedMessage id="BUTTON.SEARCH" />
             </span>
           </button>
-          
+
           <a
             title={intl.formatMessage({ id: "TEXT.SOURCING.SCOPTALENT" })}
             style={{ height: 40 }}
@@ -863,12 +889,14 @@ function InterimairesTable(props) {
 
       {/* Tableau */}
       {interimairesLoading ? (
-        <div style={{
-          justifyContent: "center",
-          alignItems: "center",
-          padding: "30%",
-          width: "100%",
-        }}>
+        <div
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "30%",
+            width: "100%"
+          }}
+        >
           <span className="spinner spinner-primary"></span>
         </div>
       ) : (
