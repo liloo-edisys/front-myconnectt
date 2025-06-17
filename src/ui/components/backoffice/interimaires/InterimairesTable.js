@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import BootstrapTable from "react-bootstrap-table-next";
@@ -29,7 +29,7 @@ function InterimairesTable(props) {
   const [iSExtensions, setIsExtension] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // États de filtrage
+  // États de filtrage - Conservés même après recherche
   const [isControl, setIsControl] = useState(
     pathname === "/interimaires-to-check" ? true : false
   );
@@ -38,7 +38,7 @@ function InterimairesTable(props) {
   const [isDispo, setIsDispo] = useState(0);
   const [sortBy, setSortBy] = useState(0);
   const [selectedPostalCode, setSelectedPostalCode] = useState("");
-  const [selectedQualification, setSelectedQualification] = useState();
+  const [selectedQualification, setSelectedQualification] = useState("");
   const [selectedAvailability, setSelectedAvailability] = useState("");
   const [selectedFirstName, setSelectedFirstName] = useState("");
   const [selectedLastName, setSelectedLastName] = useState("");
@@ -61,6 +61,10 @@ function InterimairesTable(props) {
 
   // État pour stocker les infos de l'intérimaire actuel (pour le titre du CV)
   const [currentInterimaire, setCurrentInterimaire] = useState(null);
+
+  // Refs pour les timers de recherche automatique
+  const searchTimeoutRef = useRef(null);
+  const isInitialLoad = useRef(true);
 
   // Sélecteurs Redux
   const {
@@ -202,11 +206,14 @@ function InterimairesTable(props) {
   // API CALLS
   // =============================================
 
-  const getData = () => {
+  // Fonction de recherche avec tous les filtres actuels
+  const performSearch = useCallback((resetPage = false) => {
+    const currentPageNumber = resetPage ? 1 : pageNumber;
+    
     let body = {
       tenantID: user.tenantID,
       pageSize: pageSize,
-      pageNumber: pageNumber,
+      pageNumber: currentPageNumber,
       firstName: selectedFirstName,
       lastName: selectedLastName,
       email: selectedEmail,
@@ -216,7 +223,8 @@ function InterimairesTable(props) {
       availability: selectedAvailability,
       isDispo: +isDispo,
       sortBy: +sortBy,
-      isAscending: isAscending ? true : false
+      isAscending: isAscending ? true : false,
+      hasExperience: withExperience
     };
 
     if (isControl) {
@@ -231,43 +239,6 @@ function InterimairesTable(props) {
       };
     }
 
-    getInterimairesList(body, dispatch);
-    setIsExtension(true);
-  };
-
-  const onSearchFilteredContracts = () => {
-    setPageNumber(1);
-    let body = {
-      tenantID: user.tenantID,
-      pageSize: pageSize,
-      pageNumber: 1,
-      firstName: selectedFirstName,
-      lastName: selectedLastName,
-      cp: selectedPostalCode,
-      qualificationID: selectedQualification ? +selectedQualification : 0,
-      availability: selectedAvailability,
-      email: selectedEmail,
-      phoneNumber: selectedPhone,
-      isDispo: +isDispo,
-      sortBy: +sortBy,
-      isAscending: isAscending ? true : false,
-      hasExperience: withExperience
-    };
-
-    if (selectedStatus > 0) {
-      body = {
-        ...body,
-        status: [parseInt(selectedStatus)]
-      };
-    }
-
-    if (isControl) {
-      body = {
-        ...body,
-        status: [1, 2, 6]
-      };
-    }
-
     if (selectedCreationDate) {
       body = {
         ...body,
@@ -275,7 +246,141 @@ function InterimairesTable(props) {
       };
     }
 
+    // Mettre à jour le numéro de page si nécessaire
+    if (resetPage && pageNumber !== 1) {
+      setPageNumber(1);
+    }
+
     getInterimairesList(body, dispatch);
+    setIsExtension(true);
+  }, [
+    user.tenantID,
+    pageSize,
+    pageNumber,
+    selectedFirstName,
+    selectedLastName,
+    selectedEmail,
+    selectedPhone,
+    selectedPostalCode,
+    selectedQualification,
+    selectedAvailability,
+    isDispo,
+    sortBy,
+    isAscending,
+    withExperience,
+    isControl,
+    selectedStatus,
+    selectedCreationDate,
+    dispatch
+  ]);
+
+  // Fonction pour recherche automatique avec délai
+  const debouncedSearch = useCallback(() => {
+    // Annuler le timer précédent
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Ne pas faire de recherche automatique au premier chargement
+    if (isInitialLoad.current) {
+      return;
+    }
+
+    // Créer un nouveau timer
+    searchTimeoutRef.current = setTimeout(() => {
+      performSearch(true); // Reset page à 1 pour les nouvelles recherches
+    }, 300);
+  }, [performSearch]);
+
+  // Fonction getData simplifiée pour le chargement initial et pagination
+  const getData = useCallback(() => {
+    performSearch(false); // Ne pas reset la page pour la pagination
+  }, [performSearch]);
+
+  // Fonction pour recherche manuelle (bouton)
+  const onSearchFilteredContracts = () => {
+    performSearch(true); // Reset page à 1
+  };
+
+  // =============================================
+  // HANDLERS POUR LES FILTRES AVEC AUTO-SEARCH
+  // =============================================
+
+  const handlePostalCodeChange = (e) => {
+    setSelectedPostalCode(e.target.value);
+    debouncedSearch();
+  };
+
+  const handleFirstNameChange = (e) => {
+    setSelectedFirstName(e.target.value);
+    debouncedSearch();
+  };
+
+  const handleLastNameChange = (e) => {
+    setSelectedLastName(e.target.value);
+    debouncedSearch();
+  };
+
+  const handleEmailChange = (e) => {
+    setSelectedEmail(e.target.value);
+    debouncedSearch();
+  };
+
+  const handlePhoneChange = (e) => {
+    setSelectedPhone(e.target.value);
+    debouncedSearch();
+  };
+
+  const handleQualificationChange = (e) => {
+    setSelectedQualification(e.target.value);
+    performSearch(true); // Recherche immédiate pour les sélecteurs
+  };
+
+  const handleStatusChange = (e) => {
+    setSelectedStatus(e.target.value);
+    performSearch(true);
+  };
+
+  const handleDispoChange = (e) => {
+    setIsDispo(e.target.value);
+    performSearch(true);
+  };
+
+  const handleSortByChange = (e) => {
+    setSortBy(e.target.value);
+    performSearch(true);
+  };
+
+  const handleControlChange = () => {
+    setIsControl(!isControl);
+    // Utiliser setTimeout pour s'assurer que l'état est mis à jour
+    setTimeout(() => {
+      performSearch(true);
+    }, 0);
+  };
+
+  const handleExperienceChange = () => {
+    setWithExperience(!withExperience);
+    setTimeout(() => {
+      performSearch(true);
+    }, 0);
+  };
+
+  const handleAscendingChange = () => {
+    setIsAscending(!isAscending);
+    setTimeout(() => {
+      performSearch(true);
+    }, 0);
+  };
+
+  const handleCreationDateChange = (val) => {
+    const formattedDate = val 
+      ? moment(val).locale("fr").format(moment.HTML5_FMT.DATETIME_LOCAL_SECONDS)
+      : "";
+    setSelectedCreationDate(formattedDate);
+    setTimeout(() => {
+      performSearch(true);
+    }, 0);
   };
 
   // =============================================
@@ -283,9 +388,29 @@ function InterimairesTable(props) {
   // =============================================
 
   useEffect(() => {
-    getData();
-    dispatch(getJobTitles.request());
-  }, [pageNumber]);
+    // Chargement initial
+    if (isInitialLoad.current) {
+      getData();
+      dispatch(getJobTitles.request());
+      isInitialLoad.current = false;
+    }
+  }, []);
+
+  // Effect pour la pagination uniquement
+  useEffect(() => {
+    if (!isInitialLoad.current) {
+      getData();
+    }
+  }, [pageNumber, pageSize]);
+
+  // Nettoyage du timer au démontage
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // =============================================
   // DÉFINITION DES COLONNES
@@ -439,11 +564,6 @@ function InterimairesTable(props) {
     </div>
   );
 
-  const handleChangePage = (size, page) => {
-    localStorage.setItem("pageNumber", page);
-    getData();
-  };
-
   const RemotePagination = ({
     data,
     page,
@@ -522,7 +642,7 @@ function InterimairesTable(props) {
           className="form-control"
           type="text"
           value={selectedPostalCode}
-          onChange={e => setSelectedPostalCode(e.target.value)}
+          onChange={handlePostalCodeChange}
         />
         <small className="form-text text-muted">
           <FormattedMessage id="MODEL.POSTALCODE" />
@@ -539,7 +659,7 @@ function InterimairesTable(props) {
           className="form-control"
           type="text"
           value={selectedFirstName}
-          onChange={e => setSelectedFirstName(e.target.value)}
+          onChange={handleFirstNameChange}
         />
         <small className="form-text text-muted">
           <FormattedMessage id="MODEL.FIRSTNAME" />
@@ -556,7 +676,7 @@ function InterimairesTable(props) {
           className="form-control"
           type="text"
           value={selectedLastName}
-          onChange={e => setSelectedLastName(e.target.value)}
+          onChange={handleLastNameChange}
         />
         <small className="form-text text-muted">
           <FormattedMessage id="MODEL.LASTNAME" />
@@ -573,7 +693,7 @@ function InterimairesTable(props) {
           className="form-control"
           type="text"
           value={selectedEmail}
-          onChange={e => setSelectedEmail(e.target.value)}
+          onChange={handleEmailChange}
         />
         <small className="form-text text-muted">
           <FormattedMessage id="MODEL.EMAIL" />
@@ -589,7 +709,7 @@ function InterimairesTable(props) {
           className="col-lg-12 form-control"
           name="jobTitleID"
           value={selectedQualification}
-          onChange={e => setSelectedQualification(e.target.value)}
+          onChange={handleQualificationChange}
         >
           <option value={0} style={{ color: "lightgrey" }}>
             -- {intl.formatMessage({ id: "TEXT.QUALIFICATION" })} --
@@ -615,7 +735,7 @@ function InterimairesTable(props) {
           className="form-control"
           type="text"
           value={selectedPhone}
-          onChange={e => setSelectedPhone(e.target.value)}
+          onChange={handlePhoneChange}
         />
         <small className="form-text text-muted">
           <FormattedMessage id="COLUMN.PHONE.NUMBER" />
@@ -631,7 +751,7 @@ function InterimairesTable(props) {
           className="form-control form-control-lg p-2"
           name="statusID"
           value={selectedStatus}
-          onChange={e => setSelectedStatus(e.target.value)}
+          onChange={handleStatusChange}
         >
           <option value={0} style={{ color: "lightgrey" }}>
             -- {intl.formatMessage({ id: "COLUMN.STATUS" })} --
@@ -656,7 +776,7 @@ function InterimairesTable(props) {
           className="form-control form-control-lg p-2"
           name="DispoId"
           value={isDispo}
-          onChange={e => setIsDispo(e.target.value)}
+          onChange={handleDispoChange}
         >
           <option value={0} style={{ color: "lightgray" }}>
             -- Disponibilité --
@@ -680,13 +800,7 @@ function InterimairesTable(props) {
           style={{ width: "100%" }}
           dateFormat="dd/MM/yyyy"
           popperPlacement="top-start"
-          onChange={val => {
-            setSelectedCreationDate(
-              moment(val)
-                .locale("fr")
-                .format(moment.HTML5_FMT.DATETIME_LOCAL_SECONDS)
-            );
-          }}
+          onChange={handleCreationDateChange}
           selected={
             (selectedCreationDate && new Date(selectedCreationDate)) || null
           }
@@ -793,7 +907,7 @@ function InterimairesTable(props) {
                   <input
                     type="checkbox"
                     checked={isControl}
-                    onChange={e => setIsControl(!isControl)}
+                    onChange={handleControlChange}
                   />
                   <span></span>
                 </label>
@@ -813,7 +927,7 @@ function InterimairesTable(props) {
                   <input
                     type="checkbox"
                     checked={withExperience}
-                    onChange={e => setWithExperience(!withExperience)}
+                    onChange={handleExperienceChange}
                   />
                   <span></span>
                 </label>
@@ -830,7 +944,7 @@ function InterimairesTable(props) {
               className="form-control form-control-lg p-2"
               name="sortBy"
               value={sortBy}
-              onChange={e => setSortBy(e.target.value)}
+              onChange={handleSortByChange}
             >
               <option value={0} style={{ color: "lightgray" }}>
                 -- Trier par --
@@ -859,7 +973,7 @@ function InterimairesTable(props) {
                 <input
                   type="checkbox"
                   checked={isAscending}
-                  onChange={e => setIsAscending(!isAscending)}
+                  onChange={handleAscendingChange}
                 />
                 <span></span>
               </label>
