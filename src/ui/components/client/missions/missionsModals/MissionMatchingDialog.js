@@ -364,7 +364,7 @@ export function MatchingDialog({
         {/* Header du drawer */}
         <div style={drawerStyles.drawerHeader}>
           <h4 style={drawerStyles.drawerTitle}>
-            <FormattedMessage id="MATCHING.MODAL.TITLE" />
+            <FormattedMessage id="MATCHING.MODAL.TITLE" /> : {mission?.vacancyTitle}
           </h4>
           <div>
             {/* Bouton de fermeture */}
