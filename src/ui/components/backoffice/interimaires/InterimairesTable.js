@@ -207,72 +207,75 @@ function InterimairesTable(props) {
   // =============================================
 
   // Fonction de recherche avec tous les filtres actuels
-  const performSearch = useCallback((resetPage = false) => {
-    const currentPageNumber = resetPage ? 1 : pageNumber;
-    
-    let body = {
-      tenantID: user.tenantID,
-      pageSize: pageSize,
-      pageNumber: currentPageNumber,
-      firstName: selectedFirstName,
-      lastName: selectedLastName,
-      email: selectedEmail,
-      phoneNumber: selectedPhone,
-      cp: selectedPostalCode,
-      qualificationID: selectedQualification ? +selectedQualification : 0,
-      availability: selectedAvailability,
-      isDispo: +isDispo,
-      sortBy: +sortBy,
-      isAscending: isAscending ? true : false,
-      hasExperience: withExperience
-    };
+  const performSearch = useCallback(
+    (resetPage = false) => {
+      const currentPageNumber = resetPage ? 1 : pageNumber;
 
-    if (isControl) {
-      body = {
-        ...body,
-        status: [1, 2, 6]
+      let body = {
+        tenantID: user.tenantID,
+        pageSize: pageSize,
+        pageNumber: currentPageNumber,
+        firstName: selectedFirstName,
+        lastName: selectedLastName,
+        email: selectedEmail,
+        phoneNumber: selectedPhone,
+        cp: selectedPostalCode,
+        qualificationID: selectedQualification ? +selectedQualification : 0,
+        availability: selectedAvailability,
+        isDispo: +isDispo,
+        sortBy: +sortBy,
+        isAscending: isAscending ? true : false,
+        hasExperience: withExperience
       };
-    } else if (selectedStatus > 0) {
-      body = {
-        ...body,
-        status: [parseInt(selectedStatus)]
-      };
-    }
 
-    if (selectedCreationDate) {
-      body = {
-        ...body,
-        creationDate: moment(selectedCreationDate).toDate()
-      };
-    }
+      if (isControl) {
+        body = {
+          ...body,
+          status: [1, 2, 6]
+        };
+      } else if (selectedStatus > 0) {
+        body = {
+          ...body,
+          status: [parseInt(selectedStatus)]
+        };
+      }
 
-    // Mettre à jour le numéro de page si nécessaire
-    if (resetPage && pageNumber !== 1) {
-      setPageNumber(1);
-    }
+      if (selectedCreationDate) {
+        body = {
+          ...body,
+          creationDate: moment(selectedCreationDate).toDate()
+        };
+      }
 
-    getInterimairesList(body, dispatch);
-    setIsExtension(true);
-  }, [
-    user.tenantID,
-    pageSize,
-    pageNumber,
-    selectedFirstName,
-    selectedLastName,
-    selectedEmail,
-    selectedPhone,
-    selectedPostalCode,
-    selectedQualification,
-    selectedAvailability,
-    isDispo,
-    sortBy,
-    isAscending,
-    withExperience,
-    isControl,
-    selectedStatus,
-    selectedCreationDate,
-    dispatch
-  ]);
+      // Mettre à jour le numéro de page si nécessaire
+      if (resetPage && pageNumber !== 1) {
+        setPageNumber(1);
+      }
+
+      getInterimairesList(body, dispatch);
+      setIsExtension(true);
+    },
+    [
+      user.tenantID,
+      pageSize,
+      pageNumber,
+      selectedFirstName,
+      selectedLastName,
+      selectedEmail,
+      selectedPhone,
+      selectedPostalCode,
+      selectedQualification,
+      selectedAvailability,
+      isDispo,
+      sortBy,
+      isAscending,
+      withExperience,
+      isControl,
+      selectedStatus,
+      selectedCreationDate,
+      dispatch
+    ]
+  );
 
   // Fonction pour recherche automatique avec délai
   const debouncedSearch = useCallback(() => {
@@ -306,47 +309,47 @@ function InterimairesTable(props) {
   // HANDLERS POUR LES FILTRES AVEC AUTO-SEARCH
   // =============================================
 
-  const handlePostalCodeChange = (e) => {
+  const handlePostalCodeChange = e => {
     setSelectedPostalCode(e.target.value);
     debouncedSearch();
   };
 
-  const handleFirstNameChange = (e) => {
+  const handleFirstNameChange = e => {
     setSelectedFirstName(e.target.value);
     debouncedSearch();
   };
 
-  const handleLastNameChange = (e) => {
+  const handleLastNameChange = e => {
     setSelectedLastName(e.target.value);
     debouncedSearch();
   };
 
-  const handleEmailChange = (e) => {
+  const handleEmailChange = e => {
     setSelectedEmail(e.target.value);
     debouncedSearch();
   };
 
-  const handlePhoneChange = (e) => {
+  const handlePhoneChange = e => {
     setSelectedPhone(e.target.value);
     debouncedSearch();
   };
 
-  const handleQualificationChange = (e) => {
+  const handleQualificationChange = e => {
     setSelectedQualification(e.target.value);
     performSearch(true); // Recherche immédiate pour les sélecteurs
   };
 
-  const handleStatusChange = (e) => {
+  const handleStatusChange = e => {
     setSelectedStatus(e.target.value);
     performSearch(true);
   };
 
-  const handleDispoChange = (e) => {
+  const handleDispoChange = e => {
     setIsDispo(e.target.value);
     performSearch(true);
   };
 
-  const handleSortByChange = (e) => {
+  const handleSortByChange = e => {
     setSortBy(e.target.value);
     performSearch(true);
   };
@@ -373,9 +376,11 @@ function InterimairesTable(props) {
     }, 0);
   };
 
-  const handleCreationDateChange = (val) => {
-    const formattedDate = val 
-      ? moment(val).locale("fr").format(moment.HTML5_FMT.DATETIME_LOCAL_SECONDS)
+  const handleCreationDateChange = val => {
+    const formattedDate = val
+      ? moment(val)
+          .locale("fr")
+          .format(moment.HTML5_FMT.DATETIME_LOCAL_SECONDS)
       : "";
     setSelectedCreationDate(formattedDate);
     setTimeout(() => {
