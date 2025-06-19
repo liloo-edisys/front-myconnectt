@@ -163,7 +163,7 @@ export function UserNotificationsDropdown() {
             </Link>
           </div>
         )}
-        <div
+        {/* <div
           className="btn btn-icon btn-lg mr-1 pulse pulse-primary"
           id="kt_quick_notifications_toggle"
         >
@@ -186,7 +186,7 @@ export function UserNotificationsDropdown() {
               />
             </OverlayTrigger>
           </Link>
-        </div>
+        </div> */}
       </div>
       {!layoutProps.offcanvas && (
         <Dropdown drop="down" alignRight>
