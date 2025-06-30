@@ -67,139 +67,166 @@ export const setSignalRBackoffice = (authToken, dispatch) => {
   connection
     .start()
     .then(_result => {
+      connection.off("UpdateNbrMissions");
       connection.on("UpdateNbrMissions", value => {
         dispatch({
           type: UPDATE_NBR_MISSIONS,
           payload: value
         });
       });
+      
+      connection.off("UpdateNbrExtensions");
       connection.on("UpdateNbrExtensions", value => {
         dispatch({
           type: UPDATE_NBR_EXTENSIONS,
           payload: value
         });
       });
+      
+      connection.off("UpdateNbrRH");
       connection.on("UpdateNbrRH", value => {
         dispatch({
           type: UPDATE_NBR_RH,
           payload: value
         });
       });
+      
+      connection.off("UpdateNbrApplicants");
       connection.on("UpdateNbrApplicants", value => {
         dispatch({
           type: UPDATE_NBR_APPLICANTS,
           payload: value
         });
       });
+      
+      connection.off("UpdateNbrApplicantsToControl");
       connection.on("UpdateNbrApplicantsToControl", value => {
         dispatch({
           type: UPDATE_NBR_APPLICANTS_TO_CONTROL,
           payload: value
         });
       });
+      connection.off("UpdateNbrAccounts");
       connection.on("UpdateNbrAccounts", value => {
         dispatch({
           type: UPDATE_NBR_ACCOUNTS,
           payload: value
         });
       });
+      connection.off("UpdateNbrRefusAccounts");
       connection.on("UpdateNbrRefusAccounts", value => {
         dispatch({
           type: UPDATE_NBR_REFUS_ACCOUNTS,
           payload: value
         });
       });
+      connection.off("UpdateNbrRefusApplicants");
       connection.on("UpdateNbrRefusApplicants", value => {
         dispatch({
           type: UPDATE_NBR_REFUS_APPLICANTS,
           payload: value
         });
       });
+      connection.off("UpdateNbrCommercialAgreements");
       connection.on("UpdateNbrCommercialAgreements", value => {
         dispatch({
           type: UPDATE_NBR_COMMERCIAL_AGREEMENTS,
           payload: value
         });
       });
+      connection.off("UpdateNbrMsgApplicants");
       connection.on("UpdateNbrMsgApplicants", value => {
         dispatch({
           type: UPDATE_NBR_MSG_APPLICANTS,
           payload: value
         });
       });
+      connection.off("UpdateNbrMsgAccounts");
       connection.on("UpdateNbrMsgAccounts", value => {
         dispatch({
           type: UPDATE_NBR_MSG_ACCOUNTS,
           payload: value
         });
       });
-
+      
+connection.off("UpdateNewAccounts");
       connection.on("UpdateNewAccounts", value => {
         dispatch({
           type: UPDATE_NEW_ACCOUNTS,
           payload: value
         });
       });
+      connection.off("UpdateNewApplicants");
       connection.on("UpdateNewApplicants", value => {
         dispatch({
           type: UPDATE_NEW_APPLICANTS,
           payload: value
         });
       });
+      connection.off("UpdateNbrMonthlyContracts");
       connection.on("UpdateNbrMonthlyContracts", value => {
         dispatch({
           type: UPDATE_NUMBER_MONTHLY_CONTRACTS,
           payload: value
         });
       });
+      connection.off("UpdateProfilesRate");
       connection.on("UpdateProfilesRate", value => {
         dispatch({
           type: UPDATE_PROFILES_RATE,
           payload: value
         });
       });
+      connection.off("UpdateNbrContracts");
       connection.on("UpdateNbrContracts", value => {
         dispatch({
           type: UPDATE_NUMBER_CONTRACTS,
           payload: value
         });
       });
+      connection.off("UpdateNbrSignedContracts");
       connection.on("UpdateNbrSignedContracts", value => {
         dispatch({
           type: UPDATE_NUMBER_SIGNED_CONTRACTS,
           payload: value
         });
       });
+      connection.off("UpdateNbrDeletedApplicants");
       connection.on("UpdateNbrDeletedApplicants", value => {
         dispatch({
           type: UPDATE_NUMBER_DELETED_APPLICANTS,
           payload: value
         });
       });
+      connection.off("UpdateRateDeletedApplicants");
       connection.on("UpdateRateDeletedApplicants", value => {
         dispatch({
           type: UPDATE_RATE_DELETED_APPLICANTS,
           payload: value
         });
       });
+      connection.off("UpdateNbrDeletedAccounts");
       connection.on("UpdateNbrDeletedAccounts", value => {
         dispatch({
           type: UPDATE_NUMBER_DELETED_ACCOUNTS,
           payload: value
         });
       });
+      connection.off("UpdateRateDeletedAccounts");
       connection.on("UpdateRateDeletedAccounts", value => {
         dispatch({
           type: UPDATE_RATE_DELETED_ACCOUNTS,
           payload: value
         });
       });
+      connection.off("UpdateRateLoginApplicants");
       connection.on("UpdateRateLoginApplicants", value => {
         dispatch({
           type: UPDATE_RATE_LOGIN_APPLICANTS,
           payload: value
         });
       });
+      connection.off("UpdateRateLoginAccounts");
       connection.on("UpdateRateLoginAccounts", value => {
         dispatch({
           type: UPDATE_RATE_LOGIN_ACCOUNTS,
