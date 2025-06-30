@@ -5,11 +5,11 @@ import {
   CHECK_INTERIMAIRE_SMS_CODE,
   REGISTER_INTERIMAIRE_URL,
   USER_START_GUIDE_URL,
-  COUNT_MATCHING_URL,
+  COUNT_MATCHING_URL
 } from "../../api/shared/AuthApi";
 import {
   INTERIMAIRE_REGISTER_BY_MOBILE_ERROR,
-  INTERIMAIRE_REGISTER_BY_MOBILE_SUCCESS,
+  INTERIMAIRE_REGISTER_BY_MOBILE_SUCCESS
 } from "../../types/authTypes.js";
 import {
   ADD_EXPERIENCE,
@@ -31,17 +31,17 @@ import {
   REMOVE_ONE_DOCUMENT_SUCCESS,
   CLEAR_STEP_FIVE_MODAL,
   SET_CONTRACTS_COUNT,
-  GET_NATIONALITIES_LIST,
+  GET_NATIONALITIES_LIST
 } from "../../types/interimaireTypes";
 import {
   USER_URL,
   UPLOAD_DOCUMENT,
   DELETE_DOCUMENT,
-  REMOVE_ONE_DOCUMENT,
+  REMOVE_ONE_DOCUMENT
 } from "../../api/client/ApplicantsApi";
 import {
   INTERIMAIRE_CONTRACT_LIST_URL,
-  INTERIMAIRE_DOCUMENTS_LIST_URL,
+  INTERIMAIRE_DOCUMENTS_LIST_URL
 } from "../../api/interimaire/InterimairesApi";
 import { HubConnectionBuilder } from "@microsoft/signalr";
 import moment from "moment";
@@ -53,10 +53,10 @@ export const getUserWithMobile = (datas, dispatch, action) => {
   const body = {
     tenantid,
     mobilePhone: datas.mobilePhone,
-    isRegister: action === "register" ? true : false,
+    isRegister: action === "register" ? true : false
   };
 
-  return axios.post(REGISTER_INTERIMAIRE_URL, body).then((response) => {
+  return axios.post(REGISTER_INTERIMAIRE_URL, body).then(response => {
     if (response) {
       if (action === "register") {
         toastr.success(
@@ -71,7 +71,7 @@ export const getUserWithMobile = (datas, dispatch, action) => {
       }
       dispatch({
         type: USER_BY_MOBILE_SUCCESS,
-        payload: response.data,
+        payload: response.data
       });
     }
     return response;
@@ -82,11 +82,11 @@ export const checkSmsCode = (datas, dispatch, action) => {
   const tenantid = TENANTID;
   const body = {
     ...datas,
-    tenantid,
+    tenantid
   };
   return axios
     .post(CHECK_INTERIMAIRE_SMS_CODE, body)
-    .then((response) => {
+    .then(response => {
       if (action === "register") {
         toastr.success(
           "Bienvenue sur MyConnectt",
@@ -95,10 +95,10 @@ export const checkSmsCode = (datas, dispatch, action) => {
       }
       axios
         .get(USER_URL)
-        .then((res) => {
+        .then(res => {
           dispatch({
             type: USER_BY_MOBILE_SUCCESS,
-            payload: res.data,
+            payload: res.data
           });
         })
         .catch(() => {
@@ -107,13 +107,13 @@ export const checkSmsCode = (datas, dispatch, action) => {
             "Une erreur s'est produite lors de la connexion, veuillez renouveller l'opération."
           );
           dispatch({
-            type: INTERIMAIRE_REGISTER_BY_MOBILE_ERROR,
+            type: INTERIMAIRE_REGISTER_BY_MOBILE_ERROR
           });
         });
 
       dispatch({
         type: INTERIMAIRE_REGISTER_BY_MOBILE_SUCCESS,
-        payload: response.data,
+        payload: response.data
       });
     })
     .catch(() => {
@@ -122,109 +122,109 @@ export const checkSmsCode = (datas, dispatch, action) => {
         "Le code de confirmation semble erroné. Assurez-vous qu'il s'agisse bien du bon code."
       );
       dispatch({
-        type: INTERIMAIRE_REGISTER_BY_MOBILE_ERROR,
+        type: INTERIMAIRE_REGISTER_BY_MOBILE_ERROR
       });
     });
 };
 
 export const getInterimaire = {
-  request: (authToken) => {
+  request: authToken => {
     return {
       type: actionTypes.GET_INTERIMAIRE_REQUEST,
-      payload: { authToken },
+      payload: { authToken }
     };
   },
-  success: (interimaire) => {
+  success: interimaire => {
     return {
       type: actionTypes.GET_INTERIMAIRE_SUCCESS,
-      payload: { interimaire },
+      payload: { interimaire }
     };
   },
-  failure: (error) => ({
+  failure: error => ({
     type: actionTypes.GET_INTERIMAIRE_FAILURE,
-    payload: { error },
-  }),
+    payload: { error }
+  })
 };
 
 export const deleteInterimaire = {
-  request: (data) => ({
+  request: data => ({
     type: actionTypes.DELETE_INTERIMAIRE_REQUEST,
-    payload: { data },
+    payload: { data }
   }),
   success: (data, id) => ({
     type: actionTypes.DELETE_INTERIMAIRE_SUCCESS,
-    payload: { data, id },
+    payload: { data, id }
   }),
-  failure: (error) => ({
+  failure: error => ({
     type: actionTypes.DELETE_INTERIMAIRE_FAILURE,
-    payload: { error },
-  }),
+    payload: { error }
+  })
 };
 
 export const updateInterimaire = {
-  request: (data) => ({
+  request: data => ({
     type: actionTypes.UPDATE_INTERIMAIRE_REQUEST,
-    payload: { data: data },
+    payload: { data: data }
   }),
-  success: (interimaire) => ({
+  success: interimaire => ({
     type: actionTypes.UPDATE_INTERIMAIRE_SUCCESS,
-    payload: { interimaire },
+    payload: { interimaire }
   }),
-  failure: (error) => ({
+  failure: error => ({
     type: actionTypes.UPDATE_INTERIMAIRE_FAILURE,
-    payload: { error },
-  }),
+    payload: { error }
+  })
 };
 
 export const getInterimaireById = {
-  request: (id) => ({
+  request: id => ({
     type: actionTypes.GET_INTERIMAIRE_BYID_REQUEST,
-    payload: { data: id },
+    payload: { data: id }
   }),
-  success: (data) => ({
+  success: data => ({
     type: actionTypes.GET_INTERIMAIRE_BYID_SUCCESS,
-    payload: { data },
+    payload: { data }
   }),
-  failure: (error) => ({
+  failure: error => ({
     type: actionTypes.GET_INTERIMAIRE_BYID_FAILURE,
-    payload: { error },
-  }),
+    payload: { error }
+  })
 };
 
 export const parseResume = {
-  request: (data) => ({
+  request: data => ({
     type: actionTypes.PARSE_RESUME_REQUEST,
-    payload: { data },
+    payload: { data }
   }),
-  success: (interimaire) => ({
+  success: interimaire => ({
     type: actionTypes.PARSE_RESUME_SUCCESS,
-    payload: { interimaire },
+    payload: { interimaire }
   }),
-  failure: (error) => ({
+  failure: error => ({
     type: actionTypes.PARSE_RESUME_FAILURE,
-    payload: { error },
-  }),
+    payload: { error }
+  })
 };
 
 export const searchInterimaires = {
-  request: (data) => ({
+  request: data => ({
     type: actionTypes.SEARCH_INTERIMAIRE_REQUEST,
-    payload: { data },
+    payload: { data }
   }),
-  success: (data) => ({
+  success: data => ({
     type: actionTypes.SEARCH_INTERIMAIRE_SUCCESS,
-    payload: { data },
+    payload: { data }
   }),
-  failure: (error) => ({
+  failure: error => ({
     type: actionTypes.SEARCH_INTERIMAIRE_FAILURE,
-    payload: { error },
-  }),
+    payload: { error }
+  })
 };
 
 export const cancelEdit = {
   request: () => ({
-    type: actionTypes.CANCEL_EDIT,
-  }),
+    type: actionTypes.CANCEL_EDIT
+  })
 };
 
 export const goToNextStep = (interimaire, step, dispatch) => {
@@ -235,11 +235,11 @@ export const goToNextStep = (interimaire, step, dispatch) => {
       tenantid: TENANTID,
       userID,
       startGuideType: 0,
-      validated: true,
+      validated: true
     };
     axios
       .post(USER_START_GUIDE_URL, body)
-      .then((res) => {
+      .then(res => {
         const userGuideStep = Math.max.apply(
           Math,
           res.data.map(function(o) {
@@ -253,23 +253,23 @@ export const goToNextStep = (interimaire, step, dispatch) => {
         }
         dispatch({
           type: GET_USER_START_GUIDE,
-          payload: newStep,
+          payload: newStep
         });
       })
-      .catch((err) => err);
+      .catch(err => err);
   } else if (step === 3) {
     dispatch({
-      type: CLEAR_ANIMATION_DURATION,
+      type: CLEAR_ANIMATION_DURATION
     });
     const body = {
       tenantid: TENANTID,
       userID,
       startGuideType: 1,
-      validated: true,
+      validated: true
     };
     axios
       .post(USER_START_GUIDE_URL, body)
-      .then((res) => {
+      .then(res => {
         const userGuideStep = Math.max.apply(
           Math,
           res.data.map(function(o) {
@@ -281,21 +281,21 @@ export const goToNextStep = (interimaire, step, dispatch) => {
         }
         dispatch({
           type: GET_USER_START_GUIDE,
-          payload: newStep,
+          payload: newStep
         });
       })
-      .catch((err) => err);
+      .catch(err => err);
   } else {
     const body = interimaire;
     axios
       .put(USER_URL, body)
-      .then((res) => {
+      .then(res => {
         dispatch({
           type: USER_BY_MOBILE_SUCCESS,
-          payload: res.data,
+          payload: res.data
         });
       })
-      .catch((err) => console.log(err));
+      .catch(err => console.log(err));
   }
 };
 
@@ -309,12 +309,12 @@ export const getUserStartGuide = (interimaire, dispatch) => {
     hasIDCard,
     email,
     city,
-    postalCode,
+    postalCode
   } = interimaire;
 
   //hasDocuments = true
 
-  axios.get(`${USER_START_GUIDE_URL}/${userID}`).then((res) => {
+  axios.get(`${USER_START_GUIDE_URL}/${userID}`).then(res => {
     let step = null;
     console.log("<-------- res.data --------->", res.data.length);
 
@@ -330,52 +330,52 @@ export const getUserStartGuide = (interimaire, dispatch) => {
     } else if (hasIDCard && hasMatching) {
       axios
         .post(COUNT_MATCHING_URL, body)
-        .then((res) => {
+        .then(res => {
           dispatch({
             type: SET_COUNT_MATCHING,
-            payload: res.data,
+            payload: res.data
           });
         })
-        .catch((err) => {
+        .catch(err => {
           console.log(err);
         });
       step = 6;
     } else if (hasExperience && hasMatching) {
       axios
         .post(COUNT_MATCHING_URL, body)
-        .then((res) => {
+        .then(res => {
           dispatch({
             type: SET_COUNT_MATCHING,
-            payload: res.data,
+            payload: res.data
           });
         })
-        .catch((err) => {
+        .catch(err => {
           console.log(err);
         });
       step = 5;
     } else if (userGuideStep === 1 && hasMatching) {
       axios
         .post(COUNT_MATCHING_URL, body)
-        .then((res) => {
+        .then(res => {
           dispatch({
             type: SET_COUNT_MATCHING,
-            payload: res.data,
+            payload: res.data
           });
         })
-        .catch((err) => {
+        .catch(err => {
           console.log(err);
         });
       step = 4;
     } else if (hasMatching && hasContactInformation) {
       axios
         .post(COUNT_MATCHING_URL, body)
-        .then((res) => {
+        .then(res => {
           dispatch({
             type: SET_COUNT_MATCHING,
-            payload: res.data,
+            payload: res.data
           });
         })
-        .catch((err) => {
+        .catch(err => {
           console.log(err);
         });
       step = 3;
@@ -390,7 +390,7 @@ export const getUserStartGuide = (interimaire, dispatch) => {
     }*/
     dispatch({
       type: GET_USER_START_GUIDE,
-      payload: step,
+      payload: step
     });
   });
 };
@@ -398,14 +398,14 @@ export const getUserStartGuide = (interimaire, dispatch) => {
 export const addExperience = (experience, dispatch) => {
   dispatch({
     type: ADD_EXPERIENCE,
-    payload: experience,
+    payload: experience
   });
 };
 
 export const removeExperience = (experienceId, dispatch) => {
   dispatch({
     type: REMOVE_EXPERIENCE,
-    payload: experienceId,
+    payload: experienceId
   });
 };
 
@@ -430,82 +430,82 @@ export const updateInterimaireIdentity = (
     ...interimaire,
     birthDate: newBirthDate.format(),
     idCardIssueDate: newIdCardIssueDate.format(),
-    idCardExpirationDate: newIdCardExpirationDate.format(),
+    idCardExpirationDate: newIdCardExpirationDate.format()
   };
   dispatch({
-    type: UPDATE_INTERIMAIRE_IDENTITY_REQUEST,
+    type: UPDATE_INTERIMAIRE_IDENTITY_REQUEST
   });
   if (imageArray) {
     for (let i = 0; i < imageArray.length; i++) {
       const body = imageArray[i];
       axios
         .post(UPLOAD_DOCUMENT, body)
-        .then((res) => {
+        .then(res => {
           dispatch({
             type: UPDATE_INTERIMAIRE_IDENTITY_SUCCESS,
-            payload: res.data,
+            payload: res.data
           });
         })
-        .catch((err) => console.log(err));
+        .catch(err => console.log(err));
     }
   }
   return axios
     .put(USER_URL, body)
-    .then((res) => {
+    .then(res => {
       dispatch({
         type: UPDATE_INTERIMAIRE_IDENTITY_SUCCESS,
-        payload: res.data,
+        payload: res.data
       });
     })
-    .catch((err) => console.log(err));
+    .catch(err => console.log(err));
 };
 
 export const addNewDocument = (imageArray, dispatch) => {
   for (let i = 0; i < imageArray.length; i++) {
     dispatch({
-      type: UPDATE_INTERIMAIRE_IDENTITY_REQUEST,
+      type: UPDATE_INTERIMAIRE_IDENTITY_REQUEST
     });
     const body = imageArray[i];
     axios
       .post(UPLOAD_DOCUMENT, body)
-      .then((res) => {
+      .then(res => {
         dispatch({
           type: UPDATE_INTERIMAIRE_IDENTITY_SUCCESS,
-          payload: res.data,
+          payload: res.data
         });
       })
-      .catch((err) => console.log(err));
+      .catch(err => console.log(err));
   }
 };
 
 export const deleteIdDocument = (body, dispatch) => {
   dispatch({
-    type: UPDATE_INTERIMAIRE_IDENTITY_REQUEST,
+    type: UPDATE_INTERIMAIRE_IDENTITY_REQUEST
   });
   return axios
     .post(DELETE_DOCUMENT, body)
-    .then((res) => {
+    .then(res => {
       dispatch({
         type: UPDATE_INTERIMAIRE_IDENTITY_SUCCESS,
-        payload: res.data,
+        payload: res.data
       });
     })
-    .catch((err) => console.log(err));
+    .catch(err => console.log(err));
 };
 
 export const removeOneDocument = (body, step, dispatch) => {
   axios
     .post(REMOVE_ONE_DOCUMENT, body)
-    .then((res) => {
+    .then(res => {
       dispatch({
         type: REMOVE_ONE_DOCUMENT_SUCCESS,
         payload: {
           interimaire: res.data,
-          step,
-        },
+          step
+        }
       });
     })
-    .catch((err) => console.log(err));
+    .catch(err => console.log(err));
 };
 
 let connection = null;
@@ -518,7 +518,7 @@ export const setSignalRInterimaire = (
   // Create new connection if not exists
   connection = new HubConnectionBuilder()
     .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/interimaire", {
-      accessTokenFactory: () => authToken,
+      accessTokenFactory: () => authToken
     })
     .withAutomaticReconnect()
     .build();
@@ -528,37 +528,37 @@ export const setSignalRInterimaire = (
     .then(() => {
       console.log("SignalR connection established.");
       connection.off("SendNotification");
-      connection.on("SendNotification", (notif) => {
+      connection.on("SendNotification", notif => {
         dispatch({
           type: actionTypes.PUSH_NEW_NOTIF,
-          payload: notif,
+          payload: notif
         });
         setSelectedNotif(notif);
       });
       connection.off("SendDelayedMessage");
-      connection.on("SendDelayedMessage", (notif) => {
+      connection.on("SendDelayedMessage", notif => {
         dispatch({
           type: actionTypes.PUSH_NEW_NOTIF,
-          payload: notif,
+          payload: notif
         });
         setSelectedNotif(notif);
       });
       connection.off("UpdatePropositions");
-      connection.on("UpdatePropositions", (count) => {
+      connection.on("UpdatePropositions", count => {
         dispatch({
           type: INCREMENT_COUNT_PROPOSITIONS,
-          payload: count,
+          payload: count
         });
       });
       connection.off("UpdateApplications");
-      connection.on("UpdateApplications", (count) => {
+      connection.on("UpdateApplications", count => {
         dispatch({
           type: INCREMENT_COUNT_APPLICATIONS,
-          payload: count,
+          payload: count
         });
       });
     })
-    .catch((e) => console.log("Connection with SignalR failed: ", e.message));
+    .catch(e => console.log("Connection with SignalR failed: ", e.message));
 
   return connection;
 };
@@ -578,61 +578,61 @@ export const stopSignalRConnection = async () => {
 
 export const getContractList = (body, dispatch) => {
   dispatch({
-    type: GET_CONTRACT_LIST_REQUEST,
+    type: GET_CONTRACT_LIST_REQUEST
   });
   axios
     .post(INTERIMAIRE_CONTRACT_LIST_URL, body)
-    .then((res) => {
+    .then(res => {
       dispatch({
         type: GET_CONTRACT_LIST_SUCCESS,
-        payload: res.data,
+        payload: res.data
       });
     })
-    .catch((err) => {
+    .catch(err => {
       dispatch({
-        type: GET_CONTRACT_LIST_FAILLED,
+        type: GET_CONTRACT_LIST_FAILLED
       });
     });
 };
 
 export const getDocumentList = (body, dispatch) => {
   dispatch({
-    type: GET_DOCUMENTS_LIST_REQUEST,
+    type: GET_DOCUMENTS_LIST_REQUEST
   });
   axios
     .post(INTERIMAIRE_DOCUMENTS_LIST_URL, body)
-    .then((res) => {
+    .then(res => {
       dispatch({
         type: GET_DOCUMENTS_LIST_SUCCESS,
-        payload: res.data,
+        payload: res.data
       });
     })
-    .catch((err) => {
+    .catch(err => {
       dispatch({
-        type: GET_DOCUMENTS_LIST_FAILLED,
+        type: GET_DOCUMENTS_LIST_FAILLED
       });
     });
 };
 
-export const clearStepFiveModal = (dispatch) => {
+export const clearStepFiveModal = dispatch => {
   dispatch({
-    type: CLEAR_STEP_FIVE_MODAL,
+    type: CLEAR_STEP_FIVE_MODAL
   });
 };
 
 export const setContractsCount = (count, dispatch) => {
   dispatch({
     type: SET_CONTRACTS_COUNT,
-    payload: count,
+    payload: count
   });
 };
 
-export const getNationalitiesList = (dispatch) => {
+export const getNationalitiesList = dispatch => {
   const NATIONALITIES_URL = process.env.REACT_APP_WEBAPI_URL + "api/country";
-  axios.get(NATIONALITIES_URL).then((res) => {
+  axios.get(NATIONALITIES_URL).then(res => {
     dispatch({
       type: GET_NATIONALITIES_LIST,
-      payload: res.data,
+      payload: res.data
     });
   });
 };

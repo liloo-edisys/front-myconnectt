@@ -74,7 +74,7 @@ export const setSignalRBackoffice = (authToken, dispatch) => {
           payload: value
         });
       });
-      
+
       connection.off("UpdateNbrExtensions");
       connection.on("UpdateNbrExtensions", value => {
         dispatch({
@@ -82,7 +82,7 @@ export const setSignalRBackoffice = (authToken, dispatch) => {
           payload: value
         });
       });
-      
+
       connection.off("UpdateNbrRH");
       connection.on("UpdateNbrRH", value => {
         dispatch({
@@ -90,7 +90,7 @@ export const setSignalRBackoffice = (authToken, dispatch) => {
           payload: value
         });
       });
-      
+
       connection.off("UpdateNbrApplicants");
       connection.on("UpdateNbrApplicants", value => {
         dispatch({
@@ -98,7 +98,7 @@ export const setSignalRBackoffice = (authToken, dispatch) => {
           payload: value
         });
       });
-      
+
       connection.off("UpdateNbrApplicantsToControl");
       connection.on("UpdateNbrApplicantsToControl", value => {
         dispatch({
@@ -148,8 +148,8 @@ export const setSignalRBackoffice = (authToken, dispatch) => {
           payload: value
         });
       });
-      
-connection.off("UpdateNewAccounts");
+
+      connection.off("UpdateNewAccounts");
       connection.on("UpdateNewAccounts", value => {
         dispatch({
           type: UPDATE_NEW_ACCOUNTS,

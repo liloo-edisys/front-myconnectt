@@ -42,9 +42,8 @@ export const setSignalRClient = (authToken, dispatch, setSelectedNotif) => {
   connection
     .start()
     .then(result => {
-
       connection.off("SendNotification");
-      
+
       connection.on("SendNotification", notif => {
         dispatch({
           type: actionTypes.PUSH_NEW_NOTIF,
