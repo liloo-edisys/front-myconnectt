@@ -48,6 +48,7 @@ import {
   setPageSize,
   setPageNumber
 } from "../../../../../business/actions/backoffice/MissionsActions.js";
+import ApplicantsSidebar from './ApplicantsSidebar.js';
 
 const tenantID = +process.env.REACT_APP_TENANT_ID;
 const baseDate = new Date();
@@ -419,6 +420,24 @@ function MissionsTable({ refresh }) {
     };
   }, [missionsUIContext]);
 
+
+
+  const [showApplicantsModal, setShowApplicantsModal] = useState(false);
+  const [selectedMissionId, setSelectedMissionId] = useState(null);
+
+  // Fonction pour ouvrir la modal
+  const handleShowApplicants = (row) => {
+    console.log("Affichage des candidats pour la mission:", row.id);
+    setSelectedMissionId(row.id);
+    setShowApplicantsModal(true);
+  };
+
+  // Fonction pour fermer la modal
+  const handleCloseApplicantsModal = () => {
+    setShowApplicantsModal(false);
+    setSelectedMissionId(null);
+  };
+
   let columns = [
     {
       dataField: "entrepriseName",
@@ -474,7 +493,8 @@ function MissionsTable({ refresh }) {
         paddinBottom: "10px"
       },
       formatExtraData: {
-        openDisplayDialog: missionsUIProps.openDisplayDialog
+        openDisplayDialog: missionsUIProps.openDisplayDialog,
+        handleShowApplicants: handleShowApplicants // NOUVELLE FONCTIONx
       }
     }
   ];
@@ -1129,7 +1149,6 @@ function MissionsTable({ refresh }) {
               keyField="id"
               data={!isNullOrEmpty(missions) ? missions : []}
               columns={columns}
-              expandRow={expandRow}
               onTableChange={onTableChange}
               {...paginationTableProps}
               noDataIndication={() => <NoDataIndication />}
@@ -1191,6 +1210,13 @@ function MissionsTable({ refresh }) {
           </div>
         </>
       )}
+      <ApplicantsSidebar
+        show={showApplicantsModal}
+        onHide={handleCloseApplicantsModal}
+        missionId={selectedMissionId}
+        tenantId={tenantID}
+        missionsUIProps={missionsUIProps}
+      />
     </div>
   );
 }
