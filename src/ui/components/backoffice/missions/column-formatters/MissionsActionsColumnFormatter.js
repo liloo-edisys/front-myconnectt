@@ -11,7 +11,6 @@ function MissionsActionsColumnFormatter(
   rowIndex,
   { openDeleteDialog, openDisplayDialog, handleShowApplicants }
 ) {
-
   return (
     <>
       <button

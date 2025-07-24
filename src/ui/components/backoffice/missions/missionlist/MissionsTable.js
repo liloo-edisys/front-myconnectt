@@ -48,7 +48,7 @@ import {
   setPageSize,
   setPageNumber
 } from "../../../../../business/actions/backoffice/MissionsActions.js";
-import ApplicantsSidebar from './ApplicantsSidebar.js';
+import ApplicantsSidebar from "./ApplicantsSidebar.js";
 
 const tenantID = +process.env.REACT_APP_TENANT_ID;
 const baseDate = new Date();
@@ -420,13 +420,11 @@ function MissionsTable({ refresh }) {
     };
   }, [missionsUIContext]);
 
-
-
   const [showApplicantsModal, setShowApplicantsModal] = useState(false);
   const [selectedMissionId, setSelectedMissionId] = useState(null);
 
   // Fonction pour ouvrir la modal
-  const handleShowApplicants = (row) => {
+  const handleShowApplicants = row => {
     console.log("Affichage des candidats pour la mission:", row.id);
     setSelectedMissionId(row.id);
     setShowApplicantsModal(true);

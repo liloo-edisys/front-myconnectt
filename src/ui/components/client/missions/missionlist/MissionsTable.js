@@ -37,18 +37,18 @@ import {
   deleteCurrentTemplate
 } from "../../../../../business/actions/client/MissionsActions";
 import Avatar from "react-avatar";
-import ApplicantsSidebar from './ApplicantsSidebar.js';
+import ApplicantsSidebar from "./ApplicantsSidebar.js";
 
 const tenantID = +process.env.REACT_APP_TENANT_ID;
 const baseDate = new Date();
 baseDate.setMonth(baseDate.getMonth() - 1);
 // eslint-disable-next-line no-extend-native
-Array.constructor.prototype.flexFilter = function (info) {
+Array.constructor.prototype.flexFilter = function(info) {
   var matchesFilter,
     matches = [],
     count;
 
-  matchesFilter = function (item) {
+  matchesFilter = function(item) {
     count = 0;
     for (var n = 0; n < info.length; n++) {
       if (info[n]["Values"].indexOf(item[info[n]["Field"]]) > -1) {
@@ -192,38 +192,38 @@ function MissionsTable({ refresh }) {
       clearFilter();
       user.displayChoice === 0 && !loadingMission
         ? dispatch(
-          searchMission.request({
-            tenantID,
-            accountID: companyID,
-            missionJobTitles: null,
-            startDate: null,
-            endDate: null,
-            contactNames: null,
-            isMatchingOnly: false,
-            isApplicationsOnly: false,
-            pageSize: pageSize,
-            pageNumber: pageNumber,
-            loadMissionApplications: true,
-            status: null
-          })
-        )
+            searchMission.request({
+              tenantID,
+              accountID: companyID,
+              missionJobTitles: null,
+              startDate: null,
+              endDate: null,
+              contactNames: null,
+              isMatchingOnly: false,
+              isApplicationsOnly: false,
+              pageSize: pageSize,
+              pageNumber: pageNumber,
+              loadMissionApplications: true,
+              status: null
+            })
+          )
         : dispatch(
-          searchMission.request({
-            tenantID,
-            accountID: companyID,
-            userID: user.userID,
-            missionJobTitles: null,
-            startDate: null,
-            endDate: null,
-            contactNames: null,
-            isMatchingOnly: false,
-            isApplicationsOnly: false,
-            pageSize: pageSize,
-            pageNumber: pageNumber,
-            loadMissionApplications: true,
-            status: null
-          })
-        );
+            searchMission.request({
+              tenantID,
+              accountID: companyID,
+              userID: user.userID,
+              missionJobTitles: null,
+              startDate: null,
+              endDate: null,
+              contactNames: null,
+              isMatchingOnly: false,
+              isApplicationsOnly: false,
+              pageSize: pageSize,
+              pageNumber: pageNumber,
+              loadMissionApplications: true,
+              status: null
+            })
+          );
     }
   }, [refresh, missions]);
   const NoDataIndication = () => (
@@ -362,13 +362,11 @@ function MissionsTable({ refresh }) {
     };
   }, [missionsUIContext]);
 
-
-
   const [showApplicantsModal, setShowApplicantsModal] = useState(false);
   const [selectedMissionId, setSelectedMissionId] = useState(null);
 
   // Fonction pour ouvrir la modal
-  const handleShowApplicants = (row) => {
+  const handleShowApplicants = row => {
     console.log("Affichage des candidats pour la mission:", row.id);
     setSelectedMissionId(row.id);
     setShowApplicantsModal(true);
@@ -379,7 +377,6 @@ function MissionsTable({ refresh }) {
     setShowApplicantsModal(false);
     setSelectedMissionId(null);
   };
-
 
   let columns = [
     {
@@ -521,9 +518,9 @@ function MissionsTable({ refresh }) {
     let filtered = [];
     let rows = !isNullOrEmpty(missions)
       ? missions.filter(
-        mission =>
-          mission.status === 1 && !isNullOrEmpty(mission.missionApplications)
-      )
+          mission =>
+            mission.status === 1 && !isNullOrEmpty(mission.missionApplications)
+        )
       : [];
     !isNullOrEmpty(rows) && rows.map(row => filtered.push(row.id));
     setExpanded(filtered);
@@ -549,74 +546,74 @@ function MissionsTable({ refresh }) {
       ]);
       user.displayChoice === 0 && !loadingMission
         ? dispatch(
-          searchMission.request({
-            tenantID,
-            accountID: companyID,
-            missionJobTitles: null,
-            startDate: null,
-            endDate: null,
-            contactNames: null,
-            isMatchingOnly: false,
-            isApplicationsOnly: false,
-            pageSize: pageSize,
-            pageNumber: pageNumber,
-            loadMissionApplications: true,
-            status: [1, 2]
-          })
-        )
+            searchMission.request({
+              tenantID,
+              accountID: companyID,
+              missionJobTitles: null,
+              startDate: null,
+              endDate: null,
+              contactNames: null,
+              isMatchingOnly: false,
+              isApplicationsOnly: false,
+              pageSize: pageSize,
+              pageNumber: pageNumber,
+              loadMissionApplications: true,
+              status: [1, 2]
+            })
+          )
         : dispatch(
-          searchMission.request({
-            tenantID,
-            accountID: companyID,
-            userID: user.userID,
-            missionJobTitles: null,
-            startDate: null,
-            endDate: null,
-            contactNames: null,
-            isMatchingOnly: false,
-            isApplicationsOnly: false,
-            pageSize: pageSize,
-            pageNumber: pageNumber,
-            loadMissionApplications: true,
-            status: [1, 2]
-          })
-        );
+            searchMission.request({
+              tenantID,
+              accountID: companyID,
+              userID: user.userID,
+              missionJobTitles: null,
+              startDate: null,
+              endDate: null,
+              contactNames: null,
+              isMatchingOnly: false,
+              isApplicationsOnly: false,
+              pageSize: pageSize,
+              pageNumber: pageNumber,
+              loadMissionApplications: true,
+              status: [1, 2]
+            })
+          );
     } else {
       setDefaultStatus(null);
       user.displayChoice === 0 && !loadingMission
         ? dispatch(
-          searchMission.request({
-            tenantID,
-            accountID: companyID,
-            missionJobTitles: null,
-            startDate: null,
-            endDate: null,
-            contactNames: null,
-            isMatchingOnly: false,
-            isApplicationsOnly: false,
-            pageSize: pageSize,
-            pageNumber: pageNumber,
-            loadMissionApplications: true,
-            status: null
-          })
-        )
+            searchMission.request({
+              tenantID,
+              accountID: companyID,
+              missionJobTitles: null,
+              startDate: null,
+              endDate: null,
+              contactNames: null,
+              isMatchingOnly: false,
+              isApplicationsOnly: false,
+              pageSize: pageSize,
+              pageNumber: pageNumber,
+              loadMissionApplications: true,
+              status: null
+            })
+          )
         : dispatch(
-          searchMission.request({
-            tenantID,
-            accountID: companyID,
-            userID: user.userID,
-            missionJobTitles: null,
-            startDate: null,
-            endDate: null,
-            contactNames: null,
-            isMatchingOnly: false,
-            isApplicationsOnly: false,
-            pageSize: pageSize,
-            pageNumber: pageNumber,
-            loadMissionApplications: true,
-            status: null
-          })
-        );
+            searchMission.request({
+              tenantID,
+              accountID: companyID,
+              userID: user.userID,
+              missionJobTitles: null,
+              startDate: null,
+              endDate: null,
+              contactNames: null,
+              isMatchingOnly: false,
+              isApplicationsOnly: false,
+              pageSize: pageSize,
+              pageNumber: pageNumber,
+              loadMissionApplications: true,
+              status: null
+            })
+          );
     }
   }, [isEdit]);
 
@@ -696,213 +693,213 @@ function MissionsTable({ refresh }) {
   const filterAskers = value => {
     user.displayChoice === 0
       ? dispatch(
-        searchMission.request({
-          tenantID,
-          accountID: companyID,
-          missionJobTitles: !isNullOrEmpty(selectedTitles)
-            ? reduceData(selectedTitles)
-            : null,
-          startDate: !isNullOrEmpty(selectedStartDate)
-            ? moment(selectedStartDate).format("YYYY-MM-DD")
-            : null,
-          endDate: !isNullOrEmpty(selectedEndDate)
-            ? moment(selectedEndDate).format("YYYY-MM-DD")
-            : null,
-          contactNames: !isNullOrEmpty(value) ? reduceString(value) : null,
-          isMatchingOnly: false,
-          isApplicationsOnly: false,
-          pageSize: pageSize,
-          pageNumber: 1,
-          loadMissionApplications: true,
-          status: !isNullOrEmpty(defaultStatus)
-            ? reduceData(defaultStatus)
-            : null
-        })
-      )
+          searchMission.request({
+            tenantID,
+            accountID: companyID,
+            missionJobTitles: !isNullOrEmpty(selectedTitles)
+              ? reduceData(selectedTitles)
+              : null,
+            startDate: !isNullOrEmpty(selectedStartDate)
+              ? moment(selectedStartDate).format("YYYY-MM-DD")
+              : null,
+            endDate: !isNullOrEmpty(selectedEndDate)
+              ? moment(selectedEndDate).format("YYYY-MM-DD")
+              : null,
+            contactNames: !isNullOrEmpty(value) ? reduceString(value) : null,
+            isMatchingOnly: false,
+            isApplicationsOnly: false,
+            pageSize: pageSize,
+            pageNumber: 1,
+            loadMissionApplications: true,
+            status: !isNullOrEmpty(defaultStatus)
+              ? reduceData(defaultStatus)
+              : null
+          })
+        )
       : dispatch(
-        searchMission.request({
-          tenantID,
-          accountID: companyID,
-          userID: user.userID,
-          missionJobTitles: !isNullOrEmpty(selectedTitles)
-            ? reduceData(selectedTitles)
-            : null,
-          startDate: !isNullOrEmpty(selectedStartDate)
-            ? moment(selectedStartDate).format("YYYY-MM-DD")
-            : null,
-          endDate: !isNullOrEmpty(selectedEndDate)
-            ? moment(selectedEndDate).format("YYYY-MM-DD")
-            : null,
-          contactNames: !isNullOrEmpty(value) ? reduceString(value) : null,
-          isMatchingOnly: false,
-          isApplicationsOnly: false,
-          pageSize: pageSize,
-          pageNumber: 1,
-          loadMissionApplications: true,
-          status: !isNullOrEmpty(defaultStatus)
-            ? reduceData(defaultStatus)
-            : null
-        })
-      );
+          searchMission.request({
+            tenantID,
+            accountID: companyID,
+            userID: user.userID,
+            missionJobTitles: !isNullOrEmpty(selectedTitles)
+              ? reduceData(selectedTitles)
+              : null,
+            startDate: !isNullOrEmpty(selectedStartDate)
+              ? moment(selectedStartDate).format("YYYY-MM-DD")
+              : null,
+            endDate: !isNullOrEmpty(selectedEndDate)
+              ? moment(selectedEndDate).format("YYYY-MM-DD")
+              : null,
+            contactNames: !isNullOrEmpty(value) ? reduceString(value) : null,
+            isMatchingOnly: false,
+            isApplicationsOnly: false,
+            pageSize: pageSize,
+            pageNumber: 1,
+            loadMissionApplications: true,
+            status: !isNullOrEmpty(defaultStatus)
+              ? reduceData(defaultStatus)
+              : null
+          })
+        );
   };
 
   const filterStatus = value => {
     user.displayChoice === 0
       ? dispatch(
-        searchMission.request({
-          tenantID,
-          accountID: companyID,
-          missionJobTitles: !isNullOrEmpty(selectedTitles)
-            ? reduceData(selectedTitles)
-            : null,
-          startDate: !isNullOrEmpty(selectedStartDate)
-            ? moment(selectedStartDate).format("YYYY-MM-DD")
-            : null,
-          endDate: !isNullOrEmpty(selectedEndDate)
-            ? moment(selectedEndDate).format("YYYY-MM-DD")
-            : null,
-          contactNames: !isNullOrEmpty(selectedAskers)
-            ? reduceString(selectedAskers)
-            : null,
-          isMatchingOnly: false,
-          isApplicationsOnly: false,
-          pageSize: pageSize,
-          pageNumber: 1,
-          loadMissionApplications: true,
-          status: !isNullOrEmpty(value) ? reduceData(value) : null
-        })
-      )
+          searchMission.request({
+            tenantID,
+            accountID: companyID,
+            missionJobTitles: !isNullOrEmpty(selectedTitles)
+              ? reduceData(selectedTitles)
+              : null,
+            startDate: !isNullOrEmpty(selectedStartDate)
+              ? moment(selectedStartDate).format("YYYY-MM-DD")
+              : null,
+            endDate: !isNullOrEmpty(selectedEndDate)
+              ? moment(selectedEndDate).format("YYYY-MM-DD")
+              : null,
+            contactNames: !isNullOrEmpty(selectedAskers)
+              ? reduceString(selectedAskers)
+              : null,
+            isMatchingOnly: false,
+            isApplicationsOnly: false,
+            pageSize: pageSize,
+            pageNumber: 1,
+            loadMissionApplications: true,
+            status: !isNullOrEmpty(value) ? reduceData(value) : null
+          })
+        )
       : dispatch(
-        searchMission.request({
-          tenantID,
-          accountID: companyID,
-          userId: user.userID,
-          missionJobTitles: !isNullOrEmpty(selectedTitles)
-            ? reduceData(selectedTitles)
-            : null,
-          startDate: !isNullOrEmpty(selectedStartDate)
-            ? moment(selectedStartDate).format("YYYY-MM-DD")
-            : null,
-          endDate: !isNullOrEmpty(selectedEndDate)
-            ? moment(selectedEndDate).format("YYYY-MM-DD")
-            : null,
-          contactNames: !isNullOrEmpty(selectedAskers)
-            ? reduceString(selectedAskers)
-            : null,
-          isMatchingOnly: false,
-          isApplicationsOnly: false,
-          pageSize: pageSize,
-          pageNumber: 1,
-          loadMissionApplications: true,
-          status: !isNullOrEmpty(value) ? reduceData(value) : null
-        })
-      );
+          searchMission.request({
+            tenantID,
+            accountID: companyID,
+            userId: user.userID,
+            missionJobTitles: !isNullOrEmpty(selectedTitles)
+              ? reduceData(selectedTitles)
+              : null,
+            startDate: !isNullOrEmpty(selectedStartDate)
+              ? moment(selectedStartDate).format("YYYY-MM-DD")
+              : null,
+            endDate: !isNullOrEmpty(selectedEndDate)
+              ? moment(selectedEndDate).format("YYYY-MM-DD")
+              : null,
+            contactNames: !isNullOrEmpty(selectedAskers)
+              ? reduceString(selectedAskers)
+              : null,
+            isMatchingOnly: false,
+            isApplicationsOnly: false,
+            pageSize: pageSize,
+            pageNumber: 1,
+            loadMissionApplications: true,
+            status: !isNullOrEmpty(value) ? reduceData(value) : null
+          })
+        );
   };
 
   const onChangeStartDate = e => {
     user.displayChoice === 0
       ? dispatch(
-        searchMission.request({
-          tenantID,
-          accountID: companyID,
-          missionJobTitles: !isNullOrEmpty(selectedTitles)
-            ? reduceData(selectedTitles)
-            : null,
-          startDate: moment(e).format("YYYY-MM-DD"),
-          endDate: !isNullOrEmpty(selectedEndDate)
-            ? moment(selectedEndDate).format("YYYY-MM-DD")
-            : null,
-          contactNames: !isNullOrEmpty(selectedAskers)
-            ? reduceString(selectedAskers)
-            : null,
-          isMatchingOnly: false,
-          isApplicationsOnly: false,
-          pageSize: pageSize,
-          pageNumber: 1,
-          loadMissionApplications: true,
-          status: !isNullOrEmpty(defaultStatus)
-            ? reduceData(defaultStatus)
-            : null
-        })
-      )
+          searchMission.request({
+            tenantID,
+            accountID: companyID,
+            missionJobTitles: !isNullOrEmpty(selectedTitles)
+              ? reduceData(selectedTitles)
+              : null,
+            startDate: moment(e).format("YYYY-MM-DD"),
+            endDate: !isNullOrEmpty(selectedEndDate)
+              ? moment(selectedEndDate).format("YYYY-MM-DD")
+              : null,
+            contactNames: !isNullOrEmpty(selectedAskers)
+              ? reduceString(selectedAskers)
+              : null,
+            isMatchingOnly: false,
+            isApplicationsOnly: false,
+            pageSize: pageSize,
+            pageNumber: 1,
+            loadMissionApplications: true,
+            status: !isNullOrEmpty(defaultStatus)
+              ? reduceData(defaultStatus)
+              : null
+          })
+        )
       : dispatch(
-        searchMission.request({
-          tenantID,
-          accountID: companyID,
-          userId: user.userID,
-          missionJobTitles: !isNullOrEmpty(selectedTitles)
-            ? reduceData(selectedTitles)
-            : null,
-          startDate: moment(e).format("YYYY-MM-DD"),
-          endDate: !isNullOrEmpty(selectedEndDate)
-            ? moment(selectedEndDate).format("YYYY-MM-DD")
-            : null,
-          contactNames: !isNullOrEmpty(selectedAskers)
-            ? reduceString(selectedAskers)
-            : null,
-          isMatchingOnly: false,
-          isApplicationsOnly: false,
-          pageSize: pageSize,
-          pageNumber: 1,
-          loadMissionApplications: true,
-          status: !isNullOrEmpty(defaultStatus)
-            ? reduceData(defaultStatus)
-            : null
-        })
-      );
+          searchMission.request({
+            tenantID,
+            accountID: companyID,
+            userId: user.userID,
+            missionJobTitles: !isNullOrEmpty(selectedTitles)
+              ? reduceData(selectedTitles)
+              : null,
+            startDate: moment(e).format("YYYY-MM-DD"),
+            endDate: !isNullOrEmpty(selectedEndDate)
+              ? moment(selectedEndDate).format("YYYY-MM-DD")
+              : null,
+            contactNames: !isNullOrEmpty(selectedAskers)
+              ? reduceString(selectedAskers)
+              : null,
+            isMatchingOnly: false,
+            isApplicationsOnly: false,
+            pageSize: pageSize,
+            pageNumber: 1,
+            loadMissionApplications: true,
+            status: !isNullOrEmpty(defaultStatus)
+              ? reduceData(defaultStatus)
+              : null
+          })
+        );
   };
 
   const onChangeEndDate = e => {
     user.displayChoice === 0 && !loadingMission
       ? dispatch(
-        searchMission.request({
-          tenantID,
-          accountID: companyID,
-          missionJobTitles: !isNullOrEmpty(selectedTitles)
-            ? reduceData(selectedTitles)
-            : null,
-          startDate: !isNullOrEmpty(selectedStartDate)
-            ? moment(selectedStartDate).format("YYYY-MM-DD")
-            : null,
-          endDate: moment(e).format("YYYY-MM-DD"),
-          contactNames: !isNullOrEmpty(selectedAskers)
-            ? reduceString(selectedAskers)
-            : null,
-          isMatchingOnly: false,
-          isApplicationsOnly: false,
-          pageSize: pageSize,
-          pageNumber: 1,
-          loadMissionApplications: true,
-          status: !isNullOrEmpty(defaultStatus)
-            ? reduceData(defaultStatus)
-            : null
-        })
-      )
+          searchMission.request({
+            tenantID,
+            accountID: companyID,
+            missionJobTitles: !isNullOrEmpty(selectedTitles)
+              ? reduceData(selectedTitles)
+              : null,
+            startDate: !isNullOrEmpty(selectedStartDate)
+              ? moment(selectedStartDate).format("YYYY-MM-DD")
+              : null,
+            endDate: moment(e).format("YYYY-MM-DD"),
+            contactNames: !isNullOrEmpty(selectedAskers)
+              ? reduceString(selectedAskers)
+              : null,
+            isMatchingOnly: false,
+            isApplicationsOnly: false,
+            pageSize: pageSize,
+            pageNumber: 1,
+            loadMissionApplications: true,
+            status: !isNullOrEmpty(defaultStatus)
+              ? reduceData(defaultStatus)
+              : null
+          })
+        )
       : dispatch(
-        searchMission.request({
-          tenantID,
-          accountID: companyID,
-          userID: user.userID,
-          missionJobTitles: !isNullOrEmpty(selectedTitles)
-            ? reduceData(selectedTitles)
-            : null,
-          startDate: !isNullOrEmpty(selectedStartDate)
-            ? moment(selectedStartDate).format("YYYY-MM-DD")
-            : null,
-          endDate: moment(e).format("YYYY-MM-DD"),
-          contactNames: !isNullOrEmpty(selectedAskers)
-            ? reduceString(selectedAskers)
-            : null,
-          isMatchingOnly: false,
-          isApplicationsOnly: false,
-          pageSize: pageSize,
-          pageNumber: 1,
-          loadMissionApplications: true,
-          status: !isNullOrEmpty(defaultStatus)
-            ? reduceData(defaultStatus)
-            : null
-        })
-      );
+          searchMission.request({
+            tenantID,
+            accountID: companyID,
+            userID: user.userID,
+            missionJobTitles: !isNullOrEmpty(selectedTitles)
+              ? reduceData(selectedTitles)
+              : null,
+            startDate: !isNullOrEmpty(selectedStartDate)
+              ? moment(selectedStartDate).format("YYYY-MM-DD")
+              : null,
+            endDate: moment(e).format("YYYY-MM-DD"),
+            contactNames: !isNullOrEmpty(selectedAskers)
+              ? reduceString(selectedAskers)
+              : null,
+            isMatchingOnly: false,
+            isApplicationsOnly: false,
+            pageSize: pageSize,
+            pageNumber: 1,
+            loadMissionApplications: true,
+            status: !isNullOrEmpty(defaultStatus)
+              ? reduceData(defaultStatus)
+              : null
+          })
+        );
   };
 
   const renderStartDateFilter = () => {
@@ -1034,7 +1031,7 @@ function MissionsTable({ refresh }) {
 
   let missionAskerFormatter = () => {
     let missionAskers = [];
-    let askersArray = _.uniqBy(missions, function (e) {
+    let askersArray = _.uniqBy(missions, function(e) {
       return e.userName;
     });
     askersArray.map(arr => {
@@ -1046,58 +1043,58 @@ function MissionsTable({ refresh }) {
   const handleChangePage = (size, page) => {
     user.displayChoice === 0
       ? dispatch(
-        searchMission.request({
-          tenantID,
-          accountID: companyID,
-          missionJobTitles: !isNullOrEmpty(selectedTitles)
-            ? reduceData(selectedTitles)
-            : null,
-          startDate: !isNullOrEmpty(selectedStartDate)
-            ? moment(selectedStartDate).format("YYYY-MM-DD")
-            : null,
-          endDate: !isNullOrEmpty(selectedEndDate)
-            ? moment(selectedEndDate).format("YYYY-MM-DD")
-            : null,
-          contactNames: !isNullOrEmpty(selectedAskers)
-            ? reduceString(selectedAskers)
-            : null,
-          isMatchingOnly: false,
-          isApplicationsOnly: false,
-          pageSize: size,
-          pageNumber: page,
-          loadMissionApplications: true,
-          status: !isNullOrEmpty(defaultStatus)
-            ? reduceData(defaultStatus)
-            : null
-        })
-      )
+          searchMission.request({
+            tenantID,
+            accountID: companyID,
+            missionJobTitles: !isNullOrEmpty(selectedTitles)
+              ? reduceData(selectedTitles)
+              : null,
+            startDate: !isNullOrEmpty(selectedStartDate)
+              ? moment(selectedStartDate).format("YYYY-MM-DD")
+              : null,
+            endDate: !isNullOrEmpty(selectedEndDate)
+              ? moment(selectedEndDate).format("YYYY-MM-DD")
+              : null,
+            contactNames: !isNullOrEmpty(selectedAskers)
+              ? reduceString(selectedAskers)
+              : null,
+            isMatchingOnly: false,
+            isApplicationsOnly: false,
+            pageSize: size,
+            pageNumber: page,
+            loadMissionApplications: true,
+            status: !isNullOrEmpty(defaultStatus)
+              ? reduceData(defaultStatus)
+              : null
+          })
+        )
       : dispatch(
-        searchMission.request({
-          tenantID,
-          accountID: companyID,
-          userID: user.userID,
-          missionJobTitles: !isNullOrEmpty(selectedTitles)
-            ? reduceData(selectedTitles)
-            : null,
-          startDate: !isNullOrEmpty(selectedStartDate)
-            ? moment(selectedStartDate).format("YYYY-MM-DD")
-            : null,
-          endDate: !isNullOrEmpty(selectedEndDate)
-            ? moment(selectedEndDate).format("YYYY-MM-DD")
-            : null,
-          contactNames: !isNullOrEmpty(selectedAskers)
-            ? reduceString(selectedAskers)
-            : null,
-          isMatchingOnly: false,
-          isApplicationsOnly: false,
-          pageSize: size,
-          pageNumber: page,
-          loadMissionApplications: true,
-          status: !isNullOrEmpty(defaultStatus)
-            ? reduceData(defaultStatus)
-            : null
-        })
-      );
+          searchMission.request({
+            tenantID,
+            accountID: companyID,
+            userID: user.userID,
+            missionJobTitles: !isNullOrEmpty(selectedTitles)
+              ? reduceData(selectedTitles)
+              : null,
+            startDate: !isNullOrEmpty(selectedStartDate)
+              ? moment(selectedStartDate).format("YYYY-MM-DD")
+              : null,
+            endDate: !isNullOrEmpty(selectedEndDate)
+              ? moment(selectedEndDate).format("YYYY-MM-DD")
+              : null,
+            contactNames: !isNullOrEmpty(selectedAskers)
+              ? reduceString(selectedAskers)
+              : null,
+            isMatchingOnly: false,
+            isApplicationsOnly: false,
+            pageSize: size,
+            pageNumber: page,
+            loadMissionApplications: true,
+            status: !isNullOrEmpty(defaultStatus)
+              ? reduceData(defaultStatus)
+              : null
+          })
+        );
   };
 
   const rowStyle = (row, rowIndex) => {
@@ -1201,7 +1198,6 @@ function MissionsTable({ refresh }) {
             </div>
           </div>
         )}
-
       </PaginationProvider>
       <ApplicantsSidebar
         show={showApplicantsModal}
@@ -1223,10 +1219,11 @@ function MissionsTable({ refresh }) {
 
   return (
     <div
-      className={`${loadingMission
-        ? "d-flex justify-content-center align-items-center"
-        : null
-        }`}
+      className={`${
+        loadingMission
+          ? "d-flex justify-content-center align-items-center"
+          : null
+      }`}
     >
       {loadingMission ? (
         <span className="colmx-auto spinner spinner-primary"></span>
@@ -1250,7 +1247,6 @@ function MissionsTable({ refresh }) {
           </div>
         </>
       )}
-
     </div>
   );
 }

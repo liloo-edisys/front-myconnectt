@@ -28,17 +28,17 @@ const ApplicantsSidebar = ({ show, onHide, missionId, missionsUIProps }) => {
         `https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/MissionApplication/GetApplicant/${missionId}/${page}`,
         {
           headers: {
-            'accept': '*/*'
+            accept: "*/*"
           }
         }
       );
-      
-      console.log('Réponse API:', response.data);
-      
+
+      console.log("Réponse API:", response.data);
+
       if (response.data) {
         let applicantsData = [];
         let total = 0;
-        
+
         if (Array.isArray(response.data)) {
           applicantsData = response.data;
           total = response.data.length;
@@ -49,20 +49,20 @@ const ApplicantsSidebar = ({ show, onHide, missionId, missionsUIProps }) => {
           applicantsData = response.data.data;
           total = response.data.total || response.data.data.length;
         } else {
-          console.warn('Structure de réponse non reconnue:', response.data);
+          console.warn("Structure de réponse non reconnue:", response.data);
           applicantsData = [];
           total = 0;
         }
-        
+
         setApplicants(applicantsData);
         setTotalCount(total);
       } else {
-        console.error('Pas de données dans la réponse');
+        console.error("Pas de données dans la réponse");
         setApplicants([]);
         setTotalCount(0);
       }
     } catch (error) {
-      console.error('Erreur axios:', error);
+      console.error("Erreur axios:", error);
       setApplicants([]);
       setTotalCount(0);
     } finally {
@@ -81,9 +81,10 @@ const ApplicantsSidebar = ({ show, onHide, missionId, missionsUIProps }) => {
   const applicationColumns = [
     {
       dataField: "name",
-      text: intl.formatMessage({ id: "MATCHING.TABLE.CANDIDATE" }) || "Candidat",
+      text:
+        intl.formatMessage({ id: "MATCHING.TABLE.CANDIDATE" }) || "Candidat",
       sort: true,
-      style: { width: '50%' },
+      style: { width: "50%" },
       classes: "text-left",
       headerClasses: "text-left",
       formatter: (value, row) => (
@@ -117,7 +118,7 @@ const ApplicantsSidebar = ({ show, onHide, missionId, missionsUIProps }) => {
     {
       dataField: "applicationID",
       text: intl.formatMessage({ id: "TEXT.STATUS" }) || "Statut",
-      style: { width: '25%' },
+      style: { width: "25%" },
       classes: "text-left",
       headerClasses: "text-left",
       formatter: ApplicationsStatusColumnFormatter
@@ -127,7 +128,7 @@ const ApplicantsSidebar = ({ show, onHide, missionId, missionsUIProps }) => {
       text: intl.formatMessage({ id: "MENU.ACTIONS" }) || "Actions",
       classes: "text-center",
       headerClasses: "text-center",
-      style: { width: '25%' },
+      style: { width: "25%" },
       formatter: ApplicationsActionsColumnFormatter,
       formatExtraData: {
         openEditWorksiteDialog: missionsUIProps?.openEditWorksiteDialog,
@@ -137,13 +138,19 @@ const ApplicantsSidebar = ({ show, onHide, missionId, missionsUIProps }) => {
         openDeclineDialog: missionsUIProps?.openDeclineDialog,
         openValidateDialog: missionsUIProps?.openValidateDialog,
         openMissionProfileDialog: missionsUIProps?.openMissionProfileDialog,
-        openDeleteApplicationDialog: missionsUIProps?.openDeleteApplicationDialog
+        openDeleteApplicationDialog:
+          missionsUIProps?.openDeleteApplicationDialog
       }
     }
   ];
 
   // Composant de pagination simplifié
-  const RemotePagination = ({ page, sizePerPage, onTableChange, totalSize }) => (
+  const RemotePagination = ({
+    page,
+    sizePerPage,
+    onTableChange,
+    totalSize
+  }) => (
     <PaginationProvider
       pagination={paginationFactory({
         custom: true,
@@ -181,20 +188,23 @@ const ApplicantsSidebar = ({ show, onHide, missionId, missionsUIProps }) => {
                 <div className="text-center py-4">
                   <i className="fas fa-users fa-3x text-muted mb-3"></i>
                   <p className="text-muted">
-                    <FormattedMessage id="MESSAGE.NO.APPLICANTS" defaultMessage="Aucun candidat trouvé" />
+                    <FormattedMessage
+                      id="MESSAGE.NO.APPLICANTS"
+                      defaultMessage="Aucun candidat trouvé"
+                    />
                   </p>
                 </div>
               )}
             />
           </div>
-          
+
           {/* Footer avec pagination */}
           <div className="border-top bg-light px-3 py-2">
             <div className="d-flex justify-content-between align-items-center">
               <div className="d-flex align-items-center">
                 <SizePerPageDropdownStandalone {...paginationProps} />
                 <small className="text-muted ml-2">
-                  Total: {totalSize} candidat{totalSize > 1 ? 's' : ''}
+                  Total: {totalSize} candidat{totalSize > 1 ? "s" : ""}
                 </small>
               </div>
               <PaginationListStandalone {...paginationProps} />
@@ -216,36 +226,36 @@ const ApplicantsSidebar = ({ show, onHide, missionId, missionsUIProps }) => {
     <>
       {/* Overlay pour fermer le sidebar */}
       {show && (
-        <div 
+        <div
           className="sidebar-overlay"
           onClick={onHide}
           style={{
-            position: 'fixed',
+            position: "fixed",
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            backgroundColor: "rgba(0, 0, 0, 0.3)",
             zIndex: 1040
           }}
         />
       )}
-      
+
       {/* Sidebar */}
-      <div 
-        className={`sidebar-applicants ${show ? 'show' : ''}`}
+      <div
+        className={`sidebar-applicants ${show ? "show" : ""}`}
         style={{
-          position: 'fixed',
+          position: "fixed",
           top: 0,
-          right: show ? 0 : '-60%',
-          width: '60%',
-          height: '100vh',
-          backgroundColor: '#ffffff',
-          boxShadow: '-4px 0 15px rgba(0, 0, 0, 0.1)',
+          right: show ? 0 : "-60%",
+          width: "60%",
+          height: "100vh",
+          backgroundColor: "#ffffff",
+          boxShadow: "-4px 0 15px rgba(0, 0, 0, 0.1)",
           zIndex: 1050,
-          transition: 'right 0.3s ease-in-out',
-          display: 'flex',
-          flexDirection: 'column'
+          transition: "right 0.3s ease-in-out",
+          display: "flex",
+          flexDirection: "column"
         }}
       >
         {/* Header simplifié */}
@@ -257,10 +267,7 @@ const ApplicantsSidebar = ({ show, onHide, missionId, missionsUIProps }) => {
                 Candidats
               </h6>
             </div>
-            <button 
-              className="btn btn-sm btn-outline-light"
-              onClick={onHide}
-            >
+            <button className="btn btn-sm btn-outline-light" onClick={onHide}>
               <i className="fas fa-times"></i>
             </button>
           </div>

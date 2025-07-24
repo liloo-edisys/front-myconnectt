@@ -9,7 +9,13 @@ function MissionsActionsColumnFormatter(
   cellContent,
   row,
   rowIndex,
-  { openDeleteDialog, openDisplayDialog, openMatchingDialog, editMission, handleShowApplicants }
+  {
+    openDeleteDialog,
+    openDisplayDialog,
+    openMatchingDialog,
+    editMission,
+    handleShowApplicants
+  }
 ) {
   return (
     <>
@@ -29,7 +35,6 @@ function MissionsActionsColumnFormatter(
       >
         Candidats
       </button>
-      
 
       {row && row.missionIsValidated ? (
         <>
