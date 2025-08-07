@@ -893,7 +893,7 @@ function FormStepOne(props, formik) {
         .VacancyContractualVacancyEmploymentContractTypeStartDate
     ) &&
       touched.VacancyContractualVacancyEmploymentContractTypeStartDate !==
-        true &&
+      true &&
       props.formik.setFieldTouched(
         "VacancyContractualVacancyEmploymentContractTypeStartDate",
         true
@@ -1049,9 +1049,9 @@ function FormStepOne(props, formik) {
       isNullOrEmpty(address) && !isNullOrEmpty(template.address)
         ? props.formik.setFieldValue("address", template.address)
         : props.formik.setFieldValue(
-            "address",
-            getCurrentMission("address", currentWorksite)
-          );
+          "address",
+          getCurrentMission("address", currentWorksite)
+        );
 
       if (isNull(city)) {
         !isNullOrEmpty(template.vacancyBusinessAddressCity)
@@ -1060,13 +1060,13 @@ function FormStepOne(props, formik) {
       }
       isNullOrEmpty(city) && !isNullOrEmpty(template.city)
         ? props.formik.setFieldValue(
-            "vacancyBusinessAddressCity",
-            template.vacancyBusinessAddressCity
-          )
+          "vacancyBusinessAddressCity",
+          template.vacancyBusinessAddressCity
+        )
         : props.formik.setFieldValue(
-            "vacancyBusinessAddressCity",
-            getCurrentMission("city", currentWorksite)
-          );
+          "vacancyBusinessAddressCity",
+          getCurrentMission("city", currentWorksite)
+        );
 
       if (isNullOrEmpty(postalCode)) {
         !isNullOrEmpty(template.vacancyBusinessAddressPostalCode)
@@ -1075,13 +1075,13 @@ function FormStepOne(props, formik) {
       }
       isNullOrEmpty(postalCode) && !isNullOrEmpty(template.city)
         ? props.formik.setFieldValue(
-            "vacancyBusinessAddressPostalCode",
-            template.vacancyBusinessAddressPostalCode
-          )
+          "vacancyBusinessAddressPostalCode",
+          template.vacancyBusinessAddressPostalCode
+        )
         : props.formik.setFieldValue(
-            "vacancyBusinessAddressPostalCode",
-            getCurrentMission("postalCode", currentWorksite)
-          );
+          "vacancyBusinessAddressPostalCode",
+          getCurrentMission("postalCode", currentWorksite)
+        );
       isNullOrEmpty(startDate) &&
         isTmpOrDup === false &&
         setStartDate(
@@ -1557,7 +1557,7 @@ function FormStepOne(props, formik) {
                         Saisissez au moins 2 caractères pour rechercher
                       </small>
                       {touched.vacancyBusinessAddressPostalCode &&
-                      errors.vacancyBusinessAddressPostalCode ? (
+                        errors.vacancyBusinessAddressPostalCode ? (
                         <div className="fv-plugins-message-container">
                           <div className="fv-help-block">
                             {errors.vacancyBusinessAddressPostalCode}
@@ -1605,7 +1605,7 @@ function FormStepOne(props, formik) {
                         locale="fr"
                       ></DatePickerField>
                       {touched.VacancyContractualVacancyEmploymentContractTypeStartDate &&
-                      errors.VacancyContractualVacancyEmploymentContractTypeStartDate ? (
+                        errors.VacancyContractualVacancyEmploymentContractTypeStartDate ? (
                         <div className="fv-plugins-message-container">
                           <div className="fv-help-block">
                             {
@@ -1653,7 +1653,7 @@ function FormStepOne(props, formik) {
                         locale="fr"
                       ></DatePickerField>
                       {touched.VacancyContractualVacancyEmploymentContractTypeEndDate &&
-                      errors.VacancyContractualVacancyEmploymentContractTypeEndDate ? (
+                        errors.VacancyContractualVacancyEmploymentContractTypeEndDate ? (
                         <div className="fv-plugins-message-container">
                           <div className="fv-help-block">
                             {
@@ -1701,7 +1701,7 @@ function FormStepOne(props, formik) {
                         ></Field>
                       </div>
                       {touched.vacancyNumberOfJobs &&
-                      errors.vacancyNumberOfJobs ? (
+                        errors.vacancyNumberOfJobs ? (
                         <div className="fv-plugins-message-container">
                           <div className="fv-help-block">
                             {errors.vacancyNumberOfJobs}
@@ -1764,7 +1764,7 @@ function FormStepOne(props, formik) {
                         name="vacancyMissionDescription"
                       />
                       {touched.vacancyMissionDescription &&
-                      errors.vacancyMissionDescription ? (
+                        errors.vacancyMissionDescription ? (
                         <div className="asterisk">
                           {errors["vacancyMissionDescription"]}
                         </div>
@@ -1868,7 +1868,7 @@ function FormStepOne(props, formik) {
                         props.formik.setFieldValue(
                           "publishDate",
                           moment(selectedDate).format("YYYY-MM-DD") +
-                            "T00:00:00.000Z"
+                          "T00:00:00.000Z"
                         );
                       }}
                       showMonthDropdown
@@ -2059,14 +2059,19 @@ function FormStepOne(props, formik) {
                 <div className="row">
                   <div className="col-xl-4">
                     <div className="form-group">
-                      <label>
+                      <label style={{
+                        fontSize: "14px",
+                        color: "#495057",
+                        marginBottom: "8px",
+                        display: "block"
+                      }}>
                         <FormattedMessage id="MATCHING.TABLE.AREA" />
                       </label>
-                      <div className="input-group">
+                      <div style={{ position: "relative" , marginTop : "10px" }}>
                         <input
                           type="range"
-                          className="form-control-range w-100"
-                          min="0"
+                          className="form-control-range"
+                          min="50"
                           max="1000"
                           step="25"
                           value={distance}
@@ -2075,13 +2080,46 @@ function FormStepOne(props, formik) {
                               value: parseInt(e.target.value)
                             })
                           }
+                          style={{
+                            width: "100%",
+                            height: "4px",
+                            background: "#D6D6D6",
+                            borderRadius: "2px",
+                            outline: "none",
+                            appearance: "none",
+                            WebkitAppearance: "none"
+                          }}
                         />
-                        <div className="text-center mt-2">{distance} km</div>
+                        <div style={{
+                          textAlign: "center",
+                          marginTop: "8px",
+                          fontSize: "13px",
+                        }}>
+                          {distance} km
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-
+                <style jsx>{`
+  input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #73BDFF;
+    cursor: pointer;
+  }
+  
+  input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #00B0FC;
+    cursor: pointer;
+    border: none;
+  }
+`}</style>
                 <div className="d-flex justify-content-between border-top mt-5 pt-10">
                   <div className="mr-2">
                     <Link to="/mission" className="next col-lg p-0">

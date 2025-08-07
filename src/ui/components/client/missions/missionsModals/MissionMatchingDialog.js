@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { FormattedMessage } from "react-intl";
 import { getMatching } from "actions/client/ApplicantsActions";
@@ -11,37 +11,43 @@ import {
 import { MissionResumeDialog } from "./MissionResumeDialog";
 import { searchMission } from "../../../../../business/actions/client/MissionsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import { getMatchingWithVacancy } from "./getMatchingWithVacancy";
+import { 
+  getAllMatchingCandidates,
+  MATCH_SCORE_FILTERS 
+} from "./getMatchingWithVacancy";
 
 const TENANTID = process.env.REACT_APP_TENANT_ID;
 
-// Styles CSS pour le drawer
-// Ajouter l'animation CSS directement dans le head
-const spinnerAnimation = document.createElement("style");
-spinnerAnimation.innerHTML = `
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-`;
-document.head.appendChild(spinnerAnimation);
+// Injection du CSS pour l'animation du spinner
+if (!document.getElementById("matching-spinner-style")) {
+  const spinnerAnimation = document.createElement("style");
+  spinnerAnimation.id = "matching-spinner-style";
+  spinnerAnimation.innerHTML = `
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  `;
+  document.head.appendChild(spinnerAnimation);
+}
 
+// Styles pour le composant
 const drawerStyles = {
   drawer: {
     position: "fixed",
     top: 0,
     right: 0,
     height: "100vh",
-    width: "50%", // Largeur fixe
+    width: "50%",
     maxWidth: "50vw",
-    backgroundColor: "var(--bg-color, white)",
+    backgroundColor: "white",
     boxShadow: "-2px 0 10px rgba(0, 0, 0, 0.2)",
     transition: "transform 0.3s ease-in-out",
-    transform: "translateX(100%)", // Commence hors écran à droite
+    transform: "translateX(100%)",
     overflow: "hidden",
     zIndex: 1050
   },
   drawerOpen: {
-    transform: "translateX(0)" // Slide jusqu'à sa position finale
+    transform: "translateX(0)"
   },
   overlay: {
     position: "fixed",
@@ -64,67 +70,124 @@ const drawerStyles = {
     justifyContent: "space-between",
     alignItems: "center",
     padding: "16px",
-    borderBottom: "1px solid var(--border-color, #e6e6e6)"
+    borderBottom: "1px solid #e6e6e6",
+    backgroundColor: "#f8f9fa"
   },
   drawerTitle: {
     margin: 0,
     fontSize: "18px",
-    fontWeight: 500
+    fontWeight: 600,
+    color: "#2c3e50"
   },
   drawerBody: {
     padding: "20px",
     overflowY: "auto",
-    height: "calc(100vh - 70px)",
-    paddingBottom: "80px"
+    height: "calc(100vh - 180px)",
+    backgroundColor: "#ffffff"
   },
   closeButton: {
     background: "transparent",
     border: "none",
     cursor: "pointer",
-    fontSize: "16px"
-  },
-  paginationContainer: {
+    fontSize: "20px",
+    color: "#6c757d",
+    padding: "5px",
     display: "flex",
+    alignItems: "center",
     justifyContent: "center",
-    padding: "16px",
-    borderBottom: "1px solid var(--border-color, #e6e6e6)"
+    transition: "color 0.2s"
+  },
+  paginationBar: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "12px 16px",
+    backgroundColor: "#f8f9fa",
+    borderBottom: "1px solid #e6e6e6"
+  },
+  paginationControls: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px"
   },
   paginationButton: {
-    padding: "8px 16px",
-    margin: "0 5px",
-    backgroundColor: "var(--primary-color, #0D6EFD)",
+    padding: "6px 12px",
+    backgroundColor: "#0d6efd",
     color: "white",
     border: "none",
     borderRadius: "4px",
     cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    minWidth: "100px"
+    fontSize: "14px",
+    fontWeight: 500,
+    transition: "background-color 0.2s",
+    minWidth: "80px"
+  },
+  paginationButtonDisabled: {
+    backgroundColor: "#6c757d",
+    cursor: "not-allowed",
+    opacity: 0.6
   },
   paginationInfo: {
+    fontSize: "14px",
+    color: "#495057",
+    fontWeight: 500
+  },
+  filterSection: {
     display: "flex",
     alignItems: "center",
-    margin: "0 15px",
+    gap: "10px"
+  },
+  filterLabel: {
     fontSize: "14px",
-    color: "var(--text-secondary, #616061)"
+    color: "#495057",
+    fontWeight: 500
+  },
+  filterSelect: {
+    padding: "6px 10px",
+    border: "1px solid #ced4da",
+    borderRadius: "4px",
+    fontSize: "14px",
+    backgroundColor: "white",
+    color: "#495057",
+    cursor: "pointer",
+    minWidth: "150px",
+    outline: "none",
+    transition: "border-color 0.2s"
+  },
+  statsInfo: {
+    fontSize: "13px",
+    color: "#6c757d",
+    marginLeft: "10px"
+  },
+  loadingContainer: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "300px"
   },
   spinner: {
-    width: "16px",
-    height: "16px",
-    border: "2px solid rgba(255, 255, 255, 0.3)",
+    width: "40px",
+    height: "40px",
+    border: "4px solid #f3f4f6",
     borderRadius: "50%",
-    borderTopColor: "white",
-    animation: "spin 1s linear infinite",
-    marginRight: "8px",
-    display: "inline-block"
+    borderTopColor: "#0d6efd",
+    animation: "spin 1s linear infinite"
+  },
+  loadingText: {
+    marginTop: "15px",
+    fontSize: "14px",
+    color: "#6c757d"
+  },
+  emptyState: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "200px",
+    color: "#6c757d"
   }
 };
-
-// Composant de spinner
-const Spinner = () => (
-  <span style={drawerStyles.spinner} role="status" aria-hidden="true"></span>
-);
 
 export function MatchingDialog({
   show,
@@ -137,200 +200,221 @@ export function MatchingDialog({
 }) {
   const { state } = history.location;
   const dispatch = useDispatch();
-  const { candidates, mission } = useSelector(
+  
+  const { mission } = useSelector(
     state => ({
-      mission: state.missionsReducerData.mission,
-      candidates: state.applicants.matchingCandidates
+      mission: state.missionsReducerData.mission
     }),
     shallowEqual
   );
 
-  // Nouvel état pour gérer les résultats de l'API et la pagination
-  const [apiCandidates, setApiCandidates] = useState([]);
-  const [paginationInfo, setPaginationInfo] = useState({
-    currentPage: 1,
-    totalPages: 0,
-    hasNextPage: false,
-    hasPrevPage: false
-  });
-  const [isApiDataLoaded, setIsApiDataLoaded] = useState(false);
+  // États locaux
+  const [allCandidates, setAllCandidates] = useState([]);
+  const [filteredCandidates, setFilteredCandidates] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingDirection, setLoadingDirection] = useState(null); // 'next' ou 'prev' pour indiquer quel bouton est en chargement
-
-  const page = localStorage.getItem("pageNumber");
-  const pageSize = localStorage.getItem("pageSize");
+  const [selectedFilter, setSelectedFilter] = useState("35-50"); // Valeur par défaut changée
+  const [error, setError] = useState(null);
+  const [showTooltip, setShowTooltip] = useState(false);
+  
+  // Ref pour le tooltip
+  const tooltipRef = useRef(null);
+  
+  // Configuration
+  const ITEMS_PER_PAGE = 10;
+  const missionId = state && state.id;
+  
+  // Récupération des paramètres du localStorage
+  const pageSize = localStorage.getItem("pageSize") || "10";
   const accountID = localStorage.getItem("accountID");
   const userID = localStorage.getItem("userId");
 
-  const handleDeny = (missionID, candidateID, mission) => {
-    dispatch(
-      declineMatching.request(
-        { id1: missionID, id2: candidateID },
-        userID !== null
-          ? {
-              tenantID: parseInt(TENANTID),
-              accountID: parseInt(accountID),
-              missionJobTitles: null,
-              startDate: null,
-              endDate: null,
-              contactName: null,
-              isMatchingOnly: false,
-              isApplicationsOnly: false,
-              pageSize: parseInt(pageSize),
-              pageNumber: parseInt(page),
-              loadMissionApplications: true,
-              userId: parseInt(userID)
-            }
-          : {
-              tenantID: parseInt(TENANTID),
-              accountID: parseInt(accountID),
-              missionJobTitles: null,
-              startDate: null,
-              endDate: null,
-              contactName: null,
-              isMatchingOnly: false,
-              isApplicationsOnly: false,
-              pageSize: parseInt(pageSize),
-              pageNumber: parseInt(page),
-              loadMissionApplications: true
-            }
-      )
-    );
-    dispatch(getMatching.request(mission));
-    dispatch(
-      searchMission.request({
-        city: null,
-        endDate: null,
-        hourlySalary: 0,
-        isApplicationsOnly: false,
-        isMatchingOnly: false,
-        loadMissionApplications: false,
-        missionJobTitles: [],
-        pageNumber: parseInt(localStorage.getItem("pageNumber")),
-        pageSize: parseInt(localStorage.getItem("pageSize")),
-        startDate: null,
-        tenantID: parseInt(TENANTID)
-      })
-    );
-  };
+  // Calcul de la pagination
+  const totalPages = Math.ceil(filteredCandidates.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const displayedCandidates = filteredCandidates.slice(startIndex, endIndex);
+  
+  // Utilisation de useMemo pour éviter les recalculs inutiles
+  const paginationInfo = useMemo(() => ({
+    hasNext: currentPage < totalPages,
+    hasPrev: currentPage > 1,
+    currentPage,
+    totalPages: totalPages || 1,
+    totalItems: filteredCandidates.length,
+    startItem: filteredCandidates.length > 0 ? startIndex + 1 : 0,
+    endItem: Math.min(endIndex, filteredCandidates.length)
+  }), [currentPage, totalPages, filteredCandidates.length, startIndex, endIndex]);
 
-  const handleAccept = (missionID, candidateID, mission) => {
-    dispatch(
-      approveByCustomer.request(
-        { id1: missionID, id2: candidateID },
-        userID !== null
-          ? {
-              tenantID: parseInt(TENANTID),
-              accountID: parseInt(accountID),
-              missionJobTitles: null,
-              startDate: null,
-              endDate: null,
-              contactName: null,
-              isMatchingOnly: false,
-              isApplicationsOnly: false,
-              pageSize: parseInt(pageSize),
-              pageNumber: parseInt(page),
-              loadMissionApplications: true,
-              userId: parseInt(userID)
-            }
-          : {
-              tenantID: parseInt(TENANTID),
-              accountID: parseInt(accountID),
-              missionJobTitles: null,
-              startDate: null,
-              endDate: null,
-              contactName: null,
-              isMatchingOnly: false,
-              isApplicationsOnly: false,
-              pageSize: parseInt(pageSize),
-              pageNumber: parseInt(page),
-              loadMissionApplications: true
-            }
-      )
-    );
-    dispatch(getMatching.request(mission));
-  };
+  // Fonction pour gérer le refus d'un candidat
+  const handleDeny = (missionID, candidateID) => {
+    const params = {
+      tenantID: parseInt(TENANTID),
+      accountID: parseInt(accountID),
+      missionJobTitles: null,
+      startDate: null,
+      endDate: null,
+      contactName: null,
+      isMatchingOnly: false,
+      isApplicationsOnly: false,
+      pageSize: parseInt(pageSize),
+      pageNumber: 1,
+      loadMissionApplications: true
+    };
 
-  let missionId = state && state.id;
-
-  function usePrevious(value) {
-    const ref = useRef();
-    useEffect(() => {
-      ref.current = value;
-    });
-    return ref.current;
-  }
-
-  const prevCandidates = usePrevious(candidates);
-
-  useEffect(() => {
-    show && mission.id !== missionId && dispatch(getMission.request(missionId));
-  }, [show, mission, candidates, dispatch, missionId, prevCandidates]);
-
-  useEffect(() => {
-    show && !isNullOrEmpty(mission) && dispatch(getMatching.request(mission));
-  }, [show, mission, dispatch]);
-
-  // Chargement automatique des matchings dès l'ouverture du composant
-  useEffect(() => {
-    if (show && missionId) {
-      handleFetchMatchings(1);
+    if (userID) {
+      params.userId = parseInt(userID);
     }
-  }, [show, missionId]);
 
-  // Gestion pour empêcher le scroll du body quand le drawer est ouvert
+    dispatch(declineMatching.request({ id1: missionID, id2: candidateID }, params));
+    
+    // Mise à jour locale immédiate
+    const updatedAll = allCandidates.filter(c => c.id !== candidateID);
+    const updatedFiltered = filteredCandidates.filter(c => c.id !== candidateID);
+    
+    setAllCandidates(updatedAll);
+    setFilteredCandidates(updatedFiltered);
+    
+    // Ajuster la page si nécessaire
+    const newTotalPages = Math.ceil(updatedFiltered.length / ITEMS_PER_PAGE);
+    if (currentPage > newTotalPages && newTotalPages > 0) {
+      setCurrentPage(newTotalPages);
+    }
+  };
+
+  // Fonction pour gérer l'acceptation d'un candidat
+  const handleAccept = (missionID, candidateID) => {
+    const params = {
+      tenantID: parseInt(TENANTID),
+      accountID: parseInt(accountID),
+      missionJobTitles: null,
+      startDate: null,
+      endDate: null,
+      contactName: null,
+      isMatchingOnly: false,
+      isApplicationsOnly: false,
+      pageSize: parseInt(pageSize),
+      pageNumber: 1,
+      loadMissionApplications: true
+    };
+
+    if (userID) {
+      params.userId = parseInt(userID);
+    }
+
+    dispatch(approveByCustomer.request({ id1: missionID, id2: candidateID }, params));
+    dispatch(getMatching.request(mission));
+  };
+
+  // Fonction pour récupérer tous les candidats
+  const fetchAllCandidates = async (min = 35, max = 50) => {
+    if (!missionId) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await getAllMatchingCandidates(missionId, min, max);
+
+      if (response.success && response.data) {
+        const candidatesWithIds = response.data.map((candidate, index) => ({
+          ...candidate,
+          id: candidate.id || candidate.candidateId || `candidate_${index}`
+        }));
+        setAllCandidates(candidatesWithIds);
+        setFilteredCandidates(candidatesWithIds);
+        setCurrentPage(1);
+      } else {
+        setError(response.error || "Erreur lors du chargement des candidats");
+        setAllCandidates([]);
+        setFilteredCandidates([]);
+      }
+    } catch (err) {
+      console.error("Erreur API:", err);
+      setError("Impossible de charger les candidats");
+      setAllCandidates([]);
+      setFilteredCandidates([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fonction pour filtrer les candidats par score (refactorisation)
+  const handleFilterChange = (filterValue) => {
+    setSelectedFilter(filterValue);
+    setCurrentPage(1);
+
+    const filter = MATCH_SCORE_FILTERS.find(f => f.value === filterValue);
+    if (filter) {
+      fetchAllCandidates(filter.min, filter.max);
+    }
+  };
+
+  // Fonctions de navigation
+  const handleNextPage = () => {
+    if (paginationInfo.hasNext) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (paginationInfo.hasPrev) {
+      setCurrentPage(prev => prev - 1);
+    }
+  };
+
+  // Hook pour fermer le tooltip en cliquant à l'extérieur
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (tooltipRef.current && !tooltipRef.current.contains(event.target)) {
+        setShowTooltip(false);
+      }
+    };
+
+    if (showTooltip) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showTooltip]);
+
+  // Hook pour gérer l'ouverture/fermeture
   useEffect(() => {
     if (show) {
       document.body.style.overflow = "hidden";
+      if (missionId) {
+        handleFilterChange("35-50"); // Commencer par le premier filtre
+      }
     } else {
       document.body.style.overflow = "auto";
+      setSelectedFilter("35-50");
+      setCurrentPage(1);
+      setError(null);
     }
 
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [show]);
+  }, [show, missionId]);
 
-  // Si le composant n'est pas affiché, ne rien rendre
+  // Hook pour charger la mission si nécessaire
+  useEffect(() => {
+    if (show && mission?.id !== missionId && missionId) {
+      dispatch(getMission.request(missionId));
+    }
+  }, [show, mission, missionId, dispatch]);
+
+  // Hook pour charger les matchings Redux si nécessaire
+  useEffect(() => {
+    if (show && !isNullOrEmpty(mission)) {
+      dispatch(getMatching.request(mission));
+    }
+  }, [show, mission, dispatch]);
+
+  // Ne rien afficher si le drawer est fermé
   if (!show) return null;
-
-  const handleFetchMatchings = async (pageNumber = 1, direction = null) => {
-    try {
-      setIsLoading(true);
-      setLoadingDirection(direction);
-
-      // Appel à l'API avec paramètre de page
-      const response = await getMatchingWithVacancy(missionId, pageNumber);
-      console.log("Matchings récupérés:", response);
-
-      // Mise à jour de l'état avec les données et informations de pagination
-      setApiCandidates(response.data || []);
-      setPaginationInfo({
-        currentPage: response.currenT_PAGE || pageNumber,
-        totalPages: response.totaL_PAGES || 1,
-        hasNextPage: response.nexT_PAGE !== "",
-        hasPrevPage: response.preV_PAGE !== ""
-      });
-      setIsApiDataLoaded(true);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des matchings:", error);
-    } finally {
-      setIsLoading(false);
-      setLoadingDirection(null);
-    }
-  };
-
-  const handleNextPage = () => {
-    if (paginationInfo.hasNextPage && !isLoading) {
-      handleFetchMatchings(paginationInfo.currentPage + 1, "next");
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (paginationInfo.hasPrevPage && !isLoading) {
-      handleFetchMatchings(paginationInfo.currentPage - 1, "prev");
-    }
-  };
 
   return (
     <>
@@ -350,82 +434,176 @@ export function MatchingDialog({
           ...(show ? drawerStyles.drawerOpen : {})
         }}
       >
-        {resumeOpen === true ? (
+        {/* Dialog de CV si ouvert */}
+        {resumeOpen && (
           <MissionResumeDialog
-            show={resumeOpen === true}
+            show={resumeOpen}
             history={history}
             resumeRow={resumeRow}
-            onHide={() => {
-              onCloseResume();
-            }}
+            onHide={onCloseResume}
           />
-        ) : null}
+        )}
 
         {/* Header du drawer */}
         <div style={drawerStyles.drawerHeader}>
           <h4 style={drawerStyles.drawerTitle}>
-            <FormattedMessage id="MATCHING.MODAL.TITLE" /> :{" "}
-            {mission?.vacancyTitle}
+            <FormattedMessage id="MATCHING.MODAL.TITLE" /> : {mission?.vacancyTitle || ""}
           </h4>
-          <div>
-            {/* Bouton de fermeture */}
-            <button
-              type="button"
-              style={drawerStyles.closeButton}
-              onClick={onHide}
-              aria-label="Fermer"
-            >
-              <i aria-hidden="true" className="ki ki-close"></i>
-            </button>
-          </div>
+          <button
+            type="button"
+            style={drawerStyles.closeButton}
+            onClick={onHide}
+            aria-label="Fermer"
+            onMouseEnter={(e) => e.target.style.color = "#495057"}
+            onMouseLeave={(e) => e.target.style.color = "#6c757d"}
+          >
+            ✕
+          </button>
         </div>
 
-        {/* Barre de pagination en haut du drawer */}
-        {isApiDataLoaded && (
-          <div style={drawerStyles.paginationContainer}>
-            <button
-              style={drawerStyles.paginationButton}
-              onClick={handlePrevPage}
-              disabled={!paginationInfo.hasPrevPage || isLoading}
-            >
-              {isLoading && loadingDirection === "prev" ? (
-                <>
-                  <Spinner /> Chargement...
-                </>
-              ) : (
-                "Précédent"
-              )}
-            </button>
-
-            <div style={drawerStyles.paginationInfo}>
-              Page {paginationInfo.currentPage} sur {paginationInfo.totalPages}
+        {/* Barre de filtrage - toujours visible */}
+        {!isLoading && !error && (
+          <div style={drawerStyles.paginationBar}>
+            {/* Section de filtrage */}
+            <div style={drawerStyles.filterSection}>
+              <span style={drawerStyles.filterLabel}>Filtrer par score :</span>
+              <select
+                style={drawerStyles.filterSelect}
+                value={selectedFilter}
+                onChange={(e) => handleFilterChange(e.target.value)}
+                onFocus={(e) => e.target.style.borderColor = "#0d6efd"}
+                onBlur={(e) => e.target.style.borderColor = "#ced4da"}
+              >
+                {MATCH_SCORE_FILTERS.map(filter => (
+                  <option key={filter.value} value={filter.value}>
+                    {filter.label}
+                  </option>
+                ))}
+              </select>
+              <div style={{ position: "relative", display: "inline-block" }} ref={tooltipRef}>
+                <button 
+                  style={{
+                    backgroundColor: "transparent",
+                    border: "none",
+                    fontSize: "16px",
+                    color: "#6c757d",
+                    marginLeft: "8px",
+                    padding: "2px 4px",
+                    borderRadius: "3px",
+                    transition: "background-color 0.2s"
+                  }}
+                  onClick={() => setShowTooltip(!showTooltip)}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = "#f0f0f0"}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = "transparent"}
+                >
+                  ℹ️
+                </button>
+                {showTooltip && (
+                  <div style={{
+                    position: "absolute",
+                    top: "25px",
+                    left: "0",
+                    backgroundColor: "#333",
+                    color: "white",
+                    padding: "8px 12px",
+                    borderRadius: "4px",
+                    fontSize: "12px",
+                    whiteSpace: "nowrap",
+                    zIndex: 1000,
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+                  }}>
+                    Filtrez selon le pourcentage de correspondance avec la mission.
+                    <br />
+                    Plus le score est élevé, plus le profil correspond.
+                    <div style={{
+                      position: "absolute",
+                      top: "-5px",
+                      left: "10px",
+                      width: "0",
+                      height: "0",
+                      borderLeft: "5px solid transparent",
+                      borderRight: "5px solid transparent",
+                      borderBottom: "5px solid #333"
+                    }}></div>
+                  </div>
+                )}
+              </div>
+              <span style={drawerStyles.statsInfo}>
+                {filteredCandidates.length} candidat(s)
+              </span>
             </div>
 
-            <button
-              style={drawerStyles.paginationButton}
-              onClick={handleNextPage}
-              disabled={!paginationInfo.hasNextPage || isLoading}
-            >
-              {isLoading && loadingDirection === "next" ? (
-                <>
-                  <Spinner /> Chargement...
-                </>
-              ) : (
-                "Suivant"
-              )}
-            </button>
+            {/* Contrôles de pagination - seulement si il y a des résultats */}
+            {filteredCandidates.length > 0 && (
+              <div style={drawerStyles.paginationControls}>
+                <span style={drawerStyles.paginationInfo}>
+                  {paginationInfo.startItem}-{paginationInfo.endItem} sur {paginationInfo.totalItems}
+                </span>
+                <button
+                  style={{
+                    ...drawerStyles.paginationButton,
+                    ...(paginationInfo.hasPrev ? {} : drawerStyles.paginationButtonDisabled)
+                  }}
+                  onClick={handlePrevPage}
+                  disabled={!paginationInfo.hasPrev}
+                >
+                  ← Précédent
+                </button>
+                <span style={drawerStyles.paginationInfo}>
+                  Page {paginationInfo.currentPage} / {paginationInfo.totalPages}
+                </span>
+                <button
+                  style={{
+                    ...drawerStyles.paginationButton,
+                    ...(paginationInfo.hasNext ? {} : drawerStyles.paginationButtonDisabled)
+                  }}
+                  onClick={handleNextPage}
+                  disabled={!paginationInfo.hasNext}
+                >
+                  Suivant →
+                </button>
+              </div>
+            )}
           </div>
         )}
 
         {/* Corps du drawer */}
         <div style={drawerStyles.drawerBody}>
-          {/* Afficher soit les données Redux, soit les données de l'API */}
-          <MatchingTable
-            candidates={isApiDataLoaded ? apiCandidates : candidates}
-            handleAccept={handleAccept}
-            handleDeny={handleDeny}
-            onOpenResume={onOpenResume}
-          />
+          {isLoading ? (
+            <div style={drawerStyles.loadingContainer}>
+              <div style={drawerStyles.spinner}></div>
+              <div style={drawerStyles.loadingText}>Chargement des candidats...</div>
+            </div>
+          ) : error ? (
+            <div style={drawerStyles.emptyState}>
+              <div>⚠️</div>
+              <div>{error}</div>
+              <button 
+                style={{ ...drawerStyles.paginationButton, marginTop: "10px" }}
+                onClick={() => {
+                  const filter = MATCH_SCORE_FILTERS.find(f => f.value === selectedFilter);
+                  if (filter) {
+                    fetchAllCandidates(filter.min, filter.max);
+                  }
+                }}
+              >
+                Réessayer
+              </button>
+            </div>
+          ) : filteredCandidates.length === 0 ? (
+            <div style={drawerStyles.emptyState}>
+              <div>📋</div>
+              <div>Aucun candidat ne correspond à ce filtre</div>
+            </div>
+          ) : (
+            <MatchingTable
+              candidates={displayedCandidates}
+              handleAccept={handleAccept}
+              handleDeny={handleDeny}
+              onOpenResume={onOpenResume}
+              isLoading={isLoading}
+            />
+          )}
         </div>
       </div>
     </>

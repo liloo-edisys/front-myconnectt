@@ -883,7 +883,7 @@ function FormStepOne(props, formik) {
         .vacancyContractualVacancyEmploymentContractTypeStartDate
     ) &&
       touched.vacancyContractualVacancyEmploymentContractTypeStartDate !==
-        true &&
+      true &&
       props.formik.setFieldTouched(
         "vacancyContractualVacancyEmploymentContractTypeStartDate",
         true
@@ -1015,13 +1015,13 @@ function FormStepOne(props, formik) {
     }
     isNullOrEmpty(city) && !isNullOrEmpty(template.city)
       ? props.formik.setFieldValue(
-          "vacancyBusinessAddressCity",
-          template.vacancyBusinessAddressCity
-        )
+        "vacancyBusinessAddressCity",
+        template.vacancyBusinessAddressCity
+      )
       : props.formik.setFieldValue(
-          "vacancyBusinessAddressCity",
-          getCurrentMission("city", worksites[0].city)
-        );
+        "vacancyBusinessAddressCity",
+        getCurrentMission("city", worksites[0].city)
+      );
 
     if (isNullOrEmpty(postalCode)) {
       !isNullOrEmpty(template.vacancyBusinessAddressPostalCode)
@@ -1030,13 +1030,13 @@ function FormStepOne(props, formik) {
     }
     isNullOrEmpty(postalCode) && !isNullOrEmpty(template.city)
       ? props.formik.setFieldValue(
-          "vacancyBusinessAddressPostalCode",
-          template.vacancyBusinessAddressPostalCode
-        )
+        "vacancyBusinessAddressPostalCode",
+        template.vacancyBusinessAddressPostalCode
+      )
       : props.formik.setFieldValue(
-          "vacancyBusinessAddressPostalCode",
-          worksites[0].postalCode
-        );
+        "vacancyBusinessAddressPostalCode",
+        worksites[0].postalCode
+      );
     isNullOrEmpty(startDate) &&
       isTmpOrDup === false &&
       setStartDate(
@@ -1335,7 +1335,7 @@ function FormStepOne(props, formik) {
                               let data = props.formik.values;
                               props.formik &&
                                 props.formik.values.missionHasVehicle ===
-                                  null &&
+                                null &&
                                 delete data["missionHasVehicle"];
                               dispatch(
                                 countMatching.request({
@@ -1434,7 +1434,7 @@ function FormStepOne(props, formik) {
                         ></input>
                       </div>
                       {touched.vacancyBusinessAddressPostalCode &&
-                      errors.vacancyBusinessAddressPostalCode ? (
+                        errors.vacancyBusinessAddressPostalCode ? (
                         <div className="fv-plugins-message-container">
                           <div className="fv-help-block">
                             {errors.vacancyBusinessAddressPostalCode}
@@ -1489,7 +1489,7 @@ function FormStepOne(props, formik) {
                         locale="fr"
                       ></DatePickerField>
                       {touched.vacancyContractualVacancyEmploymentContractTypeStartDate &&
-                      errors.vacancyContractualVacancyEmploymentContractTypeStartDate ? (
+                        errors.vacancyContractualVacancyEmploymentContractTypeStartDate ? (
                         <div className="fv-plugins-message-container">
                           <div className="fv-help-block">
                             {
@@ -1544,7 +1544,7 @@ function FormStepOne(props, formik) {
                         locale="fr"
                       ></DatePickerField>
                       {touched.vacancyContractualVacancyEmploymentContractTypeEndDate &&
-                      errors.vacancyContractualVacancyEmploymentContractTypeEndDate ? (
+                        errors.vacancyContractualVacancyEmploymentContractTypeEndDate ? (
                         <div className="fv-plugins-message-container">
                           <div className="fv-help-block">
                             {
@@ -1592,7 +1592,7 @@ function FormStepOne(props, formik) {
                         ></Field>
                       </div>
                       {touched.vacancyNumberOfJobs &&
-                      errors.vacancyNumberOfJobs ? (
+                        errors.vacancyNumberOfJobs ? (
                         <div className="fv-plugins-message-container">
                           <div className="fv-help-block">
                             {errors.vacancyNumberOfJobs}
@@ -1661,7 +1661,7 @@ function FormStepOne(props, formik) {
                         name="vacancyMissionDescription"
                       />
                       {touched.vacancyMissionDescription &&
-                      errors.vacancyMissionDescription ? (
+                        errors.vacancyMissionDescription ? (
                         <div className="asterisk">
                           {errors["vacancyMissionDescription"]}
                         </div>
@@ -1835,119 +1835,161 @@ function FormStepOne(props, formik) {
                           name="langs"
                           onChange={e => {
                             handleChangeLanguage(e);
-                          }}
-                          options={formattedLanguagues}
-                          styles={customStyles}
-                          value={selectedLanguage}
-                          className="col-lg-12 form-control"
-                        ></Select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col-xl-4">
-                    <div className="form-group">
-                      <label>
-                        <FormattedMessage id="MODEL.COMPETENCES" />
-                      </label>
-                      <div className="input-group">
-                        <div className="input-group-prepend">
-                          <span className="input-group-text">
-                            <i className="icon-xl fas fa-list text-primary"></i>
-                          </span>
+                            }}
+                            options={formattedLanguagues}
+                            styles={customStyles}
+                            value={selectedLanguage}
+                            className="col-lg-12 form-control"
+                          ></Select>
+                          </div>
                         </div>
-                        <CreatableSelect
-                          isMulti
-                          name="skills"
-                          onChange={handleChangeSkill}
-                          options={formattedSkills}
-                          styles={customStyles}
-                          className="col-lg-12 form-control"
-                          onCreateOption={handleCreateSkill}
-                          isLoading={isSkillsLoading}
-                          value={selectedSkills}
-                        ></CreatableSelect>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-xl-4">
-                    <div className="form-group">
-                      <label>
-                        <FormattedMessage id="TEXT.HABILITATIONS" />
-                      </label>
-                      <div className="input-group">
-                        <div className="input-group-prepend">
-                          <span className="input-group-text">
-                            <i className="icon-xl fas fa-list text-primary"></i>
-                          </span>
                         </div>
-                        <CreatableSelect
-                          isMulti
-                          onChange={handleChangeHabilitations}
-                          options={formattedHabilitations}
-                          name="habilitations"
-                          styles={customStyles}
-                          className="col-lg-12 form-control"
-                          isLoading={isLoading}
-                          value={selectedHabilitations}
-                        ></CreatableSelect>
                       </div>
-                    </div>
-                  </div>
-                  <div className="col-xl-4">
-                    <div className="form-group">
-                      <label>
-                        <FormattedMessage id="MODEL.TAGS" />
-                      </label>
-                      <div className="input-group">
-                        <div className="input-group-prepend">
-                          <span className="input-group-text">
+                      <div className="row">
+                        <div className="col-xl-4">
+                        <div className="form-group">
+                          <label>
+                          <FormattedMessage id="MODEL.COMPETENCES" />
+                          </label>
+                          <div className="input-group">
+                          <div className="input-group-prepend">
+                            <span className="input-group-text">
                             <i className="icon-xl fas fa-list text-primary"></i>
-                          </span>
+                            </span>
+                          </div>
+                          <CreatableSelect
+                            isMulti
+                            name="skills"
+                            onChange={handleChangeSkill}
+                            options={formattedSkills}
+                            styles={customStyles}
+                            className="col-lg-12 form-control"
+                            onCreateOption={handleCreateSkill}
+                            isLoading={isSkillsLoading}
+                            value={selectedSkills}
+                          ></CreatableSelect>
+                          </div>
                         </div>
-                        <CreatableSelect
-                          isMulti
-                          onChange={handleChangeTags}
-                          options={formattedTags}
-                          name="tags"
-                          styles={customStyles}
-                          className="col-lg-12 form-control"
-                          onCreateOption={handleCreateTag}
-                          isLoading={isLoading}
-                          value={selectedTags}
-                        ></CreatableSelect>
+                        </div>
+                        <div className="col-xl-4">
+                        <div className="form-group">
+                          <label>
+                          <FormattedMessage id="TEXT.HABILITATIONS" />
+                          </label>
+                          <div className="input-group">
+                          <div className="input-group-prepend">
+                            <span className="input-group-text">
+                            <i className="icon-xl fas fa-list text-primary"></i>
+                            </span>
+                          </div>
+                          <CreatableSelect
+                            isMulti
+                            onChange={handleChangeHabilitations}
+                            options={formattedHabilitations}
+                            name="habilitations"
+                            styles={customStyles}
+                            className="col-lg-12 form-control"
+                            isLoading={isLoading}
+                            value={selectedHabilitations}
+                          ></CreatableSelect>
+                          </div>
+                        </div>
+                        </div>
+                        <div className="col-xl-4">
+                        <div className="form-group">
+                          <label>
+                          <FormattedMessage id="MODEL.TAGS" />
+                          </label>
+                          <div className="input-group">
+                          <div className="input-group-prepend">
+                            <span className="input-group-text">
+                            <i className="icon-xl fas fa-list text-primary"></i>
+                            </span>
+                          </div>
+                          <CreatableSelect
+                            isMulti
+                            onChange={handleChangeTags}
+                            options={formattedTags}
+                            name="tags"
+                            styles={customStyles}
+                            className="col-lg-12 form-control"
+                            onCreateOption={handleCreateTag}
+                            isLoading={isLoading}
+                            value={selectedTags}
+                          ></CreatableSelect>
+                          </div>
+                        </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="row">
-                  <div className="col-xl-4">
-                    <div className="form-group">
-                      <label>
-                        <FormattedMessage id="MATCHING.TABLE.AREA" />
-                      </label>
-                      <div className="input-group">
-                        <div className="input-group mt-5">
-                          <InputRange
-                            formatLabel={value => `${value} km`}
-                            step={10}
-                            maxValue={1000}
-                            minValue={0}
-                            value={distance}
-                            onChange={value => handleChangeDistance({ value })}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="d-flex justify-content-between border-top mt-5 pt-10">
-                  <div className="mr-2">
-                    <div
-                      onClick={() => {
+                      <div className="row">
+                                        <div className="col-xl-4">
+                                          <div className="form-group">
+                                            <label style={{
+                                              fontSize: "14px",
+                                              color: "#495057",
+                                              marginBottom: "8px",
+                                              display: "block"
+                                            }}>
+                                              <FormattedMessage id="MATCHING.TABLE.AREA" />
+                                            </label>
+                                            <div style={{ position: "relative" , marginTop : "10px" }}>
+                                              <input
+                                                type="range"
+                                                className="form-control-range"
+                                                min="50"
+                                                max="1000"
+                                                step="25"
+                                                value={distance}
+                                                onChange={e =>
+                                                  handleChangeDistance({
+                                                    value: parseInt(e.target.value)
+                                                  })
+                                                }
+                                                style={{
+                                                  width: "100%",
+                                                  height: "4px",
+                                                  background: "#D6D6D6",
+                                                  borderRadius: "2px",
+                                                  outline: "none",
+                                                  appearance: "none",
+                                                  WebkitAppearance: "none"
+                                                }}
+                                              />
+                                              <div style={{
+                                                textAlign: "center",
+                                                marginTop: "8px",
+                                                fontSize: "13px",
+                                              }}>
+                                                {distance} km
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <style jsx>{`
+                        input[type="range"]::-webkit-slider-thumb {
+                          appearance: none;
+                          width: 16px;
+                          height: 16px;
+                          border-radius: 50%;
+                          background: #73BDFF;
+                          cursor: pointer;
+                        }
+                        
+                        input[type="range"]::-moz-range-thumb {
+                          width: 16px;
+                          height: 16px;
+                          border-radius: 50%;
+                          background: #00B0FC;
+                          cursor: pointer;
+                          border: none;
+                        }
+                      `}</style>
+                      <div className="d-flex justify-content-between border-top mt-5 pt-10">
+                        <div className="mr-2">
+                        <div
+                          onClick={() => {
                         id ? history.goBack() : props.goBackToSelector();
                       }}
                       className="next col-lg p-0"
