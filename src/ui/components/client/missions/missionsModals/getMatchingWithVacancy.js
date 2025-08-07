@@ -9,7 +9,11 @@ export const MATCH_SCORE_FILTERS = [
 ];
 
 // Appel API filtré par score (suppression du paramètre page)
-export const getMatchingWithVacancy = async (vacancyId, minScore = 35, maxScore = 50) => {
+export const getMatchingWithVacancy = async (
+  vacancyId,
+  minScore = 35,
+  maxScore = 50
+) => {
   try {
     const url = `https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Applicant/GetMatchingWithVacancy/${vacancyId}?minscore=${minScore}&maxscore=${maxScore}`;
 
@@ -38,9 +42,17 @@ export const getMatchingWithVacancy = async (vacancyId, minScore = 35, maxScore 
 };
 
 // Récupère tous les candidats correspondant au filtre de score
-export const getAllMatchingCandidates = async (vacancyId, minScore = 35, maxScore = 50) => {
+export const getAllMatchingCandidates = async (
+  vacancyId,
+  minScore = 35,
+  maxScore = 50
+) => {
   try {
-    const response = await getMatchingWithVacancy(vacancyId, minScore, maxScore);
+    const response = await getMatchingWithVacancy(
+      vacancyId,
+      minScore,
+      maxScore
+    );
 
     if (response && Array.isArray(response.data)) {
       return {

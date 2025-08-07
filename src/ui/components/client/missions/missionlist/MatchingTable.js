@@ -7,15 +7,15 @@ import MatchingCandidateLastJobsFormatter from "../column-formatters/MatchingCan
 import MissionsMatchingColumnFormatter from "../column-formatters/MissionsMatchingColumnFormatter";
 import MatchingActionsColumnFormatter from "../column-formatters/MatchingActionsColumnFormatter";
 
-function MatchingTable({ 
-  candidates = [], 
-  handleDeny, 
-  handleAccept, 
+function MatchingTable({
+  candidates = [],
+  handleDeny,
+  handleAccept,
   onOpenResume,
   isLoading = false // Nouveau prop pour gérer le loading
 }) {
   const intl = useIntl();
-  
+
   // Données depuis Redux (suppression de candidatesLoading)
   const { mission } = useSelector(
     state => ({
@@ -25,62 +25,65 @@ function MatchingTable({
   );
 
   // Configuration des colonnes du tableau
-  const columns = useMemo(() => [
-    {
-      dataField: "name",
-      text: intl.formatMessage({ id: "MATCHING.TABLE.CANDIDATE" }),
-      sort: false,
-      formatter: MatchingCandidateColumnFormatter,
-      formatExtraData: {
-        onOpenResume: onOpenResume
+  const columns = useMemo(
+    () => [
+      {
+        dataField: "name",
+        text: intl.formatMessage({ id: "MATCHING.TABLE.CANDIDATE" }),
+        sort: false,
+        formatter: MatchingCandidateColumnFormatter,
+        formatExtraData: {
+          onOpenResume: onOpenResume
+        },
+        headerStyle: {
+          width: "25%",
+          minWidth: "200px"
+        }
       },
-      headerStyle: {
-        width: "25%",
-        minWidth: "200px"
-      }
-    },
-    {
-      dataField: "lastJobTitles",
-      text: intl.formatMessage({ id: "MATCHING.TABLE.LAST_JOBS" }),
-      sort: false,
-      formatter: MatchingCandidateLastJobsFormatter,
-      headerStyle: {
-        width: "35%",
-        minWidth: "250px"
-      }
-    },
-    {
-      dataField: "matchingScore",
-      text: intl.formatMessage({ id: "MATCHING.TABLE.MATCHING" }),
-      sort: false,
-      formatter: MissionsMatchingColumnFormatter,
-      headerStyle: {
-        width: "15%",
-        minWidth: "100px",
-        textAlign: "center"
+      {
+        dataField: "lastJobTitles",
+        text: intl.formatMessage({ id: "MATCHING.TABLE.LAST_JOBS" }),
+        sort: false,
+        formatter: MatchingCandidateLastJobsFormatter,
+        headerStyle: {
+          width: "35%",
+          minWidth: "250px"
+        }
       },
-      style: {
-        textAlign: "center"
-      }
-    },
-    {
-      dataField: "action",
-      text: intl.formatMessage({ id: "MATCHING.TABLE.ACTIONS" }),
-      formatter: MatchingActionsColumnFormatter,
-      classes: "text-right pr-0",
-      headerClasses: "text-right pr-3",
-      headerStyle: {
-        width: "25%",
-        minWidth: "190px"
+      {
+        dataField: "matchingScore",
+        text: intl.formatMessage({ id: "MATCHING.TABLE.MATCHING" }),
+        sort: false,
+        formatter: MissionsMatchingColumnFormatter,
+        headerStyle: {
+          width: "15%",
+          minWidth: "100px",
+          textAlign: "center"
+        },
+        style: {
+          textAlign: "center"
+        }
       },
-      formatExtraData: {
-        handleDeny: handleDeny,
-        mission: mission,
-        handleAccept: handleAccept,
-        onOpenResume: onOpenResume
+      {
+        dataField: "action",
+        text: intl.formatMessage({ id: "MATCHING.TABLE.ACTIONS" }),
+        formatter: MatchingActionsColumnFormatter,
+        classes: "text-right pr-0",
+        headerClasses: "text-right pr-3",
+        headerStyle: {
+          width: "25%",
+          minWidth: "190px"
+        },
+        formatExtraData: {
+          handleDeny: handleDeny,
+          mission: mission,
+          handleAccept: handleAccept,
+          onOpenResume: onOpenResume
+        }
       }
-    }
-  ], [intl, handleDeny, handleAccept, onOpenResume, mission]);
+    ],
+    [intl, handleDeny, handleAccept, onOpenResume, mission]
+  );
 
   // Composant pour afficher quand il n'y a pas de données
   const NoDataIndication = () => (
@@ -96,7 +99,10 @@ function MatchingTable({
         }}
       >
         <div className="alert-icon">
-          <i className="flaticon-warning" style={{ fontSize: "24px", marginRight: "10px" }}></i>
+          <i
+            className="flaticon-warning"
+            style={{ fontSize: "24px", marginRight: "10px" }}
+          ></i>
         </div>
         <div className="alert-text">
           <strong>Aucun candidat à afficher</strong>
@@ -139,7 +145,7 @@ function MatchingTable({
       console.warn("Les candidats fournis ne sont pas un tableau:", candidates);
       return [];
     }
-    
+
     // S'assurer que chaque candidat a un ID unique
     return candidates.map((candidate, index) => ({
       ...candidate,
@@ -157,7 +163,10 @@ function MatchingTable({
   return (
     <div className="matching-table-container">
       {isLoading ? ( // Utilisation du prop isLoading au lieu de candidatesLoading
-        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "200px" }}>
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ minHeight: "200px" }}
+        >
           <div className="spinner-border text-primary" role="status">
             <span className="sr-only">Chargement...</span>
           </div>
@@ -184,21 +193,22 @@ function MatchingTable({
               e.currentTarget.style.backgroundColor = "#e8f4ff";
             },
             onMouseLeave: (e, row, rowIndex) => {
-              e.currentTarget.style.backgroundColor = rowIndex % 2 === 0 ? "#ffffff" : "#f8f9fa";
+              e.currentTarget.style.backgroundColor =
+                rowIndex % 2 === 0 ? "#ffffff" : "#f8f9fa";
             }
           }}
         />
       )}
-      
+
       <style jsx>{`
         .matching-table-container {
           width: 100%;
         }
-        
+
         .matching-table-container .table {
           margin-bottom: 0;
         }
-        
+
         .matching-table-container .table thead th {
           padding: 12px 15px;
           font-size: 13px;
@@ -206,12 +216,12 @@ function MatchingTable({
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
-        
+
         .matching-table-container .table tbody td {
           padding: 12px 15px;
           vertical-align: middle;
         }
-        
+
         .matching-table-container .table-responsive {
           border-radius: 8px;
           overflow: hidden;

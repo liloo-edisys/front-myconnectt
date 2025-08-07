@@ -11,9 +11,9 @@ import {
 import { MissionResumeDialog } from "./MissionResumeDialog";
 import { searchMission } from "../../../../../business/actions/client/MissionsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import { 
+import {
   getAllMatchingCandidates,
-  MATCH_SCORE_FILTERS 
+  MATCH_SCORE_FILTERS
 } from "./getMatchingWithVacancy";
 
 const TENANTID = process.env.REACT_APP_TENANT_ID;
@@ -200,7 +200,7 @@ export function MatchingDialog({
 }) {
   const { state } = history.location;
   const dispatch = useDispatch();
-  
+
   const { mission } = useSelector(
     state => ({
       mission: state.missionsReducerData.mission
@@ -216,14 +216,14 @@ export function MatchingDialog({
   const [selectedFilter, setSelectedFilter] = useState("35-50"); // Valeur par défaut changée
   const [error, setError] = useState(null);
   const [showTooltip, setShowTooltip] = useState(false);
-  
+
   // Ref pour le tooltip
   const tooltipRef = useRef(null);
-  
+
   // Configuration
   const ITEMS_PER_PAGE = 10;
   const missionId = state && state.id;
-  
+
   // Récupération des paramètres du localStorage
   const pageSize = localStorage.getItem("pageSize") || "10";
   const accountID = localStorage.getItem("accountID");
@@ -234,17 +234,20 @@ export function MatchingDialog({
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const displayedCandidates = filteredCandidates.slice(startIndex, endIndex);
-  
+
   // Utilisation de useMemo pour éviter les recalculs inutiles
-  const paginationInfo = useMemo(() => ({
-    hasNext: currentPage < totalPages,
-    hasPrev: currentPage > 1,
-    currentPage,
-    totalPages: totalPages || 1,
-    totalItems: filteredCandidates.length,
-    startItem: filteredCandidates.length > 0 ? startIndex + 1 : 0,
-    endItem: Math.min(endIndex, filteredCandidates.length)
-  }), [currentPage, totalPages, filteredCandidates.length, startIndex, endIndex]);
+  const paginationInfo = useMemo(
+    () => ({
+      hasNext: currentPage < totalPages,
+      hasPrev: currentPage > 1,
+      currentPage,
+      totalPages: totalPages || 1,
+      totalItems: filteredCandidates.length,
+      startItem: filteredCandidates.length > 0 ? startIndex + 1 : 0,
+      endItem: Math.min(endIndex, filteredCandidates.length)
+    }),
+    [currentPage, totalPages, filteredCandidates.length, startIndex, endIndex]
+  );
 
   // Fonction pour gérer le refus d'un candidat
   const handleDeny = (missionID, candidateID) => {
@@ -266,15 +269,19 @@ export function MatchingDialog({
       params.userId = parseInt(userID);
     }
 
-    dispatch(declineMatching.request({ id1: missionID, id2: candidateID }, params));
-    
+    dispatch(
+      declineMatching.request({ id1: missionID, id2: candidateID }, params)
+    );
+
     // Mise à jour locale immédiate
     const updatedAll = allCandidates.filter(c => c.id !== candidateID);
-    const updatedFiltered = filteredCandidates.filter(c => c.id !== candidateID);
-    
+    const updatedFiltered = filteredCandidates.filter(
+      c => c.id !== candidateID
+    );
+
     setAllCandidates(updatedAll);
     setFilteredCandidates(updatedFiltered);
-    
+
     // Ajuster la page si nécessaire
     const newTotalPages = Math.ceil(updatedFiltered.length / ITEMS_PER_PAGE);
     if (currentPage > newTotalPages && newTotalPages > 0) {
@@ -302,7 +309,9 @@ export function MatchingDialog({
       params.userId = parseInt(userID);
     }
 
-    dispatch(approveByCustomer.request({ id1: missionID, id2: candidateID }, params));
+    dispatch(
+      approveByCustomer.request({ id1: missionID, id2: candidateID }, params)
+    );
     dispatch(getMatching.request(mission));
   };
 
@@ -340,7 +349,7 @@ export function MatchingDialog({
   };
 
   // Fonction pour filtrer les candidats par score (refactorisation)
-  const handleFilterChange = (filterValue) => {
+  const handleFilterChange = filterValue => {
     setSelectedFilter(filterValue);
     setCurrentPage(1);
 
@@ -365,18 +374,18 @@ export function MatchingDialog({
 
   // Hook pour fermer le tooltip en cliquant à l'extérieur
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = event => {
       if (tooltipRef.current && !tooltipRef.current.contains(event.target)) {
         setShowTooltip(false);
       }
     };
 
     if (showTooltip) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showTooltip]);
 
@@ -447,15 +456,16 @@ export function MatchingDialog({
         {/* Header du drawer */}
         <div style={drawerStyles.drawerHeader}>
           <h4 style={drawerStyles.drawerTitle}>
-            <FormattedMessage id="MATCHING.MODAL.TITLE" /> : {mission?.vacancyTitle || ""}
+            <FormattedMessage id="MATCHING.MODAL.TITLE" /> :{" "}
+            {mission?.vacancyTitle || ""}
           </h4>
           <button
             type="button"
             style={drawerStyles.closeButton}
             onClick={onHide}
             aria-label="Fermer"
-            onMouseEnter={(e) => e.target.style.color = "#495057"}
-            onMouseLeave={(e) => e.target.style.color = "#6c757d"}
+            onMouseEnter={e => (e.target.style.color = "#495057")}
+            onMouseLeave={e => (e.target.style.color = "#6c757d")}
           >
             ✕
           </button>
@@ -470,9 +480,9 @@ export function MatchingDialog({
               <select
                 style={drawerStyles.filterSelect}
                 value={selectedFilter}
-                onChange={(e) => handleFilterChange(e.target.value)}
-                onFocus={(e) => e.target.style.borderColor = "#0d6efd"}
-                onBlur={(e) => e.target.style.borderColor = "#ced4da"}
+                onChange={e => handleFilterChange(e.target.value)}
+                onFocus={e => (e.target.style.borderColor = "#0d6efd")}
+                onBlur={e => (e.target.style.borderColor = "#ced4da")}
               >
                 {MATCH_SCORE_FILTERS.map(filter => (
                   <option key={filter.value} value={filter.value}>
@@ -480,8 +490,11 @@ export function MatchingDialog({
                   </option>
                 ))}
               </select>
-              <div style={{ position: "relative", display: "inline-block" }} ref={tooltipRef}>
-                <button 
+              <div
+                style={{ position: "relative", display: "inline-block" }}
+                ref={tooltipRef}
+              >
+                <button
                   style={{
                     backgroundColor: "transparent",
                     border: "none",
@@ -493,38 +506,47 @@ export function MatchingDialog({
                     transition: "background-color 0.2s"
                   }}
                   onClick={() => setShowTooltip(!showTooltip)}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = "#f0f0f0"}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = "transparent"}
+                  onMouseEnter={e =>
+                    (e.target.style.backgroundColor = "#f0f0f0")
+                  }
+                  onMouseLeave={e =>
+                    (e.target.style.backgroundColor = "transparent")
+                  }
                 >
                   ℹ️
                 </button>
                 {showTooltip && (
-                  <div style={{
-                    position: "absolute",
-                    top: "25px",
-                    left: "0",
-                    backgroundColor: "#333",
-                    color: "white",
-                    padding: "8px 12px",
-                    borderRadius: "4px",
-                    fontSize: "12px",
-                    whiteSpace: "nowrap",
-                    zIndex: 1000,
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
-                  }}>
-                    Filtrez selon le pourcentage de correspondance avec la mission.
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "25px",
+                      left: "0",
+                      backgroundColor: "#333",
+                      color: "white",
+                      padding: "8px 12px",
+                      borderRadius: "4px",
+                      fontSize: "12px",
+                      whiteSpace: "nowrap",
+                      zIndex: 1000,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+                    }}
+                  >
+                    Filtrez selon le pourcentage de correspondance avec la
+                    mission.
                     <br />
                     Plus le score est élevé, plus le profil correspond.
-                    <div style={{
-                      position: "absolute",
-                      top: "-5px",
-                      left: "10px",
-                      width: "0",
-                      height: "0",
-                      borderLeft: "5px solid transparent",
-                      borderRight: "5px solid transparent",
-                      borderBottom: "5px solid #333"
-                    }}></div>
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "-5px",
+                        left: "10px",
+                        width: "0",
+                        height: "0",
+                        borderLeft: "5px solid transparent",
+                        borderRight: "5px solid transparent",
+                        borderBottom: "5px solid #333"
+                      }}
+                    ></div>
                   </div>
                 )}
               </div>
@@ -537,12 +559,15 @@ export function MatchingDialog({
             {filteredCandidates.length > 0 && (
               <div style={drawerStyles.paginationControls}>
                 <span style={drawerStyles.paginationInfo}>
-                  {paginationInfo.startItem}-{paginationInfo.endItem} sur {paginationInfo.totalItems}
+                  {paginationInfo.startItem}-{paginationInfo.endItem} sur{" "}
+                  {paginationInfo.totalItems}
                 </span>
                 <button
                   style={{
                     ...drawerStyles.paginationButton,
-                    ...(paginationInfo.hasPrev ? {} : drawerStyles.paginationButtonDisabled)
+                    ...(paginationInfo.hasPrev
+                      ? {}
+                      : drawerStyles.paginationButtonDisabled)
                   }}
                   onClick={handlePrevPage}
                   disabled={!paginationInfo.hasPrev}
@@ -550,12 +575,15 @@ export function MatchingDialog({
                   ← Précédent
                 </button>
                 <span style={drawerStyles.paginationInfo}>
-                  Page {paginationInfo.currentPage} / {paginationInfo.totalPages}
+                  Page {paginationInfo.currentPage} /{" "}
+                  {paginationInfo.totalPages}
                 </span>
                 <button
                   style={{
                     ...drawerStyles.paginationButton,
-                    ...(paginationInfo.hasNext ? {} : drawerStyles.paginationButtonDisabled)
+                    ...(paginationInfo.hasNext
+                      ? {}
+                      : drawerStyles.paginationButtonDisabled)
                   }}
                   onClick={handleNextPage}
                   disabled={!paginationInfo.hasNext}
@@ -572,16 +600,20 @@ export function MatchingDialog({
           {isLoading ? (
             <div style={drawerStyles.loadingContainer}>
               <div style={drawerStyles.spinner}></div>
-              <div style={drawerStyles.loadingText}>Chargement des candidats...</div>
+              <div style={drawerStyles.loadingText}>
+                Chargement des candidats...
+              </div>
             </div>
           ) : error ? (
             <div style={drawerStyles.emptyState}>
               <div>⚠️</div>
               <div>{error}</div>
-              <button 
+              <button
                 style={{ ...drawerStyles.paginationButton, marginTop: "10px" }}
                 onClick={() => {
-                  const filter = MATCH_SCORE_FILTERS.find(f => f.value === selectedFilter);
+                  const filter = MATCH_SCORE_FILTERS.find(
+                    f => f.value === selectedFilter
+                  );
                   if (filter) {
                     fetchAllCandidates(filter.min, filter.max);
                   }
