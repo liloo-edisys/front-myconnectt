@@ -637,7 +637,7 @@
   "DISPLAY.REPLACEMENT.OF": "En remplacement de : ",
   "MESSAGE.JOBNAME.EMPTY": "L'intitulé du poste ne peut être vide.",
   "MESSAGE.FIELD.EMPTY": "Ce champ ne peut être vide.",
-  "MESSAGE.HOURLY.SALARY.MIN": "La rémunération horaire brute ne peut être inférieure à 10,85€",
+  "MESSAGE.HOURLY.SALARY.MIN": "La rémunération horaire brute ne peut être inférieure à 11,52€",
   "MESSAGE.HOURLY.SALARY.MAX": "La rémunération horaire brute ne peut être supérieure à 99,99€",
   "MESSAGE.FIELD.MIN.0": "Ce champ doit être supérieur à 0.",
   "MESSAGE.FIELD.MAX.99": "Ce champ ne peut être supérieur à 99.",

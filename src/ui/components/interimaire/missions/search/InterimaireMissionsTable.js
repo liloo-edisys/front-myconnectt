@@ -42,12 +42,12 @@ const tenantID = +process.env.REACT_APP_TENANT_ID;
 const baseDate = new Date();
 baseDate.setMonth(baseDate.getMonth() - 1);
 // eslint-disable-next-line no-extend-native
-Array.constructor.prototype.flexFilter = function(info) {
+Array.constructor.prototype.flexFilter = function (info) {
   var matchesFilter,
     matches = [],
     count;
 
-  matchesFilter = function(item) {
+  matchesFilter = function (item) {
     count = 0;
     for (var n = 0; n < info.length; n++) {
       if (info[n]["Values"].indexOf(item[info[n]["Field"]]) > -1) {
@@ -873,15 +873,16 @@ function InterimaireMissionsTable({ refresh }) {
               </div>
             )}
           </Row>
-          <div style={{ marginTop: 30 }}>
-            <RemotePagination
-              data={missions}
-              page={pageNumber}
-              sizePerPage={pageSize}
-              totalSize={totalCount}
-              onTableChange={handleTableChange}
-            />
-          </div>
+          {missions && missions.length > 0 &&
+            <div style={{ marginTop: 30 }}>
+              <RemotePagination
+                data={missions}
+                page={pageNumber}
+                sizePerPage={pageSize}
+                totalSize={totalCount}
+                onTableChange={handleTableChange}
+              />
+            </div>}
         </div>
       )}
     </>
