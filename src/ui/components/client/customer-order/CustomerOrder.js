@@ -142,7 +142,6 @@ function CustomerOrder(props) {
         setActiveCustomerOrder(res.data);
         setLoading(false);
         console.log("activeCustomerOrder ------------> ", res.data);
-        
       })
       .catch(err => {
         setLoading(false);
@@ -364,7 +363,6 @@ function CustomerOrder(props) {
     history.push(`/customer-order/${missionId}/decline`, newRow);
   };
 
-
   const showApplicantList = () => {
     history.push(
       `/customer-order/${missionId}/match`,
@@ -391,7 +389,7 @@ function CustomerOrder(props) {
   };
 
   // console.log(" activeCustomerOrder.vacancy.creationDate ------------->" , activeCustomerOrder.vacancy.creationDate);
-  
+
   return (
     <div>
       {toogleApplicantList && (

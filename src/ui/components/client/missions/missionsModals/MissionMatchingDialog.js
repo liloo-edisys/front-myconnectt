@@ -337,11 +337,11 @@ export function MatchingDialog({
           ...candidate,
           id: candidate.id || candidate.candidateId || `candidate_${index}`
         }));
-        
+
         setAllCandidates(candidatesWithIds);
         setFilteredCandidates(candidatesWithIds);
         setCurrentPage(1);
-        
+
         // Mettre à jour le filtre sélectionné selon ce qui a été appliqué
         if (response.appliedFilter) {
           setSelectedFilter(response.appliedFilter.value);
@@ -351,7 +351,7 @@ export function MatchingDialog({
           setSelectedFilter("50-75"); // Valeur par défaut
           setAppliedFilter(null);
         }
-        
+
         if (response.message) {
           console.log(response.message);
         }
@@ -390,9 +390,11 @@ export function MatchingDialog({
         setAllCandidates(candidatesWithIds);
         setFilteredCandidates(candidatesWithIds);
         setCurrentPage(1);
-        
+
         // Mettre à jour le filtre appliqué
-        const filter = MATCH_SCORE_FILTERS.find(f => f.min === min && f.max === max);
+        const filter = MATCH_SCORE_FILTERS.find(
+          f => f.min === min && f.max === max
+        );
         setAppliedFilter(filter || null);
       } else {
         setError(response.error || "Erreur lors du chargement des candidats");
@@ -685,10 +687,9 @@ export function MatchingDialog({
             <div style={drawerStyles.emptyState}>
               <div>📋</div>
               <div>
-                {appliedFilter 
-                  ? "Aucun candidat ne correspond à ce filtre" 
-                  : "Aucun candidat ne correspond aux critères de cette mission"
-                }
+                {appliedFilter
+                  ? "Aucun candidat ne correspond à ce filtre"
+                  : "Aucun candidat ne correspond aux critères de cette mission"}
               </div>
             </div>
           ) : (

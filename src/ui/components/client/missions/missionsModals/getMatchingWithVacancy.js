@@ -85,17 +85,25 @@ export const getAllMatchingCandidates = async (
 };
 
 // Nouvelle fonction pour récupérer les candidats avec logique de priorité
-export const getBestMatchingCandidates = async (vacancyId) => {
+export const getBestMatchingCandidates = async vacancyId => {
   console.log("Recherche des meilleurs candidats pour la mission:", vacancyId);
-  
+
   for (const filter of PRIORITY_FILTERS) {
-    console.log(`Tentative avec le filtre ${filter.label} (${filter.min}-${filter.max}%)`);
-    
+    console.log(
+      `Tentative avec le filtre ${filter.label} (${filter.min}-${filter.max}%)`
+    );
+
     try {
-      const result = await getAllMatchingCandidates(vacancyId, filter.min, filter.max);
-      
+      const result = await getAllMatchingCandidates(
+        vacancyId,
+        filter.min,
+        filter.max
+      );
+
       if (result.success && result.data.length > 0) {
-        console.log(`✓ Trouvé ${result.data.length} candidat(s) avec le filtre ${filter.label}`);
+        console.log(
+          `✓ Trouvé ${result.data.length} candidat(s) avec le filtre ${filter.label}`
+        );
         return {
           ...result,
           appliedFilter: {
@@ -113,7 +121,7 @@ export const getBestMatchingCandidates = async (vacancyId) => {
       // Continue avec le filtre suivant
     }
   }
-  
+
   // Aucun candidat trouvé avec tous les filtres
   console.log("Aucun candidat trouvé avec tous les filtres disponibles");
   return {
