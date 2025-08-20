@@ -1,18 +1,24 @@
 import axios from "axios";
 
-// Filtres de matching (suppression du filtre "all")
+// Filtres de matching (suppression du filtre 35-50)
 export const MATCH_SCORE_FILTERS = [
-  { value: "35-50", label: "35% - 50%", min: 35, max: 50 },
   { value: "50-75", label: "50% - 75%", min: 50, max: 75 },
   { value: "75-90", label: "75% - 90%", min: 75, max: 90 },
   { value: "90-100", label: "90% - 100%", min: 90, max: 100 }
 ];
 
-// Appel API filtré par score (suppression du paramètre page)
+// Ordre de priorité pour le chargement initial (du meilleur au moins bon)
+export const PRIORITY_FILTERS = [
+  { min: 90, max: 100, label: "90% - 100%" },
+  { min: 75, max: 90, label: "75% - 90%" },
+  { min: 50, max: 75, label: "50% - 75%" }
+];
+
+// Appel API filtré par score
 export const getMatchingWithVacancy = async (
   vacancyId,
-  minScore = 35,
-  maxScore = 50
+  minScore = 50,
+  maxScore = 75
 ) => {
   try {
     const url = `https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Applicant/GetMatchingWithVacancy/${vacancyId}?minscore=${minScore}&maxscore=${maxScore}`;
@@ -44,8 +50,8 @@ export const getMatchingWithVacancy = async (
 // Récupère tous les candidats correspondant au filtre de score
 export const getAllMatchingCandidates = async (
   vacancyId,
-  minScore = 35,
-  maxScore = 50
+  minScore = 50,
+  maxScore = 75
 ) => {
   try {
     const response = await getMatchingWithVacancy(
@@ -76,4 +82,45 @@ export const getAllMatchingCandidates = async (
       error: error.message
     };
   }
+};
+
+// Nouvelle fonction pour récupérer les candidats avec logique de priorité
+export const getBestMatchingCandidates = async (vacancyId) => {
+  console.log("Recherche des meilleurs candidats pour la mission:", vacancyId);
+  
+  for (const filter of PRIORITY_FILTERS) {
+    console.log(`Tentative avec le filtre ${filter.label} (${filter.min}-${filter.max}%)`);
+    
+    try {
+      const result = await getAllMatchingCandidates(vacancyId, filter.min, filter.max);
+      
+      if (result.success && result.data.length > 0) {
+        console.log(`✓ Trouvé ${result.data.length} candidat(s) avec le filtre ${filter.label}`);
+        return {
+          ...result,
+          appliedFilter: {
+            value: `${filter.min}-${filter.max}`,
+            label: filter.label,
+            min: filter.min,
+            max: filter.max
+          }
+        };
+      } else {
+        console.log(`✗ Aucun candidat trouvé avec le filtre ${filter.label}`);
+      }
+    } catch (error) {
+      console.error(`Erreur avec le filtre ${filter.label}:`, error);
+      // Continue avec le filtre suivant
+    }
+  }
+  
+  // Aucun candidat trouvé avec tous les filtres
+  console.log("Aucun candidat trouvé avec tous les filtres disponibles");
+  return {
+    success: true,
+    data: [],
+    totalCount: 0,
+    appliedFilter: null,
+    message: "Aucun candidat ne correspond aux critères de cette mission"
+  };
 };

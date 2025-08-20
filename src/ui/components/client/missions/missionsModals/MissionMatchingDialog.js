@@ -13,6 +13,7 @@ import { searchMission } from "../../../../../business/actions/client/MissionsAc
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import {
   getAllMatchingCandidates,
+  getBestMatchingCandidates,
   MATCH_SCORE_FILTERS
 } from "./getMatchingWithVacancy";
 
@@ -159,6 +160,11 @@ const drawerStyles = {
     color: "#6c757d",
     marginLeft: "10px"
   },
+  appliedFilterInfo: {
+    marginLeft: "8px",
+    fontStyle: "italic",
+    color: "#28a745"
+  },
   loadingContainer: {
     display: "flex",
     flexDirection: "column",
@@ -213,7 +219,8 @@ export function MatchingDialog({
   const [filteredCandidates, setFilteredCandidates] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState("35-50"); // Valeur par défaut changée
+  const [selectedFilter, setSelectedFilter] = useState("50-75"); // Valeur par défaut changée
+  const [appliedFilter, setAppliedFilter] = useState(null); // Nouveau state pour suivre le filtre appliqué
   const [error, setError] = useState(null);
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -315,8 +322,58 @@ export function MatchingDialog({
     dispatch(getMatching.request(mission));
   };
 
-  // Fonction pour récupérer tous les candidats
-  const fetchAllCandidates = async (min = 35, max = 50) => {
+  // Nouvelle fonction pour le chargement initial avec logique de priorité
+  const fetchBestCandidates = async () => {
+    if (!missionId) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await getBestMatchingCandidates(missionId);
+
+      if (response.success) {
+        const candidatesWithIds = response.data.map((candidate, index) => ({
+          ...candidate,
+          id: candidate.id || candidate.candidateId || `candidate_${index}`
+        }));
+        
+        setAllCandidates(candidatesWithIds);
+        setFilteredCandidates(candidatesWithIds);
+        setCurrentPage(1);
+        
+        // Mettre à jour le filtre sélectionné selon ce qui a été appliqué
+        if (response.appliedFilter) {
+          setSelectedFilter(response.appliedFilter.value);
+          setAppliedFilter(response.appliedFilter);
+        } else {
+          // Aucun candidat trouvé
+          setSelectedFilter("50-75"); // Valeur par défaut
+          setAppliedFilter(null);
+        }
+        
+        if (response.message) {
+          console.log(response.message);
+        }
+      } else {
+        setError(response.error || "Erreur lors du chargement des candidats");
+        setAllCandidates([]);
+        setFilteredCandidates([]);
+        setAppliedFilter(null);
+      }
+    } catch (err) {
+      console.error("Erreur API:", err);
+      setError("Impossible de charger les candidats");
+      setAllCandidates([]);
+      setFilteredCandidates([]);
+      setAppliedFilter(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fonction pour récupérer tous les candidats (pour les filtres manuels)
+  const fetchAllCandidates = async (min = 50, max = 75) => {
     if (!missionId) return;
 
     setIsLoading(true);
@@ -333,16 +390,22 @@ export function MatchingDialog({
         setAllCandidates(candidatesWithIds);
         setFilteredCandidates(candidatesWithIds);
         setCurrentPage(1);
+        
+        // Mettre à jour le filtre appliqué
+        const filter = MATCH_SCORE_FILTERS.find(f => f.min === min && f.max === max);
+        setAppliedFilter(filter || null);
       } else {
         setError(response.error || "Erreur lors du chargement des candidats");
         setAllCandidates([]);
         setFilteredCandidates([]);
+        setAppliedFilter(null);
       }
     } catch (err) {
       console.error("Erreur API:", err);
       setError("Impossible de charger les candidats");
       setAllCandidates([]);
       setFilteredCandidates([]);
+      setAppliedFilter(null);
     } finally {
       setIsLoading(false);
     }
@@ -394,13 +457,14 @@ export function MatchingDialog({
     if (show) {
       document.body.style.overflow = "hidden";
       if (missionId) {
-        handleFilterChange("35-50"); // Commencer par le premier filtre
+        fetchBestCandidates(); // Utilise la nouvelle fonction au lieu de handleFilterChange
       }
     } else {
       document.body.style.overflow = "auto";
-      setSelectedFilter("35-50");
+      setSelectedFilter("50-75"); // Changé de "35-50" à "50-75"
       setCurrentPage(1);
       setError(null);
+      setAppliedFilter(null);
     }
 
     return () => {
@@ -611,12 +675,7 @@ export function MatchingDialog({
               <button
                 style={{ ...drawerStyles.paginationButton, marginTop: "10px" }}
                 onClick={() => {
-                  const filter = MATCH_SCORE_FILTERS.find(
-                    f => f.value === selectedFilter
-                  );
-                  if (filter) {
-                    fetchAllCandidates(filter.min, filter.max);
-                  }
+                  fetchBestCandidates(); // Utilise la nouvelle fonction de chargement
                 }}
               >
                 Réessayer
@@ -625,7 +684,12 @@ export function MatchingDialog({
           ) : filteredCandidates.length === 0 ? (
             <div style={drawerStyles.emptyState}>
               <div>📋</div>
-              <div>Aucun candidat ne correspond à ce filtre</div>
+              <div>
+                {appliedFilter 
+                  ? "Aucun candidat ne correspond à ce filtre" 
+                  : "Aucun candidat ne correspond aux critères de cette mission"
+                }
+              </div>
             </div>
           ) : (
             <MatchingTable
