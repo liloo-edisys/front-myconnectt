@@ -224,7 +224,7 @@ export function MatchingDialog({
   const [appliedFilter, setAppliedFilter] = useState(null);
   const [error, setError] = useState(null);
   const [showTooltip, setShowTooltip] = useState(false);
-  
+
   // NOUVEAUX ÉTATS pour les filtres dynamiques
   const [availableFilters, setAvailableFilters] = useState([]);
   const [isLoadingFilters, setIsLoadingFilters] = useState(false);
@@ -264,12 +264,12 @@ export function MatchingDialog({
   // NOUVELLE FONCTION pour charger les filtres disponibles
   const loadAvailableFilters = async () => {
     if (!missionId) return;
-    
+
     setIsLoadingFilters(true);
     try {
       const filters = await getAvailableFilters(missionId);
       setAvailableFilters(filters);
-      
+
       // Si aucun filtre disponible, vider tout
       if (filters.length === 0) {
         setAllCandidates([]);
@@ -360,7 +360,7 @@ export function MatchingDialog({
     try {
       // Charger d'abord les filtres disponibles
       await loadAvailableFilters();
-      
+
       // Puis charger les données avec la logique existante
       const response = await getBestMatchingCandidates(missionId);
 
@@ -574,7 +574,7 @@ export function MatchingDialog({
             {/* Section de filtrage MODIFIÉE */}
             <div style={drawerStyles.filterSection}>
               <span style={drawerStyles.filterLabel}>Filtrer par score :</span>
-              
+
               {/* SELECT DYNAMIQUE */}
               <select
                 style={{
@@ -589,7 +589,9 @@ export function MatchingDialog({
               >
                 {availableFilters.length === 0 ? (
                   <option value="">
-                    {isLoadingFilters ? "Chargement..." : "Aucun candidat disponible"}
+                    {isLoadingFilters
+                      ? "Chargement..."
+                      : "Aucun candidat disponible"}
                   </option>
                 ) : (
                   availableFilters.map(filter => (
@@ -599,7 +601,7 @@ export function MatchingDialog({
                   ))
                 )}
               </select>
-              
+
               <div
                 style={{ position: "relative", display: "inline-block" }}
                 ref={tooltipRef}
@@ -660,13 +662,15 @@ export function MatchingDialog({
                   </div>
                 )}
               </div>
-              
+
               {/* STATS AMÉLIORÉES */}
               <span style={drawerStyles.statsInfo}>
                 {filteredCandidates.length} candidat(s)
                 {availableFilters.length > 1 && (
                   <span style={{ marginLeft: "8px", fontStyle: "italic" }}>
-                    ({availableFilters.length} niveau{availableFilters.length > 1 ? 'x' : ''} disponible{availableFilters.length > 1 ? 's' : ''})
+                    ({availableFilters.length} niveau
+                    {availableFilters.length > 1 ? "x" : ""} disponible
+                    {availableFilters.length > 1 ? "s" : ""})
                   </span>
                 )}
               </span>

@@ -85,10 +85,10 @@ export const getAllMatchingCandidates = async (
 };
 
 // NOUVELLE FONCTION : Détecter les filtres qui ont des données
-export const getAvailableFilters = async (vacancyId) => {
+export const getAvailableFilters = async vacancyId => {
   console.log("Détection des filtres disponibles pour la mission:", vacancyId);
   const availableFilters = [];
-  
+
   for (const filter of PRIORITY_FILTERS) {
     try {
       const result = await getAllMatchingCandidates(
@@ -96,11 +96,13 @@ export const getAvailableFilters = async (vacancyId) => {
         filter.min,
         filter.max
       );
-      
+
       if (result.success && result.data.length > 0) {
         availableFilters.push({
           value: `${filter.min}-${filter.max}`,
-          label: `${filter.label} (${result.data.length} candidat${result.data.length > 1 ? 's' : ''})`,
+          label: `${filter.label} (${result.data.length} candidat${
+            result.data.length > 1 ? "s" : ""
+          })`,
           min: filter.min,
           max: filter.max,
           count: result.data.length
@@ -114,7 +116,7 @@ export const getAvailableFilters = async (vacancyId) => {
       // Continue avec le filtre suivant
     }
   }
-  
+
   return availableFilters;
 };
 

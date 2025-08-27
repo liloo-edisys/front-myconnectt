@@ -15,36 +15,33 @@ function MatchingTable({
   isLoading = false // Nouveau prop pour gérer le loading
 }) {
   const intl = useIntl();
-  
 
- // État pour tracker les candidats approuvés
+  // État pour tracker les candidats approuvés
   const [approvedCandidates, setApprovedCandidates] = useState(new Set());
   const [processingCandidates, setProcessingCandidates] = useState(new Set());
 
-
   const handleAcceptWithState = async (missionId, candidateId, mission) => {
-    console.log('🔄 Début approbation pour candidat:', candidateId);
-    
+    console.log("🔄 Début approbation pour candidat:", candidateId);
+
     try {
       setProcessingCandidates(prev => {
-        console.log('⏳ Ajout candidat en traitement:', candidateId);
+        console.log("⏳ Ajout candidat en traitement:", candidateId);
         return new Set([...prev, candidateId]);
       });
-      
+
       // IMPORTANT: Vérifiez que handleAccept retourne une Promise
       const result = await handleAccept(missionId, candidateId, mission);
-      console.log('✅ Approbation réussie pour candidat:', candidateId, result);
-      
+      console.log("✅ Approbation réussie pour candidat:", candidateId, result);
+
       setApprovedCandidates(prev => {
-        console.log('🎉 Ajout candidat approuvé:', candidateId);
+        console.log("🎉 Ajout candidat approuvé:", candidateId);
         return new Set([...prev, candidateId]);
       });
-      
     } catch (error) {
-      console.error('❌ Erreur approbation candidat:', candidateId, error);
+      console.error("❌ Erreur approbation candidat:", candidateId, error);
     } finally {
       setProcessingCandidates(prev => {
-        console.log('🏁 Retrait candidat du traitement:', candidateId);
+        console.log("🏁 Retrait candidat du traitement:", candidateId);
         const newSet = new Set(prev);
         newSet.delete(candidateId);
         return newSet;
@@ -120,7 +117,15 @@ function MatchingTable({
         }
       }
     ],
-    [intl, handleDeny, handleAcceptWithState, onOpenResume, mission, approvedCandidates, processingCandidates]
+    [
+      intl,
+      handleDeny,
+      handleAcceptWithState,
+      onOpenResume,
+      mission,
+      approvedCandidates,
+      processingCandidates
+    ]
   );
 
   // Composant pour afficher quand il n'y a pas de données

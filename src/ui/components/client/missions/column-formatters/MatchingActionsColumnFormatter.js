@@ -8,14 +8,21 @@ function MatchingActionsColumnFormatter(
   _cellContent,
   row,
   _rowIndex,
-  { handleDeny, handleAccept, mission, onOpenResume, approvedCandidates = new Set(), processingCandidates = new Set() }
+  {
+    handleDeny,
+    handleAccept,
+    mission,
+    onOpenResume,
+    approvedCandidates = new Set(),
+    processingCandidates = new Set()
+  }
 ) {
   const candidateId = row.id;
   const isApproved = approvedCandidates.has(candidateId);
   const isProcessing = processingCandidates.has(candidateId);
 
   // Debug logs - à supprimer en production
-  console.log('🔍 MatchingActionsColumnFormatter - Candidat:', candidateId, {
+  console.log("🔍 MatchingActionsColumnFormatter - Candidat:", candidateId, {
     isApproved,
     isProcessing,
     approvedCandidates: Array.from(approvedCandidates),
@@ -30,34 +37,32 @@ function MatchingActionsColumnFormatter(
         type="submit"
         onClick={() => handleAccept(mission.id, row.id, mission)}
         className={`btn mb-4 ${
-          isApproved 
-            ? 'btn-success' 
-            : 'btn-outline-success'
+          isApproved ? "btn-success" : "btn-outline-success"
         }`}
         disabled={isApproved || isProcessing}
-        style={{ 
+        style={{
           opacity: isApproved ? 0.7 : 1,
-          cursor: (isApproved || isProcessing) ? 'not-allowed' : 'pointer'
+          cursor: isApproved || isProcessing ? "not-allowed" : "pointer"
         }}
       >
         {isProcessing ? (
           <>
-            <span 
-              className="spinner-border spinner-border-sm me-2" 
-              role="status" 
+            <span
+              className="spinner-border spinner-border-sm me-2"
+              role="status"
               aria-hidden="true"
-              style={{ width: '16px', height: '16px', marginRight: '8px' }}
+              style={{ width: "16px", height: "16px", marginRight: "8px" }}
             ></span>
             En cours...
           </>
         ) : isApproved ? (
           <>
-            <i className="flaticon2-check" style={{ marginRight: '8px' }}></i>
+            <i className="flaticon2-check" style={{ marginRight: "8px" }}></i>
             Approuvé
           </>
         ) : (
           <>
-            <i className="flaticon2-send-1" style={{ marginRight: '8px' }}></i>
+            <i className="flaticon2-send-1" style={{ marginRight: "8px" }}></i>
             <FormattedMessage id="MATCHING.MODAL.OFFER" />
           </>
         )}
@@ -69,12 +74,12 @@ function MatchingActionsColumnFormatter(
         onClick={() => handleDeny(mission.id, row.id, mission)}
         className="btn btn-outline-danger"
         disabled={isApproved}
-        style={{ 
+        style={{
           opacity: isApproved ? 0.5 : 1,
-          cursor: isApproved ? 'not-allowed' : 'pointer'
+          cursor: isApproved ? "not-allowed" : "pointer"
         }}
       >
-        <i className="flaticon2-cancel" style={{ marginRight: '8px' }}></i>
+        <i className="flaticon2-cancel" style={{ marginRight: "8px" }}></i>
         <FormattedMessage id="MATCHING.MODAL.DENY" />
       </button>
     </div>
