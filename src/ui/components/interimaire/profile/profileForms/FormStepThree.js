@@ -6,29 +6,16 @@
 // Data validation is based on Yup
 // Please, be familiar with article first:
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toastr } from "react-redux-toastr";
 
-import { Field } from "formik";
-import { Row, Col } from "react-bootstrap";
-import { useDropzone } from "react-dropzone";
-import { Zoom } from "react-reveal";
+import { Row, Col, Modal, Button, Alert, ProgressBar } from "react-bootstrap";
 import _ from "lodash";
-import { Input } from "metronic/_partials/controls";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import Select from "react-select";
-import CreatableSelect from "react-select/creatable";
-import { countMatching } from "actions/client/ApplicantsActions";
 import { useFormikContext } from "formik";
 import useLocalStorage from "../../../shared/PersistState";
 import MissionWizzardHeader from "./MissionWizzardHeader";
-import moment from "moment";
-import BootstrapTable from "react-bootstrap-table-next";
-import DateColumnFormatter from "./DateColumnFormatter";
-import { ProfileExperiencesModal } from "../profileModals/ProfileExperiencesModal";
-import ActionsColumnFormatter from "./ActionsColumnFormatter";
 import { DeleteExperienceModal } from "../profileModals/DeleteExperienceModal";
 import { updateApplicant } from "actions/client/ApplicantsActions";
 import { parseResume as parseResumeActions } from "actions/interimaire/InterimairesActions";
@@ -38,12 +25,19 @@ import { getHabilitationsList } from "actions/client/MissionsActions";
 import uuid from "react-uuid";
 import NewExperience from "../../home/fieldsets/new-experience/NewExperience";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import { validateMission } from "../../../../../business/actions/client/MissionsActions";
+import CVModificationModal from './CVModificationModal'
+import { getApplicantById } from "actions/client/ApplicantsActions";
+
 
 // =============================================
 // IMPORT DU CVDrawer
 // =============================================
 import CVDrawer, { useCVDrawer } from "../../../shared/CVDrawer/CVDrawer";
+
+// =============================================
+// COMPOSANT MODAL DE MODIFICATION DE CV (INLINE)
+// =============================================
+
 
 function FormStepThree(props, formik) {
   const dispatch = useDispatch();
@@ -90,6 +84,11 @@ function FormStepThree(props, formik) {
       : null
   );
 
+  // =============================================
+  // ÉTAT POUR LA MODAL DE MODIFICATION DE CV
+  // =============================================
+  const [showCVModal, setShowCVModal] = useState(false);
+
   const [currentRow, setCurrentRow] = useState([]);
 
   // =============================================
@@ -108,12 +107,52 @@ function FormStepThree(props, formik) {
     }
   };
 
+  // =============================================
+  // HANDLERS POUR LA MODAL DE MODIFICATION DE CV
+  // =============================================
+  const handleModifyCV = () => {
+    setShowCVModal(true);
+  };
+
+  const handleCloseCVModal = () => {
+    setShowCVModal(false);
+  };
+
   const onHide = () => {
     setShow(false);
     setShowDelete(false);
     setShowEdit(false);
     setCurrentRow([]);
   };
+
+
+  const handleDataUpdate = async (updateResult) => {
+    try {
+      console.log("Mise à jour terminée, refresh des données...", updateResult);
+      
+      if (updateResult.success && updateResult.applicantId) {
+        // Utiliser l'action existante pour re-fetch les données de l'applicant
+        dispatch(getApplicantById.request(updateResult.applicantId));
+        
+        // Optionnel : mettre à jour aussi les expériences locales immédiatement
+        if (updateResult.experiences) {
+          setExperiences(updateResult.experiences);
+          props.formik && props.formik.setFieldValue("applicantExperiences", updateResult.experiences);
+        }
+        
+        console.log("Données refresh déclenchées pour l'applicant:", updateResult.applicantId);
+      }
+
+    } catch (error) {
+      console.error("Erreur lors du refresh des données:", error);
+      toastr.error(
+        intl.formatMessage({ id: "ERROR" }),
+        "Erreur lors de la synchronisation"
+      );
+    }
+  };
+
+
   const [experiences, setExperiences] = useState(
     parsed && parsed.applicantExperiences ? parsed.applicantExperiences : []
   );
@@ -185,6 +224,7 @@ function FormStepThree(props, formik) {
       !isNullOrEmpty(experiences) &&
       props.formik.setFieldValue("applicantExperiences", experiences);
   }, [parsed]);
+
   let formattedXp = () => {
     let xp = experiences.map((val, ix) => {
       val.keyField = ix;
@@ -250,48 +290,60 @@ function FormStepThree(props, formik) {
     dispatch(updateApplicant.request(dataToSend));
   };
 
-  const { getRootProps, getInputProps } = useDropzone({
-    accept: ".pdf, .doc, .docx",
-    onDrop: acceptedFiles => {
-      setLoading(true);
-      let { file } = files;
-      setUrl(null);
-      file = acceptedFiles[0];
-      getBase64(file)
-        .then(result => {
-          setLoading(true);
-          file["base64"] = result;
-          let stringBase64 = result.split(",")[1];
-          parseResume({
-            tenantID: parseInt(TENANTID),
-            applicantID: parsed.id,
-            document: stringBase64,
-            Filename: file.name
-          }).then(data => {
-            let newExperiencesArray = [];
-            const { applicantExperiences } = data.data;
-            for (let i = 0; i < applicantExperiences.length; i++) {
-              if (applicantExperiences[i].id === 0) {
-                let newObject = {
-                  ...applicantExperiences[i],
-                  id_temp: uuid()
-                };
-                delete newObject.id;
-                newExperiencesArray.push(newObject);
-              }
-            }
-            data.data.applicantExperiences = newExperiencesArray;
-            dispatch(parseResumeActions.success(data));
-            setUrl(encoreUrl(data.data.primaryCurriculumVitaeUrl));
-          });
-          return file;
-        })
-        .catch(err => {
-          console.log(err);
-          setLoading(false);
-        });
+  // =============================================
+  // FONCTION DE MISE À JOUR DU CV POUR LA MODAL
+  // =============================================
+  const handleCVUpdate = async (file) => {
+    setLoading(true);
+    setUrl(null);
+    
+    try {
+      const base64Result = await getBase64(file);
+      file["base64"] = base64Result;
+      let stringBase64 = base64Result.split(",")[1];
+      
+      const data = await parseResume({
+        tenantID: parseInt(TENANTID),
+        applicantID: parsed.id,
+        document: stringBase64,
+        Filename: file.name
+      });
+      
+      let newExperiencesArray = [];
+      const { applicantExperiences } = data.data;
+      
+      for (let i = 0; i < applicantExperiences?.length; i++) {
+        if (applicantExperiences[i]?.id === 0) {
+          let newObject = {
+            ...applicantExperiences[i],
+            id_temp: uuid()
+          };
+          delete newObject.id;
+          newExperiencesArray.push(newObject);
+        }
+      }
+      
+      data.data.applicantExperiences = newExperiencesArray;
+      dispatch(parseResumeActions.success(data));
+      setUrl(encoreUrl(data.data.primaryCurriculumVitaeUrl));
+      
+      toastr.success(
+        "Succès",
+        "CV mis à jour avec succès"
+      );
+      
+      return data;
+    } catch (err) {
+      console.error("Erreur lors de la mise à jour du CV:", err);
+      // toastr.error(
+      //   intl.formatMessage({ id: "ERROR" }),
+      //   "Erreur lors de la mise à jour du CV"
+      // );
+      throw err;
+    } finally {
+      setLoading(false);
     }
-  });
+  };
 
   function encoreUrl(str) {
     let newUrl = "";
@@ -327,7 +379,7 @@ function FormStepThree(props, formik) {
   }
 
   const onSelectExperience = experience => {
-    setErrorArray([]);
+    // setErrorArray([]);
     setToogleExperienceForm(true);
     let newExperience = {
       id: experience.id,
@@ -352,7 +404,7 @@ function FormStepThree(props, formik) {
   };
 
   const showExperienceForm = () => {
-    setErrorArray([]);
+    // setErrorArray([]);
     setToogleExperienceForm(true);
   };
 
@@ -398,7 +450,7 @@ function FormStepThree(props, formik) {
                           ></i>
                           <div>
                             {/* =============================================
-                                REMPLACEMENT DU LIEN PAR LE BOUTON DRAWER
+                                BOUTON POUR VOIR LE CV
                                 ============================================= */}
                             <button
                               className="btn btn-light-primary"
@@ -409,13 +461,18 @@ function FormStepThree(props, formik) {
                               <i className="fas fa-eye mr-2"></i>
                               Voir mon CV
                             </button>
-                            <div
-                              {...getRootProps()}
+                            
+                            {/* =============================================
+                                BOUTON POUR MODIFIER LE CV (MODAL)
+                                ============================================= */}
+                            <button
                               className="btn btn-light-primary ml-5"
+                              onClick={handleModifyCV}
+                              type="button"
                             >
-                              <input {...getInputProps()} />
-                              <FormattedMessage id="TEXT.CHANGE_CV.TITLE" />
-                            </div>
+                              <i className="fas fa-edit mr-2"></i>
+                              <FormattedMessage id="TEXT.CHANGE_CV.TITLE" defaultMessage="Modifier mon CV" />
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -448,13 +505,6 @@ function FormStepThree(props, formik) {
                   </div>
                   <div className="row mx-10-responsive">
                     <div className="pb-5 width-full">
-                      {/*<NewExperience
-                        selectedExperience={selectedExperience}
-                        hideExperienceForm={hideExperienceForm}
-                        toogleExperienceForm={toogleExperienceForm}
-                        setSelectedExperience={setSelectedExperience}
-                        setEmptyArrayError={setEmptyArrayError}
-                      />*/}
                       <NewExperience
                         selectedExperience={selectedExperience}
                         hideExperienceForm={hideExperienceForm}
@@ -604,6 +654,7 @@ function FormStepThree(props, formik) {
           ============================================= */}
       <CVDrawer
         isOpen={isOpen}
+        
         onClose={closeDrawer}
         pdfUrl={currentPdfUrl}
         title="Mon CV"
@@ -623,6 +674,21 @@ function FormStepThree(props, formik) {
           console.log("CV chargé avec succès:", data);
         }}
       />
+
+      {/* =============================================
+          MODAL DE MODIFICATION DE CV - TEMPORAIREMENT COMMENTÉE
+          ============================================= */}
+      
+      <CVModificationModal
+        show={showCVModal}
+        onHide={handleCloseCVModal}
+        onCVUpdate={handleCVUpdate}
+        onDataUpdate={handleDataUpdate}
+        intl={intl}
+        loading={loading}
+        currentCVFilename={parsed?.primaryCurriculumVitaeFilename}
+      />
+     
     </>
   );
 }

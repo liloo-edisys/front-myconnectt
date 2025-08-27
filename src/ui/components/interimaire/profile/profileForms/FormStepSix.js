@@ -281,6 +281,9 @@ function FormStepSix(props) {
                           className="form-control"
                         />
                       </div>
+                      <p style={{ color: "#1a759f", fontSize: 12 }}>
+                        Les postes sélectionnés déterminent automatiquement la liste des fonctions disponibles dans l’entreprise.
+                      </p>
                       <div className="row">
                         <div className="col-xl-12">
                           <div className="form-group">
@@ -341,7 +344,7 @@ function FormStepSix(props) {
                                       0) /
                                       1000) *
                                       100}%, #e9ecef ${((distance || 0) /
-                                      1000) *
+                                        1000) *
                                       100}%, #e9ecef 100%)`
                                   }}
                                 />

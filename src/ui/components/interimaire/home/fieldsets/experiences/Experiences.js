@@ -220,7 +220,7 @@ function Experiences(props) {
   }
 
   const showExperienceForm = () => {
-    setErrorArray([]);
+    // setErrorArray([]);
     setToogleExperienceForm(true);
   };
 
