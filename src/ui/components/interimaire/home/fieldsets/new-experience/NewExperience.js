@@ -193,7 +193,6 @@ function NewExperience(props) {
           >
             <Modal.Body>
               <div className="my-10">
-                
                 <label htmlFor="jobTitle">
                   <FormattedMessage id="MODEL.JOBTITLE" />
                   <span className="required_asterix">*</span>
@@ -216,11 +215,11 @@ function NewExperience(props) {
                   ></Select>
                 </div>
                 <p style={{ color: "#1a759f", fontSize: 12 }}>
-                  Pour enrichir les fonctions dans l’entreprise, ajoutez des postes dans la section Matching.
+                  Pour enrichir les fonctions dans l’entreprise, ajoutez des
+                  postes dans la section Matching.
                 </p>
               </div>
               <div className="my-10">
-                
                 <label htmlFor="jobTitle">
                   <FormattedMessage id="MODEL.VACANCY.TITLE" />
                   <span className="required_asterix">*</span>

@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { toastr } from "react-redux-toastr";
 import { FormattedMessage } from "react-intl";
-import { Modal, Button, Alert, ProgressBar, Card, Form, Row, Col, Table, Badge } from "react-bootstrap";
+import {
+  Modal,
+  Button,
+  Alert,
+  ProgressBar,
+  Card,
+  Form,
+  Row,
+  Col,
+  Table,
+  Badge
+} from "react-bootstrap";
 import axios from "axios";
 import uuid from "react-uuid";
 
 import { shallowEqual, useSelector } from "react-redux";
-
 
 const CVModificationModal = ({
   show,
@@ -46,7 +56,7 @@ const CVModificationModal = ({
   );
 
   // Fonction pour normaliser les expériences existantes
-  const normalizeExistingExperiences = (existingExperiences) => {
+  const normalizeExistingExperiences = existingExperiences => {
     if (!existingExperiences || !Array.isArray(existingExperiences)) return [];
 
     return existingExperiences.map(exp => ({
@@ -54,8 +64,12 @@ const CVModificationModal = ({
       id_temp: null,
       jobTitle: exp.jobTitle || "",
       employerNameAndPlace: exp.employerNameAndPlace || "",
-      startDate: exp.startDate ? new Date(exp.startDate).toISOString().split('T')[0] : "",
-      endDate: exp.endDate ? new Date(exp.endDate).toISOString().split('T')[0] : "",
+      startDate: exp.startDate
+        ? new Date(exp.startDate).toISOString().split("T")[0]
+        : "",
+      endDate: exp.endDate
+        ? new Date(exp.endDate).toISOString().split("T")[0]
+        : "",
       isCurrentItem: exp.isCurrentItem || "False",
       // Conserver les données originales pour référence
       _original: exp
@@ -65,11 +79,10 @@ const CVModificationModal = ({
   // Initialiser les expériences vides au début
   const [experiences, setExperiences] = useState([]);
 
-  console.log(' ---experiences--- ', experiences);
-
+  console.log(" ---experiences--- ", experiences);
 
   // Fonction pour envoyer le CV à l'API
-  const uploadCVToAPI = async (file) => {
+  const uploadCVToAPI = async file => {
     if (!file) return null;
 
     setUploadProgress(10);
@@ -129,14 +142,21 @@ const CVModificationModal = ({
 
         // Traiter les nouvelles expériences extraites du CV
         let newExperiences = [];
-        if (analysisData.experiences && Array.isArray(analysisData.experiences)) {
+        if (
+          analysisData.experiences &&
+          Array.isArray(analysisData.experiences)
+        ) {
           newExperiences = analysisData.experiences.map(exp => ({
             id: null,
             id_temp: uuid(),
             jobTitle: exp.jobtTitle || "",
             employerNameAndPlace: exp.entreprise || "",
-            startDate: exp.startDate ? new Date(exp.startDate).toISOString().split('T')[0] : "",
-            endDate: exp.endDate ? new Date(exp.endDate).toISOString().split('T')[0] : "",
+            startDate: exp.startDate
+              ? new Date(exp.startDate).toISOString().split("T")[0]
+              : "",
+            endDate: exp.endDate
+              ? new Date(exp.endDate).toISOString().split("T")[0]
+              : "",
             isCurrentItem: "False",
             _isFromCV: true // Marquer comme venant du CV
           }));
@@ -144,7 +164,9 @@ const CVModificationModal = ({
 
         // Ajouter les expériences existantes puis les nouvelles
         const existingExperiences = normalizeExistingExperiences(
-          parsed && parsed.applicantExperiences ? parsed.applicantExperiences : []
+          parsed && parsed.applicantExperiences
+            ? parsed.applicantExperiences
+            : []
         );
 
         const allExperiences = [...existingExperiences, ...newExperiences];
@@ -163,7 +185,6 @@ const CVModificationModal = ({
 
       clearInterval(progressInterval);
       setUploadProgress(100);
-
     } catch (error) {
       console.error("Erreur lors de la mise à jour du CV:", error);
       setUploadProgress(0);
@@ -191,58 +212,56 @@ const CVModificationModal = ({
   };
 
   const handleConfirmAndClose = async () => {
-  try {
-    if (!cvIdTemporary) {
-      toastr.error("Erreur", "Aucun CV temporaire trouvé.");
-      return;
-    }
+    try {
+      if (!cvIdTemporary) {
+        toastr.error("Erreur", "Aucun CV temporaire trouvé.");
+        return;
+      }
 
-    // Construire le payload pour l'API
-    const payload = experiences.map(exp => ({
-      jobTitle: exp.jobTitle || "",
-      place: "",
-      employerNameAndPlace: exp.employerNameAndPlace || "",
-      startDate: exp.startDate ? new Date(exp.startDate).toISOString() : null,
-      endDate: exp.endDate ? new Date(exp.endDate).toISOString() : null,
-      description: exp.description || "",
-      isCurrentItem: exp.isCurrentItem || "False",
-      entreprise: exp.employerNameAndPlace || "",
-      localization: "",
-      interimAgence: "",
-      id: exp.id || 0,
-      tenantID: 0,
-      applicantID: 0,
-      contractTypeID: 0,
-    }));
+      // Construire le payload pour l'API
+      const payload = experiences.map(exp => ({
+        jobTitle: exp.jobTitle || "",
+        place: "",
+        employerNameAndPlace: exp.employerNameAndPlace || "",
+        startDate: exp.startDate ? new Date(exp.startDate).toISOString() : null,
+        endDate: exp.endDate ? new Date(exp.endDate).toISOString() : null,
+        description: exp.description || "",
+        isCurrentItem: exp.isCurrentItem || "False",
+        entreprise: exp.employerNameAndPlace || "",
+        localization: "",
+        interimAgence: "",
+        id: exp.id || 0,
+        tenantID: 0,
+        applicantID: 0,
+        contractTypeID: 0
+      }));
 
-    const url = `https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Applicant/update/step/experiences?cv_id_temporary=${cvIdTemporary}`;
+      const url = `https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Applicant/update/step/experiences?cv_id_temporary=${cvIdTemporary}`;
 
-    const response = await axios.post(url, payload, {
-      headers: { "Content-Type": "application/json" }
-    });
-
-    toastr.success("Succès", "CV et expériences mis à jour avec succès");
-    console.log("Réponse API update experiences:", response.data);
-
-    // ========================================
-    // NOUVEAU: Notifier le parent pour refresh
-    // ========================================
-    if (onDataUpdate && typeof onDataUpdate === 'function') {
-      onDataUpdate({
-        success: true,
-        applicantId: parsed?.id,
-        experiences: experiences
+      const response = await axios.post(url, payload, {
+        headers: { "Content-Type": "application/json" }
       });
+
+      toastr.success("Succès", "CV et expériences mis à jour avec succès");
+      console.log("Réponse API update experiences:", response.data);
+
+      // ========================================
+      // NOUVEAU: Notifier le parent pour refresh
+      // ========================================
+      if (onDataUpdate && typeof onDataUpdate === "function") {
+        onDataUpdate({
+          success: true,
+          applicantId: parsed?.id,
+          experiences: experiences
+        });
+      }
+
+      handleClose();
+    } catch (error) {
+      console.error("Erreur lors de la confirmation des expériences:", error);
+      toastr.error("Erreur", "Impossible de sauvegarder les expériences");
     }
-
-    handleClose();
-
-  } catch (error) {
-    console.error("Erreur lors de la confirmation des expériences:", error);
-    toastr.error("Erreur", "Impossible de sauvegarder les expériences");
-  }
-};
-
+  };
 
   // Fonctions de gestion des expériences
   const resetExperienceForm = () => {
@@ -263,7 +282,7 @@ const CVModificationModal = ({
     setShowExperienceForm(true);
   };
 
-  const handleEditExperience = (experience) => {
+  const handleEditExperience = experience => {
     setExperienceForm({
       id: experience.id,
       id_temp: experience.id_temp,
@@ -279,9 +298,7 @@ const CVModificationModal = ({
 
   const handleDeleteExperience = (experienceId, isTemp = false) => {
     const updatedExperiences = experiences.filter(exp =>
-      isTemp
-        ? exp.id_temp !== experienceId
-        : exp.id !== experienceId
+      isTemp ? exp.id_temp !== experienceId : exp.id !== experienceId
     );
     setExperiences(updatedExperiences);
     toastr.success("Succès", "Expérience supprimée");
@@ -302,19 +319,29 @@ const CVModificationModal = ({
       return;
     }
     if (experienceForm.isCurrentItem === "False" && !experienceForm.endDate) {
-      toastr.error("Erreur", "La date de fin est requise pour un poste terminé");
+      toastr.error(
+        "Erreur",
+        "La date de fin est requise pour un poste terminé"
+      );
       return;
     }
 
     const experienceToSave = {
       ...experienceForm,
-      id: editingExperience && !experienceForm.id_temp ? experienceForm.id : null,
-      id_temp: editingExperience && experienceForm.id_temp ? experienceForm.id_temp : uuid()
+      id:
+        editingExperience && !experienceForm.id_temp ? experienceForm.id : null,
+      id_temp:
+        editingExperience && experienceForm.id_temp
+          ? experienceForm.id_temp
+          : uuid()
     };
 
     if (editingExperience) {
       const updatedExperiences = experiences.map(exp => {
-        if ((exp.id && exp.id === editingExperience) || (exp.id_temp && exp.id_temp === editingExperience)) {
+        if (
+          (exp.id && exp.id === editingExperience) ||
+          (exp.id_temp && exp.id_temp === editingExperience)
+        ) {
           return experienceToSave;
         }
         return exp;
@@ -344,25 +371,35 @@ const CVModificationModal = ({
     }));
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = dateString => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString("fr-FR", { month: "short", year: "numeric" });
+    return date.toLocaleDateString("fr-FR", {
+      month: "short",
+      year: "numeric"
+    });
   };
 
   const calculateDuration = (startDate, endDate, isCurrentItem) => {
     if (!startDate) return "";
 
     const start = new Date(startDate);
-    const end = isCurrentItem === "True" ? new Date() : endDate ? new Date(endDate) : new Date();
-    const monthsDiff = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+    const end =
+      isCurrentItem === "True"
+        ? new Date()
+        : endDate
+        ? new Date(endDate)
+        : new Date();
+    const monthsDiff =
+      (end.getFullYear() - start.getFullYear()) * 12 +
+      (end.getMonth() - start.getMonth());
     const years = Math.floor(monthsDiff / 12);
     const months = monthsDiff % 12;
 
     if (years > 0 && months > 0) {
-      return `${years} an${years > 1 ? 's' : ''} et ${months} mois`;
+      return `${years} an${years > 1 ? "s" : ""} et ${months} mois`;
     } else if (years > 0) {
-      return `${years} an${years > 1 ? 's' : ''}`;
+      return `${years} an${years > 1 ? "s" : ""}`;
     } else if (months > 0) {
       return `${months} mois`;
     } else {
@@ -371,13 +408,13 @@ const CVModificationModal = ({
   };
 
   // Fonction pour déterminer le type d'expérience
-  const getExperienceType = (experience) => {
+  const getExperienceType = experience => {
     if (experience._isFromCV) return "CV";
     if (experience.id) return "Existante";
     return "Nouvelle";
   };
 
-  const getExperienceTypeVariant = (experience) => {
+  const getExperienceTypeVariant = experience => {
     if (experience._isFromCV) return "info";
     if (experience.id) return "secondary";
     return "success";
@@ -395,7 +432,10 @@ const CVModificationModal = ({
       <Modal.Header closeButton>
         <Modal.Title>
           <i className="fas fa-file-alt mr-2"></i>
-          <FormattedMessage id="TEXT.MODIFY_CV.TITLE" defaultMessage="Gestion du CV" />
+          <FormattedMessage
+            id="TEXT.MODIFY_CV.TITLE"
+            defaultMessage="Gestion du CV"
+          />
         </Modal.Title>
       </Modal.Header>
 
@@ -420,30 +460,47 @@ const CVModificationModal = ({
                 <div
                   className="border border-dashed p-4 text-center"
                   style={{ cursor: "pointer" }}
-                  onClick={() => document.getElementById("file-upload-modal").click()}
+                  onClick={() =>
+                    document.getElementById("file-upload-modal").click()
+                  }
                   onDragOver={e => {
                     e.preventDefault();
                     e.currentTarget.classList.add("border-primary", "bg-light");
                   }}
                   onDragLeave={e => {
                     e.preventDefault();
-                    e.currentTarget.classList.remove("border-primary", "bg-light");
+                    e.currentTarget.classList.remove(
+                      "border-primary",
+                      "bg-light"
+                    );
                   }}
                   onDrop={e => {
                     e.preventDefault();
-                    e.currentTarget.classList.remove("border-primary", "bg-light");
+                    e.currentTarget.classList.remove(
+                      "border-primary",
+                      "bg-light"
+                    );
 
                     const files = e.dataTransfer.files;
                     if (files.length > 0) {
                       const file = files[0];
-                      if (file.type === "application/pdf" || file.name.toLowerCase().endsWith('.pdf')) {
+                      if (
+                        file.type === "application/pdf" ||
+                        file.name.toLowerCase().endsWith(".pdf")
+                      ) {
                         if (file.size <= 5 * 1024 * 1024) {
                           setSelectedFile(file);
                           setShowData(false);
                           setCvData(null);
-                          toastr.success("Succès", `Fichier "${file.name}" sélectionné`);
+                          toastr.success(
+                            "Succès",
+                            `Fichier "${file.name}" sélectionné`
+                          );
                         } else {
-                          toastr.error("Erreur", "Fichier trop volumineux (max 5MB)");
+                          toastr.error(
+                            "Erreur",
+                            "Fichier trop volumineux (max 5MB)"
+                          );
                         }
                       } else {
                         toastr.error("Erreur", "Format PDF uniquement");
@@ -466,7 +523,8 @@ const CVModificationModal = ({
                           setUploadProgress(0);
                           setShowData(false);
                           setCvData(null);
-                          document.getElementById("file-upload-modal").value = "";
+                          document.getElementById("file-upload-modal").value =
+                            "";
                         }}
                       >
                         Supprimer
@@ -476,7 +534,9 @@ const CVModificationModal = ({
                     <div>
                       <i className="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
                       <h6>Glissez-déposez votre CV ici</h6>
-                      <p className="text-muted mb-2">ou cliquez pour parcourir</p>
+                      <p className="text-muted mb-2">
+                        ou cliquez pour parcourir
+                      </p>
                       <small className="text-muted">Format PDF • Max 5MB</small>
                     </div>
                   )}
@@ -485,16 +545,22 @@ const CVModificationModal = ({
                     type="file"
                     accept=".pdf,application/pdf"
                     style={{ display: "none" }}
-                    onChange={(e) => {
+                    onChange={e => {
                       const file = e.target.files[0];
                       if (file) {
                         if (file.size <= 5 * 1024 * 1024) {
                           setSelectedFile(file);
                           setShowData(false);
                           setCvData(null);
-                          toastr.success("Succès", `Fichier "${file.name}" sélectionné`);
+                          toastr.success(
+                            "Succès",
+                            `Fichier "${file.name}" sélectionné`
+                          );
                         } else {
-                          toastr.error("Erreur", "Fichier trop volumineux (max 5MB)");
+                          toastr.error(
+                            "Erreur",
+                            "Fichier trop volumineux (max 5MB)"
+                          );
                           e.target.value = "";
                         }
                       }
@@ -546,7 +612,9 @@ const CVModificationModal = ({
                       <Card.Header className="bg-info text-white">
                         <div className="d-flex justify-content-between align-items-center">
                           <h6 className="mb-0">
-                            {editingExperience ? "Modifier l'expérience" : "Nouvelle expérience"}
+                            {editingExperience
+                              ? "Modifier l'expérience"
+                              : "Nouvelle expérience"}
                           </h6>
                           <Button
                             variant="link"
@@ -566,7 +634,12 @@ const CVModificationModal = ({
                                 <Form.Control
                                   type="text"
                                   value={experienceForm.jobTitle}
-                                  onChange={(e) => handleExperienceFormChange('jobTitle', e.target.value)}
+                                  onChange={e =>
+                                    handleExperienceFormChange(
+                                      "jobTitle",
+                                      e.target.value
+                                    )
+                                  }
                                   placeholder="Ex: Développeur Full Stack"
                                 />
                               </Form.Group>
@@ -577,7 +650,12 @@ const CVModificationModal = ({
                                 <Form.Control
                                   type="text"
                                   value={experienceForm.employerNameAndPlace}
-                                  onChange={(e) => handleExperienceFormChange('employerNameAndPlace', e.target.value)}
+                                  onChange={e =>
+                                    handleExperienceFormChange(
+                                      "employerNameAndPlace",
+                                      e.target.value
+                                    )
+                                  }
                                   placeholder="Ex: Google France, Paris"
                                 />
                               </Form.Group>
@@ -590,7 +668,12 @@ const CVModificationModal = ({
                                 <Form.Control
                                   type="date"
                                   value={experienceForm.startDate}
-                                  onChange={(e) => handleExperienceFormChange('startDate', e.target.value)}
+                                  onChange={e =>
+                                    handleExperienceFormChange(
+                                      "startDate",
+                                      e.target.value
+                                    )
+                                  }
                                 />
                               </Form.Group>
                             </Col>
@@ -600,8 +683,15 @@ const CVModificationModal = ({
                                 <Form.Control
                                   type="date"
                                   value={experienceForm.endDate}
-                                  onChange={(e) => handleExperienceFormChange('endDate', e.target.value)}
-                                  disabled={experienceForm.isCurrentItem === "True"}
+                                  onChange={e =>
+                                    handleExperienceFormChange(
+                                      "endDate",
+                                      e.target.value
+                                    )
+                                  }
+                                  disabled={
+                                    experienceForm.isCurrentItem === "True"
+                                  }
                                 />
                               </Form.Group>
                             </Col>
@@ -611,11 +701,16 @@ const CVModificationModal = ({
                                 <Form.Check
                                   type="checkbox"
                                   label="Poste actuel"
-                                  checked={experienceForm.isCurrentItem === "True"}
-                                  onChange={(e) => {
-                                    handleExperienceFormChange('isCurrentItem', e.target.checked ? "True" : "False");
+                                  checked={
+                                    experienceForm.isCurrentItem === "True"
+                                  }
+                                  onChange={e => {
+                                    handleExperienceFormChange(
+                                      "isCurrentItem",
+                                      e.target.checked ? "True" : "False"
+                                    );
                                     if (e.target.checked) {
-                                      handleExperienceFormChange('endDate', '');
+                                      handleExperienceFormChange("endDate", "");
                                     }
                                   }}
                                 />
@@ -647,22 +742,26 @@ const CVModificationModal = ({
                     <div className="text-center py-4">
                       <i className="fas fa-briefcase fa-3x text-muted mb-3"></i>
                       <h6 className="text-muted">Aucune expérience trouvée</h6>
-                      <Button
-                        variant="primary"
-                        onClick={handleAddExperience}
-                      >
+                      <Button variant="primary" onClick={handleAddExperience}>
                         Ajouter une expérience
                       </Button>
                     </div>
                   ) : (
                     <div>
                       {/* Expériences existantes */}
-                      {experiences.filter(exp => exp.id && !exp._isFromCV).length > 0 && (
+                      {experiences.filter(exp => exp.id && !exp._isFromCV)
+                        .length > 0 && (
                         <>
                           <div className="mb-3">
                             <h6 className="text-muted mb-2">
                               <i className="fas fa-history mr-2"></i>
-                              Expériences existantes ({experiences.filter(exp => exp.id && !exp._isFromCV).length})
+                              Expériences existantes (
+                              {
+                                experiences.filter(
+                                  exp => exp.id && !exp._isFromCV
+                                ).length
+                              }
+                              )
                             </h6>
                             <Table responsive hover className="mb-0">
                               <thead className="bg-light">
@@ -678,29 +777,47 @@ const CVModificationModal = ({
                                 {experiences
                                   .filter(exp => exp.id && !exp._isFromCV)
                                   .sort((a, b) => {
-                                    const dateA = new Date(a.startDate || '1900-01-01');
-                                    const dateB = new Date(b.startDate || '1900-01-01');
+                                    const dateA = new Date(
+                                      a.startDate || "1900-01-01"
+                                    );
+                                    const dateB = new Date(
+                                      b.startDate || "1900-01-01"
+                                    );
                                     return dateB - dateA;
                                   })
-                                  .map((experience) => (
+                                  .map(experience => (
                                     <tr key={experience.id}>
                                       <td>
                                         <strong>{experience.jobTitle}</strong>
-                                        {experience.isCurrentItem === "True" && (
-                                          <Badge variant="success" className="ml-2">Actuel</Badge>
+                                        {experience.isCurrentItem ===
+                                          "True" && (
+                                          <Badge
+                                            variant="success"
+                                            className="ml-2"
+                                          >
+                                            Actuel
+                                          </Badge>
                                         )}
                                       </td>
                                       <td>{experience.employerNameAndPlace}</td>
                                       <td>
-                                        {formatDate(experience.startDate)} - {
-                                          experience.isCurrentItem === "True"
-                                            ? <span className="text-success font-weight-bold">Présent</span>
-                                            : formatDate(experience.endDate) || "Non spécifié"
-                                        }
+                                        {formatDate(experience.startDate)} -{" "}
+                                        {experience.isCurrentItem === "True" ? (
+                                          <span className="text-success font-weight-bold">
+                                            Présent
+                                          </span>
+                                        ) : (
+                                          formatDate(experience.endDate) ||
+                                          "Non spécifié"
+                                        )}
                                       </td>
                                       <td>
                                         <small className="text-muted">
-                                          {calculateDuration(experience.startDate, experience.endDate, experience.isCurrentItem)}
+                                          {calculateDuration(
+                                            experience.startDate,
+                                            experience.endDate,
+                                            experience.isCurrentItem
+                                          )}
                                         </small>
                                       </td>
                                       <td>
@@ -708,14 +825,21 @@ const CVModificationModal = ({
                                           variant="outline-primary"
                                           size="sm"
                                           className="mr-1"
-                                          onClick={() => handleEditExperience(experience)}
+                                          onClick={() =>
+                                            handleEditExperience(experience)
+                                          }
                                         >
                                           <i className="fas fa-edit"></i>
                                         </Button>
                                         <Button
                                           variant="outline-danger"
                                           size="sm"
-                                          onClick={() => handleDeleteExperience(experience.id, false)}
+                                          onClick={() =>
+                                            handleDeleteExperience(
+                                              experience.id,
+                                              false
+                                            )
+                                          }
                                         >
                                           <i className="fas fa-trash"></i>
                                         </Button>
@@ -734,7 +858,8 @@ const CVModificationModal = ({
                           <div className="mb-3">
                             <h6 className="text-primary mb-2">
                               <i className="fas fa-file-alt mr-2"></i>
-                              Expériences extraites du CV ({experiences.filter(exp => exp._isFromCV).length})
+                              Expériences extraites du CV (
+                              {experiences.filter(exp => exp._isFromCV).length})
                             </h6>
                             <Table responsive hover className="mb-0">
                               <thead className="bg-light">
@@ -750,29 +875,47 @@ const CVModificationModal = ({
                                 {experiences
                                   .filter(exp => exp._isFromCV)
                                   .sort((a, b) => {
-                                    const dateA = new Date(a.startDate || '1900-01-01');
-                                    const dateB = new Date(b.startDate || '1900-01-01');
+                                    const dateA = new Date(
+                                      a.startDate || "1900-01-01"
+                                    );
+                                    const dateB = new Date(
+                                      b.startDate || "1900-01-01"
+                                    );
                                     return dateB - dateA;
                                   })
-                                  .map((experience) => (
+                                  .map(experience => (
                                     <tr key={experience.id_temp} className="">
                                       <td>
                                         <strong>{experience.jobTitle}</strong>
-                                        {experience.isCurrentItem === "True" && (
-                                          <Badge variant="success" className="ml-2">Actuel</Badge>
+                                        {experience.isCurrentItem ===
+                                          "True" && (
+                                          <Badge
+                                            variant="success"
+                                            className="ml-2"
+                                          >
+                                            Actuel
+                                          </Badge>
                                         )}
                                       </td>
                                       <td>{experience.employerNameAndPlace}</td>
                                       <td>
-                                        {formatDate(experience.startDate)} - {
-                                          experience.isCurrentItem === "True"
-                                            ? <span className="text-success font-weight-bold">Présent</span>
-                                            : formatDate(experience.endDate) || "Non spécifié"
-                                        }
+                                        {formatDate(experience.startDate)} -{" "}
+                                        {experience.isCurrentItem === "True" ? (
+                                          <span className="text-success font-weight-bold">
+                                            Présent
+                                          </span>
+                                        ) : (
+                                          formatDate(experience.endDate) ||
+                                          "Non spécifié"
+                                        )}
                                       </td>
                                       <td>
                                         <small className="text-muted">
-                                          {calculateDuration(experience.startDate, experience.endDate, experience.isCurrentItem)}
+                                          {calculateDuration(
+                                            experience.startDate,
+                                            experience.endDate,
+                                            experience.isCurrentItem
+                                          )}
                                         </small>
                                       </td>
                                       <td>
@@ -780,14 +923,21 @@ const CVModificationModal = ({
                                           variant="outline-primary"
                                           size="sm"
                                           className="mr-1"
-                                          onClick={() => handleEditExperience(experience)}
+                                          onClick={() =>
+                                            handleEditExperience(experience)
+                                          }
                                         >
                                           <i className="fas fa-edit"></i>
                                         </Button>
                                         <Button
                                           variant="outline-danger"
                                           size="sm"
-                                          onClick={() => handleDeleteExperience(experience.id_temp, true)}
+                                          onClick={() =>
+                                            handleDeleteExperience(
+                                              experience.id_temp,
+                                              true
+                                            )
+                                          }
                                         >
                                           <i className="fas fa-trash"></i>
                                         </Button>
@@ -801,12 +951,19 @@ const CVModificationModal = ({
                       )}
 
                       {/* Expériences ajoutées manuellement */}
-                      {experiences.filter(exp => !exp.id && !exp._isFromCV).length > 0 && (
+                      {experiences.filter(exp => !exp.id && !exp._isFromCV)
+                        .length > 0 && (
                         <>
                           <div className="mb-3">
                             <h6 className="text-success mb-2">
                               <i className="fas fa-plus mr-2"></i>
-                              Expériences ajoutées ({experiences.filter(exp => !exp.id && !exp._isFromCV).length})
+                              Expériences ajoutées (
+                              {
+                                experiences.filter(
+                                  exp => !exp.id && !exp._isFromCV
+                                ).length
+                              }
+                              )
                             </h6>
                             <Table responsive hover className="mb-0">
                               <thead className="bg-success text-white">
@@ -822,29 +979,50 @@ const CVModificationModal = ({
                                 {experiences
                                   .filter(exp => !exp.id && !exp._isFromCV)
                                   .sort((a, b) => {
-                                    const dateA = new Date(a.startDate || '1900-01-01');
-                                    const dateB = new Date(b.startDate || '1900-01-01');
+                                    const dateA = new Date(
+                                      a.startDate || "1900-01-01"
+                                    );
+                                    const dateB = new Date(
+                                      b.startDate || "1900-01-01"
+                                    );
                                     return dateB - dateA;
                                   })
-                                  .map((experience) => (
-                                    <tr key={experience.id_temp} className="table-success">
+                                  .map(experience => (
+                                    <tr
+                                      key={experience.id_temp}
+                                      className="table-success"
+                                    >
                                       <td>
                                         <strong>{experience.jobTitle}</strong>
-                                        {experience.isCurrentItem === "True" && (
-                                          <Badge variant="success" className="ml-2">Actuel</Badge>
+                                        {experience.isCurrentItem ===
+                                          "True" && (
+                                          <Badge
+                                            variant="success"
+                                            className="ml-2"
+                                          >
+                                            Actuel
+                                          </Badge>
                                         )}
                                       </td>
                                       <td>{experience.employerNameAndPlace}</td>
                                       <td>
-                                        {formatDate(experience.startDate)} - {
-                                          experience.isCurrentItem === "True"
-                                            ? <span className="text-success font-weight-bold">Présent</span>
-                                            : formatDate(experience.endDate) || "Non spécifié"
-                                        }
+                                        {formatDate(experience.startDate)} -{" "}
+                                        {experience.isCurrentItem === "True" ? (
+                                          <span className="text-success font-weight-bold">
+                                            Présent
+                                          </span>
+                                        ) : (
+                                          formatDate(experience.endDate) ||
+                                          "Non spécifié"
+                                        )}
                                       </td>
                                       <td>
                                         <small className="text-muted">
-                                          {calculateDuration(experience.startDate, experience.endDate, experience.isCurrentItem)}
+                                          {calculateDuration(
+                                            experience.startDate,
+                                            experience.endDate,
+                                            experience.isCurrentItem
+                                          )}
                                         </small>
                                       </td>
                                       <td>
@@ -852,14 +1030,21 @@ const CVModificationModal = ({
                                           variant="outline-primary"
                                           size="sm"
                                           className="mr-1"
-                                          onClick={() => handleEditExperience(experience)}
+                                          onClick={() =>
+                                            handleEditExperience(experience)
+                                          }
                                         >
                                           <i className="fas fa-edit"></i>
                                         </Button>
                                         <Button
                                           variant="outline-danger"
                                           size="sm"
-                                          onClick={() => handleDeleteExperience(experience.id_temp, true)}
+                                          onClick={() =>
+                                            handleDeleteExperience(
+                                              experience.id_temp,
+                                              true
+                                            )
+                                          }
                                         >
                                           <i className="fas fa-trash"></i>
                                         </Button>
@@ -885,9 +1070,12 @@ const CVModificationModal = ({
           <div>
             {experiences.length > 0 && (
               <small className="text-muted">
-                {cvData ? `CV analysé • ` : ''}{experiences.length} expérience(s)
-                {experiences.filter(e => e.id).length > 0 && ` (${experiences.filter(e => e.id).length} existante(s))`}
-                {experiences.filter(e => e._isFromCV).length > 0 && ` (${experiences.filter(e => e._isFromCV).length} du CV)`}
+                {cvData ? `CV analysé • ` : ""}
+                {experiences.length} expérience(s)
+                {experiences.filter(e => e.id).length > 0 &&
+                  ` (${experiences.filter(e => e.id).length} existante(s))`}
+                {experiences.filter(e => e._isFromCV).length > 0 &&
+                  ` (${experiences.filter(e => e._isFromCV).length} du CV)`}
               </small>
             )}
           </div>
@@ -905,7 +1093,11 @@ const CVModificationModal = ({
               <Button
                 variant="primary"
                 onClick={handleSave}
-                disabled={!selectedFile || loading || (uploadProgress > 0 && uploadProgress < 100)}
+                disabled={
+                  !selectedFile ||
+                  loading ||
+                  (uploadProgress > 0 && uploadProgress < 100)
+                }
               >
                 {loading || (uploadProgress > 0 && uploadProgress < 100) ? (
                   <>
@@ -920,10 +1112,7 @@ const CVModificationModal = ({
                 )}
               </Button>
             ) : (
-              <Button
-                variant="success"
-                onClick={handleConfirmAndClose}
-              >
+              <Button variant="success" onClick={handleConfirmAndClose}>
                 <i className="fas fa-check mr-2"></i>
                 Confirmer
               </Button>

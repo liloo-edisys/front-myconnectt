@@ -25,9 +25,8 @@ import { getHabilitationsList } from "actions/client/MissionsActions";
 import uuid from "react-uuid";
 import NewExperience from "../../home/fieldsets/new-experience/NewExperience";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import CVModificationModal from './CVModificationModal'
+import CVModificationModal from "./CVModificationModal";
 import { getApplicantById } from "actions/client/ApplicantsActions";
-
 
 // =============================================
 // IMPORT DU CVDrawer
@@ -37,7 +36,6 @@ import CVDrawer, { useCVDrawer } from "../../../shared/CVDrawer/CVDrawer";
 // =============================================
 // COMPOSANT MODAL DE MODIFICATION DE CV (INLINE)
 // =============================================
-
 
 function FormStepThree(props, formik) {
   const dispatch = useDispatch();
@@ -125,24 +123,29 @@ function FormStepThree(props, formik) {
     setCurrentRow([]);
   };
 
-
-  const handleDataUpdate = async (updateResult) => {
+  const handleDataUpdate = async updateResult => {
     try {
       console.log("Mise à jour terminée, refresh des données...", updateResult);
-      
+
       if (updateResult.success && updateResult.applicantId) {
         // Utiliser l'action existante pour re-fetch les données de l'applicant
         dispatch(getApplicantById.request(updateResult.applicantId));
-        
+
         // Optionnel : mettre à jour aussi les expériences locales immédiatement
         if (updateResult.experiences) {
           setExperiences(updateResult.experiences);
-          props.formik && props.formik.setFieldValue("applicantExperiences", updateResult.experiences);
+          props.formik &&
+            props.formik.setFieldValue(
+              "applicantExperiences",
+              updateResult.experiences
+            );
         }
-        
-        console.log("Données refresh déclenchées pour l'applicant:", updateResult.applicantId);
-      }
 
+        console.log(
+          "Données refresh déclenchées pour l'applicant:",
+          updateResult.applicantId
+        );
+      }
     } catch (error) {
       console.error("Erreur lors du refresh des données:", error);
       toastr.error(
@@ -151,7 +154,6 @@ function FormStepThree(props, formik) {
       );
     }
   };
-
 
   const [experiences, setExperiences] = useState(
     parsed && parsed.applicantExperiences ? parsed.applicantExperiences : []
@@ -293,25 +295,25 @@ function FormStepThree(props, formik) {
   // =============================================
   // FONCTION DE MISE À JOUR DU CV POUR LA MODAL
   // =============================================
-  const handleCVUpdate = async (file) => {
+  const handleCVUpdate = async file => {
     setLoading(true);
     setUrl(null);
-    
+
     try {
       const base64Result = await getBase64(file);
       file["base64"] = base64Result;
       let stringBase64 = base64Result.split(",")[1];
-      
+
       const data = await parseResume({
         tenantID: parseInt(TENANTID),
         applicantID: parsed.id,
         document: stringBase64,
         Filename: file.name
       });
-      
+
       let newExperiencesArray = [];
       const { applicantExperiences } = data.data;
-      
+
       for (let i = 0; i < applicantExperiences?.length; i++) {
         if (applicantExperiences[i]?.id === 0) {
           let newObject = {
@@ -322,16 +324,13 @@ function FormStepThree(props, formik) {
           newExperiencesArray.push(newObject);
         }
       }
-      
+
       data.data.applicantExperiences = newExperiencesArray;
       dispatch(parseResumeActions.success(data));
       setUrl(encoreUrl(data.data.primaryCurriculumVitaeUrl));
-      
-      toastr.success(
-        "Succès",
-        "CV mis à jour avec succès"
-      );
-      
+
+      toastr.success("Succès", "CV mis à jour avec succès");
+
       return data;
     } catch (err) {
       console.error("Erreur lors de la mise à jour du CV:", err);
@@ -461,7 +460,7 @@ function FormStepThree(props, formik) {
                               <i className="fas fa-eye mr-2"></i>
                               Voir mon CV
                             </button>
-                            
+
                             {/* =============================================
                                 BOUTON POUR MODIFIER LE CV (MODAL)
                                 ============================================= */}
@@ -471,7 +470,10 @@ function FormStepThree(props, formik) {
                               type="button"
                             >
                               <i className="fas fa-edit mr-2"></i>
-                              <FormattedMessage id="TEXT.CHANGE_CV.TITLE" defaultMessage="Modifier mon CV" />
+                              <FormattedMessage
+                                id="TEXT.CHANGE_CV.TITLE"
+                                defaultMessage="Modifier mon CV"
+                              />
                             </button>
                           </div>
                         </div>
@@ -654,7 +656,6 @@ function FormStepThree(props, formik) {
           ============================================= */}
       <CVDrawer
         isOpen={isOpen}
-        
         onClose={closeDrawer}
         pdfUrl={currentPdfUrl}
         title="Mon CV"
@@ -678,7 +679,7 @@ function FormStepThree(props, formik) {
       {/* =============================================
           MODAL DE MODIFICATION DE CV - TEMPORAIREMENT COMMENTÉE
           ============================================= */}
-      
+
       <CVModificationModal
         show={showCVModal}
         onHide={handleCloseCVModal}
@@ -688,7 +689,6 @@ function FormStepThree(props, formik) {
         loading={loading}
         currentCVFilename={parsed?.primaryCurriculumVitaeFilename}
       />
-     
     </>
   );
 }
