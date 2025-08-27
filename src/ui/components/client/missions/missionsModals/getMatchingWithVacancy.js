@@ -84,6 +84,40 @@ export const getAllMatchingCandidates = async (
   }
 };
 
+// NOUVELLE FONCTION : Détecter les filtres qui ont des données
+export const getAvailableFilters = async (vacancyId) => {
+  console.log("Détection des filtres disponibles pour la mission:", vacancyId);
+  const availableFilters = [];
+  
+  for (const filter of PRIORITY_FILTERS) {
+    try {
+      const result = await getAllMatchingCandidates(
+        vacancyId,
+        filter.min,
+        filter.max
+      );
+      
+      if (result.success && result.data.length > 0) {
+        availableFilters.push({
+          value: `${filter.min}-${filter.max}`,
+          label: `${filter.label} (${result.data.length} candidat${result.data.length > 1 ? 's' : ''})`,
+          min: filter.min,
+          max: filter.max,
+          count: result.data.length
+        });
+        console.log(`✓ ${filter.label}: ${result.data.length} candidat(s)`);
+      } else {
+        console.log(`✗ ${filter.label}: aucun candidat`);
+      }
+    } catch (error) {
+      console.error(`Erreur avec le filtre ${filter.label}:`, error);
+      // Continue avec le filtre suivant
+    }
+  }
+  
+  return availableFilters;
+};
+
 // Nouvelle fonction pour récupérer les candidats avec logique de priorité
 export const getBestMatchingCandidates = async vacancyId => {
   console.log("Recherche des meilleurs candidats pour la mission:", vacancyId);

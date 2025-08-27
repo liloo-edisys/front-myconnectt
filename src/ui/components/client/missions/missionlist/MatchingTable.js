@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
 import { useIntl } from "react-intl";
 import { shallowEqual, useSelector } from "react-redux";
@@ -15,6 +15,42 @@ function MatchingTable({
   isLoading = false // Nouveau prop pour gérer le loading
 }) {
   const intl = useIntl();
+  
+
+ // État pour tracker les candidats approuvés
+  const [approvedCandidates, setApprovedCandidates] = useState(new Set());
+  const [processingCandidates, setProcessingCandidates] = useState(new Set());
+
+
+  const handleAcceptWithState = async (missionId, candidateId, mission) => {
+    console.log('🔄 Début approbation pour candidat:', candidateId);
+    
+    try {
+      setProcessingCandidates(prev => {
+        console.log('⏳ Ajout candidat en traitement:', candidateId);
+        return new Set([...prev, candidateId]);
+      });
+      
+      // IMPORTANT: Vérifiez que handleAccept retourne une Promise
+      const result = await handleAccept(missionId, candidateId, mission);
+      console.log('✅ Approbation réussie pour candidat:', candidateId, result);
+      
+      setApprovedCandidates(prev => {
+        console.log('🎉 Ajout candidat approuvé:', candidateId);
+        return new Set([...prev, candidateId]);
+      });
+      
+    } catch (error) {
+      console.error('❌ Erreur approbation candidat:', candidateId, error);
+    } finally {
+      setProcessingCandidates(prev => {
+        console.log('🏁 Retrait candidat du traitement:', candidateId);
+        const newSet = new Set(prev);
+        newSet.delete(candidateId);
+        return newSet;
+      });
+    }
+  };
 
   // Données depuis Redux (suppression de candidatesLoading)
   const { mission } = useSelector(
@@ -40,30 +76,30 @@ function MatchingTable({
           minWidth: "200px"
         }
       },
-      {
-        dataField: "lastJobTitles",
-        text: intl.formatMessage({ id: "MATCHING.TABLE.LAST_JOBS" }),
-        sort: false,
-        formatter: MatchingCandidateLastJobsFormatter,
-        headerStyle: {
-          width: "35%",
-          minWidth: "250px"
-        }
-      },
-      {
-        dataField: "matchingScore",
-        text: intl.formatMessage({ id: "MATCHING.TABLE.MATCHING" }),
-        sort: false,
-        formatter: MissionsMatchingColumnFormatter,
-        headerStyle: {
-          width: "15%",
-          minWidth: "100px",
-          textAlign: "center"
-        },
-        style: {
-          textAlign: "center"
-        }
-      },
+      // {
+      //   dataField: "lastJobTitles",
+      //   text: intl.formatMessage({ id: "MATCHING.TABLE.LAST_JOBS" }),
+      //   sort: false,
+      //   formatter: MatchingCandidateLastJobsFormatter,
+      //   headerStyle: {
+      //     width: "35%",
+      //     minWidth: "250px"
+      //   }
+      // },
+      // {
+      //   dataField: "matchingScore",
+      //   text: intl.formatMessage({ id: "MATCHING.TABLE.MATCHING" }),
+      //   sort: false,
+      //   formatter: MissionsMatchingColumnFormatter,
+      //   headerStyle: {
+      //     width: "15%",
+      //     minWidth: "100px",
+      //     textAlign: "center"
+      //   },
+      //   style: {
+      //     textAlign: "center"
+      //   }
+      // },
       {
         dataField: "action",
         text: intl.formatMessage({ id: "MATCHING.TABLE.ACTIONS" }),
@@ -77,12 +113,14 @@ function MatchingTable({
         formatExtraData: {
           handleDeny: handleDeny,
           mission: mission,
-          handleAccept: handleAccept,
-          onOpenResume: onOpenResume
+          handleAccept: handleAcceptWithState, // ✅ CORRECTION: Utilisez handleAcceptWithState
+          onOpenResume: onOpenResume,
+          approvedCandidates: approvedCandidates, // ✅ CORRECTION: Ajoutez les états
+          processingCandidates: processingCandidates // ✅ CORRECTION: Ajoutez les états
         }
       }
     ],
-    [intl, handleDeny, handleAccept, onOpenResume, mission]
+    [intl, handleDeny, handleAcceptWithState, onOpenResume, mission, approvedCandidates, processingCandidates]
   );
 
   // Composant pour afficher quand il n'y a pas de données

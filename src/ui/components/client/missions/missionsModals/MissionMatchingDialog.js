@@ -14,6 +14,7 @@ import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import {
   getAllMatchingCandidates,
   getBestMatchingCandidates,
+  getAvailableFilters,
   MATCH_SCORE_FILTERS
 } from "./getMatchingWithVacancy";
 
@@ -219,10 +220,14 @@ export function MatchingDialog({
   const [filteredCandidates, setFilteredCandidates] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState("50-75"); // Valeur par défaut changée
-  const [appliedFilter, setAppliedFilter] = useState(null); // Nouveau state pour suivre le filtre appliqué
+  const [selectedFilter, setSelectedFilter] = useState("50-75");
+  const [appliedFilter, setAppliedFilter] = useState(null);
   const [error, setError] = useState(null);
   const [showTooltip, setShowTooltip] = useState(false);
+  
+  // NOUVEAUX ÉTATS pour les filtres dynamiques
+  const [availableFilters, setAvailableFilters] = useState([]);
+  const [isLoadingFilters, setIsLoadingFilters] = useState(false);
 
   // Ref pour le tooltip
   const tooltipRef = useRef(null);
@@ -255,6 +260,29 @@ export function MatchingDialog({
     }),
     [currentPage, totalPages, filteredCandidates.length, startIndex, endIndex]
   );
+
+  // NOUVELLE FONCTION pour charger les filtres disponibles
+  const loadAvailableFilters = async () => {
+    if (!missionId) return;
+    
+    setIsLoadingFilters(true);
+    try {
+      const filters = await getAvailableFilters(missionId);
+      setAvailableFilters(filters);
+      
+      // Si aucun filtre disponible, vider tout
+      if (filters.length === 0) {
+        setAllCandidates([]);
+        setFilteredCandidates([]);
+        setAppliedFilter(null);
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des filtres:", error);
+      setAvailableFilters([]);
+    } finally {
+      setIsLoadingFilters(false);
+    }
+  };
 
   // Fonction pour gérer le refus d'un candidat
   const handleDeny = (missionID, candidateID) => {
@@ -322,7 +350,7 @@ export function MatchingDialog({
     dispatch(getMatching.request(mission));
   };
 
-  // Nouvelle fonction pour le chargement initial avec logique de priorité
+  // FONCTION MODIFIÉE pour le chargement initial avec logique de priorité
   const fetchBestCandidates = async () => {
     if (!missionId) return;
 
@@ -330,6 +358,10 @@ export function MatchingDialog({
     setError(null);
 
     try {
+      // Charger d'abord les filtres disponibles
+      await loadAvailableFilters();
+      
+      // Puis charger les données avec la logique existante
       const response = await getBestMatchingCandidates(missionId);
 
       if (response.success) {
@@ -342,13 +374,11 @@ export function MatchingDialog({
         setFilteredCandidates(candidatesWithIds);
         setCurrentPage(1);
 
-        // Mettre à jour le filtre sélectionné selon ce qui a été appliqué
         if (response.appliedFilter) {
           setSelectedFilter(response.appliedFilter.value);
           setAppliedFilter(response.appliedFilter);
         } else {
-          // Aucun candidat trouvé
-          setSelectedFilter("50-75"); // Valeur par défaut
+          setSelectedFilter("50-75");
           setAppliedFilter(null);
         }
 
@@ -459,14 +489,15 @@ export function MatchingDialog({
     if (show) {
       document.body.style.overflow = "hidden";
       if (missionId) {
-        fetchBestCandidates(); // Utilise la nouvelle fonction au lieu de handleFilterChange
+        fetchBestCandidates();
       }
     } else {
       document.body.style.overflow = "auto";
-      setSelectedFilter("50-75"); // Changé de "35-50" à "50-75"
+      setSelectedFilter("50-75");
       setCurrentPage(1);
       setError(null);
       setAppliedFilter(null);
+      setAvailableFilters([]); // NOUVEAU: Reset des filtres disponibles
     }
 
     return () => {
@@ -540,22 +571,35 @@ export function MatchingDialog({
         {/* Barre de filtrage - toujours visible */}
         {!isLoading && !error && (
           <div style={drawerStyles.paginationBar}>
-            {/* Section de filtrage */}
+            {/* Section de filtrage MODIFIÉE */}
             <div style={drawerStyles.filterSection}>
               <span style={drawerStyles.filterLabel}>Filtrer par score :</span>
+              
+              {/* SELECT DYNAMIQUE */}
               <select
-                style={drawerStyles.filterSelect}
+                style={{
+                  ...drawerStyles.filterSelect,
+                  opacity: isLoadingFilters ? 0.6 : 1
+                }}
                 value={selectedFilter}
                 onChange={e => handleFilterChange(e.target.value)}
+                disabled={isLoadingFilters || availableFilters.length === 0}
                 onFocus={e => (e.target.style.borderColor = "#0d6efd")}
                 onBlur={e => (e.target.style.borderColor = "#ced4da")}
               >
-                {MATCH_SCORE_FILTERS.map(filter => (
-                  <option key={filter.value} value={filter.value}>
-                    {filter.label}
+                {availableFilters.length === 0 ? (
+                  <option value="">
+                    {isLoadingFilters ? "Chargement..." : "Aucun candidat disponible"}
                   </option>
-                ))}
+                ) : (
+                  availableFilters.map(filter => (
+                    <option key={filter.value} value={filter.value}>
+                      {filter.label}
+                    </option>
+                  ))
+                )}
               </select>
+              
               <div
                 style={{ position: "relative", display: "inline-block" }}
                 ref={tooltipRef}
@@ -616,8 +660,15 @@ export function MatchingDialog({
                   </div>
                 )}
               </div>
+              
+              {/* STATS AMÉLIORÉES */}
               <span style={drawerStyles.statsInfo}>
                 {filteredCandidates.length} candidat(s)
+                {availableFilters.length > 1 && (
+                  <span style={{ marginLeft: "8px", fontStyle: "italic" }}>
+                    ({availableFilters.length} niveau{availableFilters.length > 1 ? 'x' : ''} disponible{availableFilters.length > 1 ? 's' : ''})
+                  </span>
+                )}
               </span>
             </div>
 
@@ -677,7 +728,7 @@ export function MatchingDialog({
               <button
                 style={{ ...drawerStyles.paginationButton, marginTop: "10px" }}
                 onClick={() => {
-                  fetchBestCandidates(); // Utilise la nouvelle fonction de chargement
+                  fetchBestCandidates();
                 }}
               >
                 Réessayer
