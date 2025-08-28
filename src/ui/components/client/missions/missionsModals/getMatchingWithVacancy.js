@@ -84,9 +84,73 @@ export const getAllMatchingCandidates = async (
   }
 };
 
-// NOUVELLE FONCTION : Détecter les filtres qui ont des données
-export const getAvailableFilters = async vacancyId => {
-  console.log("Détection des filtres disponibles pour la mission:", vacancyId);
+// NOUVELLE FONCTION OPTIMISÉE : Cascade intelligente avec un seul appel
+export const getOptimalMatchingCandidates = async (vacancyId) => {
+  console.log("🔍 Recherche optimale des candidats pour la mission:", vacancyId);
+
+  for (const filter of PRIORITY_FILTERS) {
+    console.log(`⚡ Test du niveau ${filter.label} (${filter.min}-${filter.max}%)`);
+
+    try {
+      const result = await getAllMatchingCandidates(
+        vacancyId,
+        filter.min,
+        filter.max
+      );
+
+      if (result.success && result.data.length > 0) {
+        console.log(`✅ TROUVÉ! ${result.data.length} candidat(s) au niveau ${filter.label}`);
+        console.log("🛑 Arrêt de la recherche (niveau optimal trouvé)");
+        
+        return {
+          ...result,
+          appliedFilter: {
+            value: `${filter.min}-${filter.max}`,
+            label: filter.label,
+            min: filter.min,
+            max: filter.max
+          },
+          availableFilters: [
+            {
+              value: `${filter.min}-${filter.max}`,
+              label: `${filter.label} (${result.data.length} candidat${result.data.length > 1 ? "s" : ""})`,
+              min: filter.min,
+              max: filter.max,
+              count: result.data.length
+            }
+          ],
+          message: `Candidats trouvés au niveau ${filter.label}`
+        };
+      } else {
+        console.log(`❌ Aucun candidat au niveau ${filter.label}, passage au niveau suivant`);
+      }
+    } catch (error) {
+      console.error(`💥 Erreur avec le niveau ${filter.label}:`, error);
+      // Continue avec le filtre suivant même en cas d'erreur
+    }
+  }
+
+  // Aucun candidat trouvé avec tous les filtres
+  console.log("❌ Aucun candidat trouvé à tous les niveaux");
+  return {
+    success: true,
+    data: [],
+    totalCount: 0,
+    appliedFilter: null,
+    availableFilters: [],
+    message: "Aucun candidat ne correspond aux critères de cette mission"
+  };
+};
+
+// FONCTION DÉPRÉCIÉE (gardée pour compatibilité) - À remplacer par getOptimalMatchingCandidates
+export const getBestMatchingCandidates = async (vacancyId) => {
+  console.warn("⚠️ getBestMatchingCandidates est déprécié, utilisez getOptimalMatchingCandidates");
+  return await getOptimalMatchingCandidates(vacancyId);
+};
+
+// FONCTION pour charger tous les filtres disponibles (utilisée lors du changement manuel de filtre)
+export const getAvailableFilters = async (vacancyId) => {
+  console.log("🔍 Détection complète des filtres disponibles pour la mission:", vacancyId);
   const availableFilters = [];
 
   for (const filter of PRIORITY_FILTERS) {
@@ -107,64 +171,16 @@ export const getAvailableFilters = async vacancyId => {
           max: filter.max,
           count: result.data.length
         });
-        console.log(`✓ ${filter.label}: ${result.data.length} candidat(s)`);
+        console.log(`✅ ${filter.label}: ${result.data.length} candidat(s)`);
       } else {
-        console.log(`✗ ${filter.label}: aucun candidat`);
+        console.log(`❌ ${filter.label}: aucun candidat`);
       }
     } catch (error) {
-      console.error(`Erreur avec le filtre ${filter.label}:`, error);
+      console.error(`💥 Erreur avec le filtre ${filter.label}:`, error);
       // Continue avec le filtre suivant
     }
   }
 
+  console.log(`📊 Résultat: ${availableFilters.length} niveau(x) disponible(s)`);
   return availableFilters;
-};
-
-// Nouvelle fonction pour récupérer les candidats avec logique de priorité
-export const getBestMatchingCandidates = async vacancyId => {
-  console.log("Recherche des meilleurs candidats pour la mission:", vacancyId);
-
-  for (const filter of PRIORITY_FILTERS) {
-    console.log(
-      `Tentative avec le filtre ${filter.label} (${filter.min}-${filter.max}%)`
-    );
-
-    try {
-      const result = await getAllMatchingCandidates(
-        vacancyId,
-        filter.min,
-        filter.max
-      );
-
-      if (result.success && result.data.length > 0) {
-        console.log(
-          `✓ Trouvé ${result.data.length} candidat(s) avec le filtre ${filter.label}`
-        );
-        return {
-          ...result,
-          appliedFilter: {
-            value: `${filter.min}-${filter.max}`,
-            label: filter.label,
-            min: filter.min,
-            max: filter.max
-          }
-        };
-      } else {
-        console.log(`✗ Aucun candidat trouvé avec le filtre ${filter.label}`);
-      }
-    } catch (error) {
-      console.error(`Erreur avec le filtre ${filter.label}:`, error);
-      // Continue avec le filtre suivant
-    }
-  }
-
-  // Aucun candidat trouvé avec tous les filtres
-  console.log("Aucun candidat trouvé avec tous les filtres disponibles");
-  return {
-    success: true,
-    data: [],
-    totalCount: 0,
-    appliedFilter: null,
-    message: "Aucun candidat ne correspond aux critères de cette mission"
-  };
 };

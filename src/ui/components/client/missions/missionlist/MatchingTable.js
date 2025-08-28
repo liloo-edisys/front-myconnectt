@@ -73,30 +73,30 @@ function MatchingTable({
           minWidth: "200px"
         }
       },
-      // {
-      //   dataField: "lastJobTitles",
-      //   text: intl.formatMessage({ id: "MATCHING.TABLE.LAST_JOBS" }),
-      //   sort: false,
-      //   formatter: MatchingCandidateLastJobsFormatter,
-      //   headerStyle: {
-      //     width: "35%",
-      //     minWidth: "250px"
-      //   }
-      // },
-      // {
-      //   dataField: "matchingScore",
-      //   text: intl.formatMessage({ id: "MATCHING.TABLE.MATCHING" }),
-      //   sort: false,
-      //   formatter: MissionsMatchingColumnFormatter,
-      //   headerStyle: {
-      //     width: "15%",
-      //     minWidth: "100px",
-      //     textAlign: "center"
-      //   },
-      //   style: {
-      //     textAlign: "center"
-      //   }
-      // },
+      {
+        dataField: "lastJobTitles",
+        text: intl.formatMessage({ id: "MATCHING.TABLE.LAST_JOBS" }),
+        sort: false,
+        formatter: MatchingCandidateLastJobsFormatter,
+        headerStyle: {
+          width: "35%",
+          minWidth: "250px"
+        }
+      },
+      {
+        dataField: "matchingScore",
+        text: intl.formatMessage({ id: "MATCHING.TABLE.MATCHING" }),
+        sort: false,
+        formatter: MissionsMatchingColumnFormatter,
+        headerStyle: {
+          width: "15%",
+          minWidth: "100px",
+          textAlign: "center"
+        },
+        style: {
+          textAlign: "center"
+        }
+      },
       {
         dataField: "action",
         text: intl.formatMessage({ id: "MATCHING.TABLE.ACTIONS" }),
@@ -194,7 +194,7 @@ function MatchingTable({
       ...candidate,
       id: candidate.id || candidate.candidateId || `temp_${index}`,
       // Ajouter des valeurs par défaut pour éviter les erreurs
-      name: candidate.name || "Candidat sans nom",
+      name: candidate.name || "",
       lastJobTitles: candidate.lastJobTitles || [],
       matchingScore: candidate.matchingScore || 0
     }));
