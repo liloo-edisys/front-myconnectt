@@ -85,11 +85,16 @@ export const getAllMatchingCandidates = async (
 };
 
 // NOUVELLE FONCTION OPTIMISÉE : Cascade intelligente avec un seul appel
-export const getOptimalMatchingCandidates = async (vacancyId) => {
-  console.log("🔍 Recherche optimale des candidats pour la mission:", vacancyId);
+export const getOptimalMatchingCandidates = async vacancyId => {
+  console.log(
+    "🔍 Recherche optimale des candidats pour la mission:",
+    vacancyId
+  );
 
   for (const filter of PRIORITY_FILTERS) {
-    console.log(`⚡ Test du niveau ${filter.label} (${filter.min}-${filter.max}%)`);
+    console.log(
+      `⚡ Test du niveau ${filter.label} (${filter.min}-${filter.max}%)`
+    );
 
     try {
       const result = await getAllMatchingCandidates(
@@ -99,9 +104,11 @@ export const getOptimalMatchingCandidates = async (vacancyId) => {
       );
 
       if (result.success && result.data.length > 0) {
-        console.log(`✅ TROUVÉ! ${result.data.length} candidat(s) au niveau ${filter.label}`);
+        console.log(
+          `✅ TROUVÉ! ${result.data.length} candidat(s) au niveau ${filter.label}`
+        );
         console.log("🛑 Arrêt de la recherche (niveau optimal trouvé)");
-        
+
         return {
           ...result,
           appliedFilter: {
@@ -113,7 +120,9 @@ export const getOptimalMatchingCandidates = async (vacancyId) => {
           availableFilters: [
             {
               value: `${filter.min}-${filter.max}`,
-              label: `${filter.label} (${result.data.length} candidat${result.data.length > 1 ? "s" : ""})`,
+              label: `${filter.label} (${result.data.length} candidat${
+                result.data.length > 1 ? "s" : ""
+              })`,
               min: filter.min,
               max: filter.max,
               count: result.data.length
@@ -122,7 +131,9 @@ export const getOptimalMatchingCandidates = async (vacancyId) => {
           message: `Candidats trouvés au niveau ${filter.label}`
         };
       } else {
-        console.log(`❌ Aucun candidat au niveau ${filter.label}, passage au niveau suivant`);
+        console.log(
+          `❌ Aucun candidat au niveau ${filter.label}, passage au niveau suivant`
+        );
       }
     } catch (error) {
       console.error(`💥 Erreur avec le niveau ${filter.label}:`, error);
@@ -143,14 +154,19 @@ export const getOptimalMatchingCandidates = async (vacancyId) => {
 };
 
 // FONCTION DÉPRÉCIÉE (gardée pour compatibilité) - À remplacer par getOptimalMatchingCandidates
-export const getBestMatchingCandidates = async (vacancyId) => {
-  console.warn("⚠️ getBestMatchingCandidates est déprécié, utilisez getOptimalMatchingCandidates");
+export const getBestMatchingCandidates = async vacancyId => {
+  console.warn(
+    "⚠️ getBestMatchingCandidates est déprécié, utilisez getOptimalMatchingCandidates"
+  );
   return await getOptimalMatchingCandidates(vacancyId);
 };
 
 // FONCTION pour charger tous les filtres disponibles (utilisée lors du changement manuel de filtre)
-export const getAvailableFilters = async (vacancyId) => {
-  console.log("🔍 Détection complète des filtres disponibles pour la mission:", vacancyId);
+export const getAvailableFilters = async vacancyId => {
+  console.log(
+    "🔍 Détection complète des filtres disponibles pour la mission:",
+    vacancyId
+  );
   const availableFilters = [];
 
   for (const filter of PRIORITY_FILTERS) {
@@ -181,6 +197,8 @@ export const getAvailableFilters = async (vacancyId) => {
     }
   }
 
-  console.log(`📊 Résultat: ${availableFilters.length} niveau(x) disponible(s)`);
+  console.log(
+    `📊 Résultat: ${availableFilters.length} niveau(x) disponible(s)`
+  );
   return availableFilters;
 };

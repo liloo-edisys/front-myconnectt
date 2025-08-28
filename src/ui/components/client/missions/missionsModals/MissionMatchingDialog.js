@@ -354,7 +354,9 @@ export function MatchingDialog({
         if (response.appliedFilter) {
           setSelectedFilter(response.appliedFilter.value);
           setAppliedFilter(response.appliedFilter);
-          setAvailableFilters(response.availableFilters || [response.appliedFilter]);
+          setAvailableFilters(
+            response.availableFilters || [response.appliedFilter]
+          );
         } else {
           setSelectedFilter("50-75");
           setAppliedFilter(null);
@@ -364,7 +366,7 @@ export function MatchingDialog({
         if (response.message) {
           console.log("📋", response.message);
         }
-        
+
         console.log("✅ Chargement optimal terminé avec succès");
       } else {
         setError(response.error || "Erreur lors du chargement des candidats");
@@ -391,7 +393,7 @@ export function MatchingDialog({
 
     console.log("🔄 Chargement complet des filtres disponibles");
     setIsLoadingFilters(true);
-    
+
     try {
       const filters = await getAvailableFilters(missionId);
       setAvailableFilters(filters);
@@ -435,8 +437,10 @@ export function MatchingDialog({
           f => f.min === min && f.max === max
         );
         setAppliedFilter(filter || null);
-        
-        console.log(`✅ Chargement manuel terminé: ${candidatesWithIds.length} candidat(s)`);
+
+        console.log(
+          `✅ Chargement manuel terminé: ${candidatesWithIds.length} candidat(s)`
+        );
       } else {
         setError(response.error || "Erreur lors du chargement des candidats");
         setAllCandidates([]);
@@ -455,7 +459,7 @@ export function MatchingDialog({
   };
 
   // Fonction pour filtrer les candidats par score (refactorisation)
-  const handleFilterChange = async (filterValue) => {
+  const handleFilterChange = async filterValue => {
     console.log(`🔄 Changement de filtre vers: ${filterValue}`);
     setSelectedFilter(filterValue);
     setCurrentPage(1);
@@ -506,7 +510,7 @@ export function MatchingDialog({
     if (show) {
       console.log("🎬 Ouverture du MatchingDialog");
       document.body.style.overflow = "hidden";
-      
+
       if (missionId) {
         // CHARGEMENT OPTIMISÉ : un seul appel intelligent
         fetchOptimalCandidates();
@@ -514,7 +518,7 @@ export function MatchingDialog({
     } else {
       console.log("🔚 Fermeture du MatchingDialog");
       document.body.style.overflow = "auto";
-      
+
       // Reset des états
       setSelectedFilter("50-75");
       setCurrentPage(1);
@@ -618,7 +622,10 @@ export function MatchingDialog({
                   </option>
                 ) : availableFilters.length === 1 ? (
                   // Cas optimal : un seul niveau trouvé lors du chargement initial
-                  <option key={availableFilters[0].value} value={availableFilters[0].value}>
+                  <option
+                    key={availableFilters[0].value}
+                    value={availableFilters[0].value}
+                  >
                     {availableFilters[0].label}
                   </option>
                 ) : (
