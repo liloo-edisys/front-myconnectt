@@ -267,10 +267,7 @@ const ApplicantsSidebar = ({ show, onHide, missionId, missionsUIProps }) => {
                 Candidats
               </h6>
             </div>
-            <button 
-              className="btn btn-sm btn-outline-light" 
-              onClick={onHide}
-            >
+            <button className="btn btn-sm btn-outline-light" onClick={onHide}>
               <i className="fas fa-times"></i>
             </button>
           </div>
