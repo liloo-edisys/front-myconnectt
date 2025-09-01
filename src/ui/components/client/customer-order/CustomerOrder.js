@@ -168,8 +168,8 @@ function CustomerOrder(props) {
     axios
       .get(
         process.env.REACT_APP_WEBAPI_URL +
-        "api/vacancy/SendToAnael/" +
-        missionId
+          "api/vacancy/SendToAnael/" +
+          missionId
       )
       .then(res => {
         getData();
@@ -425,10 +425,13 @@ function CustomerOrder(props) {
                     </div>
                     <div className="d-flex flex-column">
                       <span className="text-dark font-weight-bold font-size-h5">
-                        Créée le {new Date(activeCustomerOrder.vacancy.creationDate).toLocaleDateString("fr-FR", {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric'
+                        Créée le{" "}
+                        {new Date(
+                          activeCustomerOrder.vacancy.creationDate
+                        ).toLocaleDateString("fr-FR", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric"
                         })}
                       </span>
                       <span className="text-dark font-weight-bold font-size-h5">
