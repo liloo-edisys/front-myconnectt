@@ -261,13 +261,16 @@ const ApplicantsSidebar = ({ show, onHide, missionId, missionsUIProps }) => {
         {/* Header simplifié */}
         <div className="bg-primary text-white p-3">
           <div className="d-flex justify-content-between align-items-center">
-            <div>
+            <div className="flex-grow-1">
               <h6 className="mb-0 font-weight-bold">
                 <i className="fas fa-users mr-2"></i>
                 Candidats
               </h6>
             </div>
-            <button className="btn btn-sm btn-outline-light" onClick={onHide}>
+            <button 
+              className="btn btn-sm btn-outline-light" 
+              onClick={onHide}
+            >
               <i className="fas fa-times"></i>
             </button>
           </div>
