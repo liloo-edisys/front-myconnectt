@@ -60,15 +60,15 @@ function NewExperience(props) {
     startDate: Yup.string().required(
       intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })
     ),
-    endDate: Yup.string().when('isCurrentItem', {
-      is: 'False',
+    endDate: Yup.string().when("isCurrentItem", {
+      is: "False",
       then: Yup.string().test(
-        'date-min',
-        'La date de fin ne peut pas être antérieure à la date de début',
+        "date-min",
+        "La date de fin ne peut pas être antérieure à la date de début",
         function(value) {
           const { startDate } = this.parent;
           if (!value || !startDate) return true;
-          return moment(value).isSameOrAfter(moment(startDate), 'day');
+          return moment(value).isSameOrAfter(moment(startDate), "day");
         }
       ),
       otherwise: Yup.string()
@@ -136,13 +136,13 @@ function NewExperience(props) {
     const newDate = moment(date);
     setStartDate(newDate);
     setFieldValue("startDate", newDate);
-    
+
     // Si la date de fin est antérieure à la nouvelle date de début, la vider
-    if (endDate && moment(endDate).isBefore(newDate, 'day')) {
+    if (endDate && moment(endDate).isBefore(newDate, "day")) {
       setFieldValue("endDate", "");
       setEndDate("");
     }
-    
+
     // Réinitialiser l'erreur de date de fin
     setEndDateError(false);
   };
@@ -154,16 +154,16 @@ function NewExperience(props) {
       setEndDateError(false);
       return;
     }
-    
+
     const newDate = moment(date);
     const startDateMoment = moment(values.startDate);
-    
+
     // Vérifier si la date de fin est antérieure à la date de début
-    if (startDateMoment.isValid() && newDate.isBefore(startDateMoment, 'day')) {
+    if (startDateMoment.isValid() && newDate.isBefore(startDateMoment, "day")) {
       setEndDateError(true);
       return;
     }
-    
+
     setEndDate(newDate);
     setFieldValue("endDate", newDate);
     setFieldValue("isCurrentItem", "False");
@@ -197,18 +197,24 @@ function NewExperience(props) {
             setEndDateError(true);
             return;
           }
-          
+
           // Vérification stricte que la date de fin n'est pas antérieure à la date de début
-          if (values.endDate && values.startDate && 
-              moment(values.endDate).isBefore(moment(values.startDate), 'day')) {
+          if (
+            values.endDate &&
+            values.startDate &&
+            moment(values.endDate).isBefore(moment(values.startDate), "day")
+          ) {
             setEndDateError(true);
-            setFieldError("endDate", "La date de fin ne peut pas être antérieure à la date de début");
+            setFieldError(
+              "endDate",
+              "La date de fin ne peut pas être antérieure à la date de début"
+            );
             return;
           }
-          
+
           setJob("");
           setEndDateError(false);
-          
+
           if (selectedExperience) {
             const id = selectedExperience.id
               ? selectedExperience.id
@@ -391,12 +397,18 @@ function NewExperience(props) {
                         type="text"
                         placeholder="JJ/MM/AAAA"
                         name="endDate"
-                        minDate={values.startDate ? moment(values.startDate).toDate() : null}
+                        minDate={
+                          values.startDate
+                            ? moment(values.startDate).toDate()
+                            : null
+                        }
                         maxDate={moment().toDate()}
                         selected={
                           (values.endDate && new Date(values.endDate)) || null
                         }
-                        onChange={date => onChangeEndDate(date, setFieldValue, values)}
+                        onChange={date =>
+                          onChangeEndDate(date, setFieldValue, values)
+                        }
                         showMonthDropdown
                         showYearDropdown
                         yearItemNumber={9}
@@ -407,14 +419,13 @@ function NewExperience(props) {
                     {endDateError ? (
                       <div className="fv-plugins-message-container">
                         <div className="fv-help-block">
-                          {values.startDate ? 
-                            "La date de fin ne peut pas être antérieure à la date de début" :
-                            "Si vous êtes toujours en poste, laissez la date de fin de la mission à vide et cochez \"En poste\""
-                          }
+                          {values.startDate
+                            ? "La date de fin ne peut pas être antérieure à la date de début"
+                            : 'Si vous êtes toujours en poste, laissez la date de fin de la mission à vide et cochez "En poste"'}
                         </div>
                       </div>
                     ) : null}
-                    
+
                     {touched.endDate && errors.endDate ? (
                       <div className="fv-plugins-message-container">
                         <div className="fv-help-block">{errors.endDate}</div>
@@ -459,7 +470,7 @@ function NewExperience(props) {
                                   ? "False"
                                   : "True";
                               setFieldValue("isCurrentItem", newValue);
-                              
+
                               // Si on coche "En poste", vider la date de fin
                               if (newValue === "True") {
                                 setFieldValue("endDate", "");
@@ -498,7 +509,6 @@ function NewExperience(props) {
                   />
                 </span>
               </button>
-
             </Modal.Footer>
           </Form>
         )}
