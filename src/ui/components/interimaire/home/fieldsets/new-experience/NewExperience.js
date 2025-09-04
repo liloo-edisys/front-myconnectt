@@ -59,15 +59,26 @@ function NewExperience(props) {
     ),
     startDate: Yup.string().required(
       intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })
-    )
-    /*endDate: Yup.string().required(
-      intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })
-    )*/
+    ),
+    endDate: Yup.string().when('isCurrentItem', {
+      is: 'False',
+      then: Yup.string().test(
+        'date-min',
+        'La date de fin ne peut pas être antérieure à la date de début',
+        function(value) {
+          const { startDate } = this.parent;
+          if (!value || !startDate) return true;
+          return moment(value).isSameOrAfter(moment(startDate), 'day');
+        }
+      ),
+      otherwise: Yup.string()
+    })
   });
 
   useEffect(() => {
     if (selectedExperience) {
       setStartDate(selectedExperience.startDate);
+      setEndDate(selectedExperience.endDate || "");
     }
     let URL = `${process.env.REACT_APP_WEBAPI_URL}api/JobTitle`;
     axios
@@ -91,6 +102,7 @@ function NewExperience(props) {
     setJob(newValue);
     setFieldValue("jobTitle", newValue.label);
   };
+
   const customStyles = {
     control: (base, state) => ({
       ...base,
@@ -124,27 +136,44 @@ function NewExperience(props) {
     const newDate = moment(date);
     setStartDate(newDate);
     setFieldValue("startDate", newDate);
-    if (moment(endDate)._i < date) {
+    
+    // Si la date de fin est antérieure à la nouvelle date de début, la vider
+    if (endDate && moment(endDate).isBefore(newDate, 'day')) {
       setFieldValue("endDate", "");
       setEndDate("");
     }
+    
+    // Réinitialiser l'erreur de date de fin
+    setEndDateError(false);
   };
 
-  const onChangeEndDate = (date, setFieldValue) => {
+  const onChangeEndDate = (date, setFieldValue, values) => {
     if (date === null) {
       setEndDate("");
       setFieldValue("endDate", "");
+      setEndDateError(false);
       return;
     }
+    
     const newDate = moment(date);
+    const startDateMoment = moment(values.startDate);
+    
+    // Vérifier si la date de fin est antérieure à la date de début
+    if (startDateMoment.isValid() && newDate.isBefore(startDateMoment, 'day')) {
+      setEndDateError(true);
+      return;
+    }
+    
     setEndDate(newDate);
     setFieldValue("endDate", newDate);
     setFieldValue("isCurrentItem", "False");
+    setEndDateError(false);
   };
 
   const closeModal = () => {
     hideExperienceForm();
     setSelectedExperience(null);
+    setEndDateError(false);
   };
 
   return (
@@ -162,12 +191,24 @@ function NewExperience(props) {
           selectedExperience ? initialValuesFromParent : initialValues
         }
         validationSchema={NewExperienceSchema}
-        setFieldValue
-        onSubmit={(values, { setSubmitting }) => {
+        onSubmit={(values, { setSubmitting, setFieldError }) => {
+          // Validation finale avant soumission
           if (values.isCurrentItem === "False" && !values.endDate) {
-            return setEndDateError(true);
+            setEndDateError(true);
+            return;
           }
+          
+          // Vérification stricte que la date de fin n'est pas antérieure à la date de début
+          if (values.endDate && values.startDate && 
+              moment(values.endDate).isBefore(moment(values.startDate), 'day')) {
+            setEndDateError(true);
+            setFieldError("endDate", "La date de fin ne peut pas être antérieure à la date de début");
+            return;
+          }
+          
           setJob("");
+          setEndDateError(false);
+          
           if (selectedExperience) {
             const id = selectedExperience.id
               ? selectedExperience.id
@@ -179,7 +220,6 @@ function NewExperience(props) {
               setErrorArray(tempErrorArray);
             }
           }
-          //setEmptyArrayError(false);
           addExperience(values, dispatch);
           hideExperienceForm();
           setSelectedExperience(null);
@@ -215,7 +255,7 @@ function NewExperience(props) {
                   ></Select>
                 </div>
                 <p style={{ color: "#1a759f", fontSize: 12 }}>
-                  Pour enrichir les fonctions dans l’entreprise, ajoutez des
+                  Pour enrichir les fonctions dans l'entreprise, ajoutez des
                   postes dans la section Matching.
                 </p>
               </div>
@@ -314,39 +354,6 @@ function NewExperience(props) {
                         locale="fr"
                       />
                     </div>
-                    {/*<DatePickerFieldExperience
-                      component={DatePickerFieldExperience}
-                      className={`form-control h-auto py-5 px-6 date-input-content`}
-                      iconHeight="55px"
-                      type="text"
-                      placeholder="JJ/MM/AAAA"
-                      name="startDate"
-                      maxDate={moment().toDate()}
-                      onChange={date =>
-                        onChangeStartDate(date, setFieldValue, values)
-                      }
-                      onChange={date => {
-                            setEndDate(date);
-                            props.formik.setFieldValue(
-                                "VacancyContractualVacancyEmploymentContractTypeEndDate",
-                                moment(date)
-                            );
-                            let data = props.formik.values;
-                            props.formik &&
-                                props.formik.values.missionHasVehicle === null &&
-                                delete data["missionHasVehicle"];
-                            dispatch(
-                                countMatching.request({
-                                    ...data,
-                                    jobTitleID: parseInt(selectedJobTitle)
-                                })
-                            );
-                        }}
-                      showMonthDropdown
-                      showYearDropdown
-                      yearItemNumber={9}
-                      locale="fr"
-                    />*/}
                     {touched.startDate && errors.startDate ? (
                       <div className="fv-plugins-message-container">
                         <div className="fv-help-block">{errors.startDate}</div>
@@ -384,11 +391,12 @@ function NewExperience(props) {
                         type="text"
                         placeholder="JJ/MM/AAAA"
                         name="endDate"
+                        minDate={values.startDate ? moment(values.startDate).toDate() : null}
                         maxDate={moment().toDate()}
                         selected={
                           (values.endDate && new Date(values.endDate)) || null
                         }
-                        onChange={date => onChangeEndDate(date, setFieldValue)}
+                        onChange={date => onChangeEndDate(date, setFieldValue, values)}
                         showMonthDropdown
                         showYearDropdown
                         yearItemNumber={9}
@@ -396,44 +404,20 @@ function NewExperience(props) {
                       />
                     </div>
 
-                    {/*<DatePickerFieldExperience
-                      component={DatePickerFieldExperience}
-                      iconHeight="55px"
-                      className={`form-control h-auto py-5 px-6 date-input-content`}
-                      type="text"
-                      placeholder="JJ/MM/AAAA"
-                      name="endDate"
-                      minDate={moment(startDate).toDate()}
-                      maxDate={new Date()}
-                      onChange={date => onChangeEndDate(date, setFieldValue)}
-                      onChange={date => {
-                            setEndDate(date);
-                            props.formik.setFieldValue(
-                                "VacancyContractualVacancyEmploymentContractTypeEndDate",
-                                moment(date)
-                            );
-                            let data = props.formik.values;
-                            props.formik &&
-                                props.formik.values.missionHasVehicle === null &&
-                                delete data["missionHasVehicle"];
-                            dispatch(
-                                countMatching.request({
-                                    ...data,
-                                    jobTitleID: parseInt(selectedJobTitle)
-                                })
-                            );
-                        }}
-                      showMonthDropdown
-                      showYearDropdown
-                      yearItemNumber={9}
-                      locale="fr"
-                      />*/}
                     {endDateError ? (
                       <div className="fv-plugins-message-container">
                         <div className="fv-help-block">
-                          Si vous êtes toujours en poste, laissez la date de fin
-                          de la mission à vide et cochez "En poste"
+                          {values.startDate ? 
+                            "La date de fin ne peut pas être antérieure à la date de début" :
+                            "Si vous êtes toujours en poste, laissez la date de fin de la mission à vide et cochez \"En poste\""
+                          }
                         </div>
+                      </div>
+                    ) : null}
+                    
+                    {touched.endDate && errors.endDate ? (
+                      <div className="fv-plugins-message-container">
+                        <div className="fv-help-block">{errors.endDate}</div>
                       </div>
                     ) : null}
                   </Col>
@@ -475,6 +459,13 @@ function NewExperience(props) {
                                   ? "False"
                                   : "True";
                               setFieldValue("isCurrentItem", newValue);
+                              
+                              // Si on coche "En poste", vider la date de fin
+                              if (newValue === "True") {
+                                setFieldValue("endDate", "");
+                                setEndDate("");
+                                setEndDateError(false);
+                              }
                             }}
                             disabled={values.endDate}
                           />
@@ -484,19 +475,6 @@ function NewExperience(props) {
                     </div>
                   </div>
                 </div>
-                {/*<div
-                      className="alert alert-custom alert-notice alert-light-warning fade show py-0"
-                      style={{alignItems: "center"}}
-                      role="alert"
-                    >
-                      <div className="alert-icon">
-                        <i className="flaticon-warning"></i>
-                      </div>
-                      <div>
-                          Si vous êtes toujours en poste, laissez la date de fin
-                          de la mission à vide et cochez "En poste"
-                      </div>
-                    </div>*/}
               </div>
             </Modal.Body>
             <Modal.Footer>
@@ -520,6 +498,7 @@ function NewExperience(props) {
                   />
                 </span>
               </button>
+
             </Modal.Footer>
           </Form>
         )}
