@@ -29,11 +29,12 @@ import { toastr } from "react-redux-toastr";
 import { Route } from "react-router-dom";
 import { getNationalitiesList } from "../../../../../business/actions/interimaire/InterimairesActions";
 
-import PlacesAutocomplete, {
-  geocodeByAddress,
-  getLatLng,
-  geocodeByPlaceId
-} from "react-places-autocomplete";
+// Import du module de codes postaux
+import {
+  searchByPostalCode,
+  getCommunesByPostalCode,
+  formatPostalCode
+} from "../../../../../utils/postalCodes";
 
 function FormStepTwo(props, formik) {
   const dispatch = useDispatch();
@@ -101,9 +102,16 @@ function FormStepTwo(props, formik) {
   const [birthDate, setBirthDate] = useState(null);
   const [birthPlace, setBirthPlace] = useState(null);
 
+  // États pour l'autocomplétion du code postal
+  const [postalCodeSuggestions, setPostalCodeSuggestions] = useState([]);
+  const [showPostalCodeSuggestions, setShowPostalCodeSuggestions] = useState(false);
+  const [selectedCommuneIndex, setSelectedCommuneIndex] = useState(-1);
+
   useEffect(() => {
-    !isNullOrEmpty(mobilePhoneNumber) &&
-      props.formik.setFieldTouched("mobilePhoneNumber", true);
+    if (props.formik && props.formik.values) {
+      !isNullOrEmpty(mobilePhoneNumber) &&
+        props.formik.setFieldTouched("mobilePhoneNumber", true);
+    }
     !isNullOrEmpty(parsed) &&
       props.formik &&
       !isNullOrEmpty(parsed.firstname) &&
@@ -122,7 +130,7 @@ function FormStepTwo(props, formik) {
       handleChangeBirthName(parsed.maidenName);
     !isNullOrEmpty(parsed) &&
       !isNullOrEmpty(parsed.postalCode) &&
-      handleChangePostalCode(parsed.postalCode);
+      handleChangePostalCode(parsed.postalCode, false);
     !isNullOrEmpty(parsed) &&
       !isNullOrEmpty(parsed.address) &&
       handleChangeAddress(parsed.address);
@@ -159,80 +167,142 @@ function FormStepTwo(props, formik) {
       getNationalitiesList(dispatch);
     }
   }, [parsed]);
+
   const handleChangeFirstName = e => {
     setFirstName(e);
-    props.formik.setFieldTouched("firstname", true);
-
-    props.formik.setFieldValue("firstname", e);
+    if (props.formik && props.formik.values) {
+      props.formik.setFieldTouched("firstname", true);
+      props.formik.setFieldValue("firstname", e);
+    }
   };
+
   const handleChangeBirthDate = e => {
     e !== null ? setBirthDate(e) : setBirthDate(null);
-    props.formik.setFieldTouched("birthDate", true);
-
-    props.formik.setFieldValue("birthDate", e);
+    if (props.formik && props.formik.values) {
+      props.formik.setFieldTouched("birthDate", true);
+      props.formik.setFieldValue("birthDate", e);
+    }
   };
 
   const handleChangeBirthPlace = e => {
     e !== null ? setBirthPlace(e) : setBirthPlace(null);
-    props.formik.setFieldTouched("birthPlace", true);
-
-    props.formik.setFieldValue("birthPlace", e);
+    if (props.formik && props.formik.values) {
+      props.formik.setFieldTouched("birthPlace", true);
+      props.formik.setFieldValue("birthPlace", e);
+    }
   };
 
   const handleChangeLastName = e => {
     setLastName(e);
-    props.formik.setFieldTouched("lastname", true);
-
-    props.formik.setFieldValue("lastname", e);
+    if (props.formik && props.formik.values) {
+      props.formik.setFieldTouched("lastname", true);
+      props.formik.setFieldValue("lastname", e);
+    }
   };
+
   const handleChangeBirthName = e => {
     setMaidenName(e);
-    props.formik.setFieldValue("maidenName", e);
+    if (props.formik && props.formik.values) {
+      props.formik.setFieldValue("maidenName", e);
+    }
   };
+
   const handleChangeEmail = e => {
     setEmail(e);
-    props.formik.setFieldValue("email", e);
+    if (props.formik && props.formik.values) {
+      props.formik.setFieldValue("email", e);
+    }
   };
+
   const handleChangeMobilePhone = e => {
     setMobilePhoneNumber(e.replace(/\s/g, ""));
-    props.formik.setFieldTouched("mobilePhoneNumber", true);
-
-    props.formik.setFieldValue("mobilePhoneNumber", e.replace(/\s/g, ""));
+    if (props.formik && props.formik.values) {
+      props.formik.setFieldTouched("mobilePhoneNumber", true);
+      props.formik.setFieldValue("mobilePhoneNumber", e.replace(/\s/g, ""));
+    }
   };
 
   const handleChangeAddress = e => {
     setAddress(e);
-    props.formik.setFieldValue("address", e);
-  };
-
-  const handleSelectAddress = async (address, placeId, setFieldValue) => {
-    const results = await geocodeByAddress(address);
-    const latLng = await getLatLng(results[0]);
-    const [place] = await geocodeByPlaceId(placeId);
-    const { long_name: postalCode = "" } =
-      place.address_components.find(c => c.types.includes("postal_code")) || {};
-    const { long_name: city = "" } =
-      place.address_components.find(c => c.types.includes("locality")) || {};
-    const addressArray = address.split(",");
-    setAddress(addressArray[0]);
-    setPostalCode(postalCode);
-    setCity(city);
-    props.formik.setFieldValue("address", addressArray[0]);
-    props.formik.setFieldValue("postalCode", postalCode);
-    props.formik.setFieldValue("city", city);
+    if (props.formik && props.formik.values) {
+      props.formik.setFieldValue("address", e);
+    }
   };
 
   const handleChangeAdditionalAddress = e => {
     setAdditionalAddress(e);
-    props.formik.setFieldValue("additionalAddress", e);
+    if (props.formik && props.formik.values) {
+      props.formik.setFieldValue("additionalAddress", e);
+    }
   };
-  const handleChangePostalCode = e => {
-    setPostalCode(e);
-    props.formik.setFieldValue("postalCode", e);
-    props.formik.setFieldTouched("postalCode");
+
+  // Gestion du code postal avec autocomplétion
+  const handleChangePostalCode = (e, showSuggestions = true) => {
+    const value = e ? e.toString() : "";
+    setPostalCode(value);
+    if (props.formik && props.formik.values) {
+      props.formik.setFieldValue("postalCode", value);
+      props.formik.setFieldTouched("postalCode", true);
+    }
+
+    // Recherche des communes correspondantes seulement si demandé
+    if (showSuggestions && value && value.length > 0) {
+      const suggestions = searchByPostalCode(value, 10);
+      setPostalCodeSuggestions(suggestions);
+      setShowPostalCodeSuggestions(true);
+      setSelectedCommuneIndex(-1);
+    } else {
+      setPostalCodeSuggestions([]);
+      setShowPostalCodeSuggestions(false);
+    }
   };
+
+  // Sélection d'une commune depuis les suggestions
+  const handleSelectCommune = commune => {
+    const formattedCode = formatPostalCode(commune.Codepos);
+    setPostalCode(formattedCode);
+    setCity(commune.Commune);
+    if (props.formik && props.formik.values) {
+      props.formik.setFieldValue("postalCode", formattedCode);
+      props.formik.setFieldValue("city", commune.Commune);
+    }
+    setShowPostalCodeSuggestions(false);
+    setPostalCodeSuggestions([]);
+  };
+
+  // Gestion de la navigation au clavier dans les suggestions
+  const handlePostalCodeKeyDown = e => {
+    if (!showPostalCodeSuggestions || postalCodeSuggestions.length === 0) return;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setSelectedCommuneIndex(prev =>
+          prev < postalCodeSuggestions.length - 1 ? prev + 1 : prev
+        );
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setSelectedCommuneIndex(prev => (prev > 0 ? prev - 1 : -1));
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (selectedCommuneIndex >= 0) {
+          handleSelectCommune(postalCodeSuggestions[selectedCommuneIndex]);
+        }
+        break;
+      case "Escape":
+        setShowPostalCodeSuggestions(false);
+        break;
+      default:
+        break;
+    }
+  };
+
   useEffect(() => {
-    props.formik.setFieldTouched("postalCode");
+    if (props.formik && props.formik.values) {
+      props.formik.setFieldTouched("postalCode");
+    }
   }, [postalCode]);
 
   useEffect(() => {
@@ -246,15 +316,23 @@ function FormStepTwo(props, formik) {
 
   const handleChangeCity = e => {
     setCity(e);
-    props.formik.setFieldValue("city", e);
+    if (props.formik && props.formik.values) {
+      props.formik.setFieldValue("city", e);
+    }
   };
+
   const handleChangeSelectedGender = e => {
     setSelectedGender(parseInt(e));
-    props.formik.setFieldValue("titleTypeID", parseInt(e));
+    if (props.formik && props.formik.values) {
+      props.formik.setFieldValue("titleTypeID", parseInt(e));
+    }
   };
+
   const handleChangeNationality = e => {
     setNationality(parseInt(e));
-    props.formik.setFieldValue("nationalityID", parseInt(e));
+    if (props.formik && props.formik.values) {
+      props.formik.setFieldValue("nationalityID", parseInt(e));
+    }
   };
 
   const createOption = (label, value) => ({
@@ -314,7 +392,9 @@ function FormStepTwo(props, formik) {
         fileName: fileName,
         base64: stringBase64
       };
-      props.formik.setFieldValue("applicantPicture", appPicture);
+      if (props.formik && props.formik.values) {
+        props.formik.setFieldValue("applicantPicture", appPicture);
+      }
     };
 
     reader.readAsDataURL(file);
@@ -333,6 +413,7 @@ function FormStepTwo(props, formik) {
       />
     </label>
   );
+
   const Edit = ({ onSubmit, children }) => (
     <div className="card">
       <form onSubmit={onSubmit}>{children}</form>
@@ -342,6 +423,7 @@ function FormStepTwo(props, formik) {
   const hideDeleteModal = () => {
     setToggleDeleteModal(false);
   };
+
   return (
     <>
       <div className="d-flex flex-row">
@@ -626,87 +708,23 @@ function FormStepTwo(props, formik) {
                             <span className="asterisk">*</span>
                           </label>
                           <div className="input-group">
-                            <PlacesAutocomplete
-                              value={address}
-                              onChange={handleChangeAddress}
-                              onSelect={(address, placeId) =>
-                                handleSelectAddress(address, placeId)
+                            <div className="input-group-prepend">
+                              <span className="input-group-text">
+                                <i className="icon-xl fas fa-home text-primary"></i>
+                              </span>
+                            </div>
+                            <input
+                              placeholder={intl.formatMessage({
+                                id: "MODEL.ACCOUNT.ADDRESS"
+                              })}
+                              type="text"
+                              className={`form-control h-auto py-5 px-6`}
+                              name="address"
+                              onChange={e =>
+                                handleChangeAddress(e.target.value)
                               }
-                            >
-                              {({
-                                getInputProps,
-                                suggestions,
-                                getSuggestionItemProps,
-                                loading
-                              }) => (
-                                <div
-                                  style={{
-                                    width: "100%",
-                                    display: "flex",
-                                    position: "relative"
-                                  }}
-                                >
-                                  <div className="input-group-prepend">
-                                    <span
-                                      className="input-group-text"
-                                      style={{ borderRadius: "5px 0 0 5px" }}
-                                    >
-                                      <i className="icon-xl fas fa-home text-primary"></i>
-                                    </span>
-                                  </div>
-                                  <input
-                                    className={`form-control h-auto py-5 px-6 google-map-input-content`}
-                                    {...getInputProps({
-                                      placeholder: "Entrez votre adresse"
-                                    })}
-                                  />
-                                  <div
-                                    className="autocomplete-dropdown-container google-map-input"
-                                    style={{
-                                      position: "absolute",
-                                      top: 55,
-                                      left: 55,
-                                      zIndex: 1
-                                    }}
-                                  >
-                                    {loading && (
-                                      <div>
-                                        <FormattedMessage id="MESSAGE.SEARCH.ONGOING" />
-                                      </div>
-                                    )}
-                                    {suggestions.map(suggestion => {
-                                      const className = suggestion.active
-                                        ? "suggestion-item--active"
-                                        : "suggestion-item";
-                                      const style = suggestion.active
-                                        ? {
-                                            backgroundColor: "#fafafa",
-                                            cursor: "pointer",
-                                            padding: 5
-                                          }
-                                        : {
-                                            backgroundColor: "#ffffff",
-                                            cursor: "pointer",
-                                            padding: 5
-                                          };
-                                      return (
-                                        <div
-                                          {...getSuggestionItemProps(
-                                            suggestion,
-                                            {
-                                              className,
-                                              style
-                                            }
-                                          )}
-                                        >
-                                          <span>{suggestion.description}</span>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                </div>
-                              )}
-                            </PlacesAutocomplete>
+                              value={address}
+                            />
                           </div>
                           {touched.address && errors.address ? (
                             <div className="fv-plugins-message-container">
@@ -747,14 +765,13 @@ function FormStepTwo(props, formik) {
                             <FormattedMessage id="MODEL.ACCOUNT.POSTALCODE" />
                             <span className="asterisk">*</span>
                           </label>
-                          <div className="input-group">
+                          <div className="input-group" style={{ position: "relative" }}>
                             <div className="input-group-prepend">
                               <span className="input-group-text">
                                 <i className="icon-xl fas fa-home text-primary"></i>
                               </span>
                             </div>
                             <input
-                              disabled
                               placeholder={intl.formatMessage({
                                 id: "MODEL.ACCOUNT.POSTALCODE"
                               })}
@@ -764,8 +781,69 @@ function FormStepTwo(props, formik) {
                               onChange={e =>
                                 handleChangePostalCode(e.target.value)
                               }
+                              onKeyDown={handlePostalCodeKeyDown}
+                              onFocus={() =>
+                                postalCodeSuggestions.length > 0 &&
+                                setShowPostalCodeSuggestions(true)
+                              }
+                              onBlur={() =>
+                                setTimeout(
+                                  () => setShowPostalCodeSuggestions(false),
+                                  200
+                                )
+                              }
                               value={postalCode}
+                              autoComplete="off"
                             />
+                            {showPostalCodeSuggestions &&
+                              postalCodeSuggestions.length > 0 && (
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    top: "100%",
+                                    left: 0,
+                                    right: 0,
+                                    zIndex: 1000,
+                                    backgroundColor: "#fff",
+                                    border: "1px solid #ddd",
+                                    borderRadius: "4px",
+                                    maxHeight: "200px",
+                                    overflowY: "auto",
+                                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+                                  }}
+                                >
+                                  {postalCodeSuggestions.map((commune, index) => (
+                                    <div
+                                      key={commune.__id}
+                                      style={{
+                                        padding: "8px 12px",
+                                        cursor: "pointer",
+                                        backgroundColor:
+                                          index === selectedCommuneIndex
+                                            ? "#f0f0f0"
+                                            : "#fff",
+                                        borderBottom:
+                                          index < postalCodeSuggestions.length - 1
+                                            ? "1px solid #eee"
+                                            : "none"
+                                      }}
+                                      onClick={() => handleSelectCommune(commune)}
+                                      onMouseEnter={() =>
+                                        setSelectedCommuneIndex(index)
+                                      }
+                                    >
+                                      <strong>
+                                        {formatPostalCode(commune.Codepos)}
+                                      </strong>{" "}
+                                      - {commune.Commune}
+                                      <br />
+                                      <small style={{ color: "#666" }}>
+                                        {commune.Departement}
+                                      </small>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                           </div>
                           {touched.postalCode && errors.postalCode ? (
                             <div className="fv-plugins-message-container">
@@ -897,10 +975,12 @@ function FormStepTwo(props, formik) {
                                   type="checkbox"
                                   onChange={() => {
                                     setHasSms(!hasSms);
-                                    props.formik.setFieldValue(
-                                      "hasSms",
-                                      !props.formik.values.hasSms
-                                    );
+                                    if (props.formik && props.formik.values) {
+                                      props.formik.setFieldValue(
+                                        "hasSms",
+                                        !props.formik.values.hasSms
+                                      );
+                                    }
                                   }}
                                   checked={hasSms}
                                   name=""
