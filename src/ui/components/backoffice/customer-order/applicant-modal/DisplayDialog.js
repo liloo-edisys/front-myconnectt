@@ -652,7 +652,7 @@ export function DisplayDialog({ show, onHide, history, data }) {
                 <div className="card-header border-0 py-5">
                   <h3 className="card-title align-items-start flex-column">
                     <span className="card-label font-weight-bolder text-dark">
-                      <FormattedMessage id="TEXT.CHECK.DOCUMENTS" />
+                      {/* <FormattedMessage id="TEXT.CHECK.DOCUMENTS" /> */}
                     </span>
                   </h3>
                 </div>

@@ -6,29 +6,16 @@
 // Data validation is based on Yup
 // Please, be familiar with article first:
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toastr } from "react-redux-toastr";
 
-import { Field } from "formik";
-import { Row, Col } from "react-bootstrap";
-import { useDropzone } from "react-dropzone";
-import { Zoom } from "react-reveal";
+import { Row, Col, Modal, Button, Alert, ProgressBar } from "react-bootstrap";
 import _ from "lodash";
-import { Input } from "metronic/_partials/controls";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import Select from "react-select";
-import CreatableSelect from "react-select/creatable";
-import { countMatching } from "actions/client/ApplicantsActions";
 import { useFormikContext } from "formik";
 import useLocalStorage from "../../../shared/PersistState";
 import MissionWizzardHeader from "./MissionWizzardHeader";
-import moment from "moment";
-import BootstrapTable from "react-bootstrap-table-next";
-import DateColumnFormatter from "./DateColumnFormatter";
-import { ProfileExperiencesModal } from "../profileModals/ProfileExperiencesModal";
-import ActionsColumnFormatter from "./ActionsColumnFormatter";
 import { DeleteExperienceModal } from "../profileModals/DeleteExperienceModal";
 import { updateApplicant } from "actions/client/ApplicantsActions";
 import { parseResume as parseResumeActions } from "actions/interimaire/InterimairesActions";
@@ -38,19 +25,34 @@ import { getHabilitationsList } from "actions/client/MissionsActions";
 import uuid from "react-uuid";
 import NewExperience from "../../home/fieldsets/new-experience/NewExperience";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import { validateMission } from "../../../../../business/actions/client/MissionsActions";
+import CVModificationModal from "./CVModificationModal";
+import { getApplicantById } from "actions/client/ApplicantsActions";
+
+// =============================================
+// IMPORT DU CVDrawer
+// =============================================
+import CVDrawer, { useCVDrawer } from "../../../shared/CVDrawer/CVDrawer";
+
+// =============================================
+// COMPOSANT MODAL DE MODIFICATION DE CV (INLINE)
+// =============================================
 
 function FormStepThree(props, formik) {
   const dispatch = useDispatch();
   const { intl } = props;
   const TENANTID = process.env.REACT_APP_TENANT_ID;
 
+  // =============================================
+  // HOOK CVDrawer
+  // =============================================
+  const { isOpen, currentPdfUrl, openDrawer, closeDrawer } = useCVDrawer();
+
   const optionsTime = {
     month: "short",
     year: "numeric"
   };
 
-  const { companies, parsed, updateInterimaireIdentityLoading } = useSelector(
+  const { parsed, updateInterimaireIdentityLoading } = useSelector(
     state => ({
       companies: state.companies.companies,
       parsed: state.interimairesReducerData.interimaire,
@@ -80,21 +82,102 @@ function FormStepThree(props, formik) {
       : null
   );
 
+  // =============================================
+  // ÉTAT POUR LA MODAL DE MODIFICATION DE CV
+  // =============================================
+  const [showCVModal, setShowCVModal] = useState(false);
+
   const [currentRow, setCurrentRow] = useState([]);
 
-  const createOption = (label, value) => ({
-    label,
-    value
-  });
+  // =============================================
+  // HANDLER POUR OUVRIR LE CVDrawer
+  // =============================================
+  const handleViewCV = e => {
+    e.preventDefault();
+    if (url) {
+      console.log("🔍 Ouverture CVDrawer avec URL:", url);
+      openDrawer(url);
+    } else {
+      toastr.error(
+        intl.formatMessage({ id: "ERROR" }),
+        "Aucun CV disponible pour l'affichage"
+      );
+    }
+  };
+
+  // =============================================
+  // HANDLERS POUR LA MODAL DE MODIFICATION DE CV
+  // =============================================
+  const handleModifyCV = () => {
+    setShowCVModal(true);
+  };
+
+  const handleCloseCVModal = () => {
+    setShowCVModal(false);
+  };
+
   const onHide = () => {
     setShow(false);
     setShowDelete(false);
     setShowEdit(false);
     setCurrentRow([]);
   };
+
+  const handleDataUpdate = async updateResult => {
+    try {
+      console.log("Mise à jour terminée, refresh des données...", updateResult);
+
+      if (updateResult.success && updateResult.applicantId) {
+        // Utiliser l'action existante pour re-fetch les données de l'applicant
+        dispatch(getApplicantById.request(updateResult.applicantId));
+
+        // Optionnel : mettre à jour aussi les expériences locales immédiatement
+        if (updateResult.experiences) {
+          setExperiences(updateResult.experiences);
+          props.formik &&
+            props.formik.setFieldValue(
+              "applicantExperiences",
+              updateResult.experiences
+            );
+        }
+
+        console.log(
+          "Données refresh déclenchées pour l'applicant:",
+          updateResult.applicantId
+        );
+      }
+    } catch (error) {
+      console.error("Erreur lors du refresh des données:", error);
+      toastr.error(
+        intl.formatMessage({ id: "ERROR" }),
+        "Erreur lors de la synchronisation"
+      );
+    }
+  };
+
   const [experiences, setExperiences] = useState(
     parsed && parsed.applicantExperiences ? parsed.applicantExperiences : []
   );
+
+  const saveArrayActivityDomains = newMissionArrayDesiredJobTitles => {
+    localStorage.setItem(
+      "missionArrayDesiredJobTitles",
+      JSON.stringify(newMissionArrayDesiredJobTitles)
+    );
+  };
+
+  saveArrayActivityDomains(parsed.missionArrayDesiredJobTitles || []);
+
+  useEffect(() => {
+    const saveArrayActivityDomains = newMissionArrayDesiredJobTitles => {
+      localStorage.setItem(
+        "missionArrayDesiredJobTitles",
+        JSON.stringify(newMissionArrayDesiredJobTitles)
+      );
+    };
+    saveArrayActivityDomains();
+    console.log("parsed value ------->", parsed.missionArrayDesiredJobTitles);
+  }, [parsed]);
 
   useEffect(() => {
     parsed &&
@@ -143,13 +226,7 @@ function FormStepThree(props, formik) {
       !isNullOrEmpty(experiences) &&
       props.formik.setFieldValue("applicantExperiences", experiences);
   }, [parsed]);
-  const useMountEffect = fun => useEffect(fun, []);
-  const filterXp = value => {
-    let filtered = _.filter(value, function(o) {
-      return o.isDeleted !== true;
-    });
-    return filtered;
-  };
+
   let formattedXp = () => {
     let xp = experiences.map((val, ix) => {
       val.keyField = ix;
@@ -157,23 +234,8 @@ function FormStepThree(props, formik) {
     });
     return xp;
   };
-  const handleEditExperience = xp => {
-    let newExperiences =
-      parsed && !isNullOrEmpty(parsed.applicantExperiences)
-        ? parsed.applicantExperiences
-        : [];
-    newExperiences.push({ ...xp, id: isNaN(xp.id) ? 0 : 0 });
-    props.formik.setFieldValue("applicantExperiences", newExperiences);
-    setExperiences(parsed.applicantExperiences);
-  };
 
-  const handleUpdateExperience = (xp, row) => {
-    let newExperiences = experiences;
-    newExperiences[row] = xp;
-    props.formik.setFieldValue("applicantExperiences", newExperiences);
-    setExperiences(newExperiences);
-  };
-  const deleteExperience = row => {
+  const deleteExperience = () => {
     let xp = formattedXp();
     const updatedHero = xp.filter(
       item => item.keyField !== currentRow.keyField
@@ -181,105 +243,15 @@ function FormStepThree(props, formik) {
     setExperiences(updatedHero);
     props.formik.setFieldValue("applicantExperiences", updatedHero);
   };
-  const { errors, touched } = useFormikContext();
-  /*let columns = [
-    {
-      dataField: "jobTitle",
-      text: intl.formatMessage({ id: "TEXT.PAST.JOB" }),
-      sort: true,
-      headerStyle: (colum, colIndex) => {
-        return { width: "180px" };
-      },
-    },
-    {
-      dataField: "startDate",
-      text: intl.formatMessage({ id: "TEXT.STARTDATE" }),
-      sort: true,
-      formatter: DateColumnFormatter,
-    },
-    {
-      dataField: "endDate",
-      text: intl.formatMessage({ id: "TEXT.ENDDATE" }),
-      sort: true,
-      formatter: DateColumnFormatter,
-    },
-    {
-      dataField: "employerNameAndPlace",
-      text: intl.formatMessage({ id: "TEXT.COMPANY" }),
-      sort: true,
-    },
-    {
-      dataField: "place",
-      text: intl.formatMessage({ id: "MODEL.LOCATION" }),
-      sort: true,
-    },
-    {
-      dataField: "isCurrentItem",
-      text: intl.formatMessage({ id: "MODEL.ACCOUNT.CURRENT" }),
-      formatter: (row, value) => <span>{row === "true" ? "oui" : "non"} </span>,
-      sort: true,
-    },
-    {
-      dataField: "description",
-      text: intl.formatMessage({ id: "MODEL.ACCOUNT.DESCRIPTION" }),
-      sort: true,
-    },
-
-    {
-      dataField: "action",
-      text: intl.formatMessage({ id: "MENU.ACTIONS" }),
-      classes: "text-right pr-0",
-      headerClasses: "text-right pr-3",
-      formatter: ActionsColumnFormatter,
-      style: {
-        minWidth: "100px",
-      },
-      formatExtraData: {
-        openEditModal: (row, rowIndex) => {
-          setShowEdit(true);
-          setCurrentRow({ ...row, index: rowIndex });
-        },
-        openDeleteModal: (row) => {
-          setShowDelete(true);
-          setCurrentRow(row);
-        },
-        deleteExperience: (row) => deleteExperience(row),
-        handleUpdateExperience: (row) => handleUpdateExperience(row),
-      },
-    },
-  ];*/
-
-  const NoDataIndication = () => {
-    return (
-      <div className="d-flex justify-content-center mt-5">
-        <div
-          className="alert alert-custom alert-notice alert-light-danger fade show px-5 py-0"
-          role="alert"
-        >
-          <div className="alert-icon">
-            <i className="flaticon-warning"></i>
-          </div>
-          <div className="alert-text">
-            <FormattedMessage id="MESSAGE.NO.EXPERIENCE" />
-          </div>
-        </div>
-      </div>
-    );
-  };
+  useFormikContext();
 
   const openDeleteModal = row => {
     setShowDelete(true);
     setCurrentRow(row);
   };
 
-  const openEditModal = (row, rowIndex) => {
-    setShowEdit(true);
-    setCurrentRow({ ...row, index: rowIndex });
-  };
-
   const getBase64 = file => {
     return new Promise(resolve => {
-      let fileInfo;
       let baseURL = "";
       // Make new FileReader
       let reader = new FileReader();
@@ -310,73 +282,67 @@ function FormStepThree(props, formik) {
         intl.formatMessage({ id: "TEXT.EXPERIENCE.ERROR" })
       );
     }
-    dispatch(updateApplicant.request(props.formik.values));
 
-    /*let errorArrayTemp = [];
-    const { applicantExperiences } = parsed;
-    for (let i = 0; i < applicantExperiences.length; i++) {
-      if (
-        !applicantExperiences[i].jobTitle ||
-        !applicantExperiences[i].employerNameAndPlace ||
-        !applicantExperiences[i].startDate ||
-        !applicantExperiences[i].endDate
-      ) {
-        if (applicantExperiences[i].id) {
-          errorArrayTemp.push(applicantExperiences[i].id);
-        } else {
-          errorArrayTemp.push(applicantExperiences[i].id_temp);
+    // Préparer les données à envoyer avec missionArrayDesiredJobTitles
+    const dataToSend = {
+      ...props.formik.values,
+      missionArrayDesiredJobTitles: parsed.missionArrayDesiredJobTitles || []
+    };
+
+    dispatch(updateApplicant.request(dataToSend));
+  };
+
+  // =============================================
+  // FONCTION DE MISE À JOUR DU CV POUR LA MODAL
+  // =============================================
+  const handleCVUpdate = async file => {
+    setLoading(true);
+    setUrl(null);
+
+    try {
+      const base64Result = await getBase64(file);
+      file["base64"] = base64Result;
+      let stringBase64 = base64Result.split(",")[1];
+
+      const data = await parseResume({
+        tenantID: parseInt(TENANTID),
+        applicantID: parsed.id,
+        document: stringBase64,
+        Filename: file.name
+      });
+
+      let newExperiencesArray = [];
+      const { applicantExperiences } = data.data;
+
+      for (let i = 0; i < applicantExperiences?.length; i++) {
+        if (applicantExperiences[i]?.id === 0) {
+          let newObject = {
+            ...applicantExperiences[i],
+            id_temp: uuid()
+          };
+          delete newObject.id;
+          newExperiencesArray.push(newObject);
         }
       }
+
+      data.data.applicantExperiences = newExperiencesArray;
+      dispatch(parseResumeActions.success(data));
+      setUrl(encoreUrl(data.data.primaryCurriculumVitaeUrl));
+
+      toastr.success("Succès", "CV mis à jour avec succès");
+
+      return data;
+    } catch (err) {
+      console.error("Erreur lors de la mise à jour du CV:", err);
+      // toastr.error(
+      //   intl.formatMessage({ id: "ERROR" }),
+      //   "Erreur lors de la mise à jour du CV"
+      // );
+      throw err;
+    } finally {
+      setLoading(false);
     }
-    if (errorArrayTemp.length > 0) {
-      return setErrorArray(errorArrayTemp);
-    } else {
-      dispatch(updateApplicant.request(props.formik.values));
-    }*/
-    //props.history.push("/int-profile-edit/step-four");
   };
-  const { getRootProps, getInputProps } = useDropzone({
-    accept: ".pdf, .doc, .docx",
-    onDrop: acceptedFiles => {
-      setLoading(true);
-      let { file } = files;
-      setUrl(null);
-      file = acceptedFiles[0];
-      getBase64(file)
-        .then(result => {
-          setLoading(true);
-          file["base64"] = result;
-          let stringBase64 = result.split(",")[1];
-          parseResume({
-            tenantID: parseInt(TENANTID),
-            applicantID: parsed.id,
-            document: stringBase64,
-            Filename: file.name
-          }).then(data => {
-            let newExperiencesArray = [];
-            const { applicantExperiences } = data.data;
-            for (let i = 0; i < applicantExperiences.length; i++) {
-              if (applicantExperiences[i].id === 0) {
-                let newObject = {
-                  ...applicantExperiences[i],
-                  id_temp: uuid()
-                };
-                delete newObject.id;
-                newExperiencesArray.push(newObject);
-              }
-            }
-            data.data.applicantExperiences = newExperiencesArray;
-            dispatch(parseResumeActions.success(data));
-            setUrl(encoreUrl(data.data.primaryCurriculumVitaeUrl));
-          });
-          return file;
-        })
-        .catch(err => {
-          console.log(err);
-          setLoading(false);
-        });
-    }
-  });
 
   function encoreUrl(str) {
     let newUrl = "";
@@ -412,7 +378,7 @@ function FormStepThree(props, formik) {
   }
 
   const onSelectExperience = experience => {
-    setErrorArray([]);
+    // setErrorArray([]);
     setToogleExperienceForm(true);
     let newExperience = {
       id: experience.id,
@@ -437,7 +403,7 @@ function FormStepThree(props, formik) {
   };
 
   const showExperienceForm = () => {
-    setErrorArray([]);
+    // setErrorArray([]);
     setToogleExperienceForm(true);
   };
 
@@ -448,6 +414,7 @@ function FormStepThree(props, formik) {
   const onDeleteExperience = value => {
     setErrorArray(value);
   };
+
   return (
     <>
       <div className="d-flex flex-row">
@@ -481,21 +448,33 @@ function FormStepThree(props, formik) {
                             }
                           ></i>
                           <div>
-                            <a
+                            {/* =============================================
+                                BOUTON POUR VOIR LE CV
+                                ============================================= */}
+                            <button
                               className="btn btn-light-primary"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              href={`/document/display/${url}`}
+                              onClick={handleViewCV}
+                              disabled={!url}
+                              type="button"
                             >
+                              <i className="fas fa-eye mr-2"></i>
                               Voir mon CV
-                            </a>
-                            <div
-                              {...getRootProps()}
+                            </button>
+
+                            {/* =============================================
+                                BOUTON POUR MODIFIER LE CV (MODAL)
+                                ============================================= */}
+                            <button
                               className="btn btn-light-primary ml-5"
+                              onClick={handleModifyCV}
+                              type="button"
                             >
-                              <input {...getInputProps()} />
-                              <FormattedMessage id="TEXT.CHANGE_CV.TITLE" />
-                            </div>
+                              <i className="fas fa-edit mr-2"></i>
+                              <FormattedMessage
+                                id="TEXT.CHANGE_CV.TITLE"
+                                defaultMessage="Modifier mon CV"
+                              />
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -528,13 +507,6 @@ function FormStepThree(props, formik) {
                   </div>
                   <div className="row mx-10-responsive">
                     <div className="pb-5 width-full">
-                      {/*<NewExperience
-                        selectedExperience={selectedExperience}
-                        hideExperienceForm={hideExperienceForm}
-                        toogleExperienceForm={toogleExperienceForm}
-                        setSelectedExperience={setSelectedExperience}
-                        setEmptyArrayError={setEmptyArrayError}
-                      />*/}
                       <NewExperience
                         selectedExperience={selectedExperience}
                         hideExperienceForm={hideExperienceForm}
@@ -554,7 +526,7 @@ function FormStepThree(props, formik) {
                         setEmptyArrayError={setEmptyArrayError}
                       />
                       <Row className="pt-5 ">
-                        {formattedXp().map((experience, i) => (
+                        {formattedXp().map(experience => (
                           <Col
                             xl={4}
                             lg={12}
@@ -678,6 +650,45 @@ function FormStepThree(props, formik) {
       <div className="display_bottom_menu_profile">
         <MissionWizzardHeader props={props} />
       </div>
+
+      {/* =============================================
+          CVDrawer INTÉGRÉ
+          ============================================= */}
+      <CVDrawer
+        isOpen={isOpen}
+        onClose={closeDrawer}
+        pdfUrl={currentPdfUrl}
+        title="Mon CV"
+        width="70%"
+        position="left"
+        downloadFileName={parsed?.primaryCurriculumVitaeFilename || "CV.pdf"}
+        showControls={true}
+        backdrop={true}
+        onError={error => {
+          console.error("Erreur CVDrawer:", error);
+          toastr.error(
+            intl.formatMessage({ id: "ERROR" }),
+            "Erreur lors de l'affichage du CV"
+          );
+        }}
+        onLoad={data => {
+          console.log("CV chargé avec succès:", data);
+        }}
+      />
+
+      {/* =============================================
+          MODAL DE MODIFICATION DE CV - TEMPORAIREMENT COMMENTÉE
+          ============================================= */}
+
+      <CVModificationModal
+        show={showCVModal}
+        onHide={handleCloseCVModal}
+        onCVUpdate={handleCVUpdate}
+        onDataUpdate={handleDataUpdate}
+        intl={intl}
+        loading={loading}
+        currentCVFilename={parsed?.primaryCurriculumVitaeFilename}
+      />
     </>
   );
 }

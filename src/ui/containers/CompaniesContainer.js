@@ -32,9 +32,9 @@ const mapDispatchToProps = dispatch => ({
   getPaymentChoices: () => {
     dispatch(getPaymentChoicesActions.request());
   },
-  createCompany: data => {
-    dispatch(createCompanyActions.request(data));
-  },
+  // createCompany: (data) => {
+  //   dispatch(createCompanyActions.request(data));
+  // },
   updateCompany: data => {
     dispatch(updateCompanyActions.request(data));
   }

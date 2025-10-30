@@ -50,7 +50,7 @@ function ApplicantListModal(props) {
     };
     const APPLICATION_URL =
       process.env.REACT_APP_WEBAPI_URL +
-      "api/MissionApplication/ApproveByBackOffice";
+      "api/MissionApplication/ApproveByCustomer";
 
     axios
       .post(APPLICATION_URL, body)

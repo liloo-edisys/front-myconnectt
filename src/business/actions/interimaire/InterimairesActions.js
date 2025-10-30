@@ -15,11 +15,9 @@ import {
   ADD_EXPERIENCE,
   REMOVE_EXPERIENCE,
   GET_USER_START_GUIDE,
-  GO_TO_NEXT_STEP,
   USER_BY_MOBILE_SUCCESS,
   UPDATE_INTERIMAIRE_IDENTITY_REQUEST,
   UPDATE_INTERIMAIRE_IDENTITY_SUCCESS,
-  UPDATE_INTERIMAIRE_IDENTITY_FAILLED,
   CLEAR_ANIMATION_DURATION,
   SET_COUNT_MATCHING,
   INCREMENT_COUNT_APPLICATIONS,
@@ -318,6 +316,8 @@ export const getUserStartGuide = (interimaire, dispatch) => {
 
   axios.get(`${USER_START_GUIDE_URL}/${userID}`).then(res => {
     let step = null;
+    console.log("<-------- res.data --------->", res.data.length);
+
     const userGuideStep = Math.max.apply(
       Math,
       res.data.map(function(o) {
@@ -508,12 +508,15 @@ export const removeOneDocument = (body, step, dispatch) => {
     .catch(err => console.log(err));
 };
 
+let connection = null;
+
 export const setSignalRInterimaire = (
   authToken,
   dispatch,
   setSelectedNotif
 ) => {
-  const connection = new HubConnectionBuilder()
+  // Create new connection if not exists
+  connection = new HubConnectionBuilder()
     .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/interimaire", {
       accessTokenFactory: () => authToken
     })
@@ -522,7 +525,9 @@ export const setSignalRInterimaire = (
 
   connection
     .start()
-    .then(result => {
+    .then(() => {
+      console.log("SignalR connection established.");
+      connection.off("SendNotification");
       connection.on("SendNotification", notif => {
         dispatch({
           type: actionTypes.PUSH_NEW_NOTIF,
@@ -530,12 +535,22 @@ export const setSignalRInterimaire = (
         });
         setSelectedNotif(notif);
       });
+      connection.off("SendDelayedMessage");
+      connection.on("SendDelayedMessage", notif => {
+        dispatch({
+          type: actionTypes.PUSH_NEW_NOTIF,
+          payload: notif
+        });
+        setSelectedNotif(notif);
+      });
+      connection.off("UpdatePropositions");
       connection.on("UpdatePropositions", count => {
         dispatch({
           type: INCREMENT_COUNT_PROPOSITIONS,
           payload: count
         });
       });
+      connection.off("UpdateApplications");
       connection.on("UpdateApplications", count => {
         dispatch({
           type: INCREMENT_COUNT_APPLICATIONS,
@@ -543,7 +558,22 @@ export const setSignalRInterimaire = (
         });
       });
     })
-    .catch(e => console.log("Connection failed: ", e));
+    .catch(e => console.log("Connection with SignalR failed: ", e.message));
+
+  return connection;
+};
+
+export const stopSignalRConnection = async () => {
+  try {
+    if (connection && connection.state === "Connected") {
+      await connection.stop();
+      console.log("SignalR connection closed successfully");
+      connection = null;
+    }
+  } catch (err) {
+    console.error("Error closing SignalR connection:", err);
+    throw err;
+  }
 };
 
 export const getContractList = (body, dispatch) => {

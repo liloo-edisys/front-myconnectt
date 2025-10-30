@@ -18,7 +18,8 @@ import {
   getPaymentChoices
 } from "actions/shared/ListsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import LocationSearchInput from "./location-search-input";
+import AddressSearchInput from "../companiesForms/location-search-input/AddressSearchInput";
+
 import { useParams } from "react-router-dom";
 import axios from "axios";
 //import { parseResume } from "../../../../../business/api/interimaire/InterimairesApi";
@@ -53,9 +54,6 @@ function CompanyEditForm({ onHide, intl, history }) {
     if (isNullOrEmpty(invoiceTypes)) {
       dispatch(getInvoicesTypes.request());
     }
-    if (isNullOrEmpty(accountGroups)) {
-      dispatch(getAccountGroups.request());
-    }
     if (isNullOrEmpty(paymentChoices)) {
       dispatch(getPaymentChoices.request());
     }
@@ -73,7 +71,7 @@ function CompanyEditForm({ onHide, intl, history }) {
         );
       });
     }
-  }, [dispatch, apeNumber, invoiceTypes, accountGroups, paymentChoices]);
+  }, [dispatch, apeNumber, invoiceTypes, paymentChoices]);
 
   const handleChangePhone = (setFieldValue, setFieldTouched, e) => {
     setPhoneNumber(e && e.replace(/\s/g, ""));
@@ -122,7 +120,7 @@ function CompanyEditForm({ onHide, intl, history }) {
     description: currentCompany ? currentCompany.description : "",
     paymentCondition: currentCompany ? currentCompany.paymentCondition : 0,
     anaelID: currentCompany ? currentCompany.anaelID : "",
-    invoiceTypeID:
+    InvoiceTypeID:
       currentCompany && currentCompany.invoiceTypeID
         ? currentCompany.invoiceTypeID
         : 1,
@@ -325,9 +323,8 @@ function CompanyEditForm({ onHide, intl, history }) {
                 <div className="separator separator-solid-primary mt-10 mb-5 mx-30"></div>
 
                 <div className="form-group row">
-                  {/* Adresse */}
                   <div className="col-lg-6">
-                    <label className=" col-form-label">
+                    <label className="col-form-label">
                       <FormattedMessage id="MODEL.ACCOUNT.ADDRESS" />
                     </label>
                     <div className="input-group">
@@ -336,40 +333,59 @@ function CompanyEditForm({ onHide, intl, history }) {
                           <i className="icon-xl flaticon-map-location text-primary"></i>
                         </span>
                       </div>
-                      {/*<Field
-                        name="address"
-                        component={Input}
-                        placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.ADDRESS"
-                        })}
-                      />*/}
-                      <LocationSearchInput
+                      {/* Remplacement de LocationSearchInput */}
+                      <AddressSearchInput
                         address={address}
                         setAddress={setAddress}
                         setFieldValue={setFieldValue}
                         intl={intl}
-                      />
-                    </div>
-                  </div>
-                  {/* Complément d’adresse */}
-                  <div className="col-lg-6">
-                    <label className=" col-form-label">
-                      <FormattedMessage id="MODEL.ACCOUNT.ADDITIONALADDRESS" />
-                    </label>
-                    <div className="input-group">
-                      <div className="input-group-prepend">
-                        <span className="input-group-text">
-                          <i className="icon-xl far fa-map text-primary"></i>
-                        </span>
-                      </div>
-                      <Field
-                        name="additionaladdress"
-                        component={Input}
+                        name="address"
+                        hasError={errors.address && touched.address}
                         placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.ADDITIONALADDRESS"
+                          id: "MODEL.ACCOUNT.ADDRESS"
                         })}
+                        onAddressSelect={suggestion => {
+                          // Callback optionnel pour des actions supplémentaires
+                          console.log("Adresse sélectionnée:", suggestion);
+                          // Vous pouvez ajouter d'autres logiques ici si nécessaire
+                        }}
+                        customStyles={{
+                          container: {
+                            flex: 1 // Pour que le composant prenne toute la largeur disponible
+                          },
+                          input: {
+                            border: "none", // Enlever la bordure car elle est gérée par input-group
+                            boxShadow: "none"
+                          }
+                        }}
                       />
                     </div>
+                    {/* Affichage des erreurs */}
+                    {errors.address && touched.address && (
+                      <div className="invalid-feedback d-block">
+                        {errors.address}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {/* Complément d’adresse */}
+                <div className="col-lg-6">
+                  <label className=" col-form-label">
+                    <FormattedMessage id="MODEL.ACCOUNT.ADDITIONALADDRESS" />
+                  </label>
+                  <div className="input-group">
+                    <div className="input-group-prepend">
+                      <span className="input-group-text">
+                        <i className="icon-xl far fa-map text-primary"></i>
+                      </span>
+                    </div>
+                    <Field
+                      name="additionaladdress"
+                      component={Input}
+                      placeholder={intl.formatMessage({
+                        id: "MODEL.ACCOUNT.ADDITIONALADDRESS"
+                      })}
+                    />
                   </div>
                 </div>
 

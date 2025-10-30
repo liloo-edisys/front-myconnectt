@@ -31,6 +31,7 @@ import { getMission } from "api/client/MissionsApi";
 import { getMission as getMissionAction } from "actions/client/MissionsActions";
 import MissionHeaderDropdown from "../../shared/MissionHeaderDropdown";
 import SimulatorModalEmpty from "../missions/missionForms/SimulatorModalEmpty";
+
 import "./styles.scss";
 
 import {

@@ -1,4 +1,4 @@
-import React, { Component, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { ModalProgressBar } from "metronic/_partials/controls";
 import { Modal } from "react-bootstrap";
@@ -17,14 +17,15 @@ export function CompanyCreateHeader({ id, companyName }) {
   const intl = useIntl();
 
   const [title, setTitle] = useState("");
-  // Title couting
+
+  // Title counting
   useEffect(() => {
     let _title =
       intl.formatMessage({ id: "TITLE.MODIFICATION.OF" }) + companyName;
 
     setTitle(_title);
     // eslint-disable-next-line
-  }, [, actionsLoading]);
+  }, [companyName, actionsLoading, intl]);
 
   return (
     <>
@@ -36,32 +37,24 @@ export function CompanyCreateHeader({ id, companyName }) {
   );
 }
 
-class CompanyEditModal extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
-  render() {
-    const { id, show, onHide, updateCompany, history } = this.props;
-    const companyName = history.location.state
-      ? history.location.state.name
-      : "";
-    return (
-      <Modal
-        size="lg"
-        show={show}
+function CompanyEditModal({ id, show, onHide, updateCompany, history }) {
+  const companyName = history.location.state ? history.location.state.name : "";
+
+  return (
+    <Modal
+      size="lg"
+      show={show}
+      onHide={onHide}
+      aria-labelledby="example-modal-sizes-title-lg"
+    >
+      <CompanyCreateHeader id={id} companyName={companyName} />
+      <CompanyEditForm
+        updateCompany={updateCompany}
         onHide={onHide}
-        aria-labelledby="example-modal-sizes-title-lg"
-      >
-        <CompanyCreateHeader id={id} companyName={companyName} />
-        <CompanyEditForm
-          updateCompany={updateCompany}
-          onHide={onHide}
-          history={history}
-        />
-      </Modal>
-    );
-  }
+        history={history}
+      />
+    </Modal>
+  );
 }
 
 export default CompanyEditModal;

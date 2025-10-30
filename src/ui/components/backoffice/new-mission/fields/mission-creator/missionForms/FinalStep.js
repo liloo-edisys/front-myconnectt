@@ -32,6 +32,7 @@ import {
 } from "actions/client/MissionsActions";
 import { deleteFromStorage } from "../../../../../shared/DeleteFromStorage";
 import SimulatorModal from "./SimulatorModal";
+import RecurrenceModal from "./RecurrenceModal";
 import axios from "axios";
 function FinalStep(props) {
   const dispatch = useDispatch();
@@ -71,6 +72,80 @@ function FinalStep(props) {
   const [agreementValidated, setAgreementValidated] = useState(false);
   const [toggleSimulator, setToogleSimilator] = useState(false);
   let isPreview = localStorage.getItem("isPreview");
+  const [showRecurrenceModal, setShowRecurrenceModal] = useState(false);
+  const [existingRecurrence, setExistingRecurrence] = useState(null);
+  const [selectedRecurrenceType, setSelectedRecurrenceType] = useState(0);
+  const [nextDate, setNextDate] = useState(null);
+  const [isLoading, setIsLoading] = useState({ initial: true });
+  const [recurrenceTypes, setRecurrenceTypes] = useState();
+
+  const fetchExistingRecurrence = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_WEBAPI_URL}api/VacancyOfferProgram/ByVacancyId/${missionToDisplay.id}`,
+        {
+          headers: { accept: "text/plain" }
+        }
+      );
+      await console.log("fetchExistingRecurrence ---------> ", response.data);
+
+      setExistingRecurrence(response?.data?.recurrenceTypeName);
+      // Si la réponse est null ou undefined après un delete, on met typeID à 0
+      if (!response.data) {
+        setSelectedRecurrenceType(0);
+        setNextDate(null);
+      } else {
+        if (response.data.typeID) {
+          setSelectedRecurrenceType(response.data.typeID);
+          console.log(
+            "selectedRecurrenceType -----------------> ",
+            selectedRecurrenceType
+          );
+        }
+        if (response.data.nextDate) {
+          setNextDate(response.data.nextDate);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching existing recurrence:", error);
+      setExistingRecurrence(null);
+      // En cas d'erreur (y compris après un delete), on met typeID à 0
+      setSelectedRecurrenceType(0);
+      setNextDate(null);
+    } finally {
+      setIsLoading(prev => ({ ...prev, initial: false }));
+    }
+  };
+
+  const fetchRecurrenceTypes = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_WEBAPI_URL}api/VacancyOfferProgram/Types`,
+        {
+          headers: { accept: "text/plain" }
+        }
+      );
+      if (response.data) {
+        setRecurrenceTypes(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching recurrence types:", error);
+      setRecurrenceTypes([]);
+    }
+  };
+
+  // Modifiez la fonction handleClickAddReccurence
+  const handleClickAddReccurence = () => {
+    setShowRecurrenceModal(true);
+  };
+
+  // Ajoutez la fonction pour fermer le modal
+  const handleCloseRecurrenceModal = async () => {
+    setShowRecurrenceModal(false);
+    await fetchRecurrenceTypes();
+    fetchExistingRecurrence();
+  };
+
   const useMountEffect = fun => useEffect(fun, []);
   useEffect(() => {
     //mouse moves
@@ -90,6 +165,9 @@ function FinalStep(props) {
     dispatch(getJobTags.request());
     dispatch(getMissionEquipment.request());
     getHabilitationsList(dispatch);
+    fetchExistingRecurrence();
+    fetchRecurrenceTypes();
+    console.log("missionToDisplay -------> ", missionToDisplay);
   }, [dispatch]);
 
   useEffect(() => {
@@ -118,18 +196,6 @@ function FinalStep(props) {
     return reason.length && reason[0].name;
   };
 
-  const formatRecurrenceType = () => {
-    if (missionToDisplay.recurrenceType === 0) return "";
-    if (missionToDisplay.recurrenceType === 1)
-      return intl.formatMessage({ id: "TEXT.RECURRENCE.ANNUAL" });
-    if (missionToDisplay.recurrenceType === 2)
-      return intl.formatMessage({ id: "TEXT.RECURRENCE.MONTHLY" });
-    if (missionToDisplay.recurrenceType === 3)
-      return intl.formatMessage({ id: "TEXT.RECURRENCE.WEEKLY" });
-    if (missionToDisplay.recurrenceType === 4)
-      return intl.formatMessage({ id: "TEXT.RECURRENCE.END" });
-  };
-
   const deleteItems = () => {
     var result = {};
     for (var type in window.localStorage)
@@ -144,7 +210,7 @@ function FinalStep(props) {
     getMission(missionToDisplay.id)
       .then(localStorage.setItem("id", missionToDisplay.id))
       .then(deleteItems())
-      .then(props.history.push("/mission-create/step-one"));
+      .then(props.history.push(`/mission/update/${missionToDisplay.id}`));
   };
 
   const formatExperiences = () => {
@@ -565,6 +631,36 @@ function FinalStep(props) {
                     </div>
                   ) : (
                     <div>
+                      {/* <button
+                        onClick={() => handleClickAddReccurence()}
+                        type="button"
+                        className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
+                      >
+                        <FormattedMessage id={"BUTTON.OFFER.PROGRAM"} />
+                      </button> */}
+                      {missionToDisplay.status !== 2 &&
+                        missionToDisplay.status !== 3 &&
+                        missionToDisplay.status !== 4 && (
+                          <button
+                            onClick={() => handleClickAddReccurence()}
+                            type="button"
+                            className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
+                          >
+                            <FormattedMessage id={"BUTTON.OFFER.PROGRAM"} />
+                          </button>
+                        )}
+                      <button
+                        onClick={() => handleClickEdit()}
+                        type="button"
+                        className="btn btn-primary btn-shadow m-0 p-0 font-weight-bold px-9 py-4 my-3 mx-4"
+                      >
+                        <FormattedMessage id="BUTTON.EDIT" />
+                      </button>
+                      <RecurrenceModal
+                        show={showRecurrenceModal}
+                        onHide={handleCloseRecurrenceModal}
+                        vacancyID={missionToDisplay.id}
+                      />
                       <button
                         onClick={showSimulator}
                         type="button"
@@ -1045,43 +1141,46 @@ function FinalStep(props) {
                 {/* Fin Premier Jour */}
                 {/* Récurrence */}
                 <div className="row d-flex flex-column col-lg-12 justifify-content-center">
-                  <div className="d-flex flex-row mt-5">
+                  {existingRecurrence && (
                     <div>
-                      <i className="far fa-user icon-xl icon-blue"></i>
+                      <div className="d-flex flex-row mt-5">
+                        <div>
+                          <i className="far fa-user icon-xl icon-blue"></i>
+                        </div>
+                        <div className="d-flex flex-column ml-3">
+                          <h3 className="group-title">
+                            <FormattedMessage id="TEXT.RECURRENCE" />
+                          </h3>
+                        </div>
+                      </div>
+                      <div className="d-flex flex-row col-lg-12 justify-content-around ml-3">
+                        <div className="col-lg-3">
+                          <p className="block-title">
+                            <FormattedMessage id="TEXT.RECURRENCE.TYPE" />
+                          </p>
+                        </div>
+                        <div className="col-lg-3">
+                          <p className="font-weight-bolder">
+                            {existingRecurrence || ""}
+                          </p>
+                        </div>
+                        <div className="col-lg-3">
+                          <p className="block-title">
+                            <FormattedMessage id="TEXT.RECURRENCE_NEXT_DATE" />
+                          </p>
+                        </div>
+                        <div className="col-lg-3">
+                          <p className="font-weight-bolder">
+                            {nextDate
+                              ? Moment(nextDate)
+                                  .locale("fr")
+                                  .format("DD MMMM YYYY")
+                              : ""}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="d-flex flex-column ml-3">
-                      <h3 className="group-title">
-                        <FormattedMessage id="TEXT.RECURRENCE" />
-                      </h3>
-                    </div>
-                  </div>
-
-                  <div className="d-flex flex-row col-lg-12 justify-content-around ml-3">
-                    <div className="col-lg-3">
-                      <p className="block-title">
-                        <FormattedMessage id="TEXT.RECURRENCE.TYPE" />
-                      </p>
-                    </div>
-                    <div className="col-lg-3">
-                      <p className="font-weight-bolder">
-                        {formatRecurrenceType()}
-                      </p>
-                    </div>
-                    <div className="col-lg-3">
-                      <p className="block-title">
-                        <FormattedMessage id="TEXT.RECURRENCE.END_DATE" />
-                      </p>
-                    </div>
-                    <div className="col-lg-3">
-                      <p className="font-weight-bolder">
-                        {!isNullOrEmpty(missionToDisplay.recurrenceEndDate)
-                          ? Moment(missionToDisplay.recurrenceEndDate)
-                              .locale("fr")
-                              .format("DD MMMM YYYY")
-                          : null}
-                      </p>
-                    </div>
-                  </div>
+                  )}
                 </div>
                 {/* Fin récurrence */}
               </div>

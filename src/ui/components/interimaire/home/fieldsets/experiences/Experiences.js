@@ -52,6 +52,7 @@ function Experiences(props) {
   const [errorArray, setErrorArray] = useState([]);
   const [emptyArrayError, setEmptyArrayError] = useState(false);
   const [limitSetted, setLimitSetted] = useState(true);
+  const [processingFile, setProcessingFile] = useState(false);
 
   const initialValues = {
     email: "",
@@ -75,15 +76,15 @@ function Experiences(props) {
   };
 
   useEffect(() => {
-    interimaire &&
-      interimaire.primaryCurriculumVitaeUrl &&
-      isNullOrEmpty(resume) &&
-      setResume(interimaire.primaryCurriculumVitaeUrl);
-    isNullOrEmpty(url) &&
-      interimaire &&
-      !isNullOrEmpty(interimaire.primaryCurriculumVitaeUrl) &&
-      setUrl(encoreUrl(interimaire.primaryCurriculumVitaeUrl));
-  }, [interimaire, url]);
+    if (interimaire && interimaire.primaryCurriculumVitaeUrl) {
+      if (isNullOrEmpty(resume)) {
+        setResume(interimaire.primaryCurriculumVitaeUrl);
+      }
+      if (isNullOrEmpty(url)) {
+        setUrl(encoreUrl(interimaire.primaryCurriculumVitaeUrl));
+      }
+    }
+  }, [interimaire, url, resume]);
 
   const RegistrationSchema = Yup.object().shape({
     email: Yup.string()
@@ -118,13 +119,13 @@ function Experiences(props) {
     accept: ".pdf, .doc, .docx",
     onDrop: acceptedFiles => {
       setLoading(true);
+      setProcessingFile(true);
       setEmptyArrayError(false);
       let { file } = files;
       setUrl(null);
       file = acceptedFiles[0];
       getBase64(file)
         .then(result => {
-          setLoading(true);
           file["base64"] = result;
           let stringBase64 = result.split(",")[1];
           parseResume({
@@ -160,19 +161,22 @@ function Experiences(props) {
             }
             data.data.applicantExperiences = newExperiencesArray;
             dispatch(parseResumeActions.success(data));
-            setUrl(encoreUrl(data.data.primaryCurriculumVitaeUrl));
+
+            // Mise à jour de l'URL du CV
+            if (data.data.primaryCurriculumVitaeUrl) {
+              setResume(data.data.primaryCurriculumVitaeUrl);
+              setUrl(encoreUrl(data.data.primaryCurriculumVitaeUrl));
+            }
+
+            setLoading(false);
+            setProcessingFile(false);
           });
           return file;
         })
-        /*.then(res => {
-          setTimeout(() => {
-            setLoading(false);
-          }, 1000);
-          setFiles(res);
-        })*/
         .catch(err => {
           console.log(err);
           setLoading(false);
+          setProcessingFile(false);
         });
     }
   });
@@ -206,7 +210,6 @@ function Experiences(props) {
         newUrl +
         "&embedded=true&SameSite=None";
     }
-    setLoading(false);
     return url;
   }
 
@@ -217,7 +220,7 @@ function Experiences(props) {
   }
 
   const showExperienceForm = () => {
-    setErrorArray([]);
+    // setErrorArray([]);
     setToogleExperienceForm(true);
   };
 
@@ -226,7 +229,6 @@ function Experiences(props) {
   };
 
   const onSelectExperience = experience => {
-    //setErrorArray([]);
     setToogleExperienceForm(true);
     let newExperience = {
       id: experience.id,
@@ -387,6 +389,73 @@ function Experiences(props) {
     );
   };
 
+  // Rendu conditionnel du CV
+  const renderCVSection = () => {
+    if (processingFile) {
+      return (
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ height: "400px" }}
+        >
+          <div className="text-center">
+            <span className="spinner spinner-primary spinner-lg"></span>
+            <p className="mt-3">Traitement du CV en cours...</p>
+          </div>
+        </div>
+      );
+    }
+
+    const hasCV =
+      !isNullOrEmpty(interimaire) &&
+      !isNullOrEmpty(interimaire.primaryCurriculumVitaeUrl);
+
+    return (
+      <section
+        style={{ height: "400px" }}
+        className={
+          hasCV
+            ? "filled-dropzone dropzone-container"
+            : "dropzone-container-sm d-flex justify-content-center"
+        }
+      >
+        {hasCV ? (
+          <>
+            <div
+              {...getRootProps({
+                className:
+                  "custom-dropzone w-500 h-500 d-flex justify-content-center"
+              })}
+            >
+              <input {...getInputProps()} />
+            </div>
+            <aside id="frame" style={thumbsContainer}>
+              {loading || isLoading ? (
+                <span className="ml-3 spinner spinner-primary"></span>
+              ) : (
+                url && <IframeGoogleDocs loading={loading} url={url} />
+              )}
+            </aside>
+          </>
+        ) : (
+          <div
+            {...getRootProps({
+              className:
+                "custom-dropzone w-500 h-500 d-flex justify-content-center"
+            })}
+          >
+            <input {...getInputProps()} />
+            <h3 className="file-input-button loadcv_button bg-danger p-5">
+              <FormattedMessage id="TEXT.LOAD_CV.TITLE" />
+              {loading === true && (
+                <span className="ml-3 spinner spinner-secondary"></span>
+              )}
+            </h3>
+          </div>
+        )}
+      </section>
+    );
+  };
+
   return (
     <div style={{ margin: 10 }}>
       <NewExperience
@@ -443,56 +512,9 @@ function Experiences(props) {
                 onSubmit={handleSubmit}
               >
                 <div className="padding-horizontal-20 pt-10">
-                  {applicantExperiences && applicantExperiences.length > 0 ? (
-                    renderAnnoncesList()
-                  ) : (
-                    <section
-                      style={{ height: "400px" }}
-                      className={
-                        !isNullOrEmpty(interimaire) &&
-                        !isNullOrEmpty(interimaire.primaryCurriculumVitaeUrl)
-                          ? "filled-dropzone dropzone-container"
-                          : "dropzone-container-sm d-flex justify-content-center"
-                      }
-                    >
-                      {!isNullOrEmpty(interimaire) &&
-                      !isNullOrEmpty(interimaire.primaryCurriculumVitaeUrl) ? (
-                        <>
-                          {" "}
-                          <div
-                            {...getRootProps({
-                              className:
-                                "custom-dropzone w-500 h-500 d-flex justify-content-center"
-                            })}
-                          >
-                            <input {...getInputProps()} />
-                          </div>{" "}
-                          <aside id="frame" style={thumbsContainer}>
-                            {loading || isLoading ? (
-                              <span className="ml-3 spinner spinner-primary"></span>
-                            ) : (
-                              <IframeGoogleDocs loading={loading} url={url} />
-                            )}
-                          </aside>
-                        </>
-                      ) : (
-                        <div
-                          {...getRootProps({
-                            className:
-                              "custom-dropzone w-500 h-500 d-flex justify-content-center"
-                          })}
-                        >
-                          <input {...getInputProps()} />
-                          <h3 className="file-input-button loadcv_button bg-danger p-5">
-                            <FormattedMessage id="TEXT.LOAD_CV.TITLE" />
-                            {loading === true && (
-                              <span className="ml-3 spinner spinner-secondary"></span>
-                            )}
-                          </h3>
-                        </div>
-                      )}
-                    </section>
-                  )}
+                  {applicantExperiences && applicantExperiences.length > 0
+                    ? renderAnnoncesList()
+                    : renderCVSection()}
                 </div>
                 <div className="h-30">
                   {errorArray.length > 0 && (
@@ -524,7 +546,7 @@ function Experiences(props) {
                 </div>
                 <div className="flex-space-between-button">
                   <div>
-                    {interimaire.primaryCurriculumVitaeUrl && (
+                    {interimaire.primaryCurriculumVitaeUrl && !processingFile && (
                       <div
                         {...getRootProps({
                           className:

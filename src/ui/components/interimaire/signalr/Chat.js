@@ -28,8 +28,11 @@ const Chat = () => {
 
           setChat(updatedChat);
         });
+        connection.on("UserToUser", message => {
+          console.log("UserToUser", message);
+        });
       })
-      .catch(e => console.log("Connection failed: ", e));
+      .catch(e => console.log("Connection with SignalR failed: ", e));
   }, []);
 
   const sendMessage = async (user, message) => {

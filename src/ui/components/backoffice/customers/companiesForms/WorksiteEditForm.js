@@ -18,14 +18,14 @@ import {
   getPaymentChoices,
   getAPE
 } from "../../../../../business/actions/shared/ListsActions";
-import LocationSearchInput from "./location-search-input";
+import AddressSearchInput from "./location-search-input/AddressSearchInput";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
 function WorksiteEditForm({ onHide, intl, history, getData }) {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const [address, setAddress] = useState("");
+
   const [
     commercialAgreementsValidated,
     setCommercialAgreementsValidated
@@ -36,6 +36,14 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
     false
   );
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [location, setLocation] = useState(null);
+  const [address, setAddress] = useState(
+    currentCompany ? currentCompany.address : ""
+  );
+  const [postal, setPostal] = useState(
+    currentCompany ? currentCompany.postalCode : ""
+  );
+  const [city, setCity] = useState(currentCompany ? currentCompany.city : "");
 
   const { invoiceTypes, paymentChoices, apeNumber } = useSelector(
     state => ({
@@ -128,10 +136,10 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
     apeNumber: currentCompany ? currentCompany.apeNumber : "",
     companyStatus: currentCompany ? currentCompany.companyStatus : "",
     tvaNumber: currentCompany ? currentCompany.tvaNumber : "",
-    address: currentCompany ? currentCompany.address : "",
+    address: address,
     additionaladdress: currentCompany ? currentCompany.additionalAddress : "",
-    postalCode: currentCompany ? currentCompany.postalCode : "",
-    city: currentCompany ? currentCompany.city : "",
+    postalCode: postal,
+    city: city,
     coefficient: currentCompany ? currentCompany.coefficient : "",
     phoneNumber: currentCompany ? currentCompany.phoneNumber : "",
     description: currentCompany ? currentCompany.description : "",
@@ -284,7 +292,7 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                 <div className="form-group row">
                   {/* Adresse */}
                   <div className="col-lg-6">
-                    <label className=" col-form-label">
+                    <label className="col-form-label">
                       <FormattedMessage id="MODEL.ACCOUNT.ADDRESS" />
                     </label>
                     <div className="input-group">
@@ -293,13 +301,38 @@ function WorksiteEditForm({ onHide, intl, history, getData }) {
                           <i className="icon-xl flaticon-map-location text-primary"></i>
                         </span>
                       </div>
-                      <LocationSearchInput
+                      {/* Remplacement de LocationSearchInput */}
+                      <AddressSearchInput
                         address={address}
                         setAddress={setAddress}
                         setFieldValue={setFieldValue}
                         intl={intl}
+                        name="address"
+                        hasError={errors.address && touched.address}
+                        placeholder={intl.formatMessage({
+                          id: "MODEL.ACCOUNT.ADDRESS"
+                        })}
+                        onAddressSelect={suggestion => {
+                          setPostal(suggestion.postalCode);
+                          setCity(suggestion.freeformAddress);
+                        }}
+                        customStyles={{
+                          container: {
+                            flex: 1 // Pour que le composant prenne toute la largeur disponible
+                          },
+                          input: {
+                            border: "none", // Enlever la bordure car elle est gérée par input-group
+                            boxShadow: "none"
+                          }
+                        }}
                       />
                     </div>
+                    {/* Affichage des erreurs */}
+                    {errors.address && touched.address && (
+                      <div className="invalid-feedback d-block">
+                        {errors.address}
+                      </div>
+                    )}
                   </div>
                   {/* Complément d’adresse */}
                   <div className="col-lg-6">

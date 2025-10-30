@@ -182,6 +182,7 @@ class MissionWizardFormClass extends Component {
                 path="/mission-create/step-one"
                 render={() => (
                   <FormStepOne
+                    key={`step-one-${window.location.pathname}`}
                     currentWorkiste={currentWorkiste}
                     formik={props}
                     {...this.props}
@@ -190,19 +191,43 @@ class MissionWizardFormClass extends Component {
               />
               <Route
                 path="/mission-create/step-two"
-                render={() => <FormStepTwo formik={props} {...this.props} />}
+                render={() => (
+                  <FormStepTwo
+                    key={`step-two-${window.location.pathname}`}
+                    formik={props}
+                    {...this.props}
+                  />
+                )}
               />
               <Route
                 path="/mission-create/step-three"
-                render={() => <FormStepThree formik={props} {...this.props} />}
+                render={() => (
+                  <FormStepThree
+                    key={`step-three-${window.location.pathname}`}
+                    formik={props}
+                    {...this.props}
+                  />
+                )}
               />
               <Route
                 path="/mission-create/step-four"
-                render={() => <FormStepFour formik={props} {...this.props} />}
+                render={() => (
+                  <FormStepFour
+                    key={`step-four-${window.location.pathname}`}
+                    formik={props}
+                    {...this.props}
+                  />
+                )}
               />
               <Route
                 path="/mission-create/final-step"
-                render={() => <FinalStep formik={props} {...this.props} />}
+                render={() => (
+                  <FinalStep
+                    key={`final-step-${window.location.pathname}`}
+                    formik={props}
+                    {...this.props}
+                  />
+                )}
               />
             </Switch>
           </Form>

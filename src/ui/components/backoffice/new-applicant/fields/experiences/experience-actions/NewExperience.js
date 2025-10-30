@@ -1,23 +1,15 @@
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import {
-  Modal,
-  Button,
-  Row,
-  Col,
-  OverlayTrigger,
-  Tooltip
-} from "react-bootstrap";
+import { Modal, Row, Col, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
 import Select from "react-select";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import isNullOrEmpty from "../../../../../../../utils/isNullOrEmpty";
-import { DatePickerField } from "metronic/_partials/controls";
 import DatePicker from "react-datepicker";
 import moment from "moment";
 import { addSelectedApplicantExperience } from "../../../../../../../business/actions/backoffice/ApplicantActions";
 import axios from "axios";
+import { shallowEqual, useSelector } from "react-redux";
 
 import "./styles.scss";
 import { useState } from "react";
@@ -63,18 +55,36 @@ function NewExperience(props) {
     )*/
   });
 
+  const { activeInterimaire, user } = useSelector(
+    state => ({
+      user: state.auth.user,
+      activeInterimaire: state.accountsReducerData.activeInterimaire
+    }),
+    shallowEqual
+  );
+
   useEffect(() => {
-    if (selectedExperience) {
-      setStartDate(selectedExperience.startDate);
-    }
-    let URL = `${process.env.REACT_APP_WEBAPI_URL}api/JobTitle`;
-    axios
-      .get(URL)
-      .then(res => {
-        setJobTitles(res.data);
-      })
-      .catch(err => console.log(err));
-  }, [selectedExperience]);
+    const fetchJobTitles = async () => {
+      try {
+        if (!user?.tenantID) {
+          console.error("No tenantID available");
+          return;
+        }
+
+        if (selectedExperience) {
+          setStartDate(selectedExperience.startDate);
+        }
+        const URL = `${process.env.REACT_APP_WEBAPI_URL}api/JobTitle/ForApplicant?applicantId=${activeInterimaire.id}`;
+        const response = await axios.get(URL);
+        setJobTitles(response.data);
+      } catch (err) {
+        console.error("Error fetching job titles:", err);
+        // Optionally add toastr or other error handling here
+      }
+    };
+
+    fetchJobTitles();
+  }, [selectedExperience, user]); // Ajout de user dans les dépendances
 
   const createOption = (label, value) => ({
     label,

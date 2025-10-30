@@ -14,13 +14,7 @@ import { useCompaniesUIContext } from "./CompaniesUIContext";
 import ActionsColumnFormatter from "./customers-table/column-formatters/ActionsColumnFormatter";
 import { shallowEqual, useSelector } from "react-redux";
 
-function CompaniesTable({
-  companies,
-  createCompany,
-  handleClose,
-  show,
-  worksites
-}) {
+function CompaniesTable({ companies, handleClose, show, worksites }) {
   const intl = useIntl(); // intl extracted from useIntl hook
   const formatWorksite = id => {
     if (worksites.length) {
@@ -164,11 +158,7 @@ function CompaniesTable({
 
   return (
     <div>
-      <CompanyCreateModal
-        createCompany={createCompany}
-        onHide={handleClose}
-        show={show}
-      />
+      <CompanyCreateModal onHide={handleClose} show={show} />
       <BootstrapTable
         wrapperClasses="table-responsive"
         bordered={false}

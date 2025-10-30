@@ -1,23 +1,18 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect, useRef, useState } from "react";
-import { Modal, Row, Col } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { getMatching } from "actions/client/ApplicantsActions";
 import { getMission } from "actions/client/MissionsActions";
 import Avatar from "react-avatar";
 import moment from "moment";
-import SVG from "react-inlinesvg";
-import { toAbsoluteUrl } from "metronic/_helpers";
 import ApplicationsStatusColumnFormatter from "components/client/missions/column-formatters/ApplicationsStatusColumnFormatter.js";
-import ProfileResume from "../missionForms/ProfileResume";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { getJobTitles } from "../../../../../business/actions/shared/ListsActions";
 import { getJobSkills } from "../../../../../business/actions/shared/ListsActions";
 import axios from "axios";
 import {
-  declineMatching,
-  approveByCustomer,
   getApplicantById,
   getFormattedCV
 } from "actions/client/ApplicantsActions";
@@ -27,13 +22,12 @@ export function MissionProfileDialog({
   show,
   onHide,
   history,
-  resumeOpen,
-  onOpenResume,
-  onCloseResume,
-  resumeRow,
   currentApplicant
 }) {
   const { state } = history.location;
+
+  // console.log("state dans MissionProfileDialog --------------> ", state);
+
   const TENANTID = process.env.REACT_APP_TENANT_ID;
 
   const dispatch = useDispatch();
@@ -69,6 +63,7 @@ export function MissionProfileDialog({
         setActivityDomainsList(res.data);
       });
   }, [dispatch, jobTitles, jobSkills]);
+
   useEffect(() => {
     show === true &&
       currentApplicant !== (applicant && applicant.id) &&
@@ -82,21 +77,8 @@ export function MissionProfileDialog({
         })
       );
     }
-  }, [show, dispatch, currentApplicant, applicant, user]);
+  }, [show, dispatch, currentApplicant, applicant, user, currentIndex]);
 
-  const handleDeny = (missionID, candidateID, mission) => {
-    dispatch(
-      declineMatching.request({ id1: missionID, id2: candidateID }, mission)
-    );
-    dispatch(getMatching.request(mission));
-  };
-
-  const handleAccept = (missionID, candidateID, mission) => {
-    dispatch(
-      approveByCustomer.request({ id1: missionID, id2: candidateID }, mission)
-    );
-    dispatch(getMatching.request(mission));
-  };
   let missionId = state && state.id;
 
   function usePrevious(value) {
@@ -211,7 +193,7 @@ export function MissionProfileDialog({
   const renderDocuments = () => {
     return (
       <>
-        {applicant.applicantDocuments.map((document, i) => {
+        {applicant.applicantDocuments.map(document => {
           if (
             (document.documentType === 8 &&
               document.filename === "IdentityCardFront") ||
@@ -227,7 +209,6 @@ export function MissionProfileDialog({
             if (expirationDate > now) {
               isActive = true;
             }
-            let url = encoreUrl(document.documentUrl);
             return (
               <tr>
                 <td className="py-8">
@@ -285,7 +266,7 @@ export function MissionProfileDialog({
             );
           }
         })}
-        {applicant.applicantDocuments.map((document, i) => {
+        {applicant.applicantDocuments.map(document => {
           if (
             (document.documentType === 8 &&
               document.filename === "IdentityCardBack") ||
@@ -300,7 +281,6 @@ export function MissionProfileDialog({
             if (expirationDate > now) {
               isActive = true;
             }
-            let url = encoreUrl(document.documentUrl);
             return (
               <tr>
                 <td className="py-8">
@@ -356,7 +336,7 @@ export function MissionProfileDialog({
             );
           }
         })}
-        {applicant.applicantDocuments.map((document, i) => {
+        {applicant.applicantDocuments.map(document => {
           const expirationDate = new Date(document.expirationDate);
           const now = new Date();
           let isActive = false;
@@ -373,7 +353,6 @@ export function MissionProfileDialog({
                 title = title + titleList[j].name;
               }
             }
-            let url = encoreUrl(document.documentUrl);
             return (
               <tr>
                 <td className="py-8">
@@ -422,6 +401,41 @@ export function MissionProfileDialog({
     );
   };
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const allMissions = JSON.parse(localStorage.getItem("allMissions"));
+
+  const handleNext = () => {
+    if (allMissions && allMissions.missionApplications) {
+      const applicants = allMissions.missionApplications;
+      if (currentIndex < applicants.length - 1) {
+        const nextApp = applicants[currentIndex + 1];
+        const nextState = {
+          ...state,
+          ...nextApp
+        };
+        history.push(`/missions/applicant/${nextApp.applicantID}`, nextState);
+        setCurrentIndex(currentIndex + 1);
+      }
+    }
+  };
+
+  const handlePrevious = () => {
+    if (allMissions && allMissions.missionApplications) {
+      const applicants = allMissions.missionApplications;
+      if (currentIndex > 0) {
+        const prevApp = applicants[currentIndex - 1];
+        const prevState = {
+          ...state,
+          ...prevApp
+        };
+        history.push(`/missions/applicant/${prevApp.applicantID}`, prevState);
+        setCurrentIndex(currentIndex - 1);
+      }
+    }
+  };
+
+  const showNavigation = allMissions?.missionApplications?.length > 0;
+
   return (
     <Modal
       show={show}
@@ -462,14 +476,6 @@ export function MissionProfileDialog({
                     )}`
                   : resume && `/document/display/${encoreUrl(resume)}`
               }
-              /*href={
-                applicant && state && state.status === 5
-                  ? encoreUrl(applicant.primaryCurriculumVitaeUrl)
-                  : resume
-                  ? encoreUrl(resume)
-                  : null
-              }*/
-              //href={encoreUrl(resume)}
             >
               <span className="navi-icon mr-2">
                 <i className="fas fa-id-badge"></i>
@@ -515,6 +521,26 @@ export function MissionProfileDialog({
               </>
             ) : null}
           </div>
+          {showNavigation && (
+            <button
+              onClick={handlePrevious}
+              disabled={currentIndex === 0}
+              className="btn btn-light-primary mb-6"
+            >
+              Précédent
+            </button>
+          )}
+          {showNavigation && (
+            <button
+              onClick={handleNext}
+              disabled={
+                currentIndex === allMissions?.missionApplications?.length - 1
+              }
+              className="btn btn-light-primary ml-4 mb-6"
+            >
+              Suivant
+            </button>
+          )}
         </Modal.Title>
         <button
           type="button"
@@ -640,15 +666,15 @@ export function MissionProfileDialog({
                 <div className="d-flex align-items-left">
                   <div className="symbol symbol-60 symbol-xxl-100 mr-5 align-self-start align-self-xxl-center">
                     {!isNullOrEmpty(applicant) &&
-                    !isNullOrEmpty(applicant.applicantPicture) ? (
+                    !isNullOrEmpty(state?.applicantPicture) ? (
                       <Avatar
                         className="symbol-label"
                         color="#3699FF"
                         src={
                           "data:image/" +
-                          applicant.applicantPicture.filename.split(".")[1] +
+                          state?.applicantPicture?.filename.split(".")[1] +
                           ";base64," +
-                          applicant.applicantPicture.base64
+                          state?.applicantPicture?.base64
                         }
                       />
                     ) : (
@@ -658,8 +684,8 @@ export function MissionProfileDialog({
                         maxInitials={2}
                         name={
                           applicant &&
-                          applicant.firstname &&
-                          applicant.firstname.concat(" ", applicant.lastname)
+                          applicant?.firstname &&
+                          applicant?.firstname.concat(" ", applicant?.lastname)
                         }
                       />
                     )}
@@ -667,10 +693,10 @@ export function MissionProfileDialog({
                   </div>
                   <div>
                     <p className="pageSubtitle mx-2 font-weight-bold font-size-h5 text-dark-75 text-hover-primary">
-                      {applicant && state && state.status === 5
-                        ? `${applicant.firstname} ${applicant.lastname}`
+                      {applicant && state && state?.status === 5
+                        ? `${state?.firstname} ${state?.lastname}`
                         : applicant
-                        ? `${applicant.firstname}`
+                        ? `${state?.firstname}`
                         : "candidat"}
                     </p>
                     <div>
@@ -682,9 +708,7 @@ export function MissionProfileDialog({
                         />
                         <p className="pageDetails">
                           <span>
-                            {applicant
-                              ? applicant.tenantNumberOfMissions
-                              : null}{" "}
+                            {applicant ? state?.accountNumberOfMissions : null}{" "}
                             Missions
                           </span>
                         </p>
@@ -696,7 +720,7 @@ export function MissionProfileDialog({
                   <div className="d-flex align-items-left mb-2">
                     <span className="font-weight-bold mr-2">Habite à :</span>
                     <span className="text-hover-primary">
-                      {applicant ? applicant.city : null}
+                      {applicant ? state?.applicantID : null}
                     </span>
                   </div>
                 </div>

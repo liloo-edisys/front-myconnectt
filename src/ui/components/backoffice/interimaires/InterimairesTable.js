@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import BootstrapTable from "react-bootstrap-table-next";
@@ -14,24 +14,31 @@ import paginationFactory, {
   PaginationProvider
 } from "react-bootstrap-table2-paginator";
 import DatePicker from "react-datepicker";
+import CVDrawer, { useCVDrawer } from "../../shared/CVDrawer/CVDrawer.js";
+import { toastr } from "react-redux-toastr";
 
 function InterimairesTable(props) {
   const history = useHistory();
   const { pathname } = useLocation();
   const dispatch = useDispatch();
   const intl = useIntl();
+
+  // États principaux
   const [pageSize, setPageSize] = useState(10);
   const [pageNumber, setPageNumber] = useState(1);
   const [iSExtensions, setIsExtension] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // États de filtrage - Conservés même après recherche
   const [isControl, setIsControl] = useState(
     pathname === "/interimaires-to-check" ? true : false
   );
+  const [withExperience, setWithExperience] = useState(true);
   const [isAscending, setIsAscending] = useState(true);
-
   const [isDispo, setIsDispo] = useState(0);
   const [sortBy, setSortBy] = useState(0);
   const [selectedPostalCode, setSelectedPostalCode] = useState("");
-  const [selectedQualification, setSelectedQualification] = useState();
+  const [selectedQualification, setSelectedQualification] = useState("");
   const [selectedAvailability, setSelectedAvailability] = useState("");
   const [selectedFirstName, setSelectedFirstName] = useState("");
   const [selectedLastName, setSelectedLastName] = useState("");
@@ -39,6 +46,8 @@ function InterimairesTable(props) {
   const [selectedPhone, setSelectedPhone] = useState("");
   const [selectedStatus, setSelectedStatus] = useState(0);
   const [selectedCreationDate, setSelectedCreationDate] = useState("");
+
+  // États pour modales
   const [toggleApplicantDeleteModal, setToggleApplicantDeleteModal] = useState(
     null
   );
@@ -47,6 +56,17 @@ function InterimairesTable(props) {
     setToggleSourcingScopTalentModal
   ] = useState(false);
 
+  // Hook CVDrawer
+  const { isOpen, currentPdfUrl, openDrawer, closeDrawer } = useCVDrawer();
+
+  // État pour stocker les infos de l'intérimaire actuel (pour le titre du CV)
+  const [currentInterimaire, setCurrentInterimaire] = useState(null);
+
+  // Refs pour les timers de recherche automatique
+  const searchTimeoutRef = useRef(null);
+  const isInitialLoad = useRef(true);
+
+  // Sélecteurs Redux
   const {
     user,
     totalCount,
@@ -64,13 +84,97 @@ function InterimairesTable(props) {
     jobTitleList: state.lists.jobTitles,
     companies: state.companies.companies
   }));
+
+  // =============================================
+  // FONCTIONS UTILITAIRES
+  // =============================================
+
+  // Fonction pour encoder les URLs
+  function encodeUrl(str) {
+    if (!str) return "";
+
+    let newUrl = "";
+    const len = str.length;
+
+    for (let i = 0; i < len; i++) {
+      let c = str.charAt(i);
+      let code = str.charCodeAt(i);
+
+      if (c === " ") {
+        newUrl += "+";
+      } else if (
+        (code < 48 && code !== 45 && code !== 46) ||
+        (code < 65 && code > 57) ||
+        (code > 90 && code < 97 && code !== 95) ||
+        code > 122
+      ) {
+        newUrl += "%" + code.toString(16);
+      } else {
+        newUrl += c;
+      }
+    }
+
+    // Détecter le type de fichier et construire l'URL appropriée
+    if (newUrl.indexOf(".doc") > 0 || newUrl.indexOf(".docx") > 0) {
+      return "https://view.officeapps.live.com/op/embed.aspx?src=" + newUrl;
+    } else {
+      return (
+        "https://docs.google.com/gview?url=" +
+        newUrl +
+        "&embedded=true&SameSite=None"
+      );
+    }
+  }
+
+  // Fonction pour gérer l'ouverture du CVDrawer
+  const handleViewCVDrawer = (cvUrl, rowData) => {
+    try {
+      if (!cvUrl) {
+        toastr.error(
+          intl.formatMessage({ id: "ERROR" }),
+          "Aucun CV disponible pour cet intérimaire"
+        );
+        return;
+      }
+
+      // Stocker les infos de l'intérimaire pour le titre
+      setCurrentInterimaire(rowData);
+
+      // Encoder l'URL pour la compatibilité
+      const encodedUrl = encodeUrl(cvUrl);
+
+      console.log("🔍 Ouverture CVDrawer:", {
+        original: cvUrl,
+        encoded: encodedUrl,
+        interimaire: `${rowData.firstname} ${rowData.lastname}`
+      });
+
+      // Ouvrir le CVDrawer avec l'URL encodée
+      openDrawer(encodedUrl);
+    } catch (error) {
+      console.error("❌ Erreur lors de l'ouverture du CV:", error);
+      toastr.error(
+        intl.formatMessage({ id: "ERROR" }),
+        "Erreur lors de l'ouverture du CV"
+      );
+    }
+  };
+
+  // Fonction pour obtenir le nom de l'intérimaire actuel
+  const getCurrentInterimaireName = () => {
+    if (currentInterimaire) {
+      return `${currentInterimaire.firstname} ${currentInterimaire.lastname}`;
+    }
+    return "Intérimaire";
+  };
+
+  // =============================================
+  // ARRAYS DE DONNÉES
+  // =============================================
+
   const statusArray = [
     { id: 1, value: 1, name: intl.formatMessage({ id: "STATUS.REGISTERED" }) },
-    {
-      id: 6,
-      value: 6,
-      name: intl.formatMessage({ id: "STATUS.CAN_MATCH" })
-    },
+    { id: 6, value: 6, name: intl.formatMessage({ id: "STATUS.CAN_MATCH" }) },
     { id: 2, value: 2, name: intl.formatMessage({ id: "TEXT.COMPLETE" }) },
     {
       id: 3,
@@ -82,11 +186,7 @@ function InterimairesTable(props) {
       value: 4,
       name: intl.formatMessage({ id: "STATUS.ANAEL.UPDATED" })
     },
-    {
-      id: 5,
-      value: 5,
-      name: intl.formatMessage({ id: "STATUS.DISABLED" })
-    }
+    { id: 5, value: 5, name: intl.formatMessage({ id: "STATUS.DISABLED" }) }
   ];
 
   const dispoArray = [
@@ -102,43 +202,224 @@ function InterimairesTable(props) {
     { id: 5, name: "Code postal" }
   ];
 
-  const disableApplicant = applicant => {};
+  // =============================================
+  // API CALLS
+  // =============================================
 
-  const getData = () => {
-    let body = {
-      tenantID: user.tenantID,
-      pageSize: pageSize,
-      pageNumber: pageNumber,
-      firstName: selectedFirstName,
-      lastName: selectedLastName,
-      email: selectedEmail,
-      phoneNumber: selectedPhone,
-      cp: selectedPostalCode,
-      qualificationID: selectedQualification ? +selectedQualification : 0,
-      availability: selectedAvailability,
-      isDispo: +isDispo,
-      sortBy: +sortBy,
-      isAscending: isAscending ? true : false
-    };
-    if (isControl) {
-      body = {
-        ...body,
-        status: [1, 2, 6]
+  // Fonction de recherche avec tous les filtres actuels
+  const performSearch = useCallback(
+    (resetPage = false) => {
+      const currentPageNumber = resetPage ? 1 : pageNumber;
+
+      let body = {
+        tenantID: user.tenantID,
+        pageSize: pageSize,
+        pageNumber: currentPageNumber,
+        firstName: selectedFirstName,
+        lastName: selectedLastName,
+        email: selectedEmail,
+        phoneNumber: selectedPhone,
+        cp: selectedPostalCode,
+        qualificationID: selectedQualification ? +selectedQualification : 0,
+        availability: selectedAvailability,
+        isDispo: +isDispo,
+        sortBy: +sortBy,
+        isAscending: isAscending ? true : false,
+        hasExperience: withExperience
       };
-    } else if (selectedStatus > 0) {
-      body = {
-        ...body,
-        status: [parseInt(selectedStatus)]
-      };
+
+      if (isControl) {
+        body = {
+          ...body,
+          status: [1, 2, 6]
+        };
+      } else if (selectedStatus > 0) {
+        body = {
+          ...body,
+          status: [parseInt(selectedStatus)]
+        };
+      }
+
+      if (selectedCreationDate) {
+        body = {
+          ...body,
+          creationDate: moment(selectedCreationDate).toDate()
+        };
+      }
+
+      // Mettre à jour le numéro de page si nécessaire
+      if (resetPage && pageNumber !== 1) {
+        setPageNumber(1);
+      }
+
+      getInterimairesList(body, dispatch);
+      setIsExtension(true);
+    },
+    [
+      user.tenantID,
+      pageSize,
+      pageNumber,
+      selectedFirstName,
+      selectedLastName,
+      selectedEmail,
+      selectedPhone,
+      selectedPostalCode,
+      selectedQualification,
+      selectedAvailability,
+      isDispo,
+      sortBy,
+      isAscending,
+      withExperience,
+      isControl,
+      selectedStatus,
+      selectedCreationDate,
+      dispatch
+    ]
+  );
+
+  // Fonction pour recherche automatique avec délai
+  const debouncedSearch = useCallback(() => {
+    // Annuler le timer précédent
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
     }
-    getInterimairesList(body, dispatch);
-    setIsExtension(true);
+
+    // Ne pas faire de recherche automatique au premier chargement
+    if (isInitialLoad.current) {
+      return;
+    }
+
+    // Créer un nouveau timer
+    searchTimeoutRef.current = setTimeout(() => {
+      performSearch(true); // Reset page à 1 pour les nouvelles recherches
+    }, 300);
+  }, [performSearch]);
+
+  // Fonction getData simplifiée pour le chargement initial et pagination
+  const getData = useCallback(() => {
+    performSearch(false); // Ne pas reset la page pour la pagination
+  }, [performSearch]);
+
+  // Fonction pour recherche manuelle (bouton)
+  const onSearchFilteredContracts = () => {
+    performSearch(true); // Reset page à 1
   };
 
+  // =============================================
+  // HANDLERS POUR LES FILTRES AVEC AUTO-SEARCH
+  // =============================================
+
+  const handlePostalCodeChange = e => {
+    setSelectedPostalCode(e.target.value);
+    debouncedSearch();
+  };
+
+  const handleFirstNameChange = e => {
+    setSelectedFirstName(e.target.value);
+    debouncedSearch();
+  };
+
+  const handleLastNameChange = e => {
+    setSelectedLastName(e.target.value);
+    debouncedSearch();
+  };
+
+  const handleEmailChange = e => {
+    setSelectedEmail(e.target.value);
+    debouncedSearch();
+  };
+
+  const handlePhoneChange = e => {
+    setSelectedPhone(e.target.value);
+    debouncedSearch();
+  };
+
+  const handleQualificationChange = e => {
+    setSelectedQualification(e.target.value);
+    performSearch(true); // Recherche immédiate pour les sélecteurs
+  };
+
+  const handleStatusChange = e => {
+    setSelectedStatus(e.target.value);
+    performSearch(true);
+  };
+
+  const handleDispoChange = e => {
+    setIsDispo(e.target.value);
+    performSearch(true);
+  };
+
+  const handleSortByChange = e => {
+    setSortBy(e.target.value);
+    performSearch(true);
+  };
+
+  const handleControlChange = () => {
+    setIsControl(!isControl);
+    // Utiliser setTimeout pour s'assurer que l'état est mis à jour
+    setTimeout(() => {
+      performSearch(true);
+    }, 0);
+  };
+
+  const handleExperienceChange = () => {
+    setWithExperience(!withExperience);
+    setTimeout(() => {
+      performSearch(true);
+    }, 0);
+  };
+
+  const handleAscendingChange = () => {
+    setIsAscending(!isAscending);
+    setTimeout(() => {
+      performSearch(true);
+    }, 0);
+  };
+
+  const handleCreationDateChange = val => {
+    const formattedDate = val
+      ? moment(val)
+          .locale("fr")
+          .format(moment.HTML5_FMT.DATETIME_LOCAL_SECONDS)
+      : "";
+    setSelectedCreationDate(formattedDate);
+    setTimeout(() => {
+      performSearch(true);
+    }, 0);
+  };
+
+  // =============================================
+  // EFFECTS
+  // =============================================
+
   useEffect(() => {
-    getData();
-    dispatch(getJobTitles.request());
-  }, [pageNumber]);
+    // Chargement initial
+    if (isInitialLoad.current) {
+      getData();
+      dispatch(getJobTitles.request());
+      isInitialLoad.current = false;
+    }
+  }, []);
+
+  // Effect pour la pagination uniquement
+  useEffect(() => {
+    if (!isInitialLoad.current) {
+      getData();
+    }
+  }, [pageNumber, pageSize]);
+
+  // Nettoyage du timer au démontage
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // =============================================
+  // DÉFINITION DES COLONNES
+  // =============================================
 
   const columns = [
     {
@@ -228,6 +509,7 @@ function InterimairesTable(props) {
           >
             <FormattedMessage id="BUTTON.EDIT" />
           </Link>
+
           <a
             title={intl.formatMessage({ id: "BUTTON.DELETE" })}
             className="btn btn-icon btn-light-danger mr-2 button-width"
@@ -237,10 +519,39 @@ function InterimairesTable(props) {
               <FormattedMessage id="BUTTON.DELETE" />
             </div>
           </a>
+
+          {/* Bouton CV avec CVDrawer intégré */}
+          {row.primaryCurriculumVitaeUrl ? (
+            <button
+              className="btn btn-light-primary mr-2"
+              onClick={() =>
+                handleViewCVDrawer(row.primaryCurriculumVitaeUrl, row)
+              }
+              type="button"
+              title="Afficher le CV"
+            >
+              <i className="fas fa-eye mr-2"></i>
+              <FormattedMessage id="BUTTON.SHOW.CV" />
+            </button>
+          ) : (
+            <button
+              className="btn btn-light-primary mr-2"
+              style={{ opacity: 0.5, cursor: "not-allowed" }}
+              disabled
+              title="Aucun CV disponible"
+            >
+              <i className="fas fa-eye mr-2"></i>
+              <FormattedMessage id="BUTTON.SHOW.CV" />
+            </button>
+          )}
         </div>
       )
     }
   ];
+
+  // =============================================
+  // COMPOSANTS DE RENDU
+  // =============================================
 
   const NoDataIndication = () => (
     <div className="d-flex justify-content-center mt-5">
@@ -257,11 +568,6 @@ function InterimairesTable(props) {
       </div>
     </div>
   );
-
-  const handleChangePage = (size, page) => {
-    localStorage.setItem("pageNumber", page);
-    getData();
-  };
 
   const RemotePagination = ({
     data,
@@ -327,8 +633,11 @@ function InterimairesTable(props) {
   const handleTableChange = (type, { page, sizePerPage }) => {
     setPageNumber(page);
     setPageSize(sizePerPage);
-    //handleChangePage(sizePerPage, page);
   };
+
+  // =============================================
+  // RENDERERS DE FILTRES
+  // =============================================
 
   const renderPostalCodeSelector = () => {
     return (
@@ -338,24 +647,25 @@ function InterimairesTable(props) {
           className="form-control"
           type="text"
           value={selectedPostalCode}
-          onChange={e => setSelectedPostalCode(e.target.value)}
-        ></input>
+          onChange={handlePostalCodeChange}
+        />
         <small className="form-text text-muted">
           <FormattedMessage id="MODEL.POSTALCODE" />
         </small>
       </div>
     );
   };
+
   const renderFirstNameSelector = () => {
     return (
       <div className="col-lg-2">
         <input
-          name="city"
+          name="firstname"
           className="form-control"
           type="text"
           value={selectedFirstName}
-          onChange={e => setSelectedFirstName(e.target.value)}
-        ></input>
+          onChange={handleFirstNameChange}
+        />
         <small className="form-text text-muted">
           <FormattedMessage id="MODEL.FIRSTNAME" />
         </small>
@@ -367,12 +677,12 @@ function InterimairesTable(props) {
     return (
       <div className="col-lg-2">
         <input
-          name="city"
+          name="lastname"
           className="form-control"
           type="text"
           value={selectedLastName}
-          onChange={e => setSelectedLastName(e.target.value)}
-        ></input>
+          onChange={handleLastNameChange}
+        />
         <small className="form-text text-muted">
           <FormattedMessage id="MODEL.LASTNAME" />
         </small>
@@ -388,8 +698,8 @@ function InterimairesTable(props) {
           className="form-control"
           type="text"
           value={selectedEmail}
-          onChange={e => setSelectedEmail(e.target.value)}
-        ></input>
+          onChange={handleEmailChange}
+        />
         <small className="form-text text-muted">
           <FormattedMessage id="MODEL.EMAIL" />
         </small>
@@ -404,9 +714,9 @@ function InterimairesTable(props) {
           className="col-lg-12 form-control"
           name="jobTitleID"
           value={selectedQualification}
-          onChange={e => setSelectedQualification(e.target.value)}
+          onChange={handleQualificationChange}
         >
-          <option selected value={0} style={{ color: "lightgrey" }}>
+          <option value={0} style={{ color: "lightgrey" }}>
             -- {intl.formatMessage({ id: "TEXT.QUALIFICATION" })} --
           </option>
           {jobTitleList.map((job, i) => (
@@ -430,8 +740,8 @@ function InterimairesTable(props) {
           className="form-control"
           type="text"
           value={selectedPhone}
-          onChange={e => setSelectedPhone(e.target.value)}
-        ></input>
+          onChange={handlePhoneChange}
+        />
         <small className="form-text text-muted">
           <FormattedMessage id="COLUMN.PHONE.NUMBER" />
         </small>
@@ -444,11 +754,11 @@ function InterimairesTable(props) {
       <div className="col-lg-2">
         <select
           className="form-control form-control-lg p-2"
-          name="jobTitleID"
+          name="statusID"
           value={selectedStatus}
-          onChange={e => setSelectedStatus(e.target.value)}
+          onChange={handleStatusChange}
         >
-          <option selected value={0} style={{ color: "lightgrey" }}>
+          <option value={0} style={{ color: "lightgrey" }}>
             -- {intl.formatMessage({ id: "COLUMN.STATUS" })} --
           </option>
           {statusArray.map(status => (
@@ -468,12 +778,12 @@ function InterimairesTable(props) {
     return (
       <div className="col-lg-2">
         <select
-          className="form-control form-control-lg p2"
+          className="form-control form-control-lg p-2"
           name="DispoId"
           value={isDispo}
-          onChange={e => setIsDispo(e.target.value)}
+          onChange={handleDispoChange}
         >
-          <option selected value={0} style={{ color: "lightgray" }}>
+          <option value={0} style={{ color: "lightgray" }}>
             -- Disponibilité --
           </option>
           {dispoArray.map(job => (
@@ -491,17 +801,11 @@ function InterimairesTable(props) {
     return (
       <div className="col-lg-1 width-100">
         <DatePicker
-          className={`col-lg-12  form-control`}
+          className="col-lg-12 form-control"
           style={{ width: "100%" }}
           dateFormat="dd/MM/yyyy"
           popperPlacement="top-start"
-          onChange={val => {
-            setSelectedCreationDate(
-              moment(val)
-                .locale("fr")
-                .format(moment.HTML5_FMT.DATETIME_LOCAL_SECONDS)
-            );
-          }}
+          onChange={handleCreationDateChange}
           selected={
             (selectedCreationDate && new Date(selectedCreationDate)) || null
           }
@@ -517,67 +821,75 @@ function InterimairesTable(props) {
     );
   };
 
-  const onSearchFilteredContracts = () => {
-    setPageNumber(1);
-    let body = {
-      tenantID: user.tenantID,
-      pageSize: pageSize,
-      pageNumber: 1,
-      firstName: selectedFirstName,
-      lastName: selectedLastName,
-      cp: selectedPostalCode,
-      qualificationID: selectedQualification ? +selectedQualification : 0,
-      availability: selectedAvailability,
-      email: selectedEmail,
-      phoneNumber: selectedPhone,
-      isDispo: +isDispo,
-      sortBy: +sortBy,
-      isAscending: isAscending ? true : false
-    };
-    if (selectedStatus > 0) {
-      body = {
-        ...body,
-        status: [parseInt(selectedStatus)]
-      };
-    }
-    if (isControl) {
-      body = {
-        ...body,
-        status: [1, 2, 6]
-      };
-    }
-    if (selectedCreationDate) {
-      body = {
-        ...body,
-        creationDate: moment(selectedCreationDate).toDate()
-      };
-    }
-    getInterimairesList(body, dispatch);
-  };
+  // =============================================
+  // CVDrawer COMPONENT
+  // =============================================
 
-  return interimairesLoading ? (
-    <span className="colmx-auto spinner spinner-primary"></span>
-  ) : (
+  const renderCVDrawer = () => (
+    <CVDrawer
+      isOpen={isOpen}
+      onClose={() => {
+        closeDrawer();
+        setCurrentInterimaire(null); // Reset de l'intérimaire actuel
+      }}
+      pdfUrl={currentPdfUrl}
+      title={`CV - ${getCurrentInterimaireName()}`}
+      width="75%"
+      position="left"
+      downloadFileName={`CV_${getCurrentInterimaireName().replace(
+        /\s+/g,
+        "_"
+      )}.pdf`}
+      showControls={true}
+      backdrop={true}
+      overlay={true}
+      onError={error => {
+        console.error("❌ Erreur CVDrawer:", error);
+        toastr.error(
+          intl.formatMessage({ id: "ERROR" }),
+          "Impossible d'afficher le CV. Tentative avec une méthode alternative..."
+        );
+      }}
+      onLoad={data => {
+        console.log("✅ CV chargé avec succès:", data);
+        toastr.success(
+          "CV chargé",
+          `Document affiché (${data.numPages || 1} page${
+            data.numPages > 1 ? "s" : ""
+          })`
+        );
+      }}
+    />
+  );
+
+  // =============================================
+  // RENDU PRINCIPAL
+  // =============================================
+
+  return (
     <>
+      {/* Modales */}
       {toggleSourcingScopTalentModal && (
         <SourcingScopTalentModal
-          onHide={() => {
-            setToggleSourcingScopTalentModal(false);
-          }}
+          onHide={() => setToggleSourcingScopTalentModal(false)}
           show={true}
           getData={onSearchFilteredContracts}
         />
       )}
+
       {toggleApplicantDeleteModal != null && (
         <ApplicantDeleteModal
           applicant={toggleApplicantDeleteModal}
-          onHide={() => {
-            setToggleApplicantDeleteModal(null);
-          }}
+          onHide={() => setToggleApplicantDeleteModal(null)}
           show={true}
           getData={onSearchFilteredContracts}
         />
       )}
+
+      {/* CVDrawer */}
+      {renderCVDrawer()}
+
+      {/* Interface de filtrage */}
       <div className="row mb-5 mx-15">
         {renderPostalCodeSelector()}
         {renderFirstNameSelector()}
@@ -588,6 +900,7 @@ function InterimairesTable(props) {
         {renderStatusSelector()}
         {renderCreationDateSelector()}
         {renderIsDispo()}
+
         <div className="col-lg-2 width-100">
           <div className="row">
             <label className="col-lg-8 width-100 d-flex col-form-label">
@@ -599,7 +912,27 @@ function InterimairesTable(props) {
                   <input
                     type="checkbox"
                     checked={isControl}
-                    onChange={e => setIsControl(!isControl)}
+                    onChange={handleControlChange}
+                  />
+                  <span></span>
+                </label>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-lg-2 width-100">
+          <div className="row">
+            <label className="col-lg-8 width-100 d-flex col-form-label">
+              <FormattedMessage id="TEXT.INTERIMAIRE.EXPERIENCE" />
+            </label>
+            <div>
+              <span className="switch switch switch-sm">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={withExperience}
+                    onChange={handleExperienceChange}
                   />
                   <span></span>
                 </label>
@@ -613,12 +946,12 @@ function InterimairesTable(props) {
         >
           <div className="col-lg-2">
             <select
-              className="form-control form-control-lg p2"
+              className="form-control form-control-lg p-2"
               name="sortBy"
               value={sortBy}
-              onChange={e => setSortBy(e.target.value)}
+              onChange={handleSortByChange}
             >
-              <option selected value={0} style={{ color: "lightgray" }}>
+              <option value={0} style={{ color: "lightgray" }}>
                 -- Trier par --
               </option>
               {sortByArray.map(s => (
@@ -629,6 +962,7 @@ function InterimairesTable(props) {
             </select>
             <small className="form-text text-muted">Trier par</small>
           </div>
+
           <div
             className="row"
             style={{ display: "flex", width: "220px", marginTop: "-20px" }}
@@ -644,12 +978,13 @@ function InterimairesTable(props) {
                 <input
                   type="checkbox"
                   checked={isAscending}
-                  onChange={e => setIsAscending(!isAscending)}
+                  onChange={handleAscendingChange}
                 />
                 <span></span>
               </label>
             </span>
           </div>
+
           <button
             onClick={onSearchFilteredContracts}
             className="btn btn-success font-weight-bold ml-10 mb-10 px-10"
@@ -659,6 +994,7 @@ function InterimairesTable(props) {
               <FormattedMessage id="BUTTON.SEARCH" />
             </span>
           </button>
+
           <a
             title={intl.formatMessage({ id: "TEXT.SOURCING.SCOPTALENT" })}
             style={{ height: 40 }}
@@ -669,30 +1005,46 @@ function InterimairesTable(props) {
           </a>
         </div>
       </div>
-      <div>
-        {interimairesList && interimairesList.list && (
-          <BootstrapTable
-            remote
-            rowClasses={["dashed"]}
-            wrapperClasses="table-responsive"
-            bordered={false}
-            classes="table table-head-custom table-vertical-center overflow-hidden"
-            bootstrap4
-            keyField="id"
-            data={interimairesList && interimairesList.list}
-            columns={columns}
-          />
-        )}
-        <div style={{ marginTop: 30 }}>
-          <RemotePagination
-            data={interimairesList && interimairesList.list}
-            page={pageNumber}
-            sizePerPage={pageSize}
-            totalSize={interimairesList && interimairesList.totalcount}
-            onTableChange={handleTableChange}
-          />
+
+      {/* Tableau */}
+      {interimairesLoading ? (
+        <div
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "30%",
+            width: "100%"
+          }}
+        >
+          <span className="spinner spinner-primary"></span>
         </div>
-      </div>
+      ) : (
+        <div>
+          {interimairesList && interimairesList.list && (
+            <BootstrapTable
+              remote
+              rowClasses={["dashed"]}
+              wrapperClasses="table-responsive"
+              bordered={false}
+              classes="table table-head-custom table-vertical-center overflow-hidden"
+              bootstrap4
+              keyField="id"
+              data={interimairesList && interimairesList.list}
+              columns={columns}
+              noDataIndication={() => <NoDataIndication />}
+            />
+          )}
+          <div style={{ marginTop: 30 }}>
+            <RemotePagination
+              data={interimairesList && interimairesList.list}
+              page={pageNumber}
+              sizePerPage={pageSize}
+              totalSize={interimairesList && interimairesList.totalcount}
+              onTableChange={handleTableChange}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }

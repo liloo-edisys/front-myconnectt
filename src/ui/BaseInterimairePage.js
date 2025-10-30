@@ -13,12 +13,13 @@ import InterimaireApplicationsContainer from "./containers/InterimaireApplicatio
 import InterimaireFavoritesContainer from "./containers/InterimaireFavoritesContainer";
 import ProfileWizzard from "./components/interimaire/profile/profileForms/ProfileWizzard";
 import { shallowEqual, useSelector } from "react-redux";
-import Chat from "./components/interimaire/signalr/Chat";
+import ChatPageInterim from "./components/interimaire/messages/ChatPageInterim";
 import Contracts from "./components/interimaire/missions/contracts";
-
+import Chat from "./components/interimaire/signalr/Chat";
 import EmailContactModal from "./components/client/Email/EmailContactModal";
 import Documents from "./components/interimaire/missions/documents";
 import HoursStatement from "./components/interimaire/hours-statement/HoursStatement";
+import MetronicChat from "./components/shared/MetronicChat";
 
 export default function BaseInterimairePage(props) {
   let { user } = useSelector(
@@ -56,6 +57,7 @@ export default function BaseInterimairePage(props) {
           path="/matching"
           component={InterimaireMatchingContainer}
         />
+        <ContentRoute path="/chat" component={Chat} />
         <ContentRoute
           path="/propositions"
           component={InterimairePropositionsContainer}
@@ -65,9 +67,8 @@ export default function BaseInterimairePage(props) {
         <ContentRoute path="/rhs" component={UnderConstruction} />
         <ContentRoute path="/bulletins" component={UnderConstruction} />
         <ContentRoute path="/certificates" component={UnderConstruction} />
-        <ContentRoute path="/chat" component={Chat} />
+        <ContentRoute path="/messages" component={ChatPageInterim} />
         <ContentRoute path="/cra" component={HoursStatement} />
-
         <ContentRoute path={`/contact`}>
           {({ history, match }) => (
             <EmailContactModal
@@ -82,6 +83,7 @@ export default function BaseInterimairePage(props) {
 
         <Redirect to="error/int-error-v1" />
       </Switch>
+      <MetronicChat />
     </Suspense>
   );
 }

@@ -37,7 +37,7 @@ import {
   deleteCurrentTemplate
 } from "../../../../../business/actions/client/MissionsActions";
 import Avatar from "react-avatar";
-import ReactTooltip from "react-tooltip";
+import ApplicantsSidebar from "./ApplicantsSidebar.js";
 
 const tenantID = +process.env.REACT_APP_TENANT_ID;
 const baseDate = new Date();
@@ -133,6 +133,7 @@ function MissionsTable({ refresh }) {
     }),
     shallowEqual
   );
+
   const useMountEffect = fun => useEffect(fun, []);
 
   useMountEffect(() => {
@@ -255,21 +256,26 @@ function MissionsTable({ refresh }) {
   );
 
   const expandRow = {
-    renderer: (row, rowKey) => (
-      <div className="subtable">
-        <BootstrapTable
-          bordered={false}
-          classes={`table table-head-custom table-vertical-center overflow-hidden `}
-          bootstrap4
-          remote
-          wrapperClasses="table-responsive test"
-          keyField="applicationID"
-          data={row && row.missionApplications ? row.missionApplications : []}
-          columns={applicationColumns}
-          noDataIndication={() => <NoApplicantsIndication />}
-        ></BootstrapTable>
-      </div>
-    ),
+    renderer: (row, rowIndex, e) => {
+      localStorage.setItem("allMissions", JSON.stringify(row));
+      // Stocker l'ID actuel pour filtrage
+      localStorage.setItem("currentMissionId", row.id);
+      return (
+        <div className="subtable">
+          <BootstrapTable
+            bordered={false}
+            classes={`table table-head-custom table-vertical-center overflow-hidden`}
+            bootstrap4
+            remote
+            wrapperClasses="table-responsive test"
+            keyField="applicationID"
+            data={row?.missionApplications || []}
+            columns={applicationColumns}
+            noDataIndication={() => <NoApplicantsIndication />}
+          ></BootstrapTable>
+        </div>
+      );
+    },
     expandHeaderColumnRenderer: () => {
       return null;
     },
@@ -300,16 +306,15 @@ function MissionsTable({ refresh }) {
     showExpandColumn: true,
     expanded: expanded,
     expandColumnRenderer: ({ expanded, rowKey, expandable }) => {
-      let mission =
-        missions && missions.filter(mission => mission.id === rowKey)[0];
+      let mission = missions?.filter(mission => mission.id === rowKey)[0];
+
       return (
         <div>
           <span
             onClick={() => filterExpanded()}
             data-tip={
-              mission && mission.userName
-                ? mission.userName
-                : intl.formatMessage({ id: "CREATED.FOR.YOU.MYCONNECTT" })
+              mission?.userName ||
+              intl.formatMessage({ id: "CREATED.FOR.YOU.MYCONNECTT" })
             }
             className="symbol symbol-35 symbol-light-success mr-2"
           >
@@ -320,7 +325,7 @@ function MissionsTable({ refresh }) {
                 size="35"
                 fgColor="#1BC5BD"
                 maxInitials={2}
-                name={mission && mission.userName && mission.userName}
+                name={mission?.userName}
               />
             )}
           </span>
@@ -356,6 +361,22 @@ function MissionsTable({ refresh }) {
       openDeleteApplicationDialog: missionsUIContext.openDeleteApplicationDialog
     };
   }, [missionsUIContext]);
+
+  const [showApplicantsModal, setShowApplicantsModal] = useState(false);
+  const [selectedMissionId, setSelectedMissionId] = useState(null);
+
+  // Fonction pour ouvrir la modal
+  const handleShowApplicants = row => {
+    console.log("Affichage des candidats pour la mission:", row.id);
+    setSelectedMissionId(row.id);
+    setShowApplicantsModal(true);
+  };
+
+  // Fonction pour fermer la modal
+  const handleCloseApplicantsModal = () => {
+    setShowApplicantsModal(false);
+    setSelectedMissionId(null);
+  };
 
   let columns = [
     {
@@ -415,7 +436,8 @@ function MissionsTable({ refresh }) {
         openMatchingDialog: missionsUIProps.openMatchingDialog,
         openDuplicateVacancyDialog: missionsUIProps.openEditWorksiteDialog,
         history: history,
-        editMission: missionsUIProps.editMission
+        editMission: missionsUIProps.editMission,
+        handleShowApplicants: handleShowApplicants // NOUVELLE FONCTIONs
       }
     }
   ];
@@ -1156,7 +1178,6 @@ function MissionsTable({ refresh }) {
               keyField="id"
               data={!isNullOrEmpty(missions) ? missions : []}
               columns={columns}
-              expandRow={expandRow}
               onTableChange={onTableChange}
               {...paginationTableProps}
               noDataIndication={() => <NoDataIndication />}
@@ -1178,6 +1199,13 @@ function MissionsTable({ refresh }) {
           </div>
         )}
       </PaginationProvider>
+      <ApplicantsSidebar
+        show={showApplicantsModal}
+        onHide={handleCloseApplicantsModal}
+        missionId={selectedMissionId}
+        tenantId={tenantID}
+        missionsUIProps={missionsUIProps}
+      />
     </div>
   );
 

@@ -264,7 +264,7 @@ function LoginInterimaire(props) {
                 <FormattedMessage id="TEXT.DONT.HAVE.MYCONNECTT.ACCOUNT" />
               </span>
               <Link
-                to="/auth/int-register"
+                to="/auth/int-info"
                 className="text-black font-weight-normal"
               >
                 <FormattedMessage id="TEXT.CREATE.ACCOUNT" />

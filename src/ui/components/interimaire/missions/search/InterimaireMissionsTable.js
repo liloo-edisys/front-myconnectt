@@ -873,15 +873,17 @@ function InterimaireMissionsTable({ refresh }) {
               </div>
             )}
           </Row>
-          <div style={{ marginTop: 30 }}>
-            <RemotePagination
-              data={missions}
-              page={pageNumber}
-              sizePerPage={pageSize}
-              totalSize={totalCount}
-              onTableChange={handleTableChange}
-            />
-          </div>
+          {missions && missions.length > 0 && (
+            <div style={{ marginTop: 30 }}>
+              <RemotePagination
+                data={missions}
+                page={pageNumber}
+                sizePerPage={pageSize}
+                totalSize={totalCount}
+                onTableChange={handleTableChange}
+              />
+            </div>
+          )}
         </div>
       )}
     </>

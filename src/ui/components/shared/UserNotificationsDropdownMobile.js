@@ -1,46 +1,23 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-script-url,jsx-a11y/anchor-is-valid */
 import React, { useEffect, useState, useMemo } from "react";
-
-import objectPath from "object-path";
-import {
-  Nav,
-  Tab,
-  Dropdown,
-  OverlayTrigger,
-  Tooltip,
-  Modal
-} from "react-bootstrap";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { Dropdown, OverlayTrigger, Tooltip } from "react-bootstrap";
 import SVG from "react-inlinesvg";
 import PerfectScrollbar from "react-perfect-scrollbar";
-import axios from "axios";
 import { FormattedMessage } from "react-intl";
+import objectPath from "object-path";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
 
 import { toAbsoluteUrl } from "../../../_metronic/_helpers";
 import { DropdownTopbarItemToggler } from "../../../_metronic/_partials/dropdowns";
 import { useHtmlClassService } from "../../../_metronic/layout/_core/MetronicLayout";
-import { SET_CURRENT_NOTIF } from "../../../constants/constants";
-import "./styles.scss";
-import {
-  getNotifications,
-  setNotifRead
-} from "../../../business/actions/shared/NotificationsActions";
-import { Block } from "@material-ui/icons";
 import { UserNotificationPopup } from "./UserNotificationPopup";
+import { getNotifications } from "../../../business/actions/shared/NotificationsActions";
 import { setSignalRInterimaire } from "../../../business/actions/interimaire/InterimairesActions";
 import { setSignalRClient } from "../../../business/actions/client/UserActions";
 import { setSignalRBackoffice } from "../../../business/actions/backoffice/UserActions";
-import { Link } from "react-router-dom";
-
-const perfectScrollbarOptions = {
-  wheelSpeed: 2,
-  wheelPropagation: false
-};
 
 export function UserNotificationsDropdownMobile() {
   const dispatch = useDispatch();
-  const bgImage = toAbsoluteUrl("/media/bg/bg-1.jpg");
   const uiService = useHtmlClassService();
   const [selectedNotif, setSelectedNotif] = useState(null);
 
@@ -52,25 +29,11 @@ export function UserNotificationsDropdownMobile() {
     };
   }, [uiService]);
 
-  const closePopup = () => {
-    setSelectedNotif(null);
-  };
-
-  const {
-    notifs,
-    unread,
-    userDetails,
-    currentNotif,
-    showNotifModal,
-    authToken,
-    userType
-  } = useSelector(
+  const { notifs, unread, userDetails, authToken, userType } = useSelector(
     state => ({
       notifs: state.lists.notifs,
       unread: state.lists.unread,
       userDetails: state.auth.user,
-      currentNotif: state.lists.currentNotif,
-      showNotifModal: state.lists.showNotifModal,
       authToken: state.auth.authToken,
       userType: state.auth.user.userType
     }),
@@ -86,8 +49,15 @@ export function UserNotificationsDropdownMobile() {
       getNotifications(dispatch);
     } else if (userType === 2) {
       setSignalRBackoffice(authToken, dispatch, setSelectedNotif);
+      getNotifications(dispatch);
     }
-  }, [dispatch]);
+  }, [dispatch, authToken, userType]);
+
+  const closePopup = () => {
+    setSelectedNotif(null);
+  };
+
+  // console.log(" --- notifs --- ", notifs);
 
   return (
     <>
@@ -99,6 +69,7 @@ export function UserNotificationsDropdownMobile() {
           closePopup={closePopup}
         />
       )}
+
       {layoutProps.offcanvas && (
         <div className="topbar-item">
           <div
@@ -112,11 +83,11 @@ export function UserNotificationsDropdownMobile() {
                 )}
               />
             </span>
-            {unread > 0 && (
+            {/* {unread > 0 && (
               <span className="notification-count">
                 {unread > 9 ? "9+" : unread}
               </span>
-            )}
+            )} */}
             <span className="pulse-ring"></span>
           </div>
         </div>
@@ -135,6 +106,7 @@ export function UserNotificationsDropdownMobile() {
           </Link>
         </div>
       )}
+
       <div className="topbar-item">
         <div
           className="btn btn-icon btn-lg pulse pulse-primary"
@@ -149,6 +121,7 @@ export function UserNotificationsDropdownMobile() {
           </Link>
         </div>
       </div>
+
       {!layoutProps.offcanvas && (
         <Dropdown drop="down" alignRight>
           <Dropdown.Toggle
@@ -189,17 +162,12 @@ export function UserNotificationsDropdownMobile() {
                   </span>
                 )}
                 <span className="pulse-ring"></span>
-                <span className="pulse-ring" />
               </div>
             </OverlayTrigger>
           </Dropdown.Toggle>
 
-          <Dropdown.Menu
-            className="dropdown-menu p-0 m-0 dropdown-menu-right dropdown-menu-anim-up dropdown-menu-lg"
-            hidden={selectedNotif}
-          >
+          <Dropdown.Menu className="dropdown-menu p-0 m-0 dropdown-menu-right dropdown-menu-anim-up dropdown-menu-lg">
             <form>
-              {/** Head */}
               <div
                 className="d-flex flex-column pt-12 bgi-size-cover bgi-no-repeat rounded-top"
                 style={{ backgroundColor: "#3061A3" }}
@@ -210,12 +178,10 @@ export function UserNotificationsDropdownMobile() {
                   </span>
                 </h4>
               </div>
+
               <div className="nav nav-bold nav-tabs nav-tabs-line nav-tabs-line-3x nav-tabs-line-transparent nav-tabs-line-active-border-success">
                 <PerfectScrollbar
-                  options={{
-                    wheelSpeed: 2,
-                    wheelPropagation: false
-                  }}
+                  options={{ wheelSpeed: 2, wheelPropagation: false }}
                   className="scroll mr-n7"
                   style={{
                     maxHeight: "300px",
@@ -224,10 +190,10 @@ export function UserNotificationsDropdownMobile() {
                     paddingTop: "20px"
                   }}
                 >
-                  {notifs.length == 0 && (
+                  {notifs.length === 0 && (
                     <div
-                      style={{ marginTop: "5px" }}
                       className="d-flex align-items-center mb-6"
+                      style={{ marginTop: "5px" }}
                     >
                       <div className="d-flex flex-column font-weight-bold">
                         <span
@@ -244,38 +210,67 @@ export function UserNotificationsDropdownMobile() {
                       </div>
                     </div>
                   )}
-                  {notifs &&
-                    notifs.map(notif => (
-                      <div
-                        key={notif.id}
-                        style={{ marginTop: "5px" }}
-                        className="d-flex align-items-center mb-6"
-                      >
-                        <div className="d-flex flex-column font-weight-bold">
-                          <a
-                            onClick={() => {
-                              setSelectedNotif(notif);
-                            }}
-                            className="text-dark text-hover-primary mb-1 font-size-lg"
-                            style={{
-                              fontWeight: !notif.readed ? "bold" : "inherit"
-                            }}
-                            dangerouslySetInnerHTML={{ __html: notif.title }}
-                          ></a>
-                          <span
-                            className="text-muted"
-                            style={{
-                              display: "block",
-                              whiteSpace: "nowrap",
-                              width: "19em",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis"
-                            }}
-                            dangerouslySetInnerHTML={{ __html: notif.message }}
-                          ></span>
-                        </div>
+
+                  {notifs.map((notif, index) => (
+                    <div
+                      key={index}
+                      className="d-flex align-items-center mb-6"
+                      style={{ marginTop: "5px" }}
+                    >
+                      <div className="d-flex flex-column font-weight-bold">
+                        {/* Pour les notifications standards */}
+                        {notif.title && (
+                          <>
+                            <a
+                              onClick={() => setSelectedNotif(notif)}
+                              className="text-dark text-hover-primary mb-1 font-size-lg"
+                              style={{
+                                fontWeight: !notif.readed ? "bold" : "inherit"
+                              }}
+                              dangerouslySetInnerHTML={{ __html: notif.title }}
+                            ></a>
+                            <span
+                              className="text-muted"
+                              style={{
+                                display: "block",
+                                whiteSpace: "nowrap",
+                                width: "19em",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis"
+                              }}
+                              dangerouslySetInnerHTML={{
+                                __html: notif.message
+                              }}
+                            ></span>
+                          </>
+                        )}
+
+                        {/* Pour les notifications avec subject/body */}
+                        {notif.subject && (
+                          <>
+                            <a
+                              onClick={() => setSelectedNotif(notif)}
+                              className="text-dark text-hover-primary mb-1 font-size-lg"
+                            >
+                              {notif.subject}
+                            </a>
+                            {notif.body && (
+                              <div
+                                className="text-muted"
+                                style={{
+                                  display: "block",
+                                  whiteSpace: "normal",
+                                  width: "19em",
+                                  overflow: "hidden"
+                                }}
+                                dangerouslySetInnerHTML={{ __html: notif.body }}
+                              />
+                            )}
+                          </>
+                        )}
                       </div>
-                    ))}
+                    </div>
+                  ))}
                 </PerfectScrollbar>
               </div>
             </form>

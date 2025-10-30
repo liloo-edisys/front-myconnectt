@@ -178,6 +178,7 @@ class MissionWizardFormClass extends Component {
                 path="/mission-create/step-one"
                 render={() => (
                   <FormStepOne
+                    key={window.location.pathname} // Ajouter cette ligne
                     currentWorkiste={currentWorkiste}
                     formik={props}
                     {...this.props}
@@ -186,20 +187,44 @@ class MissionWizardFormClass extends Component {
               />
               <Route
                 path="/mission-create/step-two"
-                render={() => <FormStepTwo formik={props} {...this.props} />}
+                render={() => (
+                  <FormStepTwo
+                    key={window.location.pathname} // Ajouter cette ligne
+                    formik={props}
+                    {...this.props}
+                  />
+                )}
               />
               <Route
                 path="/mission-create/step-three"
-                render={() => <FormStepThree formik={props} {...this.props} />}
+                render={() => (
+                  <FormStepThree
+                    key={window.location.pathname} // Ajouter cette ligne
+                    formik={props}
+                    {...this.props}
+                  />
+                )}
               />
               <Route
                 path="/mission-create/step-four"
-                render={() => <FormStepFour formik={props} {...this.props} />}
+                render={() => (
+                  <FormStepFour
+                    key={window.location.pathname} // Ajouter cette ligne
+                    formik={props}
+                    {...this.props}
+                  />
+                )}
               />
               <Route
                 exact
                 path="/mission/create/final-step"
-                render={() => <FinalStep formik={props} {...this.props} />}
+                render={() => (
+                  <FinalStep
+                    key={window.location.pathname} // Ajouter cette ligne
+                    formik={props}
+                    {...this.props}
+                  />
+                )}
               />
             </Switch>
           </Form>
