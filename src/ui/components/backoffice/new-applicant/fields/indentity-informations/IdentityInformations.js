@@ -1,28 +1,21 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import ReactDOM from "react-dom";
+import React, { useEffect, useState } from "react";
 
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import _ from "lodash";
-import { Input } from "metronic/_partials/controls";
-import { FormattedMessage, injectIntl, useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { useFormikContext } from "formik";
-import useLocalStorage from "../../../../shared/PersistState";
-import MissionWizzardHeader from "../../MissionWizzardHeader";
 import isNullOrEmpty from "../../../../../../utils/isNullOrEmpty";
 import moment from "moment";
 import { getTitlesTypes } from "../../../../../../business/actions/shared/ListsActions";
-import { updateApplicant } from "actions/client/ApplicantsActions";
 import Avatar from "react-avatar";
 import { DatePickerField } from "metronic/_partials/controls";
-import { DeleteProfileDialog } from "../../profileModals/DeleteProfileDialog";
-import fr from "date-fns/locale/fr";
 import { toastr } from "react-redux-toastr";
-import { Route, useParams, useHistory } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { getSelectedApplicantById } from "../../../../../../business/actions/backoffice/ApplicantActions";
 import { getNationalitiesList } from "../../../../../../business/actions/interimaire/InterimairesActions";
 import axios from "axios";
+import AddressSearchInput from "../../../customers/companiesForms/location-search-input/AddressSearchInput";
 
 import PlacesAutocomplete, {
   geocodeByAddress,
@@ -86,6 +79,7 @@ function IdentityInformations(props) {
     false
   );
   const [documentToRelaunch, setDocumentToRelaunch] = useState(false);
+  const [id, setId] = useState();
 
   const initialValues = {
     tenantID: 1,
@@ -881,85 +875,30 @@ function IdentityInformations(props) {
                         <span className="asterisk">*</span>
                       </label>
                       <div className="input-group">
-                        <PlacesAutocomplete
-                          country={["fr"]}
-                          value={address}
-                          onChange={handleChange}
-                          onSelect={(address, placeId) =>
-                            handleSelect(address, placeId, setFieldValue)
-                          }
-                        >
-                          {({
-                            getInputProps,
-                            suggestions,
-                            getSuggestionItemProps,
-                            loading
-                          }) => (
-                            <div
-                              style={{
-                                width: "100%",
-                                display: "flex",
-                                position: "relative"
-                              }}
-                            >
-                              <div className="input-group-prepend">
-                                <span
-                                  className="input-group-text"
-                                  style={{ borderRadius: "5px 0 0 5px" }}
-                                >
-                                  <i className="icon-xl fas fa-home text-primary"></i>
-                                </span>
-                              </div>
-                              <input
-                                className={`form-control h-auto py-5 px-6 google-map-input-content`}
-                                {...getInputProps({
-                                  placeholder: "Entrez votre adresse"
-                                })}
-                              />
-                              <div
-                                className="autocomplete-dropdown-container google-map-input"
-                                style={{
-                                  position: "absolute",
-                                  top: 55,
-                                  left: 55,
-                                  zIndex: 1
-                                }}
-                              >
-                                {loading && (
-                                  <div>
-                                    <FormattedMessage id="MESSAGE.SEARCH.ONGOING" />
-                                  </div>
-                                )}
-                                {suggestions.map(suggestion => {
-                                  const className = suggestion.active
-                                    ? "suggestion-item--active"
-                                    : "suggestion-item";
-                                  const style = suggestion.active
-                                    ? {
-                                        backgroundColor: "#fafafa",
-                                        cursor: "pointer",
-                                        padding: 5
-                                      }
-                                    : {
-                                        backgroundColor: "#ffffff",
-                                        cursor: "pointer",
-                                        padding: 5
-                                      };
-                                  return (
-                                    <div
-                                      {...getSuggestionItemProps(suggestion, {
-                                        className,
-                                        style
-                                      })}
-                                    >
-                                      <span>{suggestion.description}</span>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          )}
-                        </PlacesAutocomplete>
+                        <AddressSearchInput
+                          address={address}
+                          setAddress={setAddress}
+                          setFieldValue={setFieldValue}
+                          intl={intl}
+                          name="address"
+                          hasError={errors.address && touched.address}
+                          placeholder={intl.formatMessage({
+                            id: "MODEL.ACCOUNT.ADDRESS"
+                          })}
+                          onAddressSelect={suggestion => {
+                            setPostalCode(suggestion.postalCode);
+                            setCity(suggestion.freeformAddress);
+                          }}
+                          customStyles={{
+                            container: {
+                              flex: 1 // Pour que le composant prenne toute la largeur disponible
+                            },
+                            input: {
+                              border: "none", // Enlever la bordure car elle est gérée par input-group
+                              boxShadow: "none"
+                            }
+                          }}
+                        />
                       </div>
                       {touched.address && errors.address && (
                         <div className="fv-plugins-message-container">

@@ -13,16 +13,13 @@ function MissionsActionsColumnFormatter(
     openDeleteDialog,
     openDisplayDialog,
     openMatchingDialog,
-    openDuplicateVacancyDialog,
-    openMatchingVacancyDialog,
-    history,
-    getStored,
-    editMission
+    editMission,
+    handleShowApplicants
   }
 ) {
   return (
     <>
-      <a
+      {/* <a
         onClick={e => {
           e.stopPropagation();
           openDisplayDialog(row.id);
@@ -30,7 +27,14 @@ function MissionsActionsColumnFormatter(
         className="btn  btn-light-primary mr-2"
       >
         <FormattedMessage id="BUTTON.SEE.VACANCY" />
-      </a>
+      </a> */}
+      <button
+        className="btn btn-light-success mr-2"
+        onClick={() => handleShowApplicants(row)}
+        title="Candidats"
+      >
+        Candidats
+      </button>
 
       {row && row.missionIsValidated ? (
         <>

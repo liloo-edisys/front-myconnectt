@@ -17,7 +17,7 @@ import {
   getPaymentChoices
 } from "actions/shared/ListsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import LocationSearchInput from "./location-search-input";
+import AddressSearchInput from "./location-search-input/AddressSearchInput";
 import { setLatestClientEdited } from "../../../../../business/actions/backoffice/AccountsActions";
 
 function WorksiteCreateForm({ onHide, intl, history, getData }) {
@@ -25,6 +25,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
 
   const [selectedCompany] = useState(null);
   const [address, setAddress] = useState("");
+  const [location, setLocation] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const { invoiceTypes, paymentChoices, apeNumber } = useSelector(
@@ -61,7 +62,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
 
   const newInitialValues = {
     name: selectedCompany ? selectedCompany.l1_normalisee : "",
-    city: selectedCompany ? selectedCompany.libelle_commune : "",
+    city: location ? location.localName : "",
     siret: selectedCompany ? selectedCompany.siret : "",
     firstName: "",
     lastName: "",
@@ -69,11 +70,8 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
     email: "",
     password: "",
     confirm: "",
-    address:
-      selectedCompany && selectedCompany.l4_normalisee
-        ? selectedCompany.l4_normalisee
-        : "",
-    postalcode: selectedCompany ? selectedCompany.code_postal : "",
+    address: location ? location.freeformAddress : "",
+    postalcode: location ? location.postalCode : "",
     phoneNumber: null,
     acceptTerms: false,
     InvoiceTypeID: 1,
@@ -82,7 +80,8 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
     apeNumber: "",
     tvaNumber: "",
     companyStatus: "",
-    anaelID: ""
+    anaelID: "",
+    position: location ? location.position : null
   };
 
   // Validation schema
@@ -224,7 +223,7 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
                 <div className="form-group row">
                   {/* Adresse */}
                   <div className="col-lg-6">
-                    <label className=" col-form-label">
+                    <label className="col-form-label">
                       <FormattedMessage id="MODEL.ACCOUNT.ADDRESS" />
                     </label>
                     <div className="input-group">
@@ -233,23 +232,37 @@ function WorksiteCreateForm({ onHide, intl, history, getData }) {
                           <i className="icon-xl flaticon-map-location text-primary"></i>
                         </span>
                       </div>
-                      {/*<Field
-                        name="address"
-                        component={Input}
-                        placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.ADDRESS"
-                        })}
-                      />*/}
-                      <LocationSearchInput
+                      {/* Remplacement de LocationSearchInput */}
+                      <AddressSearchInput
                         address={address}
                         setAddress={setAddress}
                         setFieldValue={setFieldValue}
                         intl={intl}
+                        name="address"
+                        hasError={errors.address && touched.address}
+                        placeholder={intl.formatMessage({
+                          id: "MODEL.ACCOUNT.ADDRESS"
+                        })}
+                        onAddressSelect={suggestion => {
+                          setLocation(suggestion);
+                        }}
+                        customStyles={{
+                          container: {
+                            flex: 1 // Pour que le composant prenne toute la largeur disponible
+                          },
+                          input: {
+                            border: "none", // Enlever la bordure car elle est gérée par input-group
+                            boxShadow: "none"
+                          }
+                        }}
                       />
                     </div>
-                    {touched.address && errors.address ? (
-                      <div className="asterisk">{errors["address"]}</div>
-                    ) : null}
+                    {/* Affichage des erreurs */}
+                    {errors.address && touched.address && (
+                      <div className="invalid-feedback d-block">
+                        {errors.address}
+                      </div>
+                    )}
                   </div>
                   {/* Complément d’adresse */}
                   <div className="col-lg-6">

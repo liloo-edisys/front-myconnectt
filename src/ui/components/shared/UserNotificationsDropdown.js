@@ -3,30 +3,17 @@
 import React, { useEffect, useState, useMemo } from "react";
 
 import objectPath from "object-path";
-import {
-  Nav,
-  Tab,
-  Dropdown,
-  OverlayTrigger,
-  Tooltip,
-  Modal
-} from "react-bootstrap";
+import { Dropdown, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import SVG from "react-inlinesvg";
 import PerfectScrollbar from "react-perfect-scrollbar";
-import axios from "axios";
 import { FormattedMessage } from "react-intl";
 
 import { toAbsoluteUrl } from "../../../_metronic/_helpers";
 import { DropdownTopbarItemToggler } from "../../../_metronic/_partials/dropdowns";
 import { useHtmlClassService } from "../../../_metronic/layout/_core/MetronicLayout";
-import { SET_CURRENT_NOTIF } from "../../../constants/constants";
 import "./styles.scss";
-import {
-  getNotifications,
-  setNotifRead
-} from "../../../business/actions/shared/NotificationsActions";
-import { Block } from "@material-ui/icons";
+import { getNotifications } from "../../../business/actions/shared/NotificationsActions";
 import { UserNotificationPopup } from "./UserNotificationPopup";
 import { setSignalRInterimaire } from "../../../business/actions/interimaire/InterimairesActions";
 import { setSignalRClient } from "../../../business/actions/client/UserActions";
@@ -144,11 +131,11 @@ export function UserNotificationsDropdown() {
                 )}
               />
             </span>
-            {unread > 0 && (
+            {/* {unread > 0 && (
               <span className="notification-count">
                 {unread > 9 ? "9+" : unread}
               </span>
-            )}
+            )} */}
             <span className="pulse-ring"></span>
           </div>
         </div>
@@ -176,11 +163,14 @@ export function UserNotificationsDropdown() {
             </Link>
           </div>
         )}
-        <div
+        {/* <div
           className="btn btn-icon btn-lg mr-1 pulse pulse-primary"
           id="kt_quick_notifications_toggle"
         >
-          <Link to="/contact" className="svg-icon svg-icon-xl svg-icon-primary">
+          <Link
+            to="/messages"
+            className="svg-icon svg-icon-xl svg-icon-primary"
+          >
             <OverlayTrigger
               placement="bottom"
               overlay={
@@ -196,7 +186,7 @@ export function UserNotificationsDropdown() {
               />
             </OverlayTrigger>
           </Link>
-        </div>
+        </div> */}
       </div>
       {!layoutProps.offcanvas && (
         <Dropdown drop="down" alignRight>

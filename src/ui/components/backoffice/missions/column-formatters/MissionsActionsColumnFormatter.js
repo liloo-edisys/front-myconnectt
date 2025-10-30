@@ -9,10 +9,17 @@ function MissionsActionsColumnFormatter(
   cellContent,
   row,
   rowIndex,
-  { openDeleteDialog, openDisplayDialog }
+  { openDeleteDialog, openDisplayDialog, handleShowApplicants }
 ) {
   return (
     <>
+      <button
+        className="btn btn-light-success mr-2"
+        onClick={() => handleShowApplicants(row)}
+        title="Candidats"
+      >
+        Candidats
+      </button>
       {row.status === 0 && (
         <Link
           to={`/mission/update/${row.id}`}

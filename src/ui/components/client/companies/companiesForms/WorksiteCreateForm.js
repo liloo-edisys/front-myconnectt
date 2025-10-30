@@ -17,13 +17,15 @@ import {
   getPaymentChoices
 } from "actions/shared/ListsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
-import LocationSearchInput from "./location-search-input";
+import AddressSearchInput from "../companiesForms/location-search-input/AddressSearchInput";
 
 function WorksiteCreateForm({ onHide, intl, history }) {
   const dispatch = useDispatch();
 
   const [selectedCompany] = useState(null);
   const [address, setAddress] = useState("");
+  const [postal, setPostal] = useState("");
+  const [city, setCity] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const { invoiceTypes, paymentChoices, apeNumber } = useSelector(
@@ -34,6 +36,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
     }),
     shallowEqual
   );
+
   useEffect(() => {
     if (isNullOrEmpty(apeNumber)) {
       dispatch(getAPE.request());
@@ -45,9 +48,11 @@ function WorksiteCreateForm({ onHide, intl, history }) {
       dispatch(getPaymentChoices.request());
     }
   }, [dispatch, apeNumber, paymentChoices, invoiceTypes]);
+
   const currentCompany = history && history.location.state;
 
-  const newInitialValues = {
+  // Mémoriser les valeurs initiales pour éviter la réinitialisation
+  const [initialValues] = useState({
     name: selectedCompany ? selectedCompany.l1_normalisee : "",
     city: selectedCompany ? selectedCompany.libelle_commune : "",
     siret: selectedCompany ? selectedCompany.siret : "",
@@ -61,7 +66,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
       selectedCompany && selectedCompany.l4_normalisee
         ? selectedCompany.l4_normalisee
         : "",
-    postalcode: selectedCompany ? selectedCompany.code_postal : "",
+    postalcode: "",
     phoneNumber: null,
     acceptTerms: false,
     InvoiceTypeID: 1,
@@ -70,22 +75,16 @@ function WorksiteCreateForm({ onHide, intl, history }) {
     apeNumber: "",
     tvaNumber: "",
     companyStatus: ""
-  };
+  });
 
   // Validation schema
   const CompanyCreateSchema = Yup.object().shape({
     name: Yup.string().required(
       intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })
     ),
-    /*apeNumber: Yup.string().required(
-      intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })
-    ),*/
     companyStatus: Yup.string().required(
       intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })
     ),
-    /*tvaNumber: Yup.string().required(
-      intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })
-    ),*/
     address: Yup.string()
       .required(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" }))
       .typeError(intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELD" })),
@@ -105,24 +104,23 @@ function WorksiteCreateForm({ onHide, intl, history }) {
   });
 
   const handleChangePhone = (setFieldValue, setFieldTouched, e) => {
-    setPhoneNumber(e && e.replace(/\s/g, ""));
+    const cleanedValue = e && e.replace(/\s/g, "");
+    setPhoneNumber(cleanedValue);
 
     if (setFieldTouched) {
       setFieldTouched("phoneNumber", true);
     }
     if (setFieldValue) {
-      setFieldValue("phoneNumber", e && e.replace(/\s/g, ""));
+      setFieldValue("phoneNumber", cleanedValue);
     }
   };
 
   return (
     <>
       <Formik
-        enableReinitialize={true}
-        initialValues={newInitialValues}
+        enableReinitialize={false} // Désactiver la réinitialisation automatique
+        initialValues={initialValues}
         validationSchema={CompanyCreateSchema}
-        setFieldValue
-        setFieldTouched
         onSubmit={values => {
           let data = {
             ...values,
@@ -194,9 +192,8 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                 </div>
                 <div className="separator separator-solid-primary mt-10 mb-5 mx-30"></div>
                 <div className="form-group row">
-                  {/* Adresse */}
                   <div className="col-lg-6">
-                    <label className=" col-form-label">
+                    <label className="col-form-label">
                       <FormattedMessage id="MODEL.ACCOUNT.ADDRESS" />
                     </label>
                     <div className="input-group">
@@ -205,18 +202,48 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                           <i className="icon-xl flaticon-map-location text-primary"></i>
                         </span>
                       </div>
-                      <LocationSearchInput
-                        address={address}
-                        setAddress={setAddress}
+                      <AddressSearchInput
+                        address={address || values.address}
+                        setAddress={newAddress => {
+                          setAddress(newAddress);
+                          setFieldValue("address", newAddress);
+                        }}
                         setFieldValue={setFieldValue}
                         intl={intl}
+                        name="address"
+                        hasError={errors.address && touched.address}
+                        placeholder={intl.formatMessage({
+                          id: "MODEL.ACCOUNT.ADDRESS"
+                        })}
+                        onAddressSelect={suggestion => {
+                          console.log("Suggestion reçue:", suggestion); // Pour débugger
+                          setAddress(suggestion.freeformAddress);
+                          setPostal(suggestion.postalCode);
+                          setCity(suggestion.localName);
+
+                          // Mettre à jour les valeurs Formik
+                          setFieldValue("address", suggestion.freeformAddress);
+                          setFieldValue("postalcode", suggestion.postalCode);
+                          setFieldValue("city", suggestion.localName);
+                        }}
+                        customStyles={{
+                          container: {
+                            flex: 1
+                          },
+                          input: {
+                            border: "none",
+                            boxShadow: "none"
+                          }
+                        }}
                       />
                     </div>
-                    {touched.address && errors.address ? (
-                      <div className="asterisk">{errors["address"]}</div>
-                    ) : null}
+                    {errors.address && touched.address && (
+                      <div className="invalid-feedback d-block">
+                        {errors.address}
+                      </div>
+                    )}
                   </div>
-                  {/* Complément d’adresse */}
+                  {/* Complément d'adresse */}
                   <div className="col-lg-6">
                     <label className=" col-form-label">
                       <FormattedMessage id="MODEL.ACCOUNT.ADDITIONALADDRESS" />
@@ -252,6 +279,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                       </div>
                       <Field
                         name="postalcode"
+                        value={values.postalcode || postal}
                         disabled
                         component={Input}
                         placeholder={intl.formatMessage({
@@ -276,6 +304,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                       </div>
                       <Field
                         name="city"
+                        value={values.city || city}
                         disabled
                         component={Input}
                         placeholder={intl.formatMessage({
@@ -308,7 +337,10 @@ function WorksiteCreateForm({ onHide, intl, history }) {
                           )
                         }
                         value={
-                          phoneNumber && phoneNumber.match(/.{1,2}/g).join(" ")
+                          (values.phoneNumber || phoneNumber) &&
+                          (values.phoneNumber || phoneNumber)
+                            .match(/.{1,2}/g)
+                            ?.join(" ")
                         }
                         component={Input}
                         placeholder={intl.formatMessage({
@@ -404,7 +436,7 @@ function WorksiteCreateForm({ onHide, intl, history }) {
               <> </>
               <button
                 type="submit"
-                onClick={() => handleSubmit()}
+                onClick={handleSubmit}
                 className="btn btn-primary btn-shadow font-weight-bold px-9 py-4 my-3 mx-4"
               >
                 <FormattedMessage id="BUTTON.SAVE" />

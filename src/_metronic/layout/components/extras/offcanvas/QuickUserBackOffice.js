@@ -33,7 +33,7 @@ function QuickUserBackOffice() {
       toggle.click()
     }
     persistor.purge();
-    window.location.replace(`${process.env.REACT_APP_URL}auth/backoffice-login`);
+    window.location.replace(`${process.env.REACT_APP_URL}auth/login`);
     //history.push('/backoffice-logout');
   }
 
@@ -131,6 +131,26 @@ function QuickUserBackOffice() {
               <div className='navi-text'>
                 <div className='font-weight-bold'>
                   <FormattedMessage id='TEXT.BACKOFFICE.MAIL.TEMPLATES' />
+                </div>
+              </div>
+            </div>
+          </Link>
+          <Link className="navi-item" to="/messageProfil" onClick={closeMenu}>
+            <div className='navi-link'>
+              <div className='symbol symbol-40 bg-light mr-3'>
+                <div className='symbol-label'>
+                  <span className='svg-icon svg-icon-md'>
+                    <SVG
+                      src={toAbsoluteUrl(
+                        '/media/svg/icons/Communication/Group.svg'
+                      )}
+                    ></SVG>
+                  </span>
+                </div>
+              </div>
+              <div className='navi-text'>
+                <div className='font-weight-bold'>
+                  <FormattedMessage id='TEXT.MESSAGE.PROFIL' />
                 </div>
               </div>
             </div>

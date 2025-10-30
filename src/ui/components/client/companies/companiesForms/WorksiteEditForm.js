@@ -18,7 +18,7 @@ import {
   getAPE
 } from "../../../../../business/actions/shared/ListsActions";
 import { checkFields } from "actions/client/CompaniesActions";
-import LocationSearchInput from "./location-search-input";
+import AddressSearchInput from "../companiesForms/location-search-input/AddressSearchInput";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
@@ -27,6 +27,8 @@ function WorksiteEditForm({ onHide, intl, history }) {
   const dispatch = useDispatch();
   const [currentCompany, setCurrentCompany] = useState(history.location.state);
   const [address, setAddress] = useState("");
+  const [postal, setPostal] = useState("");
+  const [city, setCity] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const { invoiceTypes, paymentChoices, apeNumber } = useSelector(
@@ -154,7 +156,14 @@ function WorksiteEditForm({ onHide, intl, history }) {
           dispatch(updateCompany.request(data), onHide());
         }}
       >
-        {({ handleSubmit, values, setFieldValue, setFieldTouched }) => (
+        {({
+          handleSubmit,
+          values,
+          errors,
+          touched,
+          setFieldValue,
+          setFieldTouched
+        }) => (
           <>
             <Modal.Body className="overlay overlay-block cursor-default">
               <Form className="form form-label-right">
@@ -205,7 +214,7 @@ function WorksiteEditForm({ onHide, intl, history }) {
                 <div className="form-group row">
                   {/* Adresse */}
                   <div className="col-lg-6">
-                    <label className=" col-form-label">
+                    <label className="col-form-label">
                       <FormattedMessage id="MODEL.ACCOUNT.ADDRESS" />
                     </label>
                     <div className="input-group">
@@ -214,13 +223,45 @@ function WorksiteEditForm({ onHide, intl, history }) {
                           <i className="icon-xl flaticon-map-location text-primary"></i>
                         </span>
                       </div>
-                      <LocationSearchInput
-                        address={address}
-                        setAddress={setAddress}
+                      <AddressSearchInput
+                        address={address} // Utiliser address en priorité puis values.address
+                        setAddress={newAddress => {
+                          setAddress(newAddress);
+                          setFieldValue("address", newAddress);
+                        }}
                         setFieldValue={setFieldValue}
                         intl={intl}
+                        name="address"
+                        hasError={errors.address && touched.address}
+                        placeholder={intl.formatMessage({
+                          id: "MODEL.ACCOUNT.ADDRESS"
+                        })}
+                        onAddressSelect={suggestion => {
+                          setAddress(suggestion.freeformAddress);
+                          setPostal(suggestion.postalCode);
+                          setCity(suggestion.localName);
+
+                          // Mettre à jour les valeurs Formik
+                          setFieldValue("address", suggestion.freeformAddress);
+                          setFieldValue("postalcode", suggestion.postalCode);
+                          setFieldValue("city", suggestion.localName);
+                        }}
+                        customStyles={{
+                          container: {
+                            flex: 1
+                          },
+                          input: {
+                            border: "none",
+                            boxShadow: "none"
+                          }
+                        }}
                       />
                     </div>
+                    {errors.address && touched.address && (
+                      <div className="invalid-feedback d-block">
+                        {errors.address}
+                      </div>
+                    )}
                   </div>
                   {/* Complément d’adresse */}
                   <div className="col-lg-6">

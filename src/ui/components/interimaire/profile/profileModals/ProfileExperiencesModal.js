@@ -12,6 +12,7 @@ import { getJobTitles } from "actions/shared/ListsActions";
 registerLocale("fr", fr);
 const TENANTID = +process.env.REACT_APP_TENANT_ID;
 const newID = 0;
+
 export function ProfileExperiencesModal({
   show,
   onHide,
@@ -27,6 +28,7 @@ export function ProfileExperiencesModal({
   useMountEffect(() => {
     dispatch(getJobTitles.request());
   }, []);
+
   const [jobTitle, setJobTitle] = useState("");
   const [company, setCompany] = useState("");
   const [startDate, setStartDate] = useState(null);
@@ -46,6 +48,20 @@ export function ProfileExperiencesModal({
     shallowEqual
   );
 
+  // Fonction pour récupérer missionArrayDesiredJobTitles depuis localStorage
+  const getMissionArrayDesiredJobTitles = () => {
+    try {
+      const storedValue = localStorage.getItem("missionArrayDesiredJobTitles");
+      return storedValue ? JSON.parse(storedValue) : [];
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération de missionArrayDesiredJobTitles:",
+        error
+      );
+      return [];
+    }
+  };
+
   const checkFields = () => {
     if (isNullOrEmpty(jobTitle) || isNullOrEmpty(company)) {
       return true;
@@ -53,48 +69,35 @@ export function ProfileExperiencesModal({
   };
 
   const handleValidate = () => {
+    // Récupération des données depuis localStorage
+    const missionArrayDesiredJobTitles = getMissionArrayDesiredJobTitles();
+
+    const experienceData = {
+      jobTitle: jobTitle,
+      employerNameAndPlace: company,
+      startDate: startDate,
+      endDate: endDate,
+      id: isNullOrEmpty(row) ? newID : row.id,
+      isDeleted: null,
+      deleteDate: null,
+      tenantID: TENANTID,
+      tenant: null,
+      creationDate: null,
+      lastModifiedDate: null,
+      timestamp: null,
+      applicantID: user.applicantID,
+      applicant: null,
+      place: location,
+      description: desc,
+      isCurrentItem: current === true ? "true" : "false",
+      missionArrayDesiredJobTitles: missionArrayDesiredJobTitles // Ajout des données localStorage
+    };
+
     isNullOrEmpty(row)
-      ? handleEditExperience({
-          jobTitle: jobTitle,
-          employerNameAndPlace: company,
-          startDate: startDate,
-          endDate: endDate,
-          id: newID,
-          isDeleted: null,
-          deleteDate: null,
-          tenantID: TENANTID,
-          tenant: null,
-          creationDate: null,
-          lastModifiedDate: null,
-          timestamp: null,
-          applicantID: user.applicantID,
-          applicant: null,
-          place: location,
-          description: desc,
-          isCurrentItem: current === true ? "true" : "false"
-        })
-      : handleUpdateExperience(
-          {
-            jobTitle: jobTitle,
-            employerNameAndPlace: company,
-            startDate: startDate,
-            endDate: endDate,
-            id: row.id,
-            isDeleted: null,
-            deleteDate: null,
-            tenantID: TENANTID,
-            tenant: null,
-            creationDate: null,
-            lastModifiedDate: null,
-            timestamp: null,
-            applicantID: user.applicantID,
-            applicant: null,
-            place: location,
-            description: desc,
-            isCurrentItem: current === true ? "true" : "false"
-          },
-          row.index
-        );
+      ? handleEditExperience(experienceData)
+      : handleUpdateExperience(experienceData, row.index);
+
+    // Reset des champs
     setJobTitle("");
     setCompany("");
     setStartDate(null);
@@ -125,9 +128,11 @@ export function ProfileExperiencesModal({
       row.place && setLocation(row.place);
     }
   }, [row, current]);
+
   const handleChangeJobTitle = e => {
     setJobTitle(e.target.value);
   };
+
   return (
     <Modal
       show={show}

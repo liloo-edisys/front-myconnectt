@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react'
 
 import { getInterimaire } from "actions/interimaire/InterimairesActions";
+import {stopSignalRConnection  } from "actions/interimaire/InterimairesActions"
 import Avatar from 'react-avatar'
 import SVG from 'react-inlinesvg'
 import { FormattedMessage, injectIntl } from 'react-intl'
@@ -28,14 +29,21 @@ function QuickUserInterimaire() {
     shallowEqual
   )
 
-  const logoutClick = () => {
+  const logoutClick = async () => {
+    // First close the SignalR connection
+    try {
+      await stopSignalRConnection();
+    } catch (err) {
+      console.error('Error during logout:', err);
+    }
+
+    // Then proceed with normal logout
     const toggle = document.getElementById('kt_quick_user_toggle')
     if (toggle) {
       toggle.click()
     }
     persistor.purge();
     window.location.replace(`${process.env.REACT_APP_URL}auth/int-login`);
-    //history.push('/int-logout');
   }
 
   const closeMenu = () => {

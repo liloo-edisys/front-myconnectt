@@ -141,6 +141,7 @@ function CustomerOrder(props) {
       .then(res => {
         setActiveCustomerOrder(res.data);
         setLoading(false);
+        console.log("activeCustomerOrder ------------> ", res.data);
       })
       .catch(err => {
         setLoading(false);
@@ -386,6 +387,9 @@ function CustomerOrder(props) {
       .then(res => getData())
       .catch(err => getData());
   };
+
+  // console.log(" activeCustomerOrder.vacancy.creationDate ------------->" , activeCustomerOrder.vacancy.creationDate);
+
   return (
     <div>
       {toogleApplicantList && (
@@ -422,10 +426,20 @@ function CustomerOrder(props) {
                     <div className="d-flex flex-column">
                       <span className="text-dark font-weight-bold font-size-h5">
                         Créée le{" "}
-                        {new Date(
-                          activeCustomerOrder.vacancy.creationDate
-                        ).toLocaleDateString("fr-FR")}{" "}
+                        {activeCustomerOrder?.vacancy?.creationDate
+                          ? new Date(
+                              activeCustomerOrder.vacancy.creationDate.replace(
+                                /(\.\d{3})\d+$/,
+                                "$1"
+                              )
+                            ).toLocaleDateString("fr-FR", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric"
+                            })
+                          : "—"}
                       </span>
+
                       <span className="text-dark font-weight-bold font-size-h5">
                         {activeCustomerOrder.vacancy.vacancyNumberOfJobs -
                           activeCustomerOrder.vacancy

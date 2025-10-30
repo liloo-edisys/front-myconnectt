@@ -239,7 +239,7 @@ function FormStepThree(props) {
                       </div>
                       {touched.missionStartHour && errors.missionStartHour ? (
                         <div className="asterisk">
-                          {errors["missionStartHour"]}
+                          <FormattedMessage id="MESSAGE.FIELD.EMPTY" />
                         </div>
                       ) : null}
                     </div>
@@ -284,7 +284,7 @@ function FormStepThree(props) {
                       </div>
                       {touched.missionEndHour && errors.missionEndHour ? (
                         <div className="asterisk">
-                          {errors["missionEndHour"]}
+                          <FormattedMessage id="MESSAGE.FIELD.EMPTY" />
                         </div>
                       ) : null}
                     </div>

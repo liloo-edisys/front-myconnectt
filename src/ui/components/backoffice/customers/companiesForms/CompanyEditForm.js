@@ -15,34 +15,35 @@ import axios from "axios";
 import {
   getAPE,
   getInvoicesTypes,
-  getAccountGroups,
   getPaymentChoices
 } from "actions/shared/ListsActions";
 import isNullOrEmpty from "../../../../../utils/isNullOrEmpty";
 import { toastr } from "react-redux-toastr";
-import LocationSearchInput from "./location-search-input";
+import AddressSearchInput from "./location-search-input/AddressSearchInput";
 import { useParams } from "react-router-dom";
 
 function CompanyEditForm({ onHide, intl, history, getData }) {
   const dispatch = useDispatch();
   const TENANTID = +process.env.REACT_APP_TENANT_ID;
   const { id } = useParams();
+  const accountGroups = [];
 
-  const {
-    invoiceTypes,
-    accountGroups,
-    paymentChoices,
-    apeNumber
-  } = useSelector(
+  const { invoiceTypes, paymentChoices, apeNumber } = useSelector(
     state => ({
       invoiceTypes: state.lists.invoiceTypes,
-      accountGroups: state.lists.accountGroups,
       paymentChoices: state.lists.paymentChoices,
       apeNumber: state.lists.apeNumber
     }),
     shallowEqual
   );
-  const [address, setAddress] = useState("");
+
+  const [address, setAddress] = useState(
+    currentCompany ? currentCompany.address : ""
+  );
+  const [postal, setPostal] = useState(
+    currentCompany ? currentCompany.postalCode : ""
+  );
+  const [city, setCity] = useState(currentCompany ? currentCompany.city : "");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [
     commercialAgreementsValidated,
@@ -53,6 +54,9 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
   const [commercialContractSigned, setCommercialContractSigned] = useState(
     false
   );
+
+  console.log("currentCompany ---> ", currentCompany);
+
   useEffect(() => {
     const address = currentCompany ? currentCompany.address : "";
     setAddress(address);
@@ -61,9 +65,6 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
     }
     if (isNullOrEmpty(invoiceTypes)) {
       dispatch(getInvoicesTypes.request());
-    }
-    if (isNullOrEmpty(accountGroups)) {
-      dispatch(getAccountGroups.request());
     }
     if (isNullOrEmpty(paymentChoices)) {
       dispatch(getPaymentChoices.request());
@@ -94,7 +95,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
         }
       });
     }
-  }, [dispatch, apeNumber, invoiceTypes, accountGroups, paymentChoices]);
+  }, [dispatch, apeNumber, invoiceTypes, paymentChoices]);
 
   const handleChangePhone = (setFieldValue, setFieldTouched, e) => {
     setPhoneNumber(e && e.replace(/\s/g, ""));
@@ -153,10 +154,10 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
     apeNumber: currentCompany ? currentCompany.apeNumber : "",
     companyStatus: currentCompany ? currentCompany.companyStatus : "",
     tvaNumber: currentCompany ? formatTva(currentCompany.siret) : "",
-    address: currentCompany ? currentCompany.address : "",
+    address: address,
     additionaladdress: currentCompany ? currentCompany.additionalAddress : "",
-    postalCode: currentCompany ? currentCompany.postalCode : "",
-    city: currentCompany ? currentCompany.city : "",
+    postalCode: postal,
+    city: city,
     coefficient: currentCompany ? currentCompany.coefficient : "",
     phoneNumber: currentCompany ? currentCompany.phoneNumber : "",
     description: currentCompany ? currentCompany.description : "",
@@ -403,7 +404,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                 <div className="form-group row">
                   {/* Adresse */}
                   <div className="col-lg-6">
-                    <label className=" col-form-label">
+                    <label className="col-form-label">
                       <FormattedMessage id="MODEL.ACCOUNT.ADDRESS" />
                     </label>
                     <div className="input-group">
@@ -412,20 +413,38 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                           <i className="icon-xl flaticon-map-location text-primary"></i>
                         </span>
                       </div>
-                      {/*<Field
-                        name="address"
-                        component={Input}
-                        placeholder={intl.formatMessage({
-                          id: "MODEL.ACCOUNT.ADDRESS"
-                        })}
-                      />*/}
-                      <LocationSearchInput
+                      {/* Remplacement de LocationSearchInput */}
+                      <AddressSearchInput
                         address={address}
                         setAddress={setAddress}
                         setFieldValue={setFieldValue}
                         intl={intl}
+                        name="address"
+                        hasError={errors.address && touched.address}
+                        placeholder={intl.formatMessage({
+                          id: "MODEL.ACCOUNT.ADDRESS"
+                        })}
+                        onAddressSelect={suggestion => {
+                          setPostal(suggestion.postalCode);
+                          setCity(suggestion.freeformAddress);
+                        }}
+                        customStyles={{
+                          container: {
+                            flex: 1 // Pour que le composant prenne toute la largeur disponible
+                          },
+                          input: {
+                            border: "none", // Enlever la bordure car elle est gérée par input-group
+                            boxShadow: "none"
+                          }
+                        }}
                       />
                     </div>
+                    {/* Affichage des erreurs */}
+                    {errors.address && touched.address && (
+                      <div className="invalid-feedback d-block">
+                        {errors.address}
+                      </div>
+                    )}
                   </div>
                   {/* Complément d’adresse */}
                   <div className="col-lg-6">
@@ -463,6 +482,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                       </div>
                       <Field
                         name="postalCode"
+                        disabled
                         component={Input}
                         placeholder={intl.formatMessage({
                           id: "MODEL.ACCOUNT.POSTALCODE"
@@ -483,6 +503,7 @@ function CompanyEditForm({ onHide, intl, history, getData }) {
                       </div>
                       <Field
                         name="city"
+                        disabled
                         component={Input}
                         placeholder={intl.formatMessage({
                           id: "MODEL.ACCOUNT.CITY"

@@ -108,6 +108,25 @@ export const getJobSkills = {
     payload: { list }
   })
 };
+
+export const getJobSkillsByActivityDomain = {
+  request: () => ({
+    type: actionTypes.GET_JOB_SKILLS_REQUEST_BY_ACTIVITY_DOMAIN
+  }),
+  success: list => ({
+    type: actionTypes.GET_JOB_SKILLS_SUCCESS,
+    payload: { list }
+  })
+};
+
+export const getJobSkillsGetByJobTitle = {
+  request: () => ({ type: actionTypes.GET_JOB_SKILLS_REQUEST_BY_JOB_TITLE }),
+  success: list => ({
+    type: actionTypes.GET_JOB_SKILLS_SUCCESS,
+    payload: { list }
+  })
+};
+
 export const getJobTags = {
   request: () => ({ type: actionTypes.GET_JOB_TAGS_REQUEST }),
   success: list => ({

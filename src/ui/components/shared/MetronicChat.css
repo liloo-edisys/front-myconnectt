@@ -1,0 +1,221 @@
+.metronic-chat-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.chat-toggle-btn {
+  padding: 12px 24px;
+  background: #0d6efd;
+  border: none;
+  border-radius: 24px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.chat-toggle-btn span {
+  color: white;
+  font-weight: 500;
+}
+
+.chat-toggle-btn.hidden {
+  display: none;
+}
+
+.chat-container {
+  width: 380px;
+  height: 600px;
+  background: var(--bg-color);
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.chat-container.open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+
+.typing-indicator {
+  padding: 12px 16px;
+  background: var(--message-bg);
+  border-radius: 12px;
+}
+
+.typing-indicator .dots {
+  display: flex;
+  gap: 4px;
+}
+
+.typing-indicator .dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  animation: bounce 1.4s infinite ease-in-out;
+}
+
+.typing-indicator .dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+.typing-indicator .dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+.faq-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.faq-button {
+  padding: 12px 16px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  text-align: left;
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.faq-button:hover {
+  background: var(--hover-bg);
+}
+
+.footer-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  padding: 8px 16px;
+}
+
+.message-wrapper {
+  margin-bottom: 16px;
+}
+
+.message-wrapper.outgoing {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.message-wrapper.incoming {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.message {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--primary-color);
+  color: white;
+}
+
+.outgoing .message {
+  border-bottom-right-radius: 4px;
+}
+
+.incoming .message {
+  border-bottom-left-radius: 4px;
+}
+
+.message-time {
+  font-size: 12px;
+  margin-top: 4px;
+  opacity: 0.7;
+}
+
+/* Ajoutez ces styles à votre fichier MetronicChat.css */
+
+.suggestion-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 16px 40px;
+  max-width: 85%;
+}
+
+.suggestion-button {
+  background-color: #f0f2f5;
+  border: 1px solid #e4e6e9;
+  border-radius: 18px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #3699ff;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.suggestion-button:hover {
+  background-color: #eef0f3;
+  border-color: #3699ff;
+}
+
+/* Pour améliorer l'espacement dans le conteneur de messages */
+.messages-container {
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Style pour le message avec suggestions */
+.message-wrapper + .suggestion-buttons {
+  margin-top: -4px;
+}
+
+.message-link {
+  color: #3699ff;
+  text-decoration: underline;
+  word-break: break-all;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.message-link:hover {
+  color: #187de4;
+  text-decoration: underline;
+}
+
+/* Pour s'assurer que les liens sont bien visibles dans les messages du bot */
+.incoming .message-content .message-link {
+  color: #0d6efd;
+}
+
+.incoming .message-content .message-link:hover {
+  color: #0a58ca;
+}

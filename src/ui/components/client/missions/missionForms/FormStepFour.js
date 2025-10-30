@@ -4,8 +4,8 @@
 // Data validation is based on Yup
 // Please, be familiar with article first:
 // https://hackernoon.com/react-form-validation-with-formik-and-yup-8b76bda62e10
-import React, { useEffect } from "react";
-import _, { isNull } from "lodash";
+import React, { useEffect, useState } from "react";
+import _, { isNull, set } from "lodash";
 
 import { Field, useFormikContext } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
@@ -213,6 +213,8 @@ function FormStepFour(props) {
         props.formik.setFieldTouched("missionReasonJustification", true);
     }
   }, []);
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     isNullOrEmpty(selecteReasons) &&
@@ -960,6 +962,7 @@ function FormStepFour(props) {
                         <Link className="next">
                           <button
                             onClick={() => {
+                              setLoading(true);
                               !errors.missionContactName &&
                               !errors.missionHasVehicle &&
                               !errors.missionReasonJustification &&
@@ -997,12 +1000,16 @@ function FormStepFour(props) {
                             className="btn btn-primary btn-shadow font-weight-bold px-9 py-4 my-3 mx-4"
                           >
                             <FormattedMessage id="BUTTON.SAVE" />
+                            {loading && (
+                              <span className="ml-3 spinner spinner-white"></span>
+                            )}
                           </button>
                         </Link>
                       ) : (
                         <Link className="next">
                           <button
                             onClick={() => {
+                              setLoading(true);
                               !errors.missionContactName &&
                               !errors.missionHasVehicle &&
                               !errors.missionReasonJustification &&
@@ -1042,6 +1049,9 @@ function FormStepFour(props) {
                             className="btn btn-primary btn-shadow font-weight-bold px-9 py-4 my-3 mx-4"
                           >
                             <FormattedMessage id="BUTTON.SAVE" />
+                            {loading && (
+                              <span className="ml-3 spinner spinner-white"></span>
+                            )}
                           </button>
                         </Link>
                       )}

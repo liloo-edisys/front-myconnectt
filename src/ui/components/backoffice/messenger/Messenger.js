@@ -6,6 +6,7 @@ import JoditEditor from "jodit-react";
 import { useSelector } from "react-redux";
 import { toastr } from "react-redux-toastr";
 import { Modal } from "react-bootstrap";
+import Select from "react-select/async";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory, {
   PaginationListStandalone,
@@ -34,6 +35,10 @@ export default function Messenger() {
   const [notResponded, setNotResponded] = useState(true);
   const [activeMessage, setActiveMessage] = useState(null);
   const [content, setContent] = useState("");
+  const [showNewMessageModal, setShowNewMessageModal] = useState(false);
+  const [newMessageSubject, setNewMessageSubject] = useState("");
+  const [sendToAllTemp, setSendToAllTemp] = useState(false);
+  const [selectedApplicants, setSelectedApplicants] = useState([]);
 
   const config = {
     readonly: false
@@ -54,7 +59,6 @@ export default function Messenger() {
     }
 
     let body = {
-      tenantID: user.tenantID,
       tenantID: user.tenantID,
       responseStatus: responseStatus,
       pageSize: 10,
@@ -79,10 +83,11 @@ export default function Messenger() {
       })
       .catch(err => console.log(err));
   };
+
   const columns = [
     {
       dataField: "content_Subject",
-      text: "Suject"
+      text: "Sujet"
     },
     {
       dataField: "content_From",
@@ -196,7 +201,7 @@ export default function Messenger() {
   };
 
   const handleSendEmail = () => {
-    let SEND_EMAIL_URL = `${process.env.REACT_APP_WEBAPI_URL}api/Email/SendEmailToUser`;
+    let SEND_EMAIL_URL = `${api}api/Email/SendEmailToUser`;
     let body = null;
     if (activeMessage.accountID) {
       body = {
@@ -227,6 +232,131 @@ export default function Messenger() {
       );
   };
 
+  const handleNewMessage = () => {
+    if (
+      !newMessageSubject ||
+      (!sendToAllTemp && selectedApplicants.length === 0) ||
+      !content
+    ) {
+      toastr.error("Erreur", "Veuillez remplir tous les champs");
+      return;
+    }
+
+    const body = {
+      applicantsID: sendToAllTemp
+        ? null
+        : selectedApplicants.map(applicant => applicant.value),
+      allApplicants: sendToAllTemp,
+      accountID: 0,
+      subject: newMessageSubject,
+      body: content
+    };
+
+    axios
+      .post(`${api}api/Message/DelayedMessage/Applicant`, body, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`
+        }
+      })
+      .then(res => {
+        toastr.success(
+          "Succès",
+          "Votre message différé a été programmé avec succès."
+        );
+        getMessages();
+        setShowNewMessageModal(false);
+        resetNewMessageForm();
+      })
+      .catch(err => {
+        console.error("Erreur lors de l'envoi du message différé:", err);
+        toastr.error(
+          "Erreur",
+          "Une erreur est survenue lors de la programmation du message différé."
+        );
+      });
+  };
+
+  const selectStyles = {
+    control: (base, state) => ({
+      ...base,
+      minHeight: "45px",
+      background: state.isDisabled ? "#f3f6f9" : "#ffffff",
+      borderColor: "#E4E6EF",
+      "&:hover": {
+        borderColor: "#E4E6EF"
+      },
+      boxShadow: "none"
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isFocused ? "#f3f6f9" : "white",
+      color: "#3F4254",
+      "&:hover": {
+        backgroundColor: "#f3f6f9"
+      }
+    }),
+    multiValue: base => ({
+      ...base,
+      backgroundColor: "#e1f0ff",
+      borderRadius: "0.42rem"
+    }),
+    multiValueLabel: base => ({
+      ...base,
+      color: "#3699FF",
+      padding: "2px 8px"
+    }),
+    multiValueRemove: base => ({
+      ...base,
+      color: "#3699FF",
+      "&:hover": {
+        backgroundColor: "transparent",
+        color: "#0073e9"
+      }
+    })
+  };
+
+  const loadApplicants = async inputValue => {
+    if (!inputValue) {
+      return [];
+    }
+
+    try {
+      const body = {
+        tenantID: parseInt(process.env.REACT_APP_TENANT_ID),
+        firstName: "",
+        lastName: inputValue,
+        email: "",
+        phoneNumber: ""
+      };
+
+      const response = await axios.post(
+        `${api}api/applicant/searchapplicants`,
+        body
+      );
+
+      return response.data.list.map(applicant => ({
+        value: applicant.id,
+        label: `${applicant.firstname} ${applicant.lastname}`,
+        email: applicant.email
+      }));
+    } catch (error) {
+      console.error("Erreur lors de la recherche:", error);
+      return [];
+    }
+  };
+
+  const handleApplicantsChange = selected => {
+    setSelectedApplicants(selected || []);
+  };
+
+  const resetNewMessageForm = () => {
+    setNewMessageSubject("");
+    setSelectedApplicants([]);
+    setContent("");
+    setSendToAllTemp(false);
+  };
+
   return (
     <Card>
       <CardHeader
@@ -236,7 +366,7 @@ export default function Messenger() {
               ? "TEXT.APPLICANT.MESSENGER"
               : "TEXT.CLIENT.MESSENGER"
         })}
-      />
+      ></CardHeader>
       <CardBody>
         <Modal
           size="xl"
@@ -305,36 +435,15 @@ export default function Messenger() {
                             </div>
                           ))}
                         </div>
-                        <div
-                          className="ps__rail-x"
-                          style={{ left: 0, bottom: 0 }}
-                        >
-                          <div
-                            className="ps__thumb-x"
-                            tabIndex="0"
-                            style={{ left: 0, bottom: 0 }}
-                          ></div>
-                        </div>
-                        <div
-                          className="ps__rail-y"
-                          style={{ top: 0, height: 529, right: -2 }}
-                        >
-                          <div
-                            className="ps__thumb-y"
-                            tabIndex="0"
-                            style={{ top: 0, height: 275 }}
-                          ></div>
-                        </div>
                       </div>
                     </div>
                     <JoditEditor
                       ref={editor}
                       value={content}
                       config={config}
-                      tabIndex={1} // tabIndex of textarea
+                      tabIndex={1}
                       onBlur={newContent => setContent(newContent)}
                       row={5}
-                      // preferred to use only this option to update the content for performance reasons
                     />
                   </div>
                 </div>
@@ -350,13 +459,137 @@ export default function Messenger() {
             </button>
             <button
               onClick={() => handleSendEmail()}
-              id="kt_login_forgot_submit"
-              className="btn btn-primary btn-shadow mr-2"
+              className="btn btn-primary btn-shadow"
             >
-              <FormattedMessage id="CONTACT.MODAL.SEND_BUTTON" />
+              <FormattedMessage id="BUTTON.SEND" />
             </button>
           </Modal.Footer>
         </Modal>
+
+        {/* New Message Modal */}
+        <Modal
+          size="xl"
+          show={showNewMessageModal}
+          onHide={() => {
+            setShowNewMessageModal(false);
+            resetNewMessageForm();
+          }}
+          aria-labelledby="new-message-modal"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title id="new-message-modal">
+              <FormattedMessage
+                id="MESSAGE.NEW.TITLE"
+                defaultMessage="Nouveau message"
+              />
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="form-group mb-4">
+              <div className="d-flex align-items-center mb-3 justify-content-end">
+                <label className="checkbox checkbox-lg checkbox-primary flex-shrink-0 mr-4">
+                  <input
+                    type="checkbox"
+                    checked={sendToAllTemp}
+                    onChange={e => {
+                      setSendToAllTemp(e.target.checked);
+                      if (e.target.checked) {
+                        setSelectedApplicants([]);
+                      }
+                    }}
+                  />
+                  <span></span>
+                  &nbsp;&nbsp;
+                  <FormattedMessage
+                    id="MESSAGE.SEND_TO_ALL_TEMP"
+                    defaultMessage="Envoyer à tous les intérimaires"
+                  />
+                </label>
+              </div>
+              {!sendToAllTemp && (
+                <div>
+                  <label>
+                    <FormattedMessage
+                      id="MESSAGE.RECIPIENT"
+                      defaultMessage="Destinataire"
+                    />
+                  </label>
+                  <Select
+                    isMulti
+                    isClearable
+                    isDisabled={sendToAllTemp}
+                    styles={selectStyles}
+                    loadOptions={loadApplicants}
+                    onChange={handleApplicantsChange}
+                    placeholder={intl.formatMessage({
+                      id: "MESSAGE.RECIPIENTS.PLACEHOLDER",
+                      defaultMessage: "Rechercher des intérimaires..."
+                    })}
+                    noOptionsMessage={() =>
+                      intl.formatMessage({
+                        id: "MESSAGE.NO_RESULTS",
+                        defaultMessage: "Aucun résultat"
+                      })
+                    }
+                    loadingMessage={() =>
+                      intl.formatMessage({
+                        id: "MESSAGE.LOADING",
+                        defaultMessage: "Chargement..."
+                      })
+                    }
+                    className="react-select"
+                    classNamePrefix="react-select"
+                    defaultOptions={[]}
+                  />
+                </div>
+              )}
+            </div>
+            <div className="form-group mb-4">
+              <label>
+                <FormattedMessage id="MESSAGE.SUBJECT" defaultMessage="Sujet" />
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                value={newMessageSubject}
+                onChange={e => setNewMessageSubject(e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <label>
+                <FormattedMessage
+                  id="MESSAGE.CONTENT"
+                  defaultMessage="Message"
+                />
+              </label>
+              <JoditEditor
+                ref={editor}
+                value={content}
+                config={config}
+                tabIndex={1}
+                onBlur={newContent => setContent(newContent)}
+              />
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <button
+              className="btn btn-light-primary mr-2"
+              onClick={() => {
+                setShowNewMessageModal(false);
+                resetNewMessageForm();
+              }}
+            >
+              <FormattedMessage id="BUTTON.CANCEL" />
+            </button>
+            <button
+              onClick={handleNewMessage}
+              className="btn btn-primary btn-shadow"
+            >
+              <FormattedMessage id="BUTTON.SEND" defaultMessage="Envoyer" />
+            </button>
+          </Modal.Footer>
+        </Modal>
+
         <div className="row mb-5 mx-15">
           <div className="col-lg-3 width-100">
             <div className="row">
@@ -397,6 +630,7 @@ export default function Messenger() {
             </div>
           </div>
         </div>
+
         <BootstrapTable
           remote
           wrapperClasses="table-responsive"

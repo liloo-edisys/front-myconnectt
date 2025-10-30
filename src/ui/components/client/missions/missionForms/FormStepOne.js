@@ -9,7 +9,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { Field } from "formik";
-import _, { debounce, isNull } from "lodash";
+import _, { debounce, isNull, max } from "lodash";
 import { Input } from "metronic/_partials/controls";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
@@ -26,6 +26,8 @@ import moment from "moment";
 import { registerLocale } from "react-datepicker";
 import fr from "date-fns/locale/fr";
 import InputRange from "react-input-range";
+import "react-input-range/lib/css/index.css";
+import axios from "axios";
 
 import {
   createJobSkills,
@@ -49,6 +51,8 @@ import {
   getHabilitationsList
 } from "../../../../../business/actions/client/MissionsActions";
 import { deleteFromStorage } from "../../../shared/DeleteFromStorage";
+import AsyncSelect from "react-select/async";
+import postalCodes from "../../../../../utils/postalCodes.json";
 registerLocale("fr", fr);
 
 function FormStepOne(props, formik) {
@@ -56,8 +60,6 @@ function FormStepOne(props, formik) {
   const { intl } = props;
   const TENANTID = +process.env.REACT_APP_TENANT_ID;
   let {
-    saveMissionSuccess,
-    updateMissionSuccess,
     isTemplate,
     isDuplicate,
     isTmpOrDup,
@@ -77,13 +79,16 @@ function FormStepOne(props, formik) {
     }),
     shallowEqual
   );
-  const getCurrentMission = (field, city) => {
-    let currentCompany = _.filter(
-      companies,
-      person => person.id === parseInt(city)
+
+  const getCurrentMission = (field, worksiteId) => {
+    if (!worksiteId || !companies.length) return null;
+
+    const worksite = companies.find(
+      company => company.id === parseInt(worksiteId)
     );
-    return currentCompany.length && currentCompany[0][field];
+    return worksite ? worksite[field] : null;
   };
+
   const {
     jobTitleList,
     jobExperiences,
@@ -112,9 +117,26 @@ function FormStepOne(props, formik) {
     shallowEqual
   );
 
-  let worksites = companies.length
-    ? companies.filter(company => company.parentID === currentCompanyID)
-    : [];
+  let worksites = [];
+  if (companies.length) {
+    // D'abord, chercher les filiales de l'entreprise actuelle
+    worksites = companies.filter(
+      company => company.parentID === currentCompanyID
+    );
+
+    // Si pas de filiales, inclure l'entreprise elle-même
+    if (worksites.length === 0) {
+      const currentCompany = companies.find(c => c.id === currentCompanyID);
+      if (currentCompany) {
+        worksites = [currentCompany];
+      }
+    }
+
+    // Si toujours rien, utiliser toutes les companies du tenant
+    if (worksites.length === 0) {
+      worksites = companies.filter(c => c.tenantID === TENANTID);
+    }
+  }
 
   let selectedMission = worksites.filter(
     worksite => worksite.id === selectedCity
@@ -126,17 +148,79 @@ function FormStepOne(props, formik) {
     currentWorksite
   );
 
-  const [missionToUpdate, setMissionToUpdate] = useState([]);
+  console.log("<------- companies -------> ", companies);
 
   const [address, setAddress] = useLocalStorage("address", null);
   const [city, setCity] = useLocalStorage("currCity", null);
   const [postalCode, setPostalCode] = useLocalStorage("postalCode", "");
   const [content, setContent] = useState("");
   const [isLoading, setLoading] = useState(false);
+  const [existingRecurrence, setExistingRecurrence] = useState(null);
   const [isSkillsLoading, setIsSkillsLoading] = useState(false);
   const [distance, setDistance] = useState(
     props.formik.values.matchingPostalCodeDistance
   );
+  const [publishDate, setpublishDate] = useState(new Date());
+
+  const [selectedRecurrenceType, setSelectedRecurrenceType] = useState(0);
+  const [recurrenceTypes, setRecurrenceTypes] = useState([]);
+  const [vacancyID, setVacancyID] = useState(null);
+  const [ProgramId, setProgramId] = useState(null);
+
+  const API_BASE_URL =
+    "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api";
+
+  const fetchRecurrenceTypes = async () => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/VacancyOfferProgram/Types`
+      );
+      setRecurrenceTypes(response.data);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des types:", error);
+      throw error;
+    }
+  };
+
+  const fetchExistingRecurrence = async id => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/VacancyOfferProgram/ByVacancyId/${id}`,
+        {
+          headers: { accept: "text/plain" }
+        }
+      );
+
+      // Mettre à jour existingRecurrence
+      setExistingRecurrence(response.data);
+      setSelectedRecurrenceType(response.data.TypeID);
+      setVacancyID(response.data.vacancyID);
+      setProgramId(response.data.id);
+
+      // Définir la date
+      let date;
+      if (response.data && response.data.publishDate) {
+        date = moment(response.data.publishDate).toDate();
+      } else {
+        date = moment().toDate(); // Utiliser la date actuelle si pas de date
+      }
+
+      // Mettre à jour les states et formik avec la date
+      setpublishDate(date);
+      props.formik.setFieldValue("publishDate", date);
+      props.formik.setFieldValue("recurrenceEndDate", date);
+    } catch (error) {
+      console.error("Error fetching existing recurrence:", error);
+      setExistingRecurrence(null);
+      setSelectedRecurrenceType(0);
+      setpublishDate(null);
+      setVacancyID(0);
+      setProgramId(0);
+      props.formik.setFieldValue("publishDate", null);
+      props.formik.setFieldValue("recurrenceEndDate", null);
+    }
+  };
+
   const [selectedJobTitle, setSelectedJobTitle] = useLocalStorage(
     "jobTitleID",
     null
@@ -335,6 +419,65 @@ function FormStepOne(props, formik) {
   const handleChangeJobTitle = e => {
     setSelectedJobTitle(e.target.value);
     props.formik.setFieldValue("jobTitleID", parseInt(e.target.value));
+  };
+
+  useEffect(() => {
+    if (worksites.length > 0 && !selectedCity) {
+      // Utiliser le worksite actuel ou le premier disponible
+      const defaultWorksite =
+        worksites.find(w => w.id === currentWorksite) || worksites[0];
+
+      if (defaultWorksite) {
+        setselectedCity(defaultWorksite.id);
+        setAddress(defaultWorksite.address);
+        setCity(defaultWorksite.city);
+        setPostalCode(defaultWorksite.postalCode);
+
+        // Mettre à jour Formik
+        props.formik.setFieldValue("workSiteID", defaultWorksite.id);
+        props.formik.setFieldValue("address", defaultWorksite.address);
+        props.formik.setFieldValue(
+          "vacancyBusinessAddressCity",
+          defaultWorksite.city
+        );
+        props.formik.setFieldValue(
+          "vacancyBusinessAddressPostalCode",
+          defaultWorksite.postalCode
+        );
+      }
+    }
+  }, [companies, worksites.length]);
+
+  const handleWorksiteChange = worksiteId => {
+    setselectedCity(worksiteId);
+
+    // Récupérer les données du worksite
+    const address = getCurrentMission("address", worksiteId);
+    const city = getCurrentMission("city", worksiteId);
+    const postalCode = getCurrentMission("postalCode", worksiteId);
+
+    // Mettre à jour l'état local
+    setAddress(address);
+    setCity(city);
+    setPostalCode(postalCode);
+
+    // Mettre à jour Formik
+    props.formik.setFieldValue("workSiteID", parseInt(worksiteId));
+    props.formik.setFieldValue("address", address);
+    props.formik.setFieldValue("vacancyBusinessAddressCity", city);
+    props.formik.setFieldValue("vacancyBusinessAddressPostalCode", postalCode);
+
+    // Déclencher le count matching
+    let data = { ...props.formik.values };
+    if (props.formik.values.missionHasVehicle === null) {
+      delete data["missionHasVehicle"];
+    }
+    dispatch(
+      countMatching.request({
+        ...data,
+        workSiteID: parseInt(worksiteId)
+      })
+    );
   };
 
   useEffect(() => {
@@ -639,36 +782,69 @@ function FormStepOne(props, formik) {
     return formatedValues;
   };
 
-  const setFormikValues = () => {
-    props.formik.setFieldTouched("vacancyNumberOfJobs", true);
-    props.formik.setFieldTouched("vacancyMissionDescription", true);
-    props.formik.setFieldTouched("vacancyBusinessAddressPostalCode", true);
-    props.formik.setFieldTouched(
-      "VacancyContractualVacancyEmploymentContractTypeStartDate",
-      true
-    );
-    props.formik.setFieldTouched(
-      "VacancyContractualVacancyEmploymentContractTypeEndDate",
-      true
-    );
-    props.formik.setFieldTouched("jobTitleID", true);
+  const setFormikValues = async () => {
+    try {
+      // 1. Mise à jour explicite de TypeID
+      const typeValue = parseInt(selectedRecurrenceType) || null;
+      await props.formik.setFieldValue("TypeID", typeValue);
 
-    props.formik.setFieldValue("jobTitleID", parseInt(selectedJobTitle));
-    props.formik.setFieldValue("vacancyTitle", extraJobTitle);
-    props.formik.setFieldValue("Address", address);
-    props.formik.setFieldValue("vacancyBusinessAddressCity", city);
-    props.formik.setFieldValue("vacancyBusinessAddressPostalCode", postalCode);
-    if (!template) {
-      props.formik.setFieldValue(
-        "vacancyApplicationCriteriaArrayJobTags",
-        formatFormik(selectedTags)
-      );
-      props.formik.setFieldValue(
-        "vacancyApplicationCriteriaArrayRequiredEducationLevels",
-        formatFormik(selectedEducation)
-      );
+      // 2. Mettre à jour les champs touched
+      const fieldsToTouch = [
+        "vacancyNumberOfJobs",
+        "vacancyMissionDescription",
+        "vacancyBusinessAddressPostalCode",
+        "VacancyContractualVacancyEmploymentContractTypeStartDate",
+        "VacancyContractualVacancyEmploymentContractTypeEndDate",
+        "jobTitleID",
+        "TypeID"
+      ];
+
+      for (const field of fieldsToTouch) {
+        await props.formik.setFieldTouched(field, true);
+      }
+
+      // 3. Mise à jour des autres valeurs
+      const updates = {
+        jobTitleID: parseInt(selectedJobTitle) || null,
+        vacancyTitle: extraJobTitle || "",
+        Address: address || "",
+        vacancyBusinessAddressCity: city || "",
+        vacancyBusinessAddressPostalCode: postalCode || "",
+
+        vacancyOfferProgram: {
+          publishDate: publishDate
+            ? moment(publishDate).format("YYYY-MM-DD") + "T00:00:00.000Z"
+            : null,
+          TypeID: typeValue,
+          vacancyID: vacancyID || null,
+          id: ProgramId || 0
+        }
+      };
+
+      // Appliquer les mises à jour une par une
+      for (const [field, value] of Object.entries(updates)) {
+        await props.formik.setFieldValue(field, value);
+      }
+      // 4. Mise à jour des tags et éducation si nécessaire
+      if (!template) {
+        await props.formik.setFieldValue(
+          "vacancyApplicationCriteriaArrayJobTags",
+          formatFormik(selectedTags)
+        );
+        await props.formik.setFieldValue(
+          "vacancyApplicationCriteriaArrayRequiredEducationLevels",
+          formatFormik(selectedEducation)
+        );
+      }
+
+      console.log("=== Fin setFormikValues ===");
+      console.log("TypeID final:", props.formik.values.TypeID);
+    } catch (error) {
+      console.error("Erreur dans setFormikValues:", error);
+      throw error;
     }
   };
+
   useEffect(() => {
     if (!_.isEmpty(localStorage.getItem("id"))) {
       let id = parseInt(localStorage.getItem("id"));
@@ -799,6 +975,41 @@ function FormStepOne(props, formik) {
     selectedEducation,
     missionOrderReference
   ]);
+
+  useEffect(() => {
+    // Référence pour savoir si le composant est monté
+    let isMounted = true;
+
+    const loadRecurrenceData = async () => {
+      try {
+        // Charger les types seulement si on n'en a pas déjà
+        if (isMounted && recurrenceTypes.length === 0) {
+          await fetchRecurrenceTypes();
+        }
+
+        // Vérifier explicitement que mission.id est défini et est un nombre valide
+        if (
+          isMounted &&
+          mission?.id &&
+          !isNaN(mission.id) &&
+          !existingRecurrence
+        ) {
+          console.log("Fetching recurrence for mission ID:", mission.id);
+          await fetchExistingRecurrence(mission.id);
+        }
+      } catch (error) {
+        console.error("Error loading recurrence data:", error);
+      }
+    };
+
+    loadRecurrenceData();
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, [mission?.id, recurrenceTypes.length, existingRecurrence]); // Ajout des dépendances manquantes
+
   useEffect(() => {
     if (!_.isEmpty(template)) {
       isNullOrEmpty(selectedJobTitle) &&
@@ -998,24 +1209,53 @@ function FormStepOne(props, formik) {
     }
   }, []);
 
-  const handleValidate = () => {
-    setFormikValues();
-    setTimeout(() => {
-      if (
-        errors.vacancyNumberOfJobs ||
-        errors.vacancyMissionDescription ||
-        errors.VacancyContractualVacancyEmploymentContractTypeStartDate ||
-        errors.VacancyContractualVacancyEmploymentContractTypeEndDate ||
-        errors.jobTitleID ||
-        errors.vacancyBusinessAddressPostalCode
-      ) {
-        toastr.error(
-          intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELDS.TITLE" }),
-          intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELDS.DESC" })
-        );
-      } else props.history.push("/mission-create/step-two");
-    }, 1000);
+  const handleValidate = async () => {
+    console.log("=== Début de handleValidate ===");
+    console.log(
+      "selectedRecurrenceType avant traitement:",
+      selectedRecurrenceType
+    );
+
+    // Forcer la mise à jour de TypeID immédiatement
+    const typeValue = parseInt(selectedRecurrenceType) || 0;
+    await props.formik.setFieldValue("TypeID", typeValue);
+
+    console.log(
+      "TypeID après setFieldValue direct:",
+      props.formik.values.TypeID
+    );
+
+    // Mettre à jour les autres valeurs
+    await setFormikValues();
+
+    // Vérifier que TypeID est toujours défini
+    console.log("TypeID après setFormikValues:", props.formik.values.TypeID);
+
+    // Vérification des erreurs
+    const hasErrors = !!(
+      props.formik.errors.vacancyNumberOfJobs ||
+      props.formik.errors.vacancyMissionDescription ||
+      props.formik.errors
+        .VacancyContractualVacancyEmploymentContractTypeStartDate ||
+      props.formik.errors
+        .VacancyContractualVacancyEmploymentContractTypeEndDate ||
+      props.formik.errors.jobTitleID ||
+      props.formik.errors.vacancyBusinessAddressPostalCode
+    );
+
+    console.log("Erreurs présentes:", hasErrors);
+
+    if (hasErrors) {
+      toastr.error(
+        intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELDS.TITLE" }),
+        intl.formatMessage({ id: "VALIDATION.REQUIRED_FIELDS.DESC" })
+      );
+      return;
+    }
+
+    props.history.push("/mission-create/step-two");
   };
+
   const handleCheckMatchs = () => {
     dispatch(
       countMatching.request({
@@ -1205,31 +1445,15 @@ function FormStepOne(props, formik) {
                           <select
                             className="col-lg-12 form-control"
                             name="workSiteID"
-                            value={selectedCity}
-                            onChange={e => {
-                              let data = props.formik.values;
-                              props.formik &&
-                                props.formik.values.missionHasVehicle ===
-                                  null &&
-                                delete data["missionHasVehicle"];
-                              dispatch(
-                                countMatching.request({
-                                  ...data,
-                                  workSiteID: parseInt(e.target.value)
-                                })
-                              );
-                              setselectedCity(e.target.value);
-                              handleForceChangeAddress(e.target.value);
-                              handleForceChangeCity(e.target.value);
-                              handleForceChangePostalCode(e.target.value);
-                            }}
+                            value={selectedCity || ""}
+                            onChange={e => handleWorksiteChange(e.target.value)}
                           >
+                            <option value="">-- Sélectionnez un lieu --</option>
                             {worksites.map(worksite => (
                               <option key={worksite.id} value={worksite.id}>
                                 {worksite.name}
                               </option>
                             ))}
-                            ;
                           </select>
                         </div>
                       )}
@@ -1251,6 +1475,7 @@ function FormStepOne(props, formik) {
                           name="address"
                           className="col-lg-12 form-control"
                           type="text"
+                          disabled
                           placeholder={intl.formatMessage({
                             id: "MODEL.ACCOUNT.ADDRESS"
                           })}
@@ -1274,7 +1499,7 @@ function FormStepOne(props, formik) {
                   </div>
                   <div className="col-xl-3">
                     <div className="form-group">
-                      <label className=" col-form-label">
+                      <label className="col-form-label">
                         <FormattedMessage id="MODEL.ACCOUNT.CITY" />
                       </label>
                       <div className="input-group">
@@ -1287,6 +1512,7 @@ function FormStepOne(props, formik) {
                           name="vacancyBusinessAddressCity"
                           className="col-lg-12 form-control"
                           type="text"
+                          disabled
                           placeholder={intl.formatMessage({
                             id: "MODEL.ACCOUNT.CITY"
                           })}
@@ -1297,11 +1523,14 @@ function FormStepOne(props, formik) {
                           defaultValue={selectedMission && selectedMission.city}
                         ></input>
                       </div>
+                      <small className="text-muted d-block mt-1">
+                        Saisissez au moins 2 caractères pour rechercher
+                      </small>
                     </div>
                   </div>
                   <div className="col-xl-3">
                     <div className="form-group">
-                      <label className=" col-form-label">
+                      <label className="col-form-label">
                         <FormattedMessage id="MODEL.ACCOUNT.POSTALCODE" />
                       </label>
                       <div className="input-group">
@@ -1314,6 +1543,7 @@ function FormStepOne(props, formik) {
                           name="vacancyBusinessAddressPostalCode"
                           className="col-lg-12 form-control"
                           type="text"
+                          disabled
                           placeholder={intl.formatMessage({
                             id: "MODEL.ACCOUNT.POSTALCODE"
                           })}
@@ -1323,6 +1553,9 @@ function FormStepOne(props, formik) {
                           value={postalCode !== 0 ? postalCode : null}
                         ></input>
                       </div>
+                      <small className="text-muted d-block mt-1">
+                        Saisissez au moins 2 caractères pour rechercher
+                      </small>
                       {touched.vacancyBusinessAddressPostalCode &&
                       errors.vacancyBusinessAddressPostalCode ? (
                         <div className="fv-plugins-message-container">
@@ -1540,6 +1773,113 @@ function FormStepOne(props, formik) {
                   </div>
                 </div>
 
+                <div className="row">
+                  <div className="col-xl-12">
+                    <div className="form-group">
+                      <label className="col-form-label">
+                        <FormattedMessage id="TEXT.RECURRENCE.TYPE" />
+                      </label>
+                      <div className="input-group">
+                        <div className="input-group-prepend">
+                          <span className="input-group-text">
+                            <i className="icon-xl fas fa-list text-primary"></i>
+                          </span>
+                        </div>
+                        <select
+                          name="recurrenceType"
+                          className="form-control"
+                          value={selectedRecurrenceType}
+                          onChange={e =>
+                            setSelectedRecurrenceType(parseInt(e.target.value))
+                          }
+                          disabled={isLoading.types || isLoading.initial}
+                        >
+                          <option value={0}>
+                            {isLoading.types
+                              ? "Chargement..."
+                              : "Veuillez choisir une valeur"}
+                          </option>
+                          {recurrenceTypes.map(type => (
+                            <option key={type.id} value={type.id}>
+                              {type.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>
+                    <FormattedMessage id="TEXT.PUBLISH_DATE" />
+                  </label>
+                  <div className="input-group">
+                    <DatePickerField
+                      component={DatePickerField}
+                      className="col-lg-12 form-control radius-left-0"
+                      iconHeight="36px"
+                      type="text"
+                      placeholder="JJ/MM/AAAA"
+                      dateFormat="dd/MM/yyyy"
+                      name="recurrenceEndDate"
+                      selected={(() => {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        // Si pas de date ou date antérieure à aujourd'hui, utiliser aujourd'hui
+                        if (
+                          !publishDate ||
+                          moment(publishDate).toDate() < today
+                        ) {
+                          return new Date();
+                        }
+                        return publishDate;
+                      })()}
+                      value={(() => {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        // Si pas de date ou date antérieure à aujourd'hui, afficher aujourd'hui
+                        if (
+                          !publishDate ||
+                          !moment(publishDate).isValid() ||
+                          moment(publishDate).toDate() < today
+                        ) {
+                          return moment(new Date()).format("DD/MM/YYYY");
+                        }
+                        return moment(publishDate).format("DD/MM/YYYY");
+                      })()}
+                      onChange={date => {
+                        if (!date) {
+                          setpublishDate(null);
+                          props.formik.setFieldValue("publishDate", null);
+                          return;
+                        }
+
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        // Si la date sélectionnée est antérieure à aujourd'hui, forcer aujourd'hui
+                        const selectedDate =
+                          moment(date).toDate() < today ? new Date() : date;
+
+                        setpublishDate(selectedDate);
+                        props.formik.setFieldValue(
+                          "publishDate",
+                          moment(selectedDate).format("YYYY-MM-DD") +
+                            "T00:00:00.000Z"
+                        );
+                      }}
+                      showMonthDropdown
+                      showYearDropdown
+                      minDate={new Date()}
+                      yearItemNumber={9}
+                      locale="fr"
+                    />
+                  </div>
+                </div>
+
                 <div className="mission-form mt-10 mb-10 p-0">
                   <h3 className="group-title">
                     <FormattedMessage id="TEXT.PROFILE_LOOKING_FOR" />
@@ -1719,25 +2059,71 @@ function FormStepOne(props, formik) {
                 <div className="row">
                   <div className="col-xl-4">
                     <div className="form-group">
-                      <label>
+                      <label
+                        style={{
+                          fontSize: "14px",
+                          color: "#495057",
+                          marginBottom: "8px",
+                          display: "block"
+                        }}
+                      >
                         <FormattedMessage id="MATCHING.TABLE.AREA" />
                       </label>
-                      <div className="input-group">
-                        <div className="input-group mt-5">
-                          <InputRange
-                            formatLabel={value => `${value} km`}
-                            step={10}
-                            maxValue={1000}
-                            minValue={0}
-                            value={distance}
-                            onChange={value => handleChangeDistance({ value })}
-                          />
+                      <div style={{ position: "relative", marginTop: "10px" }}>
+                        <input
+                          type="range"
+                          className="form-control-range"
+                          min="50"
+                          max="1000"
+                          step="25"
+                          value={distance}
+                          onChange={e =>
+                            handleChangeDistance({
+                              value: parseInt(e.target.value)
+                            })
+                          }
+                          style={{
+                            width: "100%",
+                            height: "4px",
+                            background: "#D6D6D6",
+                            borderRadius: "2px",
+                            outline: "none",
+                            appearance: "none",
+                            WebkitAppearance: "none"
+                          }}
+                        />
+                        <div
+                          style={{
+                            textAlign: "center",
+                            marginTop: "8px",
+                            fontSize: "13px"
+                          }}
+                        >
+                          {distance} km
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
+                <style jsx>{`
+                  input[type="range"]::-webkit-slider-thumb {
+                    appearance: none;
+                    width: 16px;
+                    height: 16px;
+                    border-radius: 50%;
+                    background: #73bdff;
+                    cursor: pointer;
+                  }
 
+                  input[type="range"]::-moz-range-thumb {
+                    width: 16px;
+                    height: 16px;
+                    border-radius: 50%;
+                    background: #00b0fc;
+                    cursor: pointer;
+                    border: none;
+                  }
+                `}</style>
                 <div className="d-flex justify-content-between border-top mt-5 pt-10">
                   <div className="mr-2">
                     <Link to="/mission" className="next col-lg p-0">

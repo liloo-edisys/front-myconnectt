@@ -45,12 +45,12 @@ export function* countMatching({ payload: { data } }) {
 }
 
 export function* getMatching({ payload: { data } }) {
-  try {
-    const response = yield call(getMatchingApi, data);
-    yield put(getMatchingActions.success(response));
-  } catch (error) {
-    yield put(getMatchingActions.failure(error));
-  }
+  // try {
+  //   const response = yield call(getMatchingApi, data);
+  //   yield put(getMatchingActions.success(response));
+  // } catch (error) {
+  //   yield put(getMatchingActions.failure(error));
+  // }
 }
 
 export function* getApplicantById({ payload: { data } }) {

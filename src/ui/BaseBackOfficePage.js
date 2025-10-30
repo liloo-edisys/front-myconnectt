@@ -1,16 +1,15 @@
 import React, { Suspense, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 // import DashboardPage from "components/backoffice/dashboard/DashboardPage";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { Redirect, Route, Switch } from "react-router-dom";
+import { Redirect, Switch } from "react-router-dom";
 import { getRecruiter } from "actions/backoffice/RecruiterActions";
 
 import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout";
 
-import UnderConstruction from "./components/shared/UnderConstruction";
 import Extensions from "./components/backoffice/extensions";
 import Interimaires from "./components/backoffice/interimaires";
-import BackOfficeDashboardPage from "./components/backoffice/dashboard/BackOfficeDashboardPage";
 import BackOfficeDashboardPageNew from "./components/backoffice/dashboard/BackOfficeDashboardPageNew";
 import Contracts from "./components/backoffice/contracts";
 import NewApplicant from "./components/backoffice/new-applicant/";
@@ -34,9 +33,15 @@ import Declinaisons from "./components/backoffice/declinaisons/Declinaisons";
 import Setting from "./components/backoffice/setting";
 import ContactsContainer from "./containers/ContactsContainerBackoffice";
 import Statistiques from "./components/backoffice/statistiques/statistiques";
+import ChatPage from "./components/backoffice/ChatPage/ChatPage";
+import DelayedMessage from "./components/backoffice/delayedMessage/DelayedMessage";
+import { ParentBubble } from "./components/backoffice/ChatPage/parentBubble/ParentBubble";
+import FaqManagement from "./components/backoffice/faqManagement/faqManagement";
+import MessageProfile from "./components/backoffice/MessageProfile/MessageProfile";
 
 export default function BaseBackOfficePage(props) {
   const dispatch = useDispatch();
+  const location = useLocation(); // Ajoutez cette ligne
   const { user, mission } = useSelector(
     state => ({
       user: state.auth.user
@@ -85,6 +90,9 @@ export default function BaseBackOfficePage(props) {
         <ContentRoute path="/decline/applicant" component={Declinaisons} />
         <ContentRoute path="/decline/client" component={Declinaisons} />
         <ContentRoute path="/statistiques" component={Statistiques} />
+        <ContentRoute path="/delayedMessage" component={DelayedMessage} />
+        <ContentRoute path="/faqManagement" component={FaqManagement} />
+        <ContentRoute path="/messageProfil" component={MessageProfile} />
         <ContentRoute
           path="/remuneration-elements"
           component={RemunerationElements}
@@ -103,8 +111,12 @@ export default function BaseBackOfficePage(props) {
         />
         <ContentRoute path="/customers" component={CustomersContainer} />
         <ContentRoute path="/setting" component={Setting} />
+        <ContentRoute path="/messages" component={ChatPage} />
+        <ContentRoute path="/messages/:channelId" component={ChatPage} />
         <Redirect to="error/error-v1" />
       </Switch>
+      {/* {location.pathname !== "/messages" &&
+        !location.pathname.startsWith("/messages/") && <ParentBubble />} */}
     </Suspense>
   );
 }
