@@ -25,7 +25,7 @@ const ApplicantsSidebar = ({ show, onHide, missionId, missionsUIProps }) => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/MissionApplication/GetApplicant/${missionId}/${page}`,
+        `https://myconnectt-apiback-prod.azurewebsites.net/api/MissionApplication/GetApplicant/${missionId}/${page}`,
         {
           headers: {
             accept: "*/*"

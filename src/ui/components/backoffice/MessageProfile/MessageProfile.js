@@ -22,7 +22,7 @@ const MessageProfile = () => {
   const [success, setSuccess] = useState("");
 
   const API_URL =
-    "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api";
+    "https://myconnectt-apiback-prod.azurewebsites.net/api";
 
   const customStyles = {
     control: base => ({

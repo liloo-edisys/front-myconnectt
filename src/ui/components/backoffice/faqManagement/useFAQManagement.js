@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import axios from "axios";
 
 const API_URL =
-  "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api";
+  "https://myconnectt-apiback-prod.azurewebsites.net/api";
 
 const transformData = data => {
   return data.map(item => ({

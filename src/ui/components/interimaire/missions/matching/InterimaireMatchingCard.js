@@ -27,7 +27,7 @@ const InterimaireMatchingCard = props => {
   const fetchLocationState = async () => {
     try {
       const response = await axios.get(
-        "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Applicant/IsCurrentLocalization",
+        "https://myconnectt-apiback-prod.azurewebsites.net/api/Applicant/IsCurrentLocalization",
         {
           headers: {
             accept: "*/*"
@@ -85,7 +85,7 @@ const InterimaireMatchingCard = props => {
     try {
       // Appel à l'API pour mettre à jour la localisation
       await axios.get(
-        `https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Applicant/UseMyCurrentLocalization/${useLocation}`,
+        `https://myconnectt-apiback-prod.azurewebsites.net/api/Applicant/UseMyCurrentLocalization/${useLocation}`,
         {
           headers: {
             accept: "*/*"

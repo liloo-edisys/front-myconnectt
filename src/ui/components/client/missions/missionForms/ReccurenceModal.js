@@ -23,7 +23,7 @@ function RecurrenceModal({ show, onHide, vacancyID }) {
 
   // URLs de l'API
   const API_BASE_URL =
-    "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api";
+    "https://myconnectt-apiback-prod.azurewebsites.net/api";
 
   const API_ENDPOINTS = {
     types: "/VacancyOfferProgram/Types",

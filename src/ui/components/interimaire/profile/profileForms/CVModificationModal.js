@@ -92,7 +92,7 @@ const CVModificationModal = ({
 
     try {
       const response = await axios.post(
-        "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Applicant/scan/cv",
+        "https://myconnectt-apiback-prod.azurewebsites.net/api/Applicant/scan/cv",
         formData,
         {
           headers: {
@@ -236,7 +236,7 @@ const CVModificationModal = ({
         contractTypeID: 0
       }));
 
-      const url = `https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Applicant/update/step/experiences?cv_id_temporary=${cvIdTemporary}`;
+      const url = `https://myconnectt-apiback-prod.azurewebsites.net/api/Applicant/update/step/experiences?cv_id_temporary=${cvIdTemporary}`;
 
       const response = await axios.post(url, payload, {
         headers: { "Content-Type": "application/json" }

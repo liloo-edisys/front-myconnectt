@@ -170,7 +170,7 @@ const UserInfoForm = () => {
 
     try {
       const response = await axios.post(
-        "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Applicant/scan/cv",
+        "https://myconnectt-apiback-prod.azurewebsites.net/api/Applicant/scan/cv",
         formData,
         {
           headers: {
@@ -338,7 +338,7 @@ const UserInfoForm = () => {
       setCountrySearchLoading(true);
       try {
         const response = await axios.get(
-          "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Country",
+          "https://myconnectt-apiback-prod.azurewebsites.net/api/Country",
           {
             headers: {
               accept: "/"
@@ -546,7 +546,7 @@ const UserInfoForm = () => {
 
         // Appel à l'API d'enregistrement
         const response = await axios.post(
-          "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Applicant/Register",
+          "https://myconnectt-apiback-prod.azurewebsites.net/api/Applicant/Register",
           requestData,
           {
             headers: {

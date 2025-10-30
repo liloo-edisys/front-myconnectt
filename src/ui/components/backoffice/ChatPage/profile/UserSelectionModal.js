@@ -27,7 +27,7 @@ const UserSelectionModal = ({
   // API URL from environment variables
   const API_URL =
     process.env.REACT_APP_WEBAPI_URL ||
-    "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/";
+    "https://myconnectt-apiback-prod.azurewebsites.net/";
 
   // Fonction debounce pour retarder les appels API
   const debounce = (func, delay) => {

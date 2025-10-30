@@ -21,7 +21,7 @@ export const getMatchingWithVacancy = async (
   maxScore = 75
 ) => {
   try {
-    const url = `https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Applicant/GetMatchingWithVacancy/${vacancyId}?minscore=${minScore}&maxscore=${maxScore}`;
+    const url = `https://myconnectt-apiback-prod.azurewebsites.net/api/Applicant/GetMatchingWithVacancy/${vacancyId}?minscore=${minScore}&maxscore=${maxScore}`;
 
     const headers = {
       accept: "*/*",
