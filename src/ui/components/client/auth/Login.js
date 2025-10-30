@@ -37,7 +37,7 @@ const Login = ({ intl }) => {
       >
         {/* Left side */}
         <div
-          className="d-flex flex-column w-100 w-lg-50 p-5 p-lg-25"
+          className="d-flex flex-column w-100 w-lg-50 p-5 p-lg-25 flex-center"
           style={{ backgroundColor: "#F3F6F9" }}
         >
           <div className="text-center mb-15">
@@ -105,74 +105,6 @@ const Login = ({ intl }) => {
                 </div>
               )}
             </div>
-
-            <div className="text-center position-relative my-8">
-              <div
-                className="border-bottom w-100 position-absolute"
-                style={{ top: "50%" }}
-              ></div>
-              <span className="px-4 bg-white text-dark-50 position-relative">
-                ou
-              </span>
-            </div>
-
-            <div className="d-flex justify-content-center mb-10 background-white">
-              <button
-                type="button"
-                className="btn btn-light font-weight-bold py-4 px-6 d-flex align-items-center justify-content-center mx-2"
-                style={{ border: "1px solid #ddd", borderRadius: "50px" }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.backgroundColor = "#f5f5f5";
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.backgroundColor = "";
-                }}
-              >
-                <img
-                  src={toAbsoluteUrl("/media/logos/google.png")}
-                  className="h-20px"
-                  alt="Google"
-                />
-                <span className="ml-3">Google</span>
-              </button>
-              <button
-                type="button"
-                className="btn btn-light font-weight-bold py-4 px-6 d-flex align-items-center justify-content-center mx-2"
-                style={{ border: "1px solid #ddd", borderRadius: "50px" }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.backgroundColor = "#f5f5f5";
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.backgroundColor = "";
-                }}
-              >
-                <img
-                  src={toAbsoluteUrl("/media/logos/Facebook.png")}
-                  className="h-20px"
-                  alt="Facebook"
-                />
-                <span className="ml-3">Facebook</span>
-              </button>
-              <button
-                type="button"
-                className="btn btn-light font-weight-bold py-4 px-6 d-flex align-items-center justify-content-center mx-2"
-                style={{ border: "1px solid #ddd", borderRadius: "50px" }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.backgroundColor = "#f5f5f5";
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.backgroundColor = "";
-                }}
-              >
-                <img
-                  src={toAbsoluteUrl("/media/logos/Apple.png")}
-                  className="h-20px"
-                  alt="Apple"
-                />
-                <span className="ml-3">Apple</span>
-              </button>
-            </div>
-
             {/* Submit and Forgot Password */}
             <div className="d-flex flex-column align-items-center">
               <button
