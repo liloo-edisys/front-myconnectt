@@ -31,7 +31,7 @@ const AddressSearchInput = ({
   hasError = false,
   onAddressSelect,
   customStyles = {},
-  apiUrl = "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Map/search",
+  apiUrl = "https://myconnectt-apiback-prod.azurewebsites.net/api/Map/search",
   postalCode,
   setPostalCode,
   postalCodeName = "postalCode"

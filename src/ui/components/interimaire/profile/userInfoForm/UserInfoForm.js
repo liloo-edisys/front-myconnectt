@@ -127,7 +127,7 @@ const UserInfoForm = () => {
 
     try {
       const response = await axios.post(
-        "https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Map/MyLocalization",
+        "https://myconnectt-apiback-prod.azurewebsites.net/api/Map/MyLocalization",
         "",
         {
           headers: {
@@ -220,7 +220,7 @@ const UserInfoForm = () => {
 
     try {
       const response = await axios.get(
-        `https://myconnectt-dev-api-h8hfcccufngyd5ag.northeurope-01.azurewebsites.net/api/Map/search?query=${encodeURIComponent(
+        `https://myconnectt-apiback-prod.azurewebsites.net/api/Map/search?query=${encodeURIComponent(
           query
         )}`,
         {
