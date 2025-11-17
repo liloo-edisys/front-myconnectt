@@ -152,7 +152,9 @@ class MissionsPage extends React.Component {
                   this.setState({ resumeOpen: false });
                   this.props.resetResume();
                 }}
-                openMissionProfileDialog={missionsUIEvents.openMissionProfileDialog}
+                openMissionProfileDialog={
+                  missionsUIEvents.openMissionProfileDialog
+                }
                 onHide={() => {
                   history.goBack();
                 }}

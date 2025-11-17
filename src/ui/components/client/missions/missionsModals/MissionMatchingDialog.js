@@ -301,15 +301,18 @@ export function MatchingDialog({
     // Mettre à jour le cache avec la liste filtrée
     if (missionId) {
       const cacheKey = `matching_candidates_${missionId}`;
-      sessionStorage.setItem(cacheKey, JSON.stringify({
-        missionId,
-        allCandidates: updatedAll,
-        filteredCandidates: updatedFiltered,
-        appliedFilter,
-        selectedFilter,
-        currentPage,
-        timestamp: Date.now()
-      }));
+      sessionStorage.setItem(
+        cacheKey,
+        JSON.stringify({
+          missionId,
+          allCandidates: updatedAll,
+          filteredCandidates: updatedFiltered,
+          appliedFilter,
+          selectedFilter,
+          currentPage,
+          timestamp: Date.now()
+        })
+      );
       console.log(`💾 Cache mis à jour après refus (mission ${missionId})`);
     }
 
@@ -542,8 +545,13 @@ export function MatchingDialog({
         const lastLoadedId = lastLoadedMissionIdRef.current;
 
         // Cas 1 : Changement de mission → toujours recharger
-        if (lastLoadedId !== null && String(lastLoadedId) !== String(missionId)) {
-          console.log(`🔄 Changement de mission (${lastLoadedId} → ${missionId}), rechargement...`);
+        if (
+          lastLoadedId !== null &&
+          String(lastLoadedId) !== String(missionId)
+        ) {
+          console.log(
+            `🔄 Changement de mission (${lastLoadedId} → ${missionId}), rechargement...`
+          );
           lastLoadedMissionIdRef.current = missionId;
           fetchOptimalCandidates();
           return;
@@ -560,7 +568,9 @@ export function MatchingDialog({
 
               // Vérifier que le cache est bien pour cette mission
               if (String(parsed.missionId) === String(missionId)) {
-                console.log(`♻️ Restauration depuis le cache pour mission ${missionId}`);
+                console.log(
+                  `♻️ Restauration depuis le cache pour mission ${missionId}`
+                );
                 setAllCandidates(parsed.allCandidates || []);
                 setFilteredCandidates(parsed.filteredCandidates || []);
                 setAppliedFilter(parsed.appliedFilter || null);
@@ -574,13 +584,17 @@ export function MatchingDialog({
           }
 
           // Pas de cache valide, recharger
-          console.log(`🔄 Pas de cache valide, rechargement pour mission ${missionId}`);
+          console.log(
+            `🔄 Pas de cache valide, rechargement pour mission ${missionId}`
+          );
           fetchOptimalCandidates();
           return;
         }
 
         // Cas 3 : Première ouverture
-        console.log(`🆕 Première ouverture, chargement pour mission ${missionId}`);
+        console.log(
+          `🆕 Première ouverture, chargement pour mission ${missionId}`
+        );
         lastLoadedMissionIdRef.current = missionId;
         fetchOptimalCandidates();
       }
@@ -591,15 +605,18 @@ export function MatchingDialog({
       // Sauvegarder dans le cache SANS réinitialiser les états
       if (missionId && allCandidates.length > 0) {
         const cacheKey = `matching_candidates_${missionId}`;
-        sessionStorage.setItem(cacheKey, JSON.stringify({
-          missionId,
-          allCandidates,
-          filteredCandidates,
-          appliedFilter,
-          selectedFilter,
-          currentPage,
-          timestamp: Date.now()
-        }));
+        sessionStorage.setItem(
+          cacheKey,
+          JSON.stringify({
+            missionId,
+            allCandidates,
+            filteredCandidates,
+            appliedFilter,
+            selectedFilter,
+            currentPage,
+            timestamp: Date.now()
+          })
+        );
         console.log(`💾 Cache sauvegardé pour mission ${missionId}`);
       }
     }

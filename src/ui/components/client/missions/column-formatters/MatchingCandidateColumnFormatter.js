@@ -66,7 +66,7 @@ function MatchingCandidateColumnFormatter(
         )}
         <button
           onClick={() => {
-            console.log('cv clicked - Données du candidat:', row);
+            console.log("cv clicked - Données du candidat:", row);
             if (openMissionProfileDialog) {
               // S'assurer que l'objet a un applicantID pour le dialog
               const candidateData = {
@@ -81,7 +81,7 @@ function MatchingCandidateColumnFormatter(
                 city: row.city,
                 experience: row.experience
               };
-              console.log('Données envoyées au dialog:', candidateData);
+              console.log("Données envoyées au dialog:", candidateData);
               openMissionProfileDialog(candidateData);
             }
           }}
