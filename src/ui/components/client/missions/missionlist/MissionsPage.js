@@ -110,7 +110,7 @@ class MissionsPage extends React.Component {
               history={history}
               currentApplicant={this.state.currentApplicant}
               onHide={() => {
-                history.push("/missions");
+                history.goBack();
               }}
             />
           )}
@@ -152,6 +152,7 @@ class MissionsPage extends React.Component {
                   this.setState({ resumeOpen: false });
                   this.props.resetResume();
                 }}
+                openMissionProfileDialog={missionsUIEvents.openMissionProfileDialog}
                 onHide={() => {
                   history.goBack();
                 }}

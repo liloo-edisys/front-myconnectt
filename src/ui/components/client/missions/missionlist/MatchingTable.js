@@ -12,6 +12,7 @@ function MatchingTable({
   handleDeny,
   handleAccept,
   onOpenResume,
+  openMissionProfileDialog,
   isLoading = false // Nouveau prop pour gérer le loading
 }) {
   const intl = useIntl();
@@ -66,7 +67,8 @@ function MatchingTable({
         sort: false,
         formatter: MatchingCandidateColumnFormatter,
         formatExtraData: {
-          onOpenResume: onOpenResume
+          onOpenResume: onOpenResume,
+          openMissionProfileDialog: openMissionProfileDialog
         },
         headerStyle: {
           width: "25%",
@@ -122,6 +124,7 @@ function MatchingTable({
       handleDeny,
       handleAcceptWithState,
       onOpenResume,
+      openMissionProfileDialog,
       mission,
       approvedCandidates,
       processingCandidates

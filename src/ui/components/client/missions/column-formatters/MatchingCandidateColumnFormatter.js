@@ -8,7 +8,7 @@ function MatchingCandidateColumnFormatter(
   cell,
   row,
   rowIndex,
-  { onOpenResume }
+  { onOpenResume, openMissionProfileDialog }
 ) {
   const renderNote = () => {
     if (row.accountNumberOfMissions < 1) {
@@ -65,11 +65,30 @@ function MatchingCandidateColumnFormatter(
           />
         )}
         <button
-          onClick={() => onOpenResume(cell, row)}
+          onClick={() => {
+            console.log('cv clicked - Données du candidat:', row);
+            if (openMissionProfileDialog) {
+              // S'assurer que l'objet a un applicantID pour le dialog
+              const candidateData = {
+                ...row,
+                applicantID: row.applicantID || row.id || row.candidateId,
+                firstname: row.firstname,
+                lastname: row.lastname,
+                status: row.status || 2, // Par défaut status "proposé"
+                accountNumberOfMissions: row.accountNumberOfMissions,
+                tenantNumberOfMissions: row.tenantNumberOfMissions,
+                applicantPicture: row.applicantPicture,
+                city: row.city,
+                experience: row.experience
+              };
+              console.log('Données envoyées au dialog:', candidateData);
+              openMissionProfileDialog(candidateData);
+            }
+          }}
           className="btn btn-icon btn-light-primary pulse pulse-primary mr-5 btn-cv-pulse"
         >
           <i className="fas fa-file-alt" />
-          <span className="text-cv-pulse">CV</span>
+          <span className="text-cv-pulse">Détails</span>
           <span className="pulse-ring"></span>
         </button>
       </div>

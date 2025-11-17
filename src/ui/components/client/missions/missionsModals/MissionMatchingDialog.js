@@ -203,7 +203,8 @@ export function MatchingDialog({
   resumeOpen,
   onOpenResume,
   onCloseResume,
-  resumeRow
+  resumeRow,
+  openMissionProfileDialog
 }) {
   const { state } = history.location;
   const dispatch = useDispatch();
@@ -231,6 +232,9 @@ export function MatchingDialog({
 
   // Ref pour le tooltip
   const tooltipRef = useRef(null);
+
+  // Ref pour tracker le dernier missionId chargé (pour éviter les rechargements inutiles)
+  const lastLoadedMissionIdRef = useRef(null);
 
   // Configuration
   const ITEMS_PER_PAGE = 10;
@@ -294,6 +298,21 @@ export function MatchingDialog({
     setAllCandidates(updatedAll);
     setFilteredCandidates(updatedFiltered);
 
+    // Mettre à jour le cache avec la liste filtrée
+    if (missionId) {
+      const cacheKey = `matching_candidates_${missionId}`;
+      sessionStorage.setItem(cacheKey, JSON.stringify({
+        missionId,
+        allCandidates: updatedAll,
+        filteredCandidates: updatedFiltered,
+        appliedFilter,
+        selectedFilter,
+        currentPage,
+        timestamp: Date.now()
+      }));
+      console.log(`💾 Cache mis à jour après refus (mission ${missionId})`);
+    }
+
     // Ajuster la page si nécessaire
     const newTotalPages = Math.ceil(updatedFiltered.length / ITEMS_PER_PAGE);
     if (currentPage > newTotalPages && newTotalPages > 0) {
@@ -325,6 +344,14 @@ export function MatchingDialog({
       approveByCustomer.request({ id1: missionID, id2: candidateID }, params)
     );
     dispatch(getMatching.request(mission));
+
+    // Invalider le cache car le statut du candidat a changé
+    if (missionId) {
+      const cacheKey = `matching_candidates_${missionId}`;
+      sessionStorage.removeItem(cacheKey);
+      lastLoadedMissionIdRef.current = null; // Réinitialiser pour forcer le rechargement
+      console.log(`🗑️ Cache invalidé après acceptation (mission ${missionId})`);
+    }
   };
 
   // NOUVELLE FONCTION OPTIMISÉE : Un seul appel pour chargement initial
@@ -505,31 +532,82 @@ export function MatchingDialog({
     };
   }, [showTooltip]);
 
-  // HOOK PRINCIPAL : gestion de l'ouverture/fermeture
+  // HOOK PRINCIPAL : gestion de l'ouverture/fermeture avec cache intelligent
   useEffect(() => {
     if (show) {
-      console.log("🎬 Ouverture du MatchingDialog");
+      console.log(`🎬 Ouverture du MatchingDialog pour mission ${missionId}`);
       document.body.style.overflow = "hidden";
 
       if (missionId) {
-        // CHARGEMENT OPTIMISÉ : un seul appel intelligent
+        const lastLoadedId = lastLoadedMissionIdRef.current;
+
+        // Cas 1 : Changement de mission → toujours recharger
+        if (lastLoadedId !== null && String(lastLoadedId) !== String(missionId)) {
+          console.log(`🔄 Changement de mission (${lastLoadedId} → ${missionId}), rechargement...`);
+          lastLoadedMissionIdRef.current = missionId;
+          fetchOptimalCandidates();
+          return;
+        }
+
+        // Cas 2 : Même mission, vérifier le cache
+        if (String(lastLoadedId) === String(missionId)) {
+          const cacheKey = `matching_candidates_${missionId}`;
+          const cachedData = sessionStorage.getItem(cacheKey);
+
+          if (cachedData) {
+            try {
+              const parsed = JSON.parse(cachedData);
+
+              // Vérifier que le cache est bien pour cette mission
+              if (String(parsed.missionId) === String(missionId)) {
+                console.log(`♻️ Restauration depuis le cache pour mission ${missionId}`);
+                setAllCandidates(parsed.allCandidates || []);
+                setFilteredCandidates(parsed.filteredCandidates || []);
+                setAppliedFilter(parsed.appliedFilter || null);
+                setSelectedFilter(parsed.selectedFilter || "50-75");
+                setCurrentPage(parsed.currentPage || 1);
+                return;
+              }
+            } catch (e) {
+              console.error("Erreur cache:", e);
+            }
+          }
+
+          // Pas de cache valide, recharger
+          console.log(`🔄 Pas de cache valide, rechargement pour mission ${missionId}`);
+          fetchOptimalCandidates();
+          return;
+        }
+
+        // Cas 3 : Première ouverture
+        console.log(`🆕 Première ouverture, chargement pour mission ${missionId}`);
+        lastLoadedMissionIdRef.current = missionId;
         fetchOptimalCandidates();
       }
     } else {
       console.log("🔚 Fermeture du MatchingDialog");
       document.body.style.overflow = "auto";
 
-      // Reset des états
-      setSelectedFilter("50-75");
-      setCurrentPage(1);
-      setError(null);
-      setAppliedFilter(null);
-      setAvailableFilters([]);
+      // Sauvegarder dans le cache SANS réinitialiser les états
+      if (missionId && allCandidates.length > 0) {
+        const cacheKey = `matching_candidates_${missionId}`;
+        sessionStorage.setItem(cacheKey, JSON.stringify({
+          missionId,
+          allCandidates,
+          filteredCandidates,
+          appliedFilter,
+          selectedFilter,
+          currentPage,
+          timestamp: Date.now()
+        }));
+        console.log(`💾 Cache sauvegardé pour mission ${missionId}`);
+      }
     }
 
     return () => {
       document.body.style.overflow = "auto";
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, missionId]);
 
   // Hook pour charger la mission si nécessaire
@@ -811,6 +889,7 @@ export function MatchingDialog({
               handleAccept={handleAccept}
               handleDeny={handleDeny}
               onOpenResume={onOpenResume}
+              openMissionProfileDialog={openMissionProfileDialog}
               isLoading={isLoading}
             />
           )}
