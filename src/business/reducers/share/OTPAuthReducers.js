@@ -66,7 +66,7 @@ function otpAuthReducer(state = initialState, action) {
       return {
         ...state,
         loading: false,
-        user: action.payload.user || action.payload,
+        user: action.payload, // API returns user data directly
         isAuthenticated: true,
         error: null,
         otpSent: false

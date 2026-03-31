@@ -55,8 +55,8 @@ export function* authenticateOtpSaga({ payload }) {
     
     // Also update the main auth reducer with user data to enable proper authorization
     // This allows Routes.js to recognize the user as authenticated
-    const userData = response.data.user || response.data;
-    yield put(requestUser.success(userData));
+    // API returns user data directly in response.data (not nested under response.data.user)
+    yield put(requestUser.success(response.data));
 
     toastr.success("Authentification réussie", "Vous êtes maintenant connecté");
   } catch (error) {
