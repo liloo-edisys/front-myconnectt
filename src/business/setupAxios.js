@@ -144,18 +144,9 @@ export default function setupAxios(axios, store) {
         // Dispatch revoke token action (logout)
         store.dispatch({ type: "REVOKE_TOKEN_SUCCESS" });
 
-        // Redirect to login page
-        const isBackoffice = window.location.href.includes("/backoffice");
-        const isInterimaire = window.location.href.includes("/interimaire");
-
-        let loginPath = "/auth";
-        if (isBackoffice) {
-          loginPath = "/auth-backoffice";
-        } else if (isInterimaire) {
-          loginPath = "/auth-interimaire";
-        }
-
-        window.location.href = loginPath + "/otp-request";
+        // Redirect to shared OTP login page
+        // All user types (Client, BackOffice, Interimaire) now use the same OTP UI
+        window.location.href = "/auth/login";
 
         return Promise.reject(refreshError);
       } finally {
