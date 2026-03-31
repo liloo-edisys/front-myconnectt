@@ -13,8 +13,6 @@ const ChatPage = () => {
   const [error, setError] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
 
-  const { authToken } = useSelector(state => state.auth);
-
   // Récupérer l'utilisateur depuis Redux
   const { user } = useSelector(
     state => ({
@@ -39,7 +37,7 @@ const ChatPage = () => {
   useEffect(() => {
     const connection = new HubConnectionBuilder()
       .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/chat", {
-        accessTokenFactory: () => authToken
+        withCredentials: true // Use HTTP-Only cookies for authentication
       })
       .withAutomaticReconnect()
       .build();

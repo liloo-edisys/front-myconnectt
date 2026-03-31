@@ -511,14 +511,13 @@ export const removeOneDocument = (body, step, dispatch) => {
 let connection = null;
 
 export const setSignalRInterimaire = (
-  authToken,
   dispatch,
   setSelectedNotif
 ) => {
   // Create new connection if not exists
   connection = new HubConnectionBuilder()
     .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/interimaire", {
-      accessTokenFactory: () => authToken
+      withCredentials: true // Use HTTP-Only cookies for authentication
     })
     .withAutomaticReconnect()
     .build();

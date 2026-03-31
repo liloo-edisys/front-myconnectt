@@ -29,12 +29,11 @@ export function UserNotificationsDropdownMobile() {
     };
   }, [uiService]);
 
-  const { notifs, unread, userDetails, authToken, userType } = useSelector(
+  const { notifs, unread, userDetails, userType } = useSelector(
     state => ({
       notifs: state.lists.notifs,
       unread: state.lists.unread,
       userDetails: state.auth.user,
-      authToken: state.auth.authToken,
       userType: state.auth.user.userType
     }),
     shallowEqual
@@ -42,16 +41,16 @@ export function UserNotificationsDropdownMobile() {
 
   useEffect(() => {
     if (userType === 0) {
-      setSignalRInterimaire(authToken, dispatch, setSelectedNotif);
+      setSignalRInterimaire(dispatch, setSelectedNotif);
       getNotifications(dispatch);
     } else if (userType === 1) {
-      setSignalRClient(authToken, dispatch, setSelectedNotif);
+      setSignalRClient(dispatch, setSelectedNotif);
       getNotifications(dispatch);
     } else if (userType === 2) {
-      setSignalRBackoffice(authToken, dispatch, setSelectedNotif);
+      setSignalRBackoffice(dispatch, setSelectedNotif);
       getNotifications(dispatch);
     }
-  }, [dispatch, authToken, userType]);
+  }, [dispatch, userType]);
 
   const closePopup = () => {
     setSelectedNotif(null);

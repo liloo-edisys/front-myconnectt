@@ -2,19 +2,17 @@ import { HubConnectionBuilder } from "@microsoft/signalr";
 import React, { useState, useEffect, useRef } from "react";
 import ChatInput from "./ChatInput";
 import ChatWindow from "./ChatWindow";
-import { useSelector } from "react-redux";
 
 const Chat = () => {
   const [chat, setChat] = useState([]);
   const latestChat = useRef(null);
-  const { authToken } = useSelector(state => state.auth);
 
   latestChat.current = chat;
 
   useEffect(() => {
     const connection = new HubConnectionBuilder()
       .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/chat", {
-        accessTokenFactory: () => authToken
+        withCredentials: true // Use HTTP-Only cookies for authentication
       })
       .withAutomaticReconnect()
       .build();

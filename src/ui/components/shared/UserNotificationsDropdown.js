@@ -58,7 +58,6 @@ export function UserNotificationsDropdown() {
       userDetails: state.auth.user,
       currentNotif: state.lists.currentNotif,
       showNotifModal: state.lists.showNotifModal,
-      authToken: state.auth.authToken,
       userType: state.auth.user.userType
     }),
     shallowEqual
@@ -66,13 +65,13 @@ export function UserNotificationsDropdown() {
 
   useEffect(() => {
     if (userType === 0) {
-      setSignalRInterimaire(authToken, dispatch, setSelectedNotif);
+      setSignalRInterimaire(dispatch, setSelectedNotif);
       getNotifications(dispatch);
     } else if (userType === 1) {
-      setSignalRClient(authToken, dispatch, setSelectedNotif);
+      setSignalRClient(dispatch, setSelectedNotif);
       getNotifications(dispatch);
     } else if (userType === 2) {
-      setSignalRBackoffice(authToken, dispatch, setSelectedNotif);
+      setSignalRBackoffice(dispatch, setSelectedNotif);
     }
   }, [dispatch]);
 

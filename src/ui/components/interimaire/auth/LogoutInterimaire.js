@@ -22,6 +22,6 @@ class LogoutInterimaire extends Component {
 }
 
 export default connect(
-  ({ auth }) => ({ hasAuthToken: Boolean(auth.authToken) }),
+  ({ auth }) => ({ hasAuthToken: Boolean(auth.user) }),
   null
 )(LogoutInterimaire);

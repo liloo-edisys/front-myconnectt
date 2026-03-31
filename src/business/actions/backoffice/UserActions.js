@@ -56,10 +56,10 @@ export const getUserByToken = {
   })
 };
 
-export const setSignalRBackoffice = (authToken, dispatch) => {
+export const setSignalRBackoffice = (dispatch) => {
   const connection = new HubConnectionBuilder()
     .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/backoffice", {
-      accessTokenFactory: () => authToken
+      withCredentials: true // Use HTTP-Only cookies for authentication
     })
     .withAutomaticReconnect()
     .build();

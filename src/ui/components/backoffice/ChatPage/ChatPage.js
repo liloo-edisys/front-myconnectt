@@ -50,7 +50,6 @@ const ChatPage = () => {
 
   const [adminList, setAdminList] = useState([]);
   const [loadingAdmins, setLoadingAdmins] = useState(false);
-  const { authToken } = useSelector(state => state.auth);
 
   // Fonction pour vérifier si un canal est un parent (a des enfants)
   const hasChildren = channel => {
@@ -368,7 +367,7 @@ const ChatPage = () => {
   useEffect(() => {
     const connection = new HubConnectionBuilder()
       .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/chat", {
-        accessTokenFactory: () => authToken
+        withCredentials: true // Use HTTP-Only cookies for authentication
       })
       .withAutomaticReconnect()
       .build();

@@ -17,8 +17,7 @@ function BackOfficeDashboardPageNew({ intl, history }) {
       backofficeData: state.backOfficeDashboardReducerData,
       statistics: state.backOfficeDashboardReducerData.statistics,
       user: state.auth.user,
-      userDetails: state.auth.user,
-      authToken: state.auth.authToken
+      userDetails: state.auth.user
     }),
     shallowEqual
   );

@@ -31,10 +31,10 @@ export const getUserByToken = {
   })
 };
 
-export const setSignalRClient = (authToken, dispatch, setSelectedNotif) => {
+export const setSignalRClient = (dispatch, setSelectedNotif) => {
   const connection = new HubConnectionBuilder()
     .withUrl(process.env.REACT_APP_WEBAPI_URL + "hubs/client", {
-      accessTokenFactory: () => authToken
+      withCredentials: true // Use HTTP-Only cookies for authentication
     })
     .withAutomaticReconnect()
     .build();
