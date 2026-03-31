@@ -12,7 +12,12 @@ import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import { Redirect, Switch, Route } from "react-router-dom";
 
 import { Layout } from "../_metronic/layout";
-import { Logout, AuthPage, OTPRequest, OTPVerify } from "../ui/components/client/auth";
+import {
+  Logout,
+  AuthPage,
+  OTPRequest,
+  OTPVerify
+} from "../ui/components/client/auth";
 import { AuthBackOffice } from "../ui/components/backoffice/auth/AuthBackOffice";
 import LogoutBackOffice from "../ui/components/backoffice/auth/Logout";
 import { AuthInterimaire } from "../ui/components/interimaire/auth/AuthInterimaire";
@@ -56,19 +61,19 @@ export function Routes() {
       <Route path="/auth/otp-request" component={OTPRequest} />
       <Route path="/auth/otp-verify" component={OTPVerify} />
       <Route path="/auth/login" component={OTPRequest} />
-      
+
       {/* Other specific auth routes */}
       <Route path="/auth/backoffice-login" component={AuthBackOffice} />
       <Route path="/auth/int-login" component={AuthInterimaire} />
       <Route path="/auth/reset-password" component={ResetPassword} />
       <Route path="/auth/register-confirm" component={RegisterConfirm} />
-      
+
       {/* Utility routes */}
       <Route path="/error" component={ErrorPage1} />
       <Route path="/logout" component={Logout} />
       <Route path="/int-logout" component={LogoutInterimaire} />
       <Route path="/backoffice-logout" component={LogoutBackOffice} />
-      
+
       {/* Catch-all auth route - only matches /auth exactly or sub-routes not defined above */}
       {!isAuthorized ? (
         /*Render auth page when user at `/auth` and not authorized.*/
@@ -89,7 +94,7 @@ export function Routes() {
         /*Otherwise redirect to root page (`/`)*/
         <Redirect from="/auth" to="/" />
       )}
-      
+
       {/* Additional routes */}
       <Route
         path="/document/display/:documentUrl"
@@ -99,7 +104,7 @@ export function Routes() {
         path="/auth/int-register-confirm"
         component={RegisterConfirmInterimaire}
       />
-      
+
       {/* Default redirects and main layout */}
       {!isAuthorized ? (
         isInterimaire ? (

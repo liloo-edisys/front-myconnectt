@@ -136,9 +136,23 @@
 
 // OTP Authentication animations and styles
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-  20%, 40%, 60%, 80% { transform: translateX(5px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-5px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(5px);
+  }
 }
 
 // Enhanced button hover effects for OTP pages
@@ -152,14 +166,14 @@
 }
 
 .btn-light-primary:hover:not(:disabled) {
-  background-color: #E1F0FF !important;
+  background-color: #e1f0ff !important;
   transform: translateY(-1px);
 }
 
 // OTP input focus effects
 input[type="text"]:focus,
 input[type="email"]:focus {
-  border-color: #1994DA !important;
+  border-color: #1994da !important;
   box-shadow: 0 0 0 3px rgba(25, 148, 218, 0.1) !important;
 }
 

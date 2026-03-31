@@ -7,7 +7,7 @@ let isRefreshing = false;
 let failedQueue = [];
 let refreshTimer = null;
 
-const processQueue = (error) => {
+const processQueue = error => {
   failedQueue.forEach(prom => {
     if (error) {
       prom.reject(error);
@@ -15,7 +15,7 @@ const processQueue = (error) => {
       prom.resolve();
     }
   });
-  
+
   failedQueue = [];
 };
 
@@ -23,7 +23,7 @@ const processQueue = (error) => {
  * Start proactive token refresh timer
  * Refreshes token every 10 minutes to prevent 15-minute expiration
  */
-const startProactiveRefresh = (axios) => {
+const startProactiveRefresh = axios => {
   // Clear any existing timer
   if (refreshTimer) {
     clearInterval(refreshTimer);
@@ -33,9 +33,13 @@ const startProactiveRefresh = (axios) => {
   refreshTimer = setInterval(async () => {
     try {
       console.log("Proactive token refresh triggered (10 minutes elapsed)");
-      await axios.post(REFRESH_TOKEN_ENDPOINT, {}, {
-        withCredentials: true
-      });
+      await axios.post(
+        REFRESH_TOKEN_ENDPOINT,
+        {},
+        {
+          withCredentials: true
+        }
+      );
       console.log("Proactive token refresh successful");
     } catch (error) {
       console.error("Proactive token refresh failed:", error);
@@ -55,7 +59,6 @@ const stopProactiveRefresh = () => {
 };
 
 export default function setupAxios(axios, store) {
-  
   // ============================================
   // Request Interceptor
   // ============================================
@@ -63,7 +66,7 @@ export default function setupAxios(axios, store) {
     config => {
       // Enable cookies to be sent with every request
       config.withCredentials = true;
-      
+
       // Backward compatibility: Add Authorization header if authToken exists in Redux
       const {
         auth: { authToken }
@@ -72,7 +75,7 @@ export default function setupAxios(axios, store) {
       if (authToken) {
         config.headers.Authorization = `Bearer ${authToken}`;
       }
-      
+
       return config;
     },
     err => Promise.reject(err)
@@ -88,7 +91,7 @@ export default function setupAxios(axios, store) {
 
       // If error is not 401, or it's already a refresh token request, reject
       if (
-        error.response?.status !== 401 || 
+        error.response?.status !== 401 ||
         originalRequest.url?.includes(REFRESH_TOKEN_ENDPOINT) ||
         originalRequest._retry
       ) {
@@ -114,41 +117,43 @@ export default function setupAxios(axios, store) {
 
       try {
         // Attempt to refresh the token
-        await axios.post(REFRESH_TOKEN_ENDPOINT, {}, {
-          withCredentials: true
-        });
+        await axios.post(
+          REFRESH_TOKEN_ENDPOINT,
+          {},
+          {
+            withCredentials: true
+          }
+        );
 
         // Refresh successful - process queued requests
         processQueue(null);
-        
+
         // Retry the original request
         return axios(originalRequest);
-        
       } catch (refreshError) {
         // Refresh failed - logout user
         processQueue(refreshError);
-        
+
         // Stop proactive refresh timer
         stopProactiveRefresh();
-        
+
         // Dispatch revoke token action (logout)
         store.dispatch({ type: "REVOKE_TOKEN_SUCCESS" });
-        
+
         // Redirect to login page
         const isBackoffice = window.location.href.includes("/backoffice");
         const isInterimaire = window.location.href.includes("/interimaire");
-        
+
         let loginPath = "/auth";
         if (isBackoffice) {
           loginPath = "/auth-backoffice";
         } else if (isInterimaire) {
           loginPath = "/auth-interimaire";
         }
-        
+
         window.location.href = loginPath + "/otp-request";
-        
+
         return Promise.reject(refreshError);
-        
       } finally {
         isRefreshing = false;
       }
@@ -160,8 +165,9 @@ export default function setupAxios(axios, store) {
   // ============================================
   // Check if user is authenticated and start proactive refresh
   const state = store.getState();
-  const isAuthenticated = state.otpAuth?.isAuthenticated || state.auth?.authToken;
-  
+  const isAuthenticated =
+    state.otpAuth?.isAuthenticated || state.auth?.authToken;
+
   if (isAuthenticated) {
     startProactiveRefresh(axios);
   }
@@ -169,8 +175,9 @@ export default function setupAxios(axios, store) {
   // Listen to authentication state changes
   store.subscribe(() => {
     const currentState = store.getState();
-    const currentlyAuthenticated = currentState.otpAuth?.isAuthenticated || currentState.auth?.authToken;
-    
+    const currentlyAuthenticated =
+      currentState.otpAuth?.isAuthenticated || currentState.auth?.authToken;
+
     if (currentlyAuthenticated && !refreshTimer) {
       startProactiveRefresh(axios);
     } else if (!currentlyAuthenticated && refreshTimer) {

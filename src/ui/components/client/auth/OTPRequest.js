@@ -52,15 +52,18 @@ const OTPRequest = ({ intl }) => {
         {/* Left side - Form */}
         <div
           className="d-flex flex-column justify-content-center w-100 w-lg-50 p-5 p-lg-15"
-          style={{ 
+          style={{
             backgroundColor: "#F3F6F9",
             minHeight: "100vh"
           }}
         >
-          <div className="w-100" style={{ maxWidth: "500px", margin: "0 auto" }}>
+          <div
+            className="w-100"
+            style={{ maxWidth: "500px", margin: "0 auto" }}
+          >
             {/* Header Section */}
             <div className="text-center mb-10">
-              <div 
+              <div
                 className="mb-5 d-inline-flex align-items-center justify-content-center rounded-circle"
                 style={{
                   width: "80px",
@@ -69,7 +72,10 @@ const OTPRequest = ({ intl }) => {
                   boxShadow: "0 4px 20px rgba(25, 148, 218, 0.15)"
                 }}
               >
-                <i className="fas fa-envelope-open-text" style={{ fontSize: "2.5rem", color: "#1994DA" }}></i>
+                <i
+                  className="fas fa-envelope-open-text"
+                  style={{ fontSize: "2.5rem", color: "#1994DA" }}
+                ></i>
               </div>
               <h1
                 className="font-weight-bolder mb-3"
@@ -82,7 +88,10 @@ const OTPRequest = ({ intl }) => {
               >
                 Authentification OTP
               </h1>
-              <p className="text-muted font-weight-normal font-size-lg" style={{ lineHeight: "1.6" }}>
+              <p
+                className="text-muted font-weight-normal font-size-lg"
+                style={{ lineHeight: "1.6" }}
+              >
                 Entrez votre adresse email pour recevoir
                 <br />
                 un code de vérification sécurisé
@@ -90,7 +99,7 @@ const OTPRequest = ({ intl }) => {
             </div>
 
             {/* Form Card */}
-            <div 
+            <div
               className="bg-white rounded p-8 mb-5"
               style={{
                 boxShadow: "0 0 40px rgba(82, 63, 105, 0.1)",
@@ -100,8 +109,14 @@ const OTPRequest = ({ intl }) => {
               <form className="form w-100" onSubmit={formik.handleSubmit}>
                 {/* Email Input */}
                 <div className="form-group mb-6">
-                  <label className="font-weight-bold font-size-lg mb-3" style={{ color: "#181C32" }}>
-                    <i className="fas fa-envelope mr-2" style={{ color: "#1994DA" }}></i>
+                  <label
+                    className="font-weight-bold font-size-lg mb-3"
+                    style={{ color: "#181C32" }}
+                  >
+                    <i
+                      className="fas fa-envelope mr-2"
+                      style={{ color: "#1994DA" }}
+                    ></i>
                     Adresse Email
                   </label>
                   <input
@@ -109,7 +124,9 @@ const OTPRequest = ({ intl }) => {
                     type="email"
                     {...formik.getFieldProps("email")}
                     className={`form-control form-control-lg form-control-solid h-auto py-4 px-6 ${
-                      formik.touched.email && formik.errors.email ? 'is-invalid' : ''
+                      formik.touched.email && formik.errors.email
+                        ? "is-invalid"
+                        : ""
                     }`}
                     style={{
                       borderRadius: "12px",
@@ -120,7 +137,10 @@ const OTPRequest = ({ intl }) => {
                     disabled={loading}
                   />
                   {formik.touched.email && formik.errors.email && (
-                    <div className="invalid-feedback d-block mt-2" style={{ fontSize: "0.95rem" }}>
+                    <div
+                      className="invalid-feedback d-block mt-2"
+                      style={{ fontSize: "0.95rem" }}
+                    >
                       <i className="fas fa-exclamation-circle mr-1"></i>
                       {formik.errors.email}
                     </div>
@@ -128,8 +148,14 @@ const OTPRequest = ({ intl }) => {
                 </div>
 
                 {error && (
-                  <div className="alert alert-danger d-flex align-items-center mb-6" style={{ borderRadius: "12px" }}>
-                    <i className="fas fa-exclamation-triangle mr-3" style={{ fontSize: "1.3rem" }}></i>
+                  <div
+                    className="alert alert-danger d-flex align-items-center mb-6"
+                    style={{ borderRadius: "12px" }}
+                  >
+                    <i
+                      className="fas fa-exclamation-triangle mr-3"
+                      style={{ fontSize: "1.3rem" }}
+                    ></i>
                     <span>{error.message || "Une erreur s'est produite"}</span>
                   </div>
                 )}
@@ -165,7 +191,7 @@ const OTPRequest = ({ intl }) => {
             </div>
 
             {/* Info Section */}
-            <div 
+            <div
               className="bg-light-primary rounded p-6 text-center"
               style={{
                 border: "1px dashed #1994DA",
@@ -173,15 +199,22 @@ const OTPRequest = ({ intl }) => {
               }}
             >
               <div className="d-flex align-items-center justify-content-center mb-3">
-                <i className="fas fa-info-circle mr-2" style={{ color: "#1994DA", fontSize: "1.2rem" }}></i>
+                <i
+                  className="fas fa-info-circle mr-2"
+                  style={{ color: "#1994DA", fontSize: "1.2rem" }}
+                ></i>
                 <span className="font-weight-bold" style={{ color: "#1994DA" }}>
                   À savoir
                 </span>
               </div>
-              <p className="text-muted font-size-sm mb-0" style={{ lineHeight: "1.6" }}>
+              <p
+                className="text-muted font-size-sm mb-0"
+                style={{ lineHeight: "1.6" }}
+              >
                 Un code à 6 chiffres sera envoyé à votre adresse email.
                 <br />
-                <i className="far fa-clock mr-1"></i> Le code expire après <strong>5 minutes</strong>.
+                <i className="far fa-clock mr-1"></i> Le code expire après{" "}
+                <strong>5 minutes</strong>.
               </p>
             </div>
           </div>
@@ -197,18 +230,22 @@ const OTPRequest = ({ intl }) => {
             position: "relative"
           }}
         >
-          <div 
+          <div
             style={{
               position: "absolute",
               top: 0,
               left: 0,
               right: 0,
               bottom: 0,
-              background: "linear-gradient(135deg, rgba(25, 148, 218, 0.85) 0%, rgba(14, 86, 124, 0.9) 100%)"
+              background:
+                "linear-gradient(135deg, rgba(25, 148, 218, 0.85) 0%, rgba(14, 86, 124, 0.9) 100%)"
             }}
           ></div>
-          <div className="d-flex flex-column justify-content-center align-items-center h-100 p-15" style={{ position: "relative", zIndex: 1 }}>
-            <div 
+          <div
+            className="d-flex flex-column justify-content-center align-items-center h-100 p-15"
+            style={{ position: "relative", zIndex: 1 }}
+          >
+            <div
               className="mb-8 d-inline-flex align-items-center justify-content-center rounded-circle"
               style={{
                 width: "120px",
@@ -217,12 +254,21 @@ const OTPRequest = ({ intl }) => {
                 backdropFilter: "blur(10px)"
               }}
             >
-              <i className="fas fa-shield-alt" style={{ fontSize: "4rem", color: "white" }}></i>
+              <i
+                className="fas fa-shield-alt"
+                style={{ fontSize: "4rem", color: "white" }}
+              ></i>
             </div>
-            <h3 className="font-size-h1 mb-5 text-white font-weight-boldest text-center" style={{ fontSize: "2.75rem" }}>
+            <h3
+              className="font-size-h1 mb-5 text-white font-weight-boldest text-center"
+              style={{ fontSize: "2.75rem" }}
+            >
               Sécurité Renforcée
             </h3>
-            <p className="font-weight-normal text-white font-size-h4 text-center px-10" style={{ lineHeight: "1.8", opacity: "0.95" }}>
+            <p
+              className="font-weight-normal text-white font-size-h4 text-center px-10"
+              style={{ lineHeight: "1.8", opacity: "0.95" }}
+            >
               L'authentification à deux facteurs protège
               <br />
               votre compte contre les accès non autorisés

@@ -194,9 +194,13 @@ export function registerConfirm(token) {
  */
 export function sendOtp(email) {
   const tenantID = TENANTID;
-  return axios.post(SEND_OTP_URL, { tenantID, email }, {
-    withCredentials: true
-  });
+  return axios.post(
+    SEND_OTP_URL,
+    { tenantID, email },
+    {
+      withCredentials: true
+    }
+  );
 }
 
 /**
@@ -209,9 +213,13 @@ export function sendOtp(email) {
 export function authenticateWithOtp(data) {
   const tenantID = TENANTID;
   const { email, otp } = data;
-  return axios.post(AUTHENTICATE_OTP_URL, { tenantID, email, otp }, {
-    withCredentials: true
-  });
+  return axios.post(
+    AUTHENTICATE_OTP_URL,
+    { tenantID, email, otp },
+    {
+      withCredentials: true
+    }
+  );
 }
 
 /**
@@ -219,9 +227,13 @@ export function authenticateWithOtp(data) {
  * @returns {Promise} API response with new tokens in cookies
  */
 export function refreshToken() {
-  return axios.post(REFRESH_TOKEN_URL, {}, {
-    withCredentials: true
-  });
+  return axios.post(
+    REFRESH_TOKEN_URL,
+    {},
+    {
+      withCredentials: true
+    }
+  );
 }
 
 /**
@@ -229,7 +241,11 @@ export function refreshToken() {
  * @returns {Promise} API response
  */
 export function revokeToken() {
-  return axios.post(REVOKE_TOKEN_URL, {}, {
-    withCredentials: true
-  });
+  return axios.post(
+    REVOKE_TOKEN_URL,
+    {},
+    {
+      withCredentials: true
+    }
+  );
 }
