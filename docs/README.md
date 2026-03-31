@@ -23,13 +23,20 @@ Bienvenue dans la documentation technique de **MyConnectt**, une application Rea
    - Intégration Redux complète
    - Sécurité et bonnes pratiques
 
-4. [Environnements et Déploiement](./DEPLOYMENT.md)
+4. [Flux d'Authentification par Cookies](./COOKIE_AUTHENTICATION_FLOW.md) 🔐 **NOUVEAU**
+   - Explication détaillée des cookies HTTP-Only
+   - Où et comment les cookies sont vérifiés
+   - Flux complet d'authentification
+   - Refresh automatique des tokens
+   - Guide de débogage
+
+5. [Environnements et Déploiement](./DEPLOYMENT.md)
    - Environnements disponibles
    - Configuration Docker
    - Scripts de build
    - Déploiement Azure
 
-5. [API et Intégration Backend](./API_INTEGRATION.md)
+6. [API et Intégration Backend](./API_INTEGRATION.md)
    - Configuration Axios
    - Endpoints principaux
    - Intercepteurs de requêtes
