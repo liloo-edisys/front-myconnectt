@@ -12,7 +12,7 @@ import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import { Redirect, Switch, Route } from "react-router-dom";
 
 import { Layout } from "../_metronic/layout";
-import { Logout, AuthPage } from "../ui/components/client/auth";
+import { Logout, AuthPage, OTPRequest, OTPVerify } from "../ui/components/client/auth";
 import { AuthBackOffice } from "../ui/components/backoffice/auth/AuthBackOffice";
 import LogoutBackOffice from "../ui/components/backoffice/auth/Logout";
 import { AuthInterimaire } from "../ui/components/interimaire/auth/AuthInterimaire";
@@ -76,7 +76,13 @@ export function Routes() {
       <Route path="/logout" component={Logout} />
       <Route path="/int-logout" component={LogoutInterimaire} />
       <Route path="/backoffice-logout" component={LogoutBackOffice} />
-      <Route path="/auth/login" component={AuthPage} />
+      
+      {/* OTP Authentication Routes */}
+      <Route path="/auth/otp-request" component={OTPRequest} />
+      <Route path="/auth/otp-verify" component={OTPVerify} />
+      
+      {/* Traditional Login Routes */}
+      <Route path="/auth/login" component={OTPRequest} />
       <Route path="/auth/backoffice-login" component={AuthBackOffice} />
       <Route path="/auth/int-login" component={AuthInterimaire} />
       <Route path="/auth/reset-password" component={ResetPassword} />
