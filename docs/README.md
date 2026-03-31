@@ -44,6 +44,13 @@ Bienvenue dans la documentation technique de **MyConnectt**, une application Rea
    - Tests avec cURL et Postman
    - Solutions par environnement (Dev, Azure, Prod)
 
+5a. [🔧 Dépannage - Redirection Après Login](./TROUBLESHOOTING_LOGIN_REDIRECT.md) 🆘 **IMPORTANT**
+   - Diagnostic: Redirection immédiate vers /auth/login après login
+   - Cookies qui disparaissent après authentification
+   - Guide de débogage complet avec logs
+   - Solutions pour problèmes backend/CORS/Secure
+   - Checklist complète frontend + backend
+
 6. [Environnements et Déploiement](./DEPLOYMENT.md)
    - Environnements disponibles
    - Configuration Docker
