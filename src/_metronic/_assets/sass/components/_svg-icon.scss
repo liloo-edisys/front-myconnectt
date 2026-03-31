@@ -1,0 +1,66 @@
+//
+// SVG Icon
+//
+
+.svg-icon-rose {
+    @include svg-icon-color(#ff6aa6, true);
+}
+
+.svg-icon-jaune {
+    @include svg-icon-color(#ffc45c, true);
+}
+
+.svg-icon-green {
+    @include svg-icon-color(#078000, true);
+}
+
+.svg-icon-applicant-message {
+    @include svg-icon-color(#FF9966, true);
+}
+
+.svg-icon-client-message {
+    @include svg-icon-color(#00FFFF, true);
+}
+
+.svg-icon-application-offer {
+    @include svg-icon-color(#665D1E, true);
+}
+
+.svg-icon-decline-offer {
+    @include svg-icon-color(#A52A2A, true);
+}
+
+.svg-icon {
+    @include svg-icon-size(get($svg-icon-sizes, md));
+    @include svg-icon-color($text-muted);
+
+    // Theme colors
+    @each $name, $color in $theme-text-colors {
+        &.svg-icon-#{$name} {
+            @include svg-icon-color($color, true);
+        }
+        &.svg-logo-#{$name} {
+            @include svg-logo-color($color, true);
+        }
+    }
+
+    // Responsive icon sizes
+    @each $breakpoint in map-keys($grid-breakpoints) {
+        @include media-breakpoint-up($breakpoint) {
+            $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+
+            // Sizes
+            @each $name, $value in $svg-icon-sizes {
+                &.svg-icon#{$infix}-#{$name} {
+                    @include svg-icon-size($value, true);
+                }
+            }
+        }
+    }
+
+    &.svg-icon-flip {
+        svg {
+            transform: scaleX(-1);
+        }
+    }
+}

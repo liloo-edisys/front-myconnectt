@@ -1,0 +1,17 @@
+.dashboard_client_top_menu_responsive {
+  display: block;
+}
+
+.dashboard_client_bottom_menu_responsive {
+  display: none;
+}
+
+@media (max-width: 786px) {
+  .dashboard_client_top_menu_responsive {
+    display: none;
+  }
+
+  .dashboard_client_bottom_menu_responsive {
+    display: block;
+  }
+}
