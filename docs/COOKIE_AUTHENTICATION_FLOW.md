@@ -1,5 +1,20 @@
 # Flux d'Authentification par Cookies HTTP-Only
 
+---
+
+## ✅ CONFIGURATION CONFIRMÉE
+
+**Le backend ASP.NET Core est correctement configuré et fonctionne.**
+
+**Durées des tokens**:
+- 🔑 **Access Token**: 5 minutes (pas 15 minutes)
+- 🔄 **Refresh Token**: 7 jours
+- ⏱️ **Refresh Proactif**: Toutes les 4 minutes (avant expiration)
+
+**Voir**: [Configuration Backend Confirmée](./BACKEND_CONFIRMED_CONFIG.md) pour tous les détails.
+
+---
+
 Ce document explique en détail comment fonctionne l'authentification basée sur les cookies HTTP-Only dans MyConnectt, et où/comment le système vérifie si un utilisateur est connecté.
 
 ## 🔑 Principe de Base

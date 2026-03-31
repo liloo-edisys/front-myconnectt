@@ -30,6 +30,13 @@ Bienvenue dans la documentation technique de **MyConnectt**, une application Rea
    - Refresh automatique des tokens
    - Guide de débogage
 
+4a. [✅ Configuration Backend Confirmée](./BACKEND_CONFIRMED_CONFIG.md) 🎯 **IMPORTANT**
+   - Backend ASP.NET Core correctement configuré
+   - Durées réelles: Access Token 5 min, Refresh Token 7 jours
+   - Configuration testée et fonctionnelle
+   - Comparaison avec documentation initiale
+   - Action corrective appliquée (refresh timer 4 min)
+
 5. [Dépannage - Cookies Non Définis](./TROUBLESHOOTING_COOKIES.md) 🔧 **NOUVEAU**
    - Diagnostic: Cookies accessToken/refreshToken absents
    - Configuration backend requise (ASP.NET Core, Node.js)

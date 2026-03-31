@@ -1,7 +1,7 @@
 import { refreshTokenRequest } from "./actions/shared/OTPAuthActions";
 
 const REFRESH_TOKEN_ENDPOINT = "/api/user/RefreshToken";
-const PROACTIVE_REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes in milliseconds
+const PROACTIVE_REFRESH_INTERVAL = 4 * 60 * 1000; // 4 minutes in milliseconds (access token expires at 5 min)
 
 let isRefreshing = false;
 let failedQueue = [];
@@ -21,7 +21,7 @@ const processQueue = error => {
 
 /**
  * Start proactive token refresh timer
- * Refreshes token every 10 minutes to prevent 15-minute expiration
+ * Refreshes token every 4 minutes to prevent 5-minute expiration
  */
 const startProactiveRefresh = axios => {
   // Clear any existing timer
@@ -32,7 +32,7 @@ const startProactiveRefresh = axios => {
   // Set up interval for proactive refresh
   refreshTimer = setInterval(async () => {
     try {
-      console.log("Proactive token refresh triggered (10 minutes elapsed)");
+      console.log("Proactive token refresh triggered (4 minutes elapsed)");
       await axios.post(
         REFRESH_TOKEN_ENDPOINT,
         {},
