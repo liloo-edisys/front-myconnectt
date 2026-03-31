@@ -24,12 +24,13 @@ const OTPVerify = ({ intl }) => {
     useRef()
   ];
 
-  const { loading, email, isAuthenticated, error } = useSelector(
+  const { loading, email, isAuthenticated, error, user } = useSelector(
     state => ({
       loading: state.otpAuth?.loading || false,
       email: state.otpAuth?.email || "",
       isAuthenticated: state.otpAuth?.isAuthenticated || false,
-      error: state.otpAuth?.error || null
+      error: state.otpAuth?.error || null,
+      user: state.auth?.user || null
     }),
     shallowEqual
   );
@@ -41,14 +42,28 @@ const OTPVerify = ({ intl }) => {
     }
   }, [email, history]);
 
-  // Redirect on successful authentication
+  // Redirect on successful authentication based on userType
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && user) {
       // Clear OTP state after successful auth
       dispatch(clearOtpState());
-      history.push("/dashboard");
+      
+      // Redirect based on userType
+      // userType 0: Interimaire -> handled by Routes.js
+      // userType 1: Client -> /dashboard
+      // userType 2: BackOffice -> /backoffice-dashboard
+      if (user.UserType === 2 || user.userType === 2) {
+        // BackOffice user
+        history.push("/backoffice-dashboard");
+      } else if (user.UserType === 1 || user.userType === 1) {
+        // Client user
+        history.push("/dashboard");
+      } else {
+        // Fallback - let Routes.js handle the redirect
+        history.push("/");
+      }
     }
-  }, [isAuthenticated, history, dispatch]);
+  }, [isAuthenticated, user, history, dispatch]);
 
   const handleInputChange = (index, value) => {
     // Only allow digits
