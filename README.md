@@ -1,3 +1,18 @@
+# MyConnectt
+
+Application React de gestion de missions et d'intérimaires.
+
+## 📚 Documentation Complète
+
+Pour une documentation technique détaillée, consultez le dossier [`/docs`](./docs):
+
+- **[Architecture](./docs/ARCHITECTURE.md)** - Structure du projet, Redux, composants
+- **[Authentification](./docs/AUTHENTICATION.md)** - Système JWT, protection des routes
+- **[Déploiement](./docs/DEPLOYMENT.md)** - Environnements, Docker, Azure
+- **[API Integration](./docs/API_INTEGRATION.md)** - Axios, endpoints, sagas
+
+## 🚀 Quick Start
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
