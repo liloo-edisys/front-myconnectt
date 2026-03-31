@@ -13,7 +13,7 @@ export const REGISTER_ACCOUNT_URL =
 export const SEND_OTP_URL =
   process.env.REACT_APP_WEBAPI_URL + "api/user/SendOtp";
 export const AUTHENTICATE_OTP_URL =
-  process.env.REACT_APP_WEBAPI_URL + "api/user/Authentificate";
+  process.env.REACT_APP_WEBAPI_URL + "api/user/Authenticate";
 export const REFRESH_TOKEN_URL =
   process.env.REACT_APP_WEBAPI_URL + "api/user/RefreshToken";
 export const REVOKE_TOKEN_URL =
