@@ -50,7 +50,7 @@ export function UserNotificationsDropdownMobile() {
       setSignalRBackoffice(dispatch, setSelectedNotif);
       getNotifications(dispatch);
     }
-  }, [dispatch, userType]); // setSelectedNotif has stable reference from useState
+  }, [dispatch, userType]); // SignalR connection only needs to reconnect on userType or dispatch change
 
   const closePopup = () => {
     setSelectedNotif(null);
