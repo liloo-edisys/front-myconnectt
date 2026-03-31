@@ -50,16 +50,21 @@ export function* sendOtpSaga({ payload }) {
  */
 export function* authenticateOtpSaga({ payload }) {
   try {
+    console.log("[OTPAuthSaga] Authenticating with OTP, payload:", payload);
     const response = yield call(authenticateWithOtpApi, payload);
+    console.log("[OTPAuthSaga] Authentication successful, response:", response.data);
+    
     yield put(authenticateOtpSuccess(response.data));
     
     // Also update the main auth reducer with user data to enable proper authorization
     // This allows Routes.js to recognize the user as authenticated
     // API returns user data directly in response.data (not nested under response.data.user)
+    console.log("[OTPAuthSaga] Updating main auth reducer with user data");
     yield put(requestUser.success(response.data));
 
     toastr.success("Authentification réussie", "Vous êtes maintenant connecté");
   } catch (error) {
+    console.error("[OTPAuthSaga] Authentication failed:", error);
     yield put(authenticateOtpFailure(error.response?.data || error.message));
 
     const errorMessage =

@@ -3,6 +3,7 @@ import * as actionTypes from "constants/constants";
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { INTERIMAIRE_REGISTER_BY_MOBILE_SUCCESS } from "../../types/authTypes";
+import { REVOKE_TOKEN_SUCCESS } from "../../actions/shared/OTPAuthActions";
 
 const initialAuthState = {
   user: undefined,
@@ -57,6 +58,12 @@ export const clientAuthReducer = persistReducer(
       case actionTypes.SWITCH_COMPANY_SUCCESS: {
         const { data } = action.payload;
         return { ...state, user: data.data };
+      }
+      
+      // Handle REVOKE_TOKEN_SUCCESS from OTP auth (token expiry, logout)
+      // This ensures auth state is cleared when cookies are invalidated
+      case REVOKE_TOKEN_SUCCESS: {
+        return initialAuthState;
       }
 
       default:

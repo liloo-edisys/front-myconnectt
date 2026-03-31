@@ -121,6 +121,7 @@ export default function setupAxios(axios, store) {
 
       try {
         // Attempt to refresh the token
+        console.log("[setupAxios] Attempting to refresh token due to 401 error");
         await axios.post(
           REFRESH_TOKEN_ENDPOINT,
           {},
@@ -129,12 +130,16 @@ export default function setupAxios(axios, store) {
           }
         );
 
+        console.log("[setupAxios] Token refresh successful");
         // Refresh successful - process queued requests
         processQueue(null);
 
         // Retry the original request
         return axios(originalRequest);
       } catch (refreshError) {
+        console.error("[setupAxios] Token refresh failed:", refreshError);
+        console.log("[setupAxios] Logging out user and redirecting to login");
+        
         // Refresh failed - logout user
         processQueue(refreshError);
 
@@ -161,9 +166,10 @@ export default function setupAxios(axios, store) {
   // Check if user is authenticated and start proactive refresh
   const state = store.getState();
   const isAuthenticated =
-    state.otpAuth?.isAuthenticated || state.auth?.authToken;
+    state.otpAuth?.isAuthenticated || state.auth?.authToken || state.auth?.user;
 
   if (isAuthenticated) {
+    console.log("[setupAxios] User is authenticated, starting proactive refresh");
     startProactiveRefresh(axios);
   }
 
@@ -171,11 +177,15 @@ export default function setupAxios(axios, store) {
   store.subscribe(() => {
     const currentState = store.getState();
     const currentlyAuthenticated =
-      currentState.otpAuth?.isAuthenticated || currentState.auth?.authToken;
+      currentState.otpAuth?.isAuthenticated || 
+      currentState.auth?.authToken || 
+      currentState.auth?.user;
 
     if (currentlyAuthenticated && !refreshTimer) {
+      console.log("[setupAxios] Auth state changed to authenticated, starting proactive refresh");
       startProactiveRefresh(axios);
     } else if (!currentlyAuthenticated && refreshTimer) {
+      console.log("[setupAxios] Auth state changed to unauthenticated, stopping proactive refresh");
       stopProactiveRefresh();
     }
   });
