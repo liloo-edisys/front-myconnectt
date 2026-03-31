@@ -73,7 +73,7 @@ export function UserNotificationsDropdown() {
     } else if (userType === 2) {
       setSignalRBackoffice(dispatch, setSelectedNotif);
     }
-  }, [dispatch, userType, setSelectedNotif]);
+  }, [dispatch, userType]); // setSelectedNotif has stable reference from useState
 
   const getRandomInt = max => {
     return Math.floor(Math.random() * max);

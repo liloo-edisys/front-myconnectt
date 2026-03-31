@@ -50,7 +50,7 @@ export function UserNotificationsDropdownMobile() {
       setSignalRBackoffice(dispatch, setSelectedNotif);
       getNotifications(dispatch);
     }
-  }, [dispatch, userType, setSelectedNotif]);
+  }, [dispatch, userType]); // setSelectedNotif has stable reference from useState
 
   const closePopup = () => {
     setSelectedNotif(null);
