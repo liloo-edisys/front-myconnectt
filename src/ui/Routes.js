@@ -52,18 +52,36 @@ export function Routes() {
 
   return (
     <Switch>
+      {/* OTP Authentication Routes - Must come before catch-all auth routes */}
+      <Route path="/auth/otp-request" component={OTPRequest} />
+      <Route path="/auth/otp-verify" component={OTPVerify} />
+      <Route path="/auth/login" component={OTPRequest} />
+      
+      {/* Other specific auth routes */}
+      <Route path="/auth/backoffice-login" component={AuthBackOffice} />
+      <Route path="/auth/int-login" component={AuthInterimaire} />
+      <Route path="/auth/reset-password" component={ResetPassword} />
+      <Route path="/auth/register-confirm" component={RegisterConfirm} />
+      
+      {/* Utility routes */}
+      <Route path="/error" component={ErrorPage1} />
+      <Route path="/logout" component={Logout} />
+      <Route path="/int-logout" component={LogoutInterimaire} />
+      <Route path="/backoffice-logout" component={LogoutBackOffice} />
+      
+      {/* Catch-all auth route - only matches /auth exactly or sub-routes not defined above */}
       {!isAuthorized ? (
         /*Render auth page when user at `/auth` and not authorized.*/
         isInterimaire ? (
-          <Route>
+          <Route path="/auth">
             <AuthInterimaire />
           </Route>
         ) : isBackOffice ? (
-          <Route>
+          <Route path="/auth">
             <AuthBackOffice />
           </Route>
         ) : (
-          <Route>
+          <Route path="/auth">
             <AuthPage />
           </Route>
         )
@@ -71,22 +89,8 @@ export function Routes() {
         /*Otherwise redirect to root page (`/`)*/
         <Redirect from="/auth" to="/" />
       )}
-
-      <Route path="/error" component={ErrorPage1} />
-      <Route path="/logout" component={Logout} />
-      <Route path="/int-logout" component={LogoutInterimaire} />
-      <Route path="/backoffice-logout" component={LogoutBackOffice} />
       
-      {/* OTP Authentication Routes */}
-      <Route path="/auth/otp-request" component={OTPRequest} />
-      <Route path="/auth/otp-verify" component={OTPVerify} />
-      
-      {/* Traditional Login Routes */}
-      <Route path="/auth/login" component={OTPRequest} />
-      <Route path="/auth/backoffice-login" component={AuthBackOffice} />
-      <Route path="/auth/int-login" component={AuthInterimaire} />
-      <Route path="/auth/reset-password" component={ResetPassword} />
-      <Route path="/auth/register-confirm" component={RegisterConfirm} />
+      {/* Additional routes */}
       <Route
         path="/document/display/:documentUrl"
         component={DocumentDisplay}
@@ -95,6 +99,8 @@ export function Routes() {
         path="/auth/int-register-confirm"
         component={RegisterConfirmInterimaire}
       />
+      
+      {/* Default redirects and main layout */}
       {!isAuthorized ? (
         isInterimaire ? (
           /*Redirect to `/auth` when user is not authorized*/
