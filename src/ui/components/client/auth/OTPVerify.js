@@ -48,14 +48,17 @@ const OTPVerify = ({ intl }) => {
       // Clear OTP state after successful auth
       dispatch(clearOtpState());
       
+      // Normalize userType field (API returns UserType, state may use userType)
+      const userType = user.UserType ?? user.userType;
+      
       // Redirect based on userType
       // userType 0: Interimaire -> handled by Routes.js
       // userType 1: Client -> /dashboard
       // userType 2: BackOffice -> /backoffice-dashboard
-      if (user.UserType === 2 || user.userType === 2) {
+      if (userType === 2) {
         // BackOffice user
         history.push("/backoffice-dashboard");
-      } else if (user.UserType === 1 || user.userType === 1) {
+      } else if (userType === 1) {
         // Client user
         history.push("/dashboard");
       } else {
