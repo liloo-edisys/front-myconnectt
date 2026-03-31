@@ -214,18 +214,20 @@ Tous les appels API utilisent le tenantID = 1 sauf indication contraire.
 
 ⚠️ **Important**: Les tokens sont retournés via **HTTP-Only Cookies** pour une sécurité optimale.
 
+**Response Body** (contient uniquement les données utilisateur, **PAS** de tokens):
 ```json
 {
-  "user": {
-    "id": 42,
-    "email": "admin@myconnectt.fr",
-    "firstName": "Admin",
-    "lastName": "MyConnectt",
-    "userType": 2,
-    "role": "BackOffice"
-  }
+  "UserID": 42,
+  "UserName": "admin@myconnectt.fr",
+  "TenantID": 1,
+  "UserRole": "BackOffice",
+  "UserType": 2,
+  "AccountID": 123,
+  "ApplicantID": null
 }
 ```
+
+⚠️ **Note**: Les champs `AccessToken`, `RefreshToken`, et `MobileAccessToken` ne sont **PAS** inclus dans le body de la réponse. Les tokens sont uniquement dans les cookies HTTP-Only.
 
 **HTTP Response Headers (Cookies)**:
 ```http

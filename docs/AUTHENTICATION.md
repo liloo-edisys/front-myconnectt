@@ -1,8 +1,18 @@
 # Système d'Authentification MyConnectt
 
+> ⚠️ **IMPORTANT - Nouvelle Méthode d'Authentification (2026)**
+> 
+> Le système d'authentification a été modernisé pour utiliser **HTTP-Only Cookies** au lieu de tokens dans le response body:
+> - ✅ **Nouveau (OTP)**: Les tokens sont dans les cookies HTTP-Only (voir [OTP_AUTHENTICATION.md](./OTP_AUTHENTICATION.md))
+> - ⚠️ **Ancien (JWT)**: Documentation ci-dessous conservée pour référence et compatibilité descendante
+> 
+> **Pour les nouvelles implémentations**, consultez [OTP_AUTHENTICATION.md](./OTP_AUTHENTICATION.md).
+
 ## 🔐 Vue d'Ensemble
 
 MyConnectt utilise un système d'authentification **JWT (JSON Web Token)** avec stockage persistant dans Redux et localStorage. L'application supporte trois types d'utilisateurs avec des portails d'authentification séparés.
+
+⚠️ **Note**: Cette documentation décrit l'ancien système JWT. Le nouveau système OTP avec cookies HTTP-Only est recommandé pour toutes les nouvelles fonctionnalités.
 
 ## 👥 Types d'Utilisateurs (Rôles)
 
