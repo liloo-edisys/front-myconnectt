@@ -1,0 +1,23 @@
+.regular_footer {
+    display: flex;
+}
+
+.responsive_footer {
+display: none;
+width: 90%;
+}
+
+@media (max-width: 425px) {
+    .regular_footer {
+        display: none;
+    }
+
+    .responsive_footer {
+        display: block;
+    }
+
+    .responsive_footer_button_container {
+        display: flex;
+        justify-content: space-around;
+    }
+}

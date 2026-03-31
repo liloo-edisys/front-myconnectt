@@ -1,0 +1,25 @@
+.information_tootip {
+  z-index: 10000;
+  position: absolute;
+  top: 150px;
+  left: -24px;
+  border: none;
+}
+
+.information_tootip_width {
+  width: 600px;
+}
+
+@media (max-width: 1440px) {
+  .information_tootip {
+    left: -15px;
+  }
+}
+@media (max-width: 1024px) {
+  .information_tootip_width {
+    width: 500px;
+  }
+  .information_tootip {
+    left: -10px;
+  }
+}

@@ -1,0 +1,15 @@
+.location-input-width {
+  width: 86%;
+}
+
+@media (max-width: 375px) {
+  .location-input-width {
+    width: 84%;
+  }
+}
+
+@media (max-width: 320px) {
+  .location-input-width {
+    width: 81%;
+  }
+}

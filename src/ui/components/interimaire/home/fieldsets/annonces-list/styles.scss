@@ -1,0 +1,180 @@
+.container-title {
+  background-color: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  z-index: 0;
+}
+
+.annonces_main_container {
+  padding: 10px 20px;
+}
+
+.react-reveal-hide {
+  opacity: 0 !important;
+}
+
+.title_container_radius {
+  border-radius: 10px;
+}
+
+.annonce_header_title {
+  font-size: 18px !important;
+}
+
+.star_position {
+  top: -2px;
+  right: 20px;
+}
+
+.document_icon {
+  margin-right: 10px;
+}
+
+.annonce_container {
+  background-color: white;
+  margin-top: 20px;
+  border-radius: 10px;
+}
+
+.annonce_header {
+  &_container {
+    display: flex;
+    padding: 15px;
+    align-items: center;
+    border-bottom: 1px solid #cdcbd7;
+  }
+  &_logo {
+    background-color: #8850fa;
+    border-radius: 5px;
+    height: 40px;
+    width: 40px;
+    color: white;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 20px;
+  }
+  &_title {
+    font-size: 20px;
+    height: 48px;
+  }
+}
+
+.annonce_body {
+  &_container {
+    padding: 0 20px;
+  }
+  &_item {
+    display: flex;
+    align-items: center;
+    &_icon {
+      font-size: 30px;
+      margin-right: 20px;
+    }
+  }
+  &_salary_text {
+    color: #cdcbd7;
+  }
+}
+
+.annonce_footer {
+  &_container {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid #cdcbd7;
+    padding: 15px;
+  }
+  &_showmore {
+    background-color: #1bc5bd;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-right: 2px;
+    &_icon {
+      font-size: 15px;
+      color: white;
+      margin-right: 10px;
+    }
+  }
+  &_cancel {
+    background-color: #ffe2e5;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-left: 2px;
+    &_icon {
+      font-size: 15px;
+      color: #f64f61;
+    }
+  }
+}
+
+.menu_item {
+  &_container {
+    background-color: white;
+    padding: 2px;
+    border-radius: 10px;
+    margin: 30px 0;
+  }
+  &_logo {
+    font-size: 40px;
+    margin-right: 10px;
+  }
+  &_score {
+    font-size: 40px;
+  }
+}
+
+.right_profile {
+  &_container {
+    margin: 10px;
+    padding: 15px 15px 150px 15px;
+    background-color: white;
+    border-radius: 10px;
+  }
+  &_image {
+    height: 85px;
+    width: 85px;
+    background-color: #3699ff;
+    border-radius: 5px;
+    margin-right: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &_text {
+      font-size: 30px;
+      color: white;
+      font-weight: bold;
+    }
+  }
+  &_user {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    &_name {
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+  }
+}
+
+.title_overflow {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 786px) {
+  .document_icon {
+    display: none;
+  }
+}
+
+@media (max-width: 425px) {
+  .annonce_header_title {
+    font-size: 16px !important;
+  }
+}
