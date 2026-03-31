@@ -14,6 +14,7 @@ import {
   revokeTokenSuccess,
   revokeTokenFailure
 } from "../../actions/shared/OTPAuthActions";
+import { requestUser } from "../../actions/shared/AuthActions";
 import {
   sendOtp as sendOtpApi,
   authenticateWithOtp as authenticateWithOtpApi,
@@ -51,6 +52,11 @@ export function* authenticateOtpSaga({ payload }) {
   try {
     const response = yield call(authenticateWithOtpApi, payload);
     yield put(authenticateOtpSuccess(response.data));
+    
+    // Also update the main auth reducer with user data to enable proper authorization
+    // This allows Routes.js to recognize the user as authenticated
+    const userData = response.data.user || response.data;
+    yield put(requestUser.success(userData));
 
     toastr.success("Authentification réussie", "Vous êtes maintenant connecté");
   } catch (error) {
