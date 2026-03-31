@@ -1,5 +1,19 @@
 # Authentification OTP pour BackOffice
 
+---
+
+## ⚠️ CONFIGURATION BACKEND REQUISE
+
+**Si les cookies d'authentification ne sont pas visibles dans le navigateur:**
+
+➡️ **[VOIR: Configuration Backend Requise](./BACKEND_COOKIE_SETUP_REQUIRED.md)** 🚨
+
+Le backend DOIT définir les cookies dans les headers `Set-Cookie` et activer `AllowCredentials` dans CORS.
+
+**Guide de Dépannage**: [TROUBLESHOOTING_COOKIES.md](./TROUBLESHOOTING_COOKIES.md)
+
+---
+
 ## 📋 Vue d'Ensemble
 
 Ce document décrit l'implémentation d'un système d'authentification **OTP (One-Time Password)** pour le portail BackOffice de MyConnectt. L'OTP ajoute une couche de sécurité supplémentaire en nécessitant un code à 6 chiffres envoyé par email.
