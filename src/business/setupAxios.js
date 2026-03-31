@@ -76,6 +76,10 @@ export default function setupAxios(axios, store) {
         config.headers.Authorization = `Bearer ${authToken}`;
       }
 
+      // Add required headers for all API calls
+      config.headers['X-Client-Type'] = 'webapp';
+      config.headers['X-Api-Version'] = '2';
+
       return config;
     },
     err => Promise.reject(err)
