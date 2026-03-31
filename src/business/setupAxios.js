@@ -77,8 +77,8 @@ export default function setupAxios(axios, store) {
       }
 
       // Add required headers for all API calls
-      config.headers['X-Client-Type'] = 'webapp';
-      config.headers['X-Api-Version'] = '2';
+      config.headers["X-Client-Type"] = "webapp";
+      config.headers["X-Api-Version"] = "2";
 
       return config;
     },
