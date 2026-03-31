@@ -73,7 +73,7 @@ export function UserNotificationsDropdown() {
     } else if (userType === 2) {
       setSignalRBackoffice(dispatch, setSelectedNotif);
     }
-  }, [dispatch]);
+  }, [dispatch, userType, setSelectedNotif]);
 
   const getRandomInt = max => {
     return Math.floor(Math.random() * max);
