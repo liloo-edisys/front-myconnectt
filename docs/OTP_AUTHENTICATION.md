@@ -53,10 +53,85 @@ Ce document décrit l'implémentation d'un système d'authentification **OTP (On
    Request: { email, otpCode }
                     ↓
    Backend vérifie le code OTP
-   Backend retourne JWT token
+   Backend définit les cookies HTTP-Only:
+     → access_token (15 min)
+     → refresh_token (7 jours)
                     ↓
 3. AUTHENTIFICATION RÉUSSIE
    Redirection vers /backoffice/dashboard
+   
+4. RAFRAÎCHISSEMENT AUTOMATIQUE
+   ┌────────────────────────────────────────┐
+   │  Axios Interceptor                     │
+   │  ┌──────────────────────────────────┐  │
+   │  │  Requête API échoue (401)        │  │
+   │  │  ↓                               │  │
+   │  │  POST /api/Auth/RefreshToken     │  │
+   │  │  ↓                               │  │
+   │  │  Nouveaux cookies reçus          │  │
+   │  │  ↓                               │  │
+   │  │  Réessayer la requête initiale   │  │
+   │  └──────────────────────────────────┘  │
+   └────────────────────────────────────────┘
+```
+
+---
+
+## 🔄 Système de Refresh Token avec Cookies
+
+### Architecture Cookie-Based Authentication
+
+Le système utilise des **HTTP-Only Cookies** pour stocker les tokens au lieu du localStorage, offrant une meilleure protection contre les attaques XSS.
+
+#### Avantages des Cookies HTTP-Only
+
+✅ **Sécurité renforcée**: Les cookies HttpOnly ne sont pas accessibles via JavaScript  
+✅ **Protection XSS**: Impossible de voler les tokens via injection de scripts  
+✅ **Gestion automatique**: Les cookies sont envoyés automatiquement avec chaque requête  
+✅ **Refresh transparent**: Le renouvellement des tokens est géré côté serveur  
+
+#### Types de Tokens
+
+| Token | Durée de vie | Stockage | Utilisation |
+|-------|--------------|----------|-------------|
+| **Access Token** | 15 minutes | Cookie HttpOnly | Authentifier toutes les requêtes API |
+| **Refresh Token** | 7 jours | Cookie HttpOnly | Renouveler l'access_token expiré |
+
+#### Flux de Rafraîchissement Automatique
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│              REFRESH TOKEN FLOW (AUTOMATIC)                     │
+└────────────────────────────────────────────────────────────────┘
+
+1. User fait une requête API
+   GET /api/BackOffice/Users
+   Cookie: access_token=expired_token...
+                    ↓
+2. Backend détecte token expiré
+   Response: 401 Unauthorized
+                    ↓
+3. Axios Interceptor (frontend) intercepte le 401
+   Détecte: response.status === 401
+                    ↓
+4. Frontend appelle automatiquement RefreshToken
+   POST /api/Auth/RefreshToken
+   Cookie: refresh_token=valid_refresh...
+                    ↓
+5. Backend valide le refresh_token
+   Génère nouveaux tokens
+   Set-Cookie: access_token=new_token...
+   Set-Cookie: refresh_token=new_refresh...
+   Response: 200 OK
+                    ↓
+6. Frontend réessaie la requête originale
+   GET /api/BackOffice/Users
+   Cookie: access_token=new_token...
+                    ↓
+7. Requête réussit avec nouveau token
+   Response: 200 OK + données
+                    ↓
+   User ne remarque aucune interruption
 ```
 
 ---
@@ -122,9 +197,11 @@ Ce document décrit l'implémentation d'un système d'authentification **OTP (On
 ```
 
 **Success Response** (200 OK):
+
+⚠️ **Important**: Les tokens sont retournés via **HTTP-Only Cookies** pour une sécurité optimale.
+
 ```json
 {
-  "authToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
     "id": 42,
     "email": "admin@myconnectt.fr",
@@ -135,6 +212,18 @@ Ce document décrit l'implémentation d'un système d'authentification **OTP (On
   }
 }
 ```
+
+**HTTP Response Headers (Cookies)**:
+```http
+Set-Cookie: access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Max-Age=900; Path=/
+Set-Cookie: refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Max-Age=604800; Path=/api/Auth/RefreshToken
+```
+
+**Cookies Détails**:
+| Cookie | Durée | Utilisation | Path |
+|--------|-------|-------------|------|
+| `access_token` | 15 minutes (900s) | Authentifier les requêtes API | `/` |
+| `refresh_token` | 7 jours (604800s) | Renouveler l'access_token | `/api/Auth/RefreshToken` |
 
 **Error Responses**:
 
@@ -194,6 +283,54 @@ Ce document décrit l'implémentation d'un système d'authentification **OTP (On
 
 ---
 
+### 4. Rafraîchissement du Token (Refresh Token)
+
+**Endpoint**: `POST /api/Auth/RefreshToken`
+
+**Description**: Permet de renouveler l'`access_token` expiré en utilisant le `refresh_token` stocké dans les cookies.
+
+**Request**: 
+- Pas de body requis
+- Le `refresh_token` est automatiquement envoyé via les cookies HTTP-Only
+
+**Success Response** (200 OK):
+
+```json
+{
+  "success": true,
+  "message": "Token rafraîchi avec succès"
+}
+```
+
+**HTTP Response Headers (Nouveaux Cookies)**:
+```http
+Set-Cookie: access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Max-Age=900; Path=/
+Set-Cookie: refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Max-Age=604800; Path=/api/Auth/RefreshToken
+```
+
+**Error Responses**:
+
+```json
+// 401 - Refresh token invalide ou expiré
+{
+  "success": false,
+  "message": "Refresh token invalide ou expiré. Reconnexion requise"
+}
+
+// 403 - Refresh token révoqué
+{
+  "success": false,
+  "message": "Session révoquée. Veuillez vous reconnecter"
+}
+```
+
+**Comportement Frontend**:
+- Si le refresh échoue (401/403), rediriger vers la page de login
+- Effacer les données utilisateur du Redux store
+- Afficher un message "Session expirée"
+
+---
+
 ## 🎨 Implémentation Frontend
 
 ### Structure des Fichiers
@@ -215,8 +352,9 @@ Ce document décrit l'implémentation d'un système d'authentification **OTP (On
 │   └── OTPAuthApi.js           # ✨ NOUVEAU: API OTP
 ├── sagas/shared/
 │   └── OTPAuthSagas.js         # ✨ NOUVEAU: Sagas OTP
-└── reducers/shared/
-    └── OTPAuthReducers.js      # ✨ NOUVEAU: Reducer OTP
+├── reducers/shared/
+│   └── OTPAuthReducers.js      # ✨ NOUVEAU: Reducer OTP
+└── setupAxios.js               # 🔄 MISE À JOUR: Interceptor refresh token
 ```
 
 ---
@@ -1029,6 +1167,156 @@ export function otpAuthReducer(state = initialState, action) {
 
 ---
 
+### 5. Configuration Axios - `setupAxios.js` 🔄 MISE À JOUR
+
+**Chemin**: `/src/business/setupAxios.js`
+
+**Description**: Configuration de l'intercepteur Axios pour gérer automatiquement le rafraîchissement des tokens via cookies.
+
+```javascript
+import axios from "axios";
+import { toastr } from "react-redux-toastr";
+
+const REFRESH_TOKEN_ENDPOINT = "/api/Auth/RefreshToken";
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  
+  failedQueue = [];
+};
+
+export default function setupAxios(axiosInstance, store) {
+  
+  // Request Interceptor
+  axiosInstance.interceptors.request.use(
+    config => {
+      // Les cookies sont automatiquement envoyés avec withCredentials
+      config.withCredentials = true;
+      
+      // Optionnel: Ajouter le token depuis Redux si disponible (rétrocompatibilité)
+      const { auth: { authToken } } = store.getState();
+      if (authToken) {
+        config.headers.Authorization = `Bearer ${authToken}`;
+      }
+      
+      return config;
+    },
+    err => Promise.reject(err)
+  );
+
+  // Response Interceptor - Gestion du refresh token
+  axiosInstance.interceptors.response.use(
+    response => response,
+    async error => {
+      const originalRequest = error.config;
+
+      // Si l'erreur n'est pas 401, ou c'est déjà une tentative de refresh, rejeter
+      if (
+        error.response?.status !== 401 || 
+        originalRequest.url === REFRESH_TOKEN_ENDPOINT ||
+        originalRequest._retry
+      ) {
+        return Promise.reject(error);
+      }
+
+      // Si un refresh est déjà en cours, mettre en queue
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => {
+            return axiosInstance(originalRequest);
+          })
+          .catch(err => {
+            return Promise.reject(err);
+          });
+      }
+
+      // Marquer la requête comme "retry"
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        // Appeler l'endpoint de refresh
+        // Le refresh_token est automatiquement envoyé via cookies
+        await axiosInstance.post(REFRESH_TOKEN_ENDPOINT, {}, {
+          withCredentials: true
+        });
+
+        // Nouveaux tokens reçus via Set-Cookie headers
+        // Les cookies sont automatiquement stockés par le navigateur
+        
+        // Traiter la queue des requêtes en attente
+        processQueue(null);
+        
+        // Réessayer la requête originale
+        return axiosInstance(originalRequest);
+        
+      } catch (refreshError) {
+        // Le refresh a échoué - déconnecter l'utilisateur
+        processQueue(refreshError, null);
+        
+        // Nettoyer le state Redux
+        store.dispatch({ type: "CLIENT_LOGOUT_REQUEST" });
+        
+        // Rediriger vers login
+        window.location.href = "/auth-backoffice/login";
+        
+        // Afficher message
+        toastr.error(
+          "Session expirée",
+          "Veuillez vous reconnecter"
+        );
+        
+        return Promise.reject(refreshError);
+        
+      } finally {
+        isRefreshing = false;
+      }
+    }
+  );
+}
+```
+
+**Points Clés**:
+
+1. **`withCredentials: true`**: Essentiel pour que les cookies soient envoyés avec chaque requête
+2. **Queue de requêtes**: Pendant le refresh, les requêtes sont mises en file d'attente
+3. **Éviter les boucles infinies**: `_retry` flag et check sur `REFRESH_TOKEN_ENDPOINT`
+4. **Déconnexion automatique**: Si le refresh échoue, l'utilisateur est redirigé vers login
+5. **Rétrocompatibilité**: Supporte aussi le Bearer token depuis Redux (pour migration progressive)
+
+---
+
+### 6. Configuration Axios dans l'Application
+
+**Chemin**: `/src/index.js` ou `/src/App.js`
+
+```javascript
+import axios from "axios";
+import setupAxios from "./business/setupAxios";
+import store from "./business/store";
+
+// Configurer Axios avec le store Redux
+setupAxios(axios, store);
+
+// Définir l'URL de base
+axios.defaults.baseURL = process.env.REACT_APP_WEBAPI_URL;
+
+// Activer les cookies pour toutes les requêtes
+axios.defaults.withCredentials = true;
+```
+
+---
+
 ## 🛣️ Configuration des Routes
 
 ### Mise à jour de `Routes.js`
@@ -1106,7 +1394,209 @@ const isValidOTP = (code) => {
 
 ---
 
-### 3. Email Template
+### 3. Sécurité des Cookies (Refresh Token System) 🔐
+
+#### Configuration des Cookies HTTP-Only
+
+**Backend (C# / ASP.NET Core)**:
+
+```csharp
+using Microsoft.AspNetCore.Http;
+
+public class TokenService
+{
+    public void SetAuthCookies(HttpResponse response, string accessToken, string refreshToken)
+    {
+        // Cookie Access Token (15 minutes)
+        var accessCookieOptions = new CookieOptions
+        {
+            HttpOnly = true,        // Inaccessible via JavaScript (Protection XSS)
+            Secure = true,          // HTTPS uniquement
+            SameSite = SameSiteMode.Strict,  // Protection CSRF
+            Path = "/",             // Accessible sur tout le site
+            MaxAge = TimeSpan.FromMinutes(15),
+            Domain = ".myconnectt.fr"  // Sous-domaines si nécessaire
+        };
+        response.Cookies.Append("access_token", accessToken, accessCookieOptions);
+
+        // Cookie Refresh Token (7 jours)
+        var refreshCookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Path = "/api/Auth/RefreshToken",  // Limité au endpoint refresh
+            MaxAge = TimeSpan.FromDays(7),
+            Domain = ".myconnectt.fr"
+        };
+        response.Cookies.Append("refresh_token", refreshToken, refreshCookieOptions);
+    }
+
+    public void ClearAuthCookies(HttpResponse response)
+    {
+        response.Cookies.Delete("access_token");
+        response.Cookies.Delete("refresh_token");
+    }
+}
+```
+
+#### Validation des Tokens Côté Backend
+
+```csharp
+[Authorize]
+public class AuthController : ControllerBase
+{
+    private readonly ITokenService _tokenService;
+    
+    [HttpPost("RefreshToken")]
+    public async Task<IActionResult> RefreshToken()
+    {
+        // Lire le refresh_token depuis les cookies
+        var refreshToken = Request.Cookies["refresh_token"];
+        
+        if (string.IsNullOrEmpty(refreshToken))
+        {
+            return Unauthorized(new { message = "Refresh token manquant" });
+        }
+
+        try
+        {
+            // Valider le refresh token
+            var principal = _tokenService.ValidateRefreshToken(refreshToken);
+            
+            // Vérifier si le token n'est pas révoqué (Redis/DB)
+            var isRevoked = await _tokenService.IsTokenRevoked(refreshToken);
+            if (isRevoked)
+            {
+                return Forbid(); // 403
+            }
+
+            // Générer nouveaux tokens
+            var newAccessToken = _tokenService.GenerateAccessToken(principal.Claims);
+            var newRefreshToken = _tokenService.GenerateRefreshToken();
+
+            // Stocker le nouveau refresh token (rotation)
+            await _tokenService.StoreRefreshToken(principal.UserId, newRefreshToken);
+            
+            // Révoquer l'ancien refresh token
+            await _tokenService.RevokeRefreshToken(refreshToken);
+
+            // Définir les nouveaux cookies
+            SetAuthCookies(Response, newAccessToken, newRefreshToken);
+
+            return Ok(new { success = true, message = "Token rafraîchi avec succès" });
+        }
+        catch (SecurityTokenException)
+        {
+            return Unauthorized(new { message = "Refresh token invalide ou expiré" });
+        }
+    }
+}
+```
+
+#### Bonnes Pratiques de Sécurité
+
+✅ **HttpOnly**: Empêche JavaScript d'accéder aux cookies (protection XSS)  
+✅ **Secure**: Cookies transmis uniquement via HTTPS  
+✅ **SameSite=Strict**: Protection contre les attaques CSRF  
+✅ **Path restreint**: Le refresh_token n'est envoyé qu'au endpoint `/api/Auth/RefreshToken`  
+✅ **Rotation des tokens**: À chaque refresh, nouveau refresh_token généré et ancien révoqué  
+✅ **Révocation**: Possibilité de révoquer tous les refresh tokens d'un utilisateur  
+✅ **Durée courte**: Access token expire en 15 minutes (minimise l'exposition)  
+
+#### Stockage des Refresh Tokens (Backend)
+
+**Option 1: Redis (Recommandé pour production)**
+```csharp
+public class RedisTokenStore
+{
+    private readonly IConnectionMultiplexer _redis;
+    
+    public async Task StoreRefreshToken(int userId, string refreshToken, TimeSpan expiry)
+    {
+        var db = _redis.GetDatabase();
+        var key = $"refresh_token:{userId}:{refreshToken}";
+        await db.StringSetAsync(key, "valid", expiry);
+    }
+    
+    public async Task<bool> IsTokenRevoked(string refreshToken)
+    {
+        var db = _redis.GetDatabase();
+        // Rechercher dans toutes les clés refresh_token
+        var exists = await db.KeyExistsAsync($"refresh_token:*:{refreshToken}");
+        return !exists; // Si n'existe pas = révoqué
+    }
+    
+    public async Task RevokeRefreshToken(string refreshToken)
+    {
+        var db = _redis.GetDatabase();
+        await db.KeyDeleteAsync($"refresh_token:*:{refreshToken}");
+    }
+    
+    public async Task RevokeAllUserTokens(int userId)
+    {
+        var db = _redis.GetDatabase();
+        var keys = _redis.GetServer("localhost", 6379)
+            .Keys(pattern: $"refresh_token:{userId}:*");
+        
+        foreach (var key in keys)
+        {
+            await db.KeyDeleteAsync(key);
+        }
+    }
+}
+```
+
+**Option 2: Base de données SQL**
+```sql
+CREATE TABLE RefreshTokens (
+    Id INT PRIMARY KEY IDENTITY,
+    UserId INT NOT NULL,
+    Token NVARCHAR(500) NOT NULL,
+    ExpiresAt DATETIME NOT NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    RevokedAt DATETIME NULL,
+    IsRevoked BIT DEFAULT 0,
+    FOREIGN KEY (UserId) REFERENCES Users(Id)
+);
+
+CREATE INDEX IX_RefreshTokens_Token ON RefreshTokens(Token);
+CREATE INDEX IX_RefreshTokens_UserId ON RefreshTokens(UserId);
+```
+
+#### Protection CORS
+
+**Backend Configuration**:
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddCors(options =>
+    {
+        options.AddPolicy("MyConnecttPolicy", builder =>
+        {
+            builder
+                .WithOrigins(
+                    "https://portail.myconnectt.fr",
+                    "https://dev.myconnectt.fr"
+                )
+                .AllowCredentials()  // Essentiel pour les cookies
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
+    });
+}
+
+public void Configure(IApplicationBuilder app)
+{
+    app.UseCors("MyConnecttPolicy");
+    app.UseAuthentication();
+    app.UseAuthorization();
+}
+```
+
+---
+
+### 4. Email Template
 
 **Template HTML pour Email OTP**:
 
@@ -1440,7 +1930,8 @@ describe("OTP Auth Sagas", () => {
   - [ ] Vérifier que le code existe et est valide
   - [ ] Vérifier que le code n'a pas expiré (5 min)
   - [ ] Compter les tentatives (max 5)
-  - [ ] Générer JWT token si valide
+  - [ ] Générer Access Token et Refresh Token
+  - [ ] Définir les cookies HTTP-Only (access_token, refresh_token)
   - [ ] Invalider le code après usage
   - [ ] Logger succès/échecs
 
@@ -1449,6 +1940,34 @@ describe("OTP Auth Sagas", () => {
   - [ ] Générer nouveau code
   - [ ] Implémenter cooldown (60 secondes)
   - [ ] Envoyer nouveau email
+
+- [ ] Créer endpoint `POST /api/Auth/RefreshToken` ⭐ NOUVEAU
+  - [ ] Lire refresh_token depuis les cookies
+  - [ ] Valider le refresh token (JWT signature)
+  - [ ] Vérifier que le token n'est pas révoqué (Redis/DB)
+  - [ ] Générer nouveaux access_token et refresh_token
+  - [ ] Rotation: Révoquer l'ancien refresh_token
+  - [ ] Stocker le nouveau refresh_token
+  - [ ] Définir les nouveaux cookies HTTP-Only
+  - [ ] Gérer les erreurs (401 si invalide/expiré)
+
+- [ ] Configuration Cookies ⭐ NOUVEAU
+  - [ ] Attribut HttpOnly pour sécurité XSS
+  - [ ] Attribut Secure (HTTPS uniquement)
+  - [ ] Attribut SameSite=Strict (protection CSRF)
+  - [ ] Path="/api/Auth/RefreshToken" pour refresh_token
+  - [ ] Expiration: 15 min (access), 7 jours (refresh)
+
+- [ ] Système de Révocation des Tokens ⭐ NOUVEAU
+  - [ ] Redis: Stockage des refresh tokens actifs
+  - [ ] Endpoint pour révoquer tous les tokens d'un utilisateur
+  - [ ] Nettoyage automatique des tokens expirés
+  - [ ] Blacklist des tokens révoqués
+
+- [ ] Configuration CORS ⭐ NOUVEAU
+  - [ ] AllowCredentials = true (pour cookies)
+  - [ ] Origins: Domaines autorisés uniquement
+  - [ ] Headers et méthodes appropriés
 
 - [ ] Configuration Email Service
   - [ ] Template HTML professionnel
@@ -1467,6 +1986,14 @@ describe("OTP Auth Sagas", () => {
   - [ ] Sagas: `OTPAuthSagas.js`
   - [ ] Reducer: `OTPAuthReducers.js`
   - [ ] Ajouter reducer au store
+
+- [ ] Configuration Axios ⭐ NOUVEAU
+  - [ ] Mettre à jour `setupAxios.js` avec intercepteur refresh token
+  - [ ] Ajouter `withCredentials: true` pour toutes les requêtes
+  - [ ] Implémenter queue de requêtes pendant refresh
+  - [ ] Gérer déconnexion automatique si refresh échoue
+  - [ ] Éviter boucles infinies (_retry flag)
+  - [ ] Configurer `axios.defaults.withCredentials = true`
 
 - [ ] Routing
   - [ ] Route `/auth-backoffice/otp-request`
@@ -1505,9 +2032,13 @@ describe("OTP Auth Sagas", () => {
 
 - [ ] Rate limiting backend
 - [ ] Validation inputs
-- [ ] Protection CSRF
+- [ ] Protection CSRF (SameSite cookies)
+- [ ] Protection XSS (HttpOnly cookies)
 - [ ] Logs d'audit
 - [ ] Alertes tentatives suspectes
+- [ ] Rotation des refresh tokens ⭐ NOUVEAU
+- [ ] Révocation des tokens compromis ⭐ NOUVEAU
+- [ ] HTTPS obligatoire en production ⭐ NOUVEAU
 
 ### Documentation
 
@@ -1522,30 +2053,322 @@ describe("OTP Auth Sagas", () => {
 
 ### Variables d'Environnement
 
-Aucune nouvelle variable requise. Utilise les variables existantes:
+**Frontend**: Aucune nouvelle variable requise. Utilise les variables existantes:
 - `REACT_APP_WEBAPI_URL`
 - `REACT_APP_TENANT_ID`
 
+**Backend** ⭐ NOUVELLES VARIABLES:
+- `JWT_ACCESS_TOKEN_SECRET`: Clé secrète pour signer l'access token
+- `JWT_REFRESH_TOKEN_SECRET`: Clé secrète pour signer le refresh token (différente!)
+- `ACCESS_TOKEN_EXPIRY`: Durée de vie access token (défaut: 15 minutes)
+- `REFRESH_TOKEN_EXPIRY`: Durée de vie refresh token (défaut: 7 jours)
+- `COOKIE_DOMAIN`: Domaine des cookies (ex: `.myconnectt.fr`)
+- `REDIS_CONNECTION_STRING`: Pour stocker les refresh tokens (si Redis)
+
+**Exemple `.env` Backend**:
+```bash
+JWT_ACCESS_TOKEN_SECRET=your-super-secret-access-key-min-32-chars
+JWT_REFRESH_TOKEN_SECRET=your-different-refresh-key-min-32-chars
+ACCESS_TOKEN_EXPIRY=900          # 15 minutes en secondes
+REFRESH_TOKEN_EXPIRY=604800      # 7 jours en secondes
+COOKIE_DOMAIN=.myconnectt.fr
+COOKIE_SECURE=true               # true en production (HTTPS)
+REDIS_CONNECTION_STRING=localhost:6379
+```
+
 ### Migration
 
-Pas de migration de données nécessaire (nouvelle fonctionnalité).
+**Base de données** (si pas Redis):
+```sql
+-- Créer table pour stocker les refresh tokens
+CREATE TABLE RefreshTokens (
+    Id INT PRIMARY KEY IDENTITY,
+    UserId INT NOT NULL,
+    Token NVARCHAR(500) NOT NULL,
+    ExpiresAt DATETIME NOT NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    RevokedAt DATETIME NULL,
+    IsRevoked BIT DEFAULT 0,
+    FOREIGN KEY (UserId) REFERENCES Users(Id)
+);
+
+CREATE INDEX IX_RefreshTokens_Token ON RefreshTokens(Token);
+CREATE INDEX IX_RefreshTokens_UserId ON RefreshTokens(UserId);
+CREATE INDEX IX_RefreshTokens_ExpiresAt ON RefreshTokens(ExpiresAt);
+```
+
+**Nettoyage périodique** (Job quotidien):
+```sql
+-- Supprimer les refresh tokens expirés
+DELETE FROM RefreshTokens 
+WHERE ExpiresAt < GETDATE() OR IsRevoked = 1;
+```
+
+### Configuration HTTPS/SSL
+
+⚠️ **IMPORTANT**: Les cookies `Secure` nécessitent HTTPS en production.
+
+**Certificat SSL**:
+- Production: Utiliser Let's Encrypt ou certificat Azure
+- Dev/Test: Accepter certificat auto-signé localement
+
+**Nginx Configuration** (si applicable):
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name portail.myconnectt.fr;
+    
+    ssl_certificate /etc/ssl/certs/myconnectt.crt;
+    ssl_certificate_key /etc/ssl/private/myconnectt.key;
+    
+    # Headers de sécurité
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+    
+    location /api {
+        proxy_pass http://localhost:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
 
 ### Rollback Plan
 
 Si besoin de rollback:
-1. Désactiver les nouvelles routes
+
+**Frontend**:
+1. Désactiver les nouvelles routes OTP
 2. Rediriger vers login classique
-3. Désactiver les endpoints OTP backend
+3. Reverter `setupAxios.js` à l'ancienne version (sans refresh interceptor)
+4. Supprimer `axios.defaults.withCredentials = true`
+
+**Backend**:
+1. Désactiver les endpoints OTP
+2. Revenir aux JWT tokens dans le body (au lieu de cookies)
+3. Désactiver l'endpoint `/api/Auth/RefreshToken`
+4. Supprimer la configuration CORS `AllowCredentials`
+
+**Base de données** (si migration effectuée):
+```sql
+-- Facultatif: Conserver la table pour logs
+-- DROP TABLE RefreshTokens;
+```
+
+**Vérification Post-Rollback**:
+- [ ] Login classique fonctionne
+- [ ] JWT token reçu dans response body
+- [ ] Token stocké dans Redux/localStorage
+- [ ] Pas d'erreurs CORS
+- [ ] Requêtes API fonctionnent
 
 ---
 
 ## 📈 Métriques à Suivre
 
+### Authentification OTP
 1. **Taux d'utilisation OTP**: % admins utilisant OTP
 2. **Taux de succès**: % codes OTP validés
 3. **Temps moyen**: Temps entre demande et vérification
 4. **Erreurs fréquentes**: Types d'erreurs rencontrés
 5. **Tentatives échouées**: Détection patterns suspects
+
+### Refresh Token System ⭐ NOUVEAU
+6. **Taux de refresh**: Nombre de refresh tokens utilisés par jour
+7. **Échecs de refresh**: % de refresh échoués (token invalide/expiré)
+8. **Durée de session moyenne**: Temps avant expiration du refresh token
+9. **Révocations**: Nombre de tokens révoqués manuellement
+10. **Performance**: Temps de réponse de `/api/Auth/RefreshToken`
+11. **Charge Redis**: Nombre de refresh tokens stockés
+12. **Sessions actives**: Nombre d'utilisateurs avec refresh token valide
+
+---
+
+## 🔄 Migration de l'Ancien au Nouveau Système
+
+### Comparaison: JWT Body vs HTTP-Only Cookies
+
+| Aspect | ❌ Ancien Système (JWT Body) | ✅ Nouveau Système (Cookies) |
+|--------|------------------------------|------------------------------|
+| **Stockage Token** | Response body JSON | HTTP-Only Cookies |
+| **Frontend Storage** | Redux + localStorage | Pas de stockage frontend (cookies auto) |
+| **Envoi Token** | Header `Authorization: Bearer` | Cookies automatiques |
+| **Sécurité XSS** | ⚠️ Vulnérable (localStorage accessible) | ✅ Protégé (HttpOnly inaccessible JS) |
+| **Protection CSRF** | ✅ Pas de risque | ✅ Protégé (SameSite=Strict) |
+| **Refresh Token** | ❌ Non implémenté | ✅ Rotation automatique |
+| **Durée de vie** | Long (risque si volé) | Court (15 min access, 7j refresh) |
+| **Révocation** | ❌ Difficile | ✅ Facile (blacklist Redis) |
+| **Multi-onglets** | ✅ Partagé via localStorage | ✅ Partagé via cookies |
+| **Logout** | Clear localStorage | Clear cookies (backend) |
+
+### Stratégie de Migration Progressive
+
+#### Phase 1: Support Hybride (Recommandé)
+
+Le système supporte les deux méthodes simultanément:
+
+**Backend**:
+```csharp
+[HttpPost("VerifyOTP")]
+public async Task<IActionResult> VerifyOTP([FromBody] VerifyOTPRequest request)
+{
+    // Valider OTP...
+    var user = await ValidateOTP(request.Email, request.OtpCode);
+    
+    var accessToken = GenerateAccessToken(user);
+    var refreshToken = GenerateRefreshToken(user);
+    
+    // NOUVEAU: Définir les cookies
+    SetAuthCookies(Response, accessToken, refreshToken);
+    
+    // ANCIEN: Retourner aussi dans body (rétrocompatibilité)
+    return Ok(new
+    {
+        authToken = accessToken,  // Pour anciens clients
+        user = user
+    });
+}
+```
+
+**Frontend `setupAxios.js`**:
+```javascript
+// Support hybride
+axiosInstance.interceptors.request.use(config => {
+  config.withCredentials = true;  // Pour cookies
+  
+  // Rétrocompatibilité: Bearer token si disponible
+  const { auth: { authToken } } = store.getState();
+  if (authToken) {
+    config.headers.Authorization = `Bearer ${authToken}`;
+  }
+  
+  return config;
+});
+```
+
+#### Phase 2: Migration Complète
+
+1. **Semaine 1-2**: Déployer support hybride
+2. **Semaine 3**: Monitoring - vérifier que cookies fonctionnent
+3. **Semaine 4**: Forcer déconnexion tous les utilisateurs (migration)
+4. **Semaine 5**: Retirer le support JWT body
+5. **Semaine 6+**: Système 100% cookies
+
+### Code de Migration Frontend
+
+**Avant (Ancien système)**:
+```javascript
+// AuthSaga.js
+export function* verifyOTPSaga({ payload }) {
+  const response = yield call(api.verifyOTPApi, payload);
+  
+  // Token dans response.data.authToken
+  yield put({
+    type: "LOGIN_SUCCESS",
+    payload: {
+      authToken: response.data.authToken,  // ❌ Stocké dans Redux
+      user: response.data.user
+    }
+  });
+}
+
+// AuthReducer.js
+case "LOGIN_SUCCESS":
+  return {
+    authToken: action.payload.authToken,  // ❌ Persisted to localStorage
+    user: action.payload.user
+  };
+```
+
+**Après (Nouveau système)**:
+```javascript
+// AuthSaga.js
+export function* verifyOTPSaga({ payload }) {
+  const response = yield call(api.verifyOTPApi, payload);
+  
+  // Tokens dans cookies HTTP-Only (automatique)
+  // Pas besoin de les gérer
+  yield put({
+    type: "LOGIN_SUCCESS",
+    payload: {
+      user: response.data.user  // ✅ Seulement les données user
+    }
+  });
+}
+
+// AuthReducer.js
+case "LOGIN_SUCCESS":
+  return {
+    // authToken: Retiré! Géré par cookies
+    user: action.payload.user  // ✅ Seulement user data
+  };
+```
+
+### Nettoyage Post-Migration
+
+**Supprimer de Redux State**:
+```javascript
+// Avant
+const initialAuthState = {
+  user: undefined,
+  authToken: undefined,  // ❌ À retirer
+  loading: false
+};
+
+// Après
+const initialAuthState = {
+  user: undefined,
+  // authToken retiré - géré par cookies
+  loading: false
+};
+```
+
+**Mettre à jour persistReducer**:
+```javascript
+// Avant
+export const clientAuthReducer = persistReducer(
+  { 
+    storage, 
+    key: "myconnectt-auth", 
+    whitelist: ["user", "authToken"]  // ❌ authToken à retirer
+  },
+  reducer
+);
+
+// Après
+export const clientAuthReducer = persistReducer(
+  { 
+    storage, 
+    key: "myconnectt-auth", 
+    whitelist: ["user"]  // ✅ Seulement user
+  },
+  reducer
+);
+```
+
+**Nettoyer localStorage existant**:
+```javascript
+// À exécuter une fois après déploiement
+if (localStorage.getItem("persist:myconnectt-auth")) {
+  const stored = JSON.parse(localStorage.getItem("persist:myconnectt-auth"));
+  if (stored.authToken) {
+    delete stored.authToken;
+    localStorage.setItem("persist:myconnectt-auth", JSON.stringify(stored));
+  }
+}
+```
 
 ---
 
