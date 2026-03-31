@@ -19,7 +19,7 @@ Ce document décrit l'implémentation d'un système d'authentification **OTP (On
 
 1. ÉTAPE 1: Saisie de l'Email
    ┌────────────────────────────────────────┐
-   │  Page: /auth-backoffice/otp-request    │
+   │  Page: /auth/otp-request               │
    │  ┌──────────────────────────────────┐  │
    │  │  Email: [__________________]     │  │
    │  │                                  │  │
@@ -27,8 +27,8 @@ Ce document décrit l'implémentation d'un système d'authentification **OTP (On
    │  └──────────────────────────────────┘  │
    └────────────────────────────────────────┘
                     ↓
-   POST /api/Auth/SendOTP
-   Request: { email, tenantId }
+   POST /api/user/SendOtp
+   Request: { tenantID: 1, email }
                     ↓
    Backend génère code OTP à 6 chiffres
    Backend envoie email avec le code
@@ -36,7 +36,7 @@ Ce document décrit l'implémentation d'un système d'authentification **OTP (On
                     ↓
 2. ÉTAPE 2: Vérification du Code OTP
    ┌────────────────────────────────────────┐
-   │  Page: /auth-backoffice/otp-verify    │
+   │  Page: /auth/otp-verify                │
    │  ┌──────────────────────────────────┐  │
    │  │  Code OTP:                       │  │
    │  │  ┌──┐ ┌──┐ ┌──┐ ┌──┐ ┌──┐ ┌──┐ │  │
@@ -49,26 +49,32 @@ Ce document décrit l'implémentation d'un système d'authentification **OTP (On
    │  └──────────────────────────────────┘  │
    └────────────────────────────────────────┘
                     ↓
-   POST /api/Auth/VerifyOTP
-   Request: { email, otpCode }
+   POST /api/user/Authentificate
+   Request: { tenantID: 1, email, otp }
                     ↓
    Backend vérifie le code OTP
    Backend définit les cookies HTTP-Only:
-     → access_token (15 min)
-     → refresh_token (7 jours)
+     → accessToken (15 min)
+     → refreshToken (7 jours)
                     ↓
 3. AUTHENTIFICATION RÉUSSIE
-   Redirection vers /backoffice/dashboard
+   Redirection vers /dashboard
    
-4. RAFRAÎCHISSEMENT AUTOMATIQUE
+4. RAFRAÎCHISSEMENT AUTOMATIQUE (toutes les 10 minutes)
    ┌────────────────────────────────────────┐
-   │  Axios Interceptor                     │
+   │  Axios Interceptor + Proactive Refresh │
    │  ┌──────────────────────────────────┐  │
-   │  │  Requête API échoue (401)        │  │
+   │  │  Timer: 10 minutes écoulées      │  │
    │  │  ↓                               │  │
-   │  │  POST /api/Auth/RefreshToken     │  │
+   │  │  POST /api/user/RefreshToken     │  │
    │  │  ↓                               │  │
    │  │  Nouveaux cookies reçus          │  │
+   │  │  ↓                               │  │
+   │  │  Reset timer pour 10 minutes     │  │
+   │  │                                  │  │
+   │  │  OU: Requête API échoue (401)    │  │
+   │  │  ↓                               │  │
+   │  │  POST /api/user/RefreshToken     │  │
    │  │  ↓                               │  │
    │  │  Réessayer la requête initiale   │  │
    │  └──────────────────────────────────┘  │
@@ -138,15 +144,23 @@ Le système utilise des **HTTP-Only Cookies** pour stocker les tokens au lieu du
 
 ## 📡 Endpoints API Backend
 
+### Configuration Tenant par Défaut
+
+**TenantID par défaut**: `1`
+
+Tous les appels API utilisent le tenantID = 1 sauf indication contraire.
+
+---
+
 ### 1. Envoi du Code OTP
 
-**Endpoint**: `POST /api/Auth/SendOTP`
+**Endpoint**: `POST /api/user/SendOtp`
 
 **Request Body**:
 ```json
 {
-  "email": "admin@myconnectt.fr",
-  "tenantId": 1
+  "tenantID": 1,
+  "email": "user@myconnectt.fr"
 }
 ```
 
@@ -183,16 +197,16 @@ Le système utilise des **HTTP-Only Cookies** pour stocker les tokens au lieu du
 
 ---
 
-### 2. Vérification du Code OTP
+### 2. Authentification avec Code OTP
 
-**Endpoint**: `POST /api/Auth/VerifyOTP`
+**Endpoint**: `POST /api/user/Authentificate`
 
 **Request Body**:
 ```json
 {
-  "email": "admin@myconnectt.fr",
-  "otpCode": "123456",
-  "tenantId": 1
+  "tenantID": 1,
+  "email": "user@myconnectt.fr",
+  "otp": "123456"
 }
 ```
 
@@ -215,15 +229,17 @@ Le système utilise des **HTTP-Only Cookies** pour stocker les tokens au lieu du
 
 **HTTP Response Headers (Cookies)**:
 ```http
-Set-Cookie: access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Max-Age=900; Path=/
-Set-Cookie: refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Max-Age=604800; Path=/api/Auth/RefreshToken
+Set-Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Max-Age=900; Path=/
+Set-Cookie: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Max-Age=604800; Path=/api/user/RefreshToken
 ```
 
 **Cookies Détails**:
 | Cookie | Durée | Utilisation | Path |
 |--------|-------|-------------|------|
-| `access_token` | 15 minutes (900s) | Authentifier les requêtes API | `/` |
-| `refresh_token` | 7 jours (604800s) | Renouveler l'access_token | `/api/Auth/RefreshToken` |
+| `accessToken` | 15 minutes (900s) | Authentifier les requêtes API | `/` |
+| `refreshToken` | 7 jours (604800s) | Renouveler l'accessToken | `/api/user/RefreshToken` |
+
+⚠️ **Note Importante**: Le système effectue une rotation proactive du token toutes les **10 minutes** pour éviter l'expiration à 15 minutes.
 
 **Error Responses**:
 
@@ -249,49 +265,17 @@ Set-Cookie: refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Sec
 
 ---
 
-### 3. Renvoi du Code OTP
+### 3. Rafraîchissement du Token (Refresh Token)
 
-**Endpoint**: `POST /api/Auth/ResendOTP`
+**Endpoint**: `POST /api/user/RefreshToken`
 
-**Request Body**:
-```json
-{
-  "email": "admin@myconnectt.fr",
-  "tenantId": 1
-}
-```
+**Description**: Permet de renouveler l'`accessToken` expiré en utilisant le `refreshToken` stocké dans les cookies.
 
-**Success Response** (200 OK):
-```json
-{
-  "success": true,
-  "message": "Nouveau code OTP envoyé",
-  "expiresIn": 300
-}
-```
-
-**Error Responses**:
-
-```json
-// 429 - Cooldown actif
-{
-  "success": false,
-  "message": "Veuillez attendre 60 secondes avant de demander un nouveau code",
-  "retryAfter": 45
-}
-```
-
----
-
-### 4. Rafraîchissement du Token (Refresh Token)
-
-**Endpoint**: `POST /api/Auth/RefreshToken`
-
-**Description**: Permet de renouveler l'`access_token` expiré en utilisant le `refresh_token` stocké dans les cookies.
+**Rotation Proactive**: Le système effectue automatiquement une rotation toutes les **10 minutes** pour éviter l'expiration à 15 minutes.
 
 **Request**: 
 - Pas de body requis
-- Le `refresh_token` est automatiquement envoyé via les cookies HTTP-Only
+- Le `refreshToken` est automatiquement envoyé via les cookies HTTP-Only
 
 **Success Response** (200 OK):
 
@@ -304,8 +288,8 @@ Set-Cookie: refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Sec
 
 **HTTP Response Headers (Nouveaux Cookies)**:
 ```http
-Set-Cookie: access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Max-Age=900; Path=/
-Set-Cookie: refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Max-Age=604800; Path=/api/Auth/RefreshToken
+Set-Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Max-Age=900; Path=/
+Set-Cookie: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Max-Age=604800; Path=/api/user/RefreshToken
 ```
 
 **Error Responses**:
@@ -328,6 +312,48 @@ Set-Cookie: refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Sec
 - Si le refresh échoue (401/403), rediriger vers la page de login
 - Effacer les données utilisateur du Redux store
 - Afficher un message "Session expirée"
+
+---
+
+### 4. Révocation du Token (Logout)
+
+**Endpoint**: `POST /api/user/RevokeToken`
+
+**Description**: Révoque les tokens de l'utilisateur courant, terminant ainsi la session.
+
+**Request**: 
+- Pas de body requis
+- Le `refreshToken` est automatiquement envoyé via les cookies HTTP-Only
+
+**Success Response** (200 OK):
+
+```json
+{
+  "success": true,
+  "message": "Token révoqué avec succès"
+}
+```
+
+**HTTP Response Headers (Suppression des Cookies)**:
+```http
+Set-Cookie: accessToken=; HttpOnly; Secure; SameSite=Strict; Max-Age=0; Path=/
+Set-Cookie: refreshToken=; HttpOnly; Secure; SameSite=Strict; Max-Age=0; Path=/api/user/RefreshToken
+```
+
+**Error Responses**:
+
+```json
+// 401 - Pas de token valide
+{
+  "success": false,
+  "message": "Aucune session active à révoquer"
+}
+```
+
+**Comportement Frontend**:
+- Appeler cet endpoint lors du logout utilisateur
+- Effacer les données Redux
+- Rediriger vers la page de login
 
 ---
 
