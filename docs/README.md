@@ -16,13 +16,20 @@ Bienvenue dans la documentation technique de **MyConnectt**, une application Rea
    - Protection des routes
    - Gestion des tokens
 
-3. [Environnements et Déploiement](./DEPLOYMENT.md)
+3. [Authentification OTP BackOffice](./OTP_AUTHENTICATION.md) ⭐ **NOUVEAU**
+   - Authentification à deux facteurs (2FA)
+   - Page de demande de code OTP (email)
+   - Page de vérification du code à 6 chiffres
+   - Intégration Redux complète
+   - Sécurité et bonnes pratiques
+
+4. [Environnements et Déploiement](./DEPLOYMENT.md)
    - Environnements disponibles
    - Configuration Docker
    - Scripts de build
    - Déploiement Azure
 
-4. [API et Intégration Backend](./API_INTEGRATION.md)
+5. [API et Intégration Backend](./API_INTEGRATION.md)
    - Configuration Axios
    - Endpoints principaux
    - Intercepteurs de requêtes
