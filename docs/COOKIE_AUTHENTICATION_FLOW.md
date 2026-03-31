@@ -316,6 +316,19 @@ Set-Cookie: accessToken=xxx;
 
 ## 🔍 Comment Débugger?
 
+### ⚠️ Cookies Non Visibles? 
+
+**Si vous ne voyez PAS les cookies `accessToken` et `refreshToken` dans votre navigateur:**
+
+➡️ **[Consultez le Guide de Dépannage Complet](./TROUBLESHOOTING_COOKIES.md)** 🔧
+
+Le problème vient probablement du **backend** qui ne définit pas correctement les cookies. Le guide de dépannage couvre:
+- Diagnostic étape par étape avec DevTools Network
+- Configuration backend requise (ASP.NET Core, Node.js)
+- Configuration CORS avec `AllowCredentials`
+- Tests avec cURL et Postman
+- Solutions par environnement (Dev HTTP, Azure HTTPS, Prod)
+
 ### Voir les Cookies dans le Navigateur
 
 1. Ouvrir DevTools (F12)

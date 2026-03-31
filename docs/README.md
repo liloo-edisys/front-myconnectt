@@ -30,13 +30,20 @@ Bienvenue dans la documentation technique de **MyConnectt**, une application Rea
    - Refresh automatique des tokens
    - Guide de débogage
 
-5. [Environnements et Déploiement](./DEPLOYMENT.md)
+5. [Dépannage - Cookies Non Définis](./TROUBLESHOOTING_COOKIES.md) 🔧 **NOUVEAU**
+   - Diagnostic: Cookies accessToken/refreshToken absents
+   - Configuration backend requise (ASP.NET Core, Node.js)
+   - Configuration CORS avec AllowCredentials
+   - Tests avec cURL et Postman
+   - Solutions par environnement (Dev, Azure, Prod)
+
+6. [Environnements et Déploiement](./DEPLOYMENT.md)
    - Environnements disponibles
    - Configuration Docker
    - Scripts de build
    - Déploiement Azure
 
-6. [API et Intégration Backend](./API_INTEGRATION.md)
+7. [API et Intégration Backend](./API_INTEGRATION.md)
    - Configuration Axios
    - Endpoints principaux
    - Intercepteurs de requêtes
