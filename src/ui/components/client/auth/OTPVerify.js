@@ -24,16 +24,18 @@ const OTPVerify = ({ intl }) => {
     useRef()
   ];
 
-  const { loading, email, isAuthenticated, error, user } = useSelector(
+  const { loading, email, isAuthenticated, error } = useSelector(
     state => ({
       loading: state.otpAuth?.loading || false,
       email: state.otpAuth?.email || "",
       isAuthenticated: state.otpAuth?.isAuthenticated || false,
-      error: state.otpAuth?.error || null,
-      user: state.auth?.user || null
+      error: state.otpAuth?.error || null
     }),
     shallowEqual
   );
+  
+  // Separate selector for user to avoid timing issues with shallowEqual
+  const user = useSelector(state => state.auth?.user || null);
 
   // Debug logs
   const fullAuthState = useSelector(state => state.auth);

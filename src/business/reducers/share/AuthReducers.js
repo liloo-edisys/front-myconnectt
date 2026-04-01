@@ -1,6 +1,6 @@
 import * as actionTypes from "constants/constants";
 
-import { persistReducer } from "redux-persist";
+import { persistReducer, REHYDRATE } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { INTERIMAIRE_REGISTER_BY_MOBILE_SUCCESS } from "../../types/authTypes";
 import { REVOKE_TOKEN_SUCCESS } from "../../actions/shared/OTPAuthActions";
@@ -71,6 +71,20 @@ export const clientAuthReducer = persistReducer(
       // This ensures auth state is cleared when cookies are invalidated
       case REVOKE_TOKEN_SUCCESS: {
         return initialAuthState;
+      }
+      
+      // Handle Redux Persist REHYDRATE
+      case REHYDRATE: {
+        console.log("[AuthReducer] REHYDRATE action received");
+        console.log("[AuthReducer] REHYDRATE payload:", action.payload);
+        console.log("[AuthReducer] Current state:", state);
+        
+        // If rehydrating the auth reducer specifically
+        if (action.payload && action.payload.auth) {
+          console.log("[AuthReducer] Rehydrating auth state:", action.payload.auth);
+          return action.payload.auth;
+        }
+        return state;
       }
 
       default:
