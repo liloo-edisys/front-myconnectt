@@ -57,7 +57,10 @@ export const clientAuthReducer = persistReducer(
         console.log("[AuthReducer] action.payload.user:", action.payload.user);
         const { user } = action.payload;
         console.log("[AuthReducer] Extracted user:", user);
-        return { ...state, user };
+        const newState = { ...state, user };
+        console.log("[AuthReducer] New state being returned:", newState);
+        console.log("[AuthReducer] New state.user:", newState.user);
+        return newState;
       }
       case actionTypes.SWITCH_COMPANY_SUCCESS: {
         const { data } = action.payload;

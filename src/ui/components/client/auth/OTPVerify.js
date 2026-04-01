@@ -36,13 +36,15 @@ const OTPVerify = ({ intl }) => {
   );
 
   // Debug logs
+  const fullAuthState = useSelector(state => state.auth);
   useEffect(() => {
     console.log("[OTPVerify] State changed:");
     console.log("  - isAuthenticated:", isAuthenticated);
     console.log("  - user:", user);
     console.log("  - email:", email);
     console.log("  - loading:", loading);
-  }, [isAuthenticated, user, email, loading]);
+    console.log("  - FULL state.auth:", fullAuthState);
+  }, [isAuthenticated, user, email, loading, fullAuthState]);
 
   // Redirect if no email (user came directly to this page)
   useEffect(() => {
