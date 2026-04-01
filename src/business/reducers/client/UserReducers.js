@@ -9,7 +9,7 @@ const initialUserState = {
 };
 
 export const clientUserReducer = persistReducer(
-  { storage, key: "myconnectt-user", whitelist: ["user", "authToken"] },
+  { storage, key: "myconnectt-user", whitelist: ["user"] },
   (state = initialUserState, action) => {
     switch (action.type) {
       case actionTypes.GET_USER_REQUEST: {
