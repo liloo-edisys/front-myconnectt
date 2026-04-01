@@ -51,6 +51,13 @@ Bienvenue dans la documentation technique de **MyConnectt**, une application Rea
    - Solutions pour problèmes backend/CORS/Secure
    - Checklist complète frontend + backend
 
+5b. [🐛 Débogage - isAuthenticated=true mais user=null](./DEBUG_OTP_USER_NULL.md) 🔥 **NOUVEAU**
+   - Diagnostic: isAuthenticated est true mais user est null après OTP
+   - Logs de débogage détaillés ajoutés
+   - 5 scénarios de problèmes avec solutions
+   - Tests manuels pour identifier la cause
+   - Checklist de diagnostic complète
+
 6. [Environnements et Déploiement](./DEPLOYMENT.md)
    - Environnements disponibles
    - Configuration Docker
