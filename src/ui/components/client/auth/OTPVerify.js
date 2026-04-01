@@ -35,6 +35,15 @@ const OTPVerify = ({ intl }) => {
     shallowEqual
   );
 
+  // Debug logs
+  useEffect(() => {
+    console.log("[OTPVerify] State changed:");
+    console.log("  - isAuthenticated:", isAuthenticated);
+    console.log("  - user:", user);
+    console.log("  - email:", email);
+    console.log("  - loading:", loading);
+  }, [isAuthenticated, user, email, loading]);
+
   // Redirect if no email (user came directly to this page)
   useEffect(() => {
     if (!email) {

@@ -52,7 +52,11 @@ export const clientAuthReducer = persistReducer(
         return initialAuthState;
       }
       case actionTypes.CLIENT_USER__SUCCESS: {
+        console.log("[AuthReducer] CLIENT_USER__SUCCESS received, action:", action);
+        console.log("[AuthReducer] action.payload:", action.payload);
+        console.log("[AuthReducer] action.payload.user:", action.payload.user);
         const { user } = action.payload;
+        console.log("[AuthReducer] Extracted user:", user);
         return { ...state, user };
       }
       case actionTypes.SWITCH_COMPANY_SUCCESS: {
