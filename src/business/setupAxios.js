@@ -1,4 +1,4 @@
-import { refreshTokenRequest } from "./actions/shared/OTPAuthActions";
+import { refreshTokenRequest, updateAccessToken } from "./actions/shared/OTPAuthActions";
 
 const REFRESH_TOKEN_ENDPOINT = "/api/user/RefreshToken";
 const PROACTIVE_REFRESH_INTERVAL = 4 * 60 * 1000; // 4 minutes in milliseconds (access token expires at 5 min)
@@ -23,7 +23,7 @@ const processQueue = error => {
  * Start proactive token refresh timer
  * Refreshes token every 4 minutes to prevent 5-minute expiration
  */
-const startProactiveRefresh = axios => {
+const startProactiveRefresh = (axios, store) => {
   // Clear any existing timer
   if (refreshTimer) {
     clearInterval(refreshTimer);
@@ -33,7 +33,7 @@ const startProactiveRefresh = axios => {
   refreshTimer = setInterval(async () => {
     try {
       console.log("Proactive token refresh triggered (4 minutes elapsed)");
-      await axios.post(
+      const response = await axios.post(
         REFRESH_TOKEN_ENDPOINT,
         {},
         {
@@ -41,6 +41,14 @@ const startProactiveRefresh = axios => {
         }
       );
       console.log("Proactive token refresh successful");
+      
+      // Extract and update access token
+      const newAccessToken = response.data?.accessToken || response.data?.AccessToken;
+      if (newAccessToken && store) {
+        console.log("Updating access token from proactive refresh");
+        const { updateAccessToken } = require("./actions/shared/OTPAuthActions");
+        store.dispatch(updateAccessToken(newAccessToken));
+      }
     } catch (error) {
       console.error("Proactive token refresh failed:", error);
       // If proactive refresh fails, the 401 interceptor will handle it
@@ -64,16 +72,19 @@ export default function setupAxios(axios, store) {
   // ============================================
   axios.interceptors.request.use(
     config => {
-      // Enable cookies to be sent with every request
+      // Enable cookies to be sent with every request (for refresh token)
       config.withCredentials = true;
 
-      // Backward compatibility: Add Authorization header if authToken exists in Redux
-      const {
-        auth: { authToken }
-      } = store.getState();
+      // Get access token from Redux state
+      const state = store.getState();
+      const accessToken = state.auth?.accessToken;
 
-      if (authToken) {
-        config.headers.Authorization = `Bearer ${authToken}`;
+      // Add access token to Authorization header if available
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+        console.log("[setupAxios] Added access token to Authorization header");
+      } else {
+        console.log("[setupAxios] No access token available in Redux state");
       }
 
       // Add required headers for all API calls
@@ -122,7 +133,7 @@ export default function setupAxios(axios, store) {
       try {
         // Attempt to refresh the token
         console.log("[setupAxios] Attempting to refresh token due to 401 error");
-        await axios.post(
+        const refreshResponse = await axios.post(
           REFRESH_TOKEN_ENDPOINT,
           {},
           {
@@ -131,6 +142,16 @@ export default function setupAxios(axios, store) {
         );
 
         console.log("[setupAxios] Token refresh successful");
+        
+        // Extract new access token from refresh response
+        const newAccessToken = refreshResponse.data?.accessToken || refreshResponse.data?.AccessToken;
+        if (newAccessToken) {
+          console.log("[setupAxios] New access token received, updating Redux state");
+          store.dispatch(updateAccessToken(newAccessToken));
+        } else {
+          console.warn("[setupAxios] No access token in refresh response");
+        }
+        
         // Refresh successful - process queued requests
         processQueue(null);
 
@@ -166,11 +187,11 @@ export default function setupAxios(axios, store) {
   // Check if user is authenticated and start proactive refresh
   const state = store.getState();
   const isAuthenticated =
-    state.otpAuth?.isAuthenticated || state.auth?.authToken || state.auth?.user;
+    state.otpAuth?.isAuthenticated || state.auth?.accessToken || state.auth?.user;
 
   if (isAuthenticated) {
     console.log("[setupAxios] User is authenticated, starting proactive refresh");
-    startProactiveRefresh(axios);
+    startProactiveRefresh(axios, store);
   }
 
   // Listen to authentication state changes
@@ -178,12 +199,12 @@ export default function setupAxios(axios, store) {
     const currentState = store.getState();
     const currentlyAuthenticated =
       currentState.otpAuth?.isAuthenticated || 
-      currentState.auth?.authToken || 
+      currentState.auth?.accessToken || 
       currentState.auth?.user;
 
     if (currentlyAuthenticated && !refreshTimer) {
       console.log("[setupAxios] Auth state changed to authenticated, starting proactive refresh");
-      startProactiveRefresh(axios);
+      startProactiveRefresh(axios, store);
     } else if (!currentlyAuthenticated && refreshTimer) {
       console.log("[setupAxios] Auth state changed to unauthenticated, stopping proactive refresh");
       stopProactiveRefresh();

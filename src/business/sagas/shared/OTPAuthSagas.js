@@ -62,6 +62,10 @@ export function* authenticateOtpSaga({ payload }) {
       throw new Error("[OTPAuthSaga] Invalid response data: expected object, got " + typeof response.data);
     }
     
+    // Extract access token from response
+    const accessToken = response.data.accessToken || response.data.AccessToken;
+    console.log("[OTPAuthSaga] Access token extracted:", accessToken ? "present" : "missing");
+    
     if (!response.data.userID) {
       console.warn("[OTPAuthSaga] WARNING: response.data missing userID field");
     }
@@ -69,14 +73,14 @@ export function* authenticateOtpSaga({ payload }) {
     yield put(authenticateOtpSuccess(response.data));
     console.log("[OTPAuthSaga] Dispatched authenticateOtpSuccess");
     
-    // Also update the main auth reducer with user data to enable proper authorization
+    // Also update the main auth reducer with user data AND access token to enable proper authorization
     // This allows Routes.js to recognize the user as authenticated
     // API returns user data directly in response.data (not nested under response.data.user)
-    console.log("[OTPAuthSaga] About to dispatch requestUser.success with:", response.data);
-    const action = requestUser.success(response.data);
+    console.log("[OTPAuthSaga] About to dispatch requestUser.success with user data and access token");
+    const action = requestUser.success({ ...response.data, accessToken });
     console.log("[OTPAuthSaga] Action to dispatch:", action);
     yield put(action);
-    console.log("[OTPAuthSaga] Dispatched requestUser.success");
+    console.log("[OTPAuthSaga] Dispatched requestUser.success with access token");
     
     // Small delay to ensure actions are processed
     yield call(delay, 100);

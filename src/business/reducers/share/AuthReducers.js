@@ -3,10 +3,11 @@ import * as actionTypes from "constants/constants";
 import { persistReducer, REHYDRATE } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { INTERIMAIRE_REGISTER_BY_MOBILE_SUCCESS } from "../../types/authTypes";
-import { REVOKE_TOKEN_SUCCESS } from "../../actions/shared/OTPAuthActions";
+import { REVOKE_TOKEN_SUCCESS, UPDATE_ACCESS_TOKEN } from "../../actions/shared/OTPAuthActions";
 
 const initialAuthState = {
   user: undefined,
+  accessToken: null, // Access token from OTP auth (not persisted for security)
   loading: false
 };
 
@@ -55,9 +56,10 @@ export const clientAuthReducer = persistReducer(
         console.log("[AuthReducer] CLIENT_USER__SUCCESS received, action:", action);
         console.log("[AuthReducer] action.payload:", action.payload);
         console.log("[AuthReducer] action.payload.user:", action.payload.user);
-        const { user } = action.payload;
+        const { user, accessToken } = action.payload;
         console.log("[AuthReducer] Extracted user:", user);
-        const newState = { ...state, user };
+        console.log("[AuthReducer] Extracted accessToken:", accessToken ? "present" : "not present");
+        const newState = { ...state, user, accessToken: accessToken || state.accessToken };
         console.log("[AuthReducer] New state being returned:", newState);
         console.log("[AuthReducer] New state.user:", newState.user);
         return newState;
@@ -71,6 +73,16 @@ export const clientAuthReducer = persistReducer(
       // This ensures auth state is cleared when cookies are invalidated
       case REVOKE_TOKEN_SUCCESS: {
         return initialAuthState;
+      }
+      
+      // Handle UPDATE_ACCESS_TOKEN after token refresh
+      case UPDATE_ACCESS_TOKEN: {
+        console.log("[AuthReducer] UPDATE_ACCESS_TOKEN received");
+        console.log("[AuthReducer] New access token:", action.payload.accessToken ? "present" : "missing");
+        return {
+          ...state,
+          accessToken: action.payload.accessToken
+        };
       }
       
       // Handle Redux Persist REHYDRATE

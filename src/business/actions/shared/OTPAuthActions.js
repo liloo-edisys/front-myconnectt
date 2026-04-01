@@ -11,6 +11,8 @@ export const REFRESH_TOKEN_REQUEST = "REFRESH_TOKEN_REQUEST";
 export const REFRESH_TOKEN_SUCCESS = "REFRESH_TOKEN_SUCCESS";
 export const REFRESH_TOKEN_FAILURE = "REFRESH_TOKEN_FAILURE";
 
+export const UPDATE_ACCESS_TOKEN = "UPDATE_ACCESS_TOKEN"; // For updating access token after refresh
+
 export const REVOKE_TOKEN_REQUEST = "REVOKE_TOKEN_REQUEST";
 export const REVOKE_TOKEN_SUCCESS = "REVOKE_TOKEN_SUCCESS";
 export const REVOKE_TOKEN_FAILURE = "REVOKE_TOKEN_FAILURE";
@@ -120,5 +122,16 @@ export function revokeTokenFailure(error) {
 export function clearOtpState() {
   return {
     type: CLEAR_OTP_STATE
+  };
+}
+
+// ============================================
+// Update Access Token Action
+// ============================================
+
+export function updateAccessToken(accessToken) {
+  return {
+    type: UPDATE_ACCESS_TOKEN,
+    payload: { accessToken }
   };
 }
