@@ -82,6 +82,16 @@ export const clientAuthReducer = persistReducer(
         // If rehydrating the auth reducer specifically
         if (action.payload && action.payload.auth) {
           console.log("[AuthReducer] Rehydrating auth state:", action.payload.auth);
+          
+          // IMPORTANT: Don't overwrite active session with persisted state
+          // If current state has a user, keep it (user just logged in)
+          // Otherwise, restore persisted state (page refresh with existing session)
+          if (state.user) {
+            console.log("[AuthReducer] Current state has user, preserving active session");
+            return state;
+          }
+          
+          console.log("[AuthReducer] No active user, restoring persisted state");
           return action.payload.auth;
         }
         return state;

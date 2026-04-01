@@ -1,4 +1,4 @@
-import { call, put, takeLatest, all } from "redux-saga/effects";
+import { call, put, takeLatest, all, delay } from "redux-saga/effects";
 import { toastr } from "react-redux-toastr";
 import {
   SEND_OTP_REQUEST,
@@ -57,6 +57,15 @@ export function* authenticateOtpSaga({ payload }) {
     console.log("[OTPAuthSaga] Response data type:", typeof response.data);
     console.log("[OTPAuthSaga] Response data keys:", response.data ? Object.keys(response.data) : 'no data');
     
+    // Validate response data
+    if (!response.data || typeof response.data !== 'object') {
+      throw new Error("[OTPAuthSaga] Invalid response data: expected object, got " + typeof response.data);
+    }
+    
+    if (!response.data.userID) {
+      console.warn("[OTPAuthSaga] WARNING: response.data missing userID field");
+    }
+    
     yield put(authenticateOtpSuccess(response.data));
     console.log("[OTPAuthSaga] Dispatched authenticateOtpSuccess");
     
@@ -64,8 +73,14 @@ export function* authenticateOtpSaga({ payload }) {
     // This allows Routes.js to recognize the user as authenticated
     // API returns user data directly in response.data (not nested under response.data.user)
     console.log("[OTPAuthSaga] About to dispatch requestUser.success with:", response.data);
-    yield put(requestUser.success(response.data));
+    const action = requestUser.success(response.data);
+    console.log("[OTPAuthSaga] Action to dispatch:", action);
+    yield put(action);
     console.log("[OTPAuthSaga] Dispatched requestUser.success");
+    
+    // Small delay to ensure actions are processed
+    yield call(delay, 100);
+    console.log("[OTPAuthSaga] Waited 100ms for actions to process");
 
     toastr.success("Authentification réussie", "Vous êtes maintenant connecté");
   } catch (error) {
