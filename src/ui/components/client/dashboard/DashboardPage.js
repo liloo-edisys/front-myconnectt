@@ -62,7 +62,7 @@ function DashboardPage({ intl, history }) {
       user: state.contacts.user,
       userDetails: state.auth.user,
       companies: state.companies.companies,
-      currentCompanyID: state.auth.user.accountID,
+      currentCompanyID: state.auth.user?.accountID,
       step: state.dashboard.step
     }),
     shallowEqual
@@ -71,6 +71,12 @@ function DashboardPage({ intl, history }) {
   const [windowWidth, setWindowWidth] = useState(null);
   const [toggleSimulator, setToogleSimilator] = useState(false);
   useEffect(() => {
+    // Only dispatch if userDetails is available (user is authenticated)
+    if (!userDetails || !userDetails.tenantID) {
+      console.warn("[DashboardPage] userDetails or tenantID not available yet");
+      return;
+    }
+    
     dispatch(
       getDashboardDatas.request({
         displayChoice: type,
@@ -86,7 +92,7 @@ function DashboardPage({ intl, history }) {
     if (windowWidth && windowWidth <= 768 && step < 14) {
       goToNextStep(user, 13, dispatch, true);
     }
-  }, [dispatch, type, userDetails, user, windowWidth]);
+  }, [dispatch, type, userDetails, user, windowWidth, step]);
 
   const renderStatus = () => {
     return user && user.isAdmin ? "Administrateur" : "Utilisateur";
