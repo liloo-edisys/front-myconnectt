@@ -54,7 +54,9 @@ const OTPVerify = ({ intl }) => {
         return;
       }
 
-      console.log("BackOffice authentication successful, redirecting to dashboard");
+      console.log(
+        "BackOffice authentication successful, redirecting to dashboard"
+      );
       // Redirect to BackOffice dashboard
       history.push("/backoffice-dashboard");
     }

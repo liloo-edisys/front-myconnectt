@@ -19,7 +19,7 @@ import DocumentDisplay from "./components/shared/DocumentDisplay";
 
 export function Routes() {
   const dispatch = useDispatch();
-  
+
   // Only BackOffice authentication is supported
   let { isAuthorized, isBackOffice } = useSelector(
     ({ auth }) => ({
@@ -43,7 +43,10 @@ export function Routes() {
       <Route path="/logout" component={LogoutBackOffice} />
 
       {/* Document display */}
-      <Route path="/document/display/:documentUrl" component={DocumentDisplay} />
+      <Route
+        path="/document/display/:documentUrl"
+        component={DocumentDisplay}
+      />
 
       {/* BackOffice Main Application */}
       {!isAuthorized ? (
