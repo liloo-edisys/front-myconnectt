@@ -16,9 +16,7 @@ import {
 } from "../../actions/shared/OTPAuthActions";
 import {
   sendOtp as sendOtpApi,
-  authenticateWithOtp as authenticateWithOtpApi,
-  refreshToken as refreshTokenApi,
-  revokeToken as revokeTokenApi
+  authenticateWithOtp as authenticateWithOtpApi
 } from "../../api/shared/AuthApi";
 
 /**
@@ -63,30 +61,29 @@ export function* authenticateOtpSaga({ payload }) {
 }
 
 /**
- * Saga: Refresh access token using refresh token
+ * Saga: Refresh access token
+ * Since tokens are stored in Redux state (not cookies), refresh is not supported
+ * User will need to re-authenticate when token expires or page refreshes
  */
 export function* refreshTokenSaga() {
   try {
-    yield call(refreshTokenApi);
-    yield put(refreshTokenSuccess());
-
-    // Silent success - no toastr needed for automatic refresh
-    console.log("Token refreshed successfully");
+    // No refresh mechanism - user needs to re-authenticate
+    yield put(refreshTokenFailure({ message: "Token refresh not supported. Please re-authenticate." }));
+    
+    console.log("Token refresh not supported with state-based auth");
   } catch (error) {
     yield put(refreshTokenFailure(error.response?.data || error.message));
-
-    // Only show error for manual refresh attempts
-    // Automatic refresh failures are handled in setupAxios
-    console.error("Token refresh failed:", error);
+    console.error("Token refresh error:", error);
   }
 }
 
 /**
  * Saga: Revoke user's tokens (logout)
+ * Since tokens are stored in Redux state (not cookies), we only need to clear local state
  */
 export function* revokeTokenSaga() {
   try {
-    yield call(revokeTokenApi);
+    // Simply clear the Redux state - no API call needed since token is in state only
     yield put(revokeTokenSuccess());
 
     toastr.success(
@@ -94,12 +91,10 @@ export function* revokeTokenSaga() {
       "Vous avez été déconnecté avec succès"
     );
   } catch (error) {
-    yield put(revokeTokenFailure(error.response?.data || error.message));
+    // Logout locally even if there's an error
+    yield put(revokeTokenSuccess());
 
-    // Even if revoke fails, we should still logout on frontend
-    console.error("Token revocation failed:", error);
-
-    toastr.warning("Déconnexion", "Vous avez été déconnecté localement");
+    toastr.info("Déconnexion", "Vous avez été déconnecté localement");
   }
 }
 

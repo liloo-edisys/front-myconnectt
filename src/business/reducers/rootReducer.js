@@ -2,7 +2,6 @@ import * as actionTypes from "constants/constants";
 
 import { reducer as toastrReducer } from "react-redux-toastr";
 import { clientAuthReducer } from "reducers/share/AuthReducers";
-import { persistedOtpAuthReducer } from "reducers/share/OTPAuthReducers";
 import { combineReducers } from "redux";
 import { clientApplicantsReducer } from "./client/ApplicantsReducers";
 
@@ -25,7 +24,6 @@ import { missionsBackOfficeReducer } from "./backoffice/MissionsReducers";
 
 const appReducer = combineReducers({
   auth: clientAuthReducer,
-  otpAuth: persistedOtpAuthReducer, // OTP Authentication reducer
   companies: clientCompaniesReducer,
   contacts: clientContactsReducer,
   dashboard: clientDashboardReducer,

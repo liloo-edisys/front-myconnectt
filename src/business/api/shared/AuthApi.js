@@ -13,7 +13,7 @@ export const REGISTER_ACCOUNT_URL =
 export const SEND_OTP_URL =
   process.env.REACT_APP_WEBAPI_URL + "api/user/SendOtp";
 export const AUTHENTICATE_OTP_URL =
-  process.env.REACT_APP_WEBAPI_URL + "api/user/Authenticate";
+  process.env.REACT_APP_WEBAPI_URL + "api/User/Authenticate/NoS";
 export const REFRESH_TOKEN_URL =
   process.env.REACT_APP_WEBAPI_URL + "api/user/RefreshToken";
 export const REVOKE_TOKEN_URL =
@@ -196,10 +196,7 @@ export function sendOtp(email) {
   const tenantID = TENANTID;
   return axios.post(
     SEND_OTP_URL,
-    { tenantID, email },
-    {
-      withCredentials: true
-    }
+    { tenantID, email }
   );
 }
 
@@ -208,44 +205,13 @@ export function sendOtp(email) {
  * @param {Object} data - Authentication data
  * @param {string} data.email - User's email
  * @param {string} data.otp - OTP code received by email
- * @returns {Promise} API response with user data and cookies
+ * @returns {Promise} API response with user data (UserID, UserName, TenantID, UserRole, UserType, AccountID, ApplicantID, AccessToken)
  */
 export function authenticateWithOtp(data) {
   const tenantID = TENANTID;
   const { email, otp } = data;
   return axios.post(
     AUTHENTICATE_OTP_URL,
-    { tenantID, email, otp },
-    {
-      withCredentials: true
-    }
-  );
-}
-
-/**
- * Refresh access token using refresh token from cookies
- * @returns {Promise} API response with new tokens in cookies
- */
-export function refreshToken() {
-  return axios.post(
-    REFRESH_TOKEN_URL,
-    {},
-    {
-      withCredentials: true
-    }
-  );
-}
-
-/**
- * Revoke current user's tokens (logout)
- * @returns {Promise} API response
- */
-export function revokeToken() {
-  return axios.post(
-    REVOKE_TOKEN_URL,
-    {},
-    {
-      withCredentials: true
-    }
+    { tenantID, email, otp }
   );
 }

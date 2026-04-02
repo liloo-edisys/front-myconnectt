@@ -13,9 +13,9 @@ const OTPRequest = ({ intl }) => {
 
   const { loading, otpSent, error } = useSelector(
     state => ({
-      loading: state.otpAuth?.loading || false,
-      otpSent: state.otpAuth?.otpSent || false,
-      error: state.otpAuth?.error || null
+      loading: state.auth?.loading || false,
+      otpSent: state.auth?.otpSent || false,
+      error: state.auth?.error || null
     }),
     shallowEqual
   );

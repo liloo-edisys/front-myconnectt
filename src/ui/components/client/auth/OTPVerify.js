@@ -6,8 +6,7 @@ import { useHistory } from "react-router-dom";
 import * as Yup from "yup";
 import {
   authenticateOtpRequest,
-  sendOtpRequest,
-  clearOtpState
+  sendOtpRequest
 } from "actions/shared/OTPAuthActions";
 import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
 
@@ -24,15 +23,18 @@ const OTPVerify = ({ intl }) => {
     useRef()
   ];
 
-  const { loading, email, isAuthenticated, error } = useSelector(
+  const { loading, email, user, error } = useSelector(
     state => ({
-      loading: state.otpAuth?.loading || false,
-      email: state.otpAuth?.email || "",
-      isAuthenticated: state.otpAuth?.isAuthenticated || false,
-      error: state.otpAuth?.error || null
+      loading: state.auth?.loading || false,
+      email: state.auth?.otpEmail || "",
+      user: state.auth?.user || null,
+      error: state.auth?.error || null
     }),
     shallowEqual
   );
+
+  const isAuthenticated = user != null;
+  const userType = user?.userType || null;
 
   // Redirect if no email (user came directly to this page)
   useEffect(() => {
@@ -44,11 +46,25 @@ const OTPVerify = ({ intl }) => {
   // Redirect on successful authentication
   useEffect(() => {
     if (isAuthenticated) {
-      // Clear OTP state after successful auth
-      dispatch(clearOtpState());
-      history.push("/dashboard");
+      console.log("OTP authentication successful, redirecting based on userType:", userType);
+      // Determine redirect path based on userType
+      let redirectPath = "/dashboard"; // Default to client dashboard
+      
+      if (userType === 0) {
+        // Interimaire
+        redirectPath = "/int-dashboard";
+      } else if (userType === 2) {
+        // BackOffice
+        redirectPath = "/backoffice-dashboard";
+      } else if (userType === 1) {
+        // Client
+        redirectPath = "/dashboard";
+      }
+
+      // Redirect to appropriate dashboard
+      history.push(redirectPath);
     }
-  }, [isAuthenticated, history, dispatch]);
+  }, [isAuthenticated, userType, history]);
 
   const handleInputChange = (index, value) => {
     // Only allow digits

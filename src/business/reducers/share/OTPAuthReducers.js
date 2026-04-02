@@ -13,11 +13,17 @@ import {
   REVOKE_TOKEN_FAILURE,
   CLEAR_OTP_STATE
 } from "../../actions/shared/OTPAuthActions";
-import { persistReducer } from "redux-persist";
-import storage from "redux-persist/lib/storage";
 
 const initialState = {
   user: null,
+  userId: null,
+  userName: null,
+  tenantId: null,
+  userRole: null,
+  userType: null,
+  accountId: null,
+  applicantId: null,
+  accessToken: null,
   loading: false,
   error: null,
   otpSent: false,
@@ -66,7 +72,15 @@ function otpAuthReducer(state = initialState, action) {
       return {
         ...state,
         loading: false,
-        user: action.payload.user || action.payload,
+        user: action.payload,
+        userId: action.payload.userID || action.payload.userId,
+        userName: action.payload.userName,
+        tenantId: action.payload.tenantID || action.payload.tenantId,
+        userRole: action.payload.userRole,
+        userType: action.payload.userType,
+        accountId: action.payload.accountID || action.payload.accountId,
+        applicantId: action.payload.applicantID || action.payload.applicantId,
+        accessToken: action.payload.accessToken,
         isAuthenticated: true,
         error: null,
         otpSent: false
@@ -124,15 +138,5 @@ function otpAuthReducer(state = initialState, action) {
       return state;
   }
 }
-
-// Persist only user data, NOT tokens (tokens are in HTTP-Only cookies)
-export const persistedOtpAuthReducer = persistReducer(
-  {
-    storage,
-    key: "myconnectt-otp-auth",
-    whitelist: ["user", "isAuthenticated"] // Only persist user data
-  },
-  otpAuthReducer
-);
 
 export default otpAuthReducer;
