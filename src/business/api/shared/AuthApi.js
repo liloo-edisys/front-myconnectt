@@ -194,10 +194,7 @@ export function registerConfirm(token) {
  */
 export function sendOtp(email) {
   const tenantID = TENANTID;
-  return axios.post(
-    SEND_OTP_URL,
-    { tenantID, email }
-  );
+  return axios.post(SEND_OTP_URL, { tenantID, email });
 }
 
 /**
@@ -210,8 +207,5 @@ export function sendOtp(email) {
 export function authenticateWithOtp(data) {
   const tenantID = TENANTID;
   const { email, otp } = data;
-  return axios.post(
-    AUTHENTICATE_OTP_URL,
-    { tenantID, email, otp }
-  );
+  return axios.post(AUTHENTICATE_OTP_URL, { tenantID, email, otp });
 }

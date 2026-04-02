@@ -43,26 +43,20 @@ const OTPVerify = ({ intl }) => {
     }
   }, [email, history]);
 
-  // Redirect on successful authentication
+  // Redirect on successful authentication - BackOffice only
   useEffect(() => {
     if (isAuthenticated) {
-      console.log("OTP authentication successful, redirecting based on userType:", userType);
-      // Determine redirect path based on userType
-      let redirectPath = "/dashboard"; // Default to client dashboard
-      
-      if (userType === 0) {
-        // Interimaire
-        redirectPath = "/int-dashboard";
-      } else if (userType === 2) {
-        // BackOffice
-        redirectPath = "/backoffice-dashboard";
-      } else if (userType === 1) {
-        // Client
-        redirectPath = "/dashboard";
+      // Only BackOffice users (userType === 2) are allowed
+      if (userType !== 2) {
+        console.error("Access denied: Only BackOffice users are allowed");
+        // Logout and redirect to login
+        history.push("/auth/otp-request");
+        return;
       }
 
-      // Redirect to appropriate dashboard
-      history.push(redirectPath);
+      console.log("BackOffice authentication successful, redirecting to dashboard");
+      // Redirect to BackOffice dashboard
+      history.push("/backoffice-dashboard");
     }
   }, [isAuthenticated, userType, history]);
 

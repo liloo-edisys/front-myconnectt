@@ -68,8 +68,12 @@ export function* authenticateOtpSaga({ payload }) {
 export function* refreshTokenSaga() {
   try {
     // No refresh mechanism - user needs to re-authenticate
-    yield put(refreshTokenFailure({ message: "Token refresh not supported. Please re-authenticate." }));
-    
+    yield put(
+      refreshTokenFailure({
+        message: "Token refresh not supported. Please re-authenticate."
+      })
+    );
+
     console.log("Token refresh not supported with state-based auth");
   } catch (error) {
     yield put(refreshTokenFailure(error.response?.data || error.message));
