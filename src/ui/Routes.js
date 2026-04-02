@@ -5,114 +5,61 @@
  * components (e.g: `src/app/modules/Auth/pages/AuthPage`, `src/app/BasePage`).
  */
 
-import React, { useEffect } from "react";
+import React from "react";
 
 import { ErrorPage1 } from "components/errors/ErrorPage1";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import { Redirect, Switch, Route } from "react-router-dom";
 
 import { Layout } from "../_metronic/layout";
-import { Logout, AuthPage } from "../ui/components/client/auth";
-import { AuthBackOffice } from "../ui/components/backoffice/auth/AuthBackOffice";
+import { OTPRequest, OTPVerify } from "../ui/components/client/auth";
 import LogoutBackOffice from "../ui/components/backoffice/auth/Logout";
-import { AuthInterimaire } from "../ui/components/interimaire/auth/AuthInterimaire";
-import LogoutInterimaire from "../ui/components/interimaire/auth/LogoutInterimaire";
-import RegisterConfirmInterimaire from "../ui/components/interimaire/auth/RegisterConfirmInterimaire";
-import RegisterConfirm from "../ui/components/client/auth/RegisterConfirm";
-import ResetPassword from "../ui/components/client/auth/ResetPassword";
-import { getNationalitiesList } from "../business/actions/interimaire/InterimairesActions";
-
-import BasePage from "./BasePage";
-import BaseInterimairePage from "./BaseInterimairePage";
 import BaseBackOfficePage from "./BaseBackOfficePage";
 import DocumentDisplay from "./components/shared/DocumentDisplay";
 
 export function Routes() {
-  const { step } = useSelector(state => state.interimairesReducerData);
   const dispatch = useDispatch();
-  useEffect(() => {
-    getNationalitiesList(dispatch);
-  }, []);
-  let { isAuthorized, isInterimaire, isBackOffice, isCustomer } = useSelector(
-    ({ auth, user }) => ({
-      isAuthorized: auth.user != null,
-      isInterimaire: auth.user != null ? auth.user.userType === 0 : false,
-      isCustomer: auth.user != null ? auth.user.userType === 1 : false,
-      isBackOffice: auth.user != null ? auth.user.userType === 2 : false,
-      user: user.user
+
+  // Only BackOffice authentication is supported
+  let { isAuthorized, isBackOffice } = useSelector(
+    ({ auth }) => ({
+      isAuthorized: auth.user != null && auth.user.userType === 2,
+      isBackOffice: auth.user != null && auth.user.userType === 2
     }),
     shallowEqual
   );
 
-  if (!isAuthorized) {
-    isInterimaire = window.location.href.indexOf("int-") > 0;
-    if (!isInterimaire)
-      isBackOffice = window.location.href.indexOf("backoffice-") > 0;
-  }
-
   return (
     <Switch>
-      {!isAuthorized ? (
-        /*Render auth page when user at `/auth` and not authorized.*/
-        isInterimaire ? (
-          <Route>
-            <AuthInterimaire />
-          </Route>
-        ) : isBackOffice ? (
-          <Route>
-            <AuthBackOffice />
-          </Route>
-        ) : (
-          <Route>
-            <AuthPage />
-          </Route>
-        )
-      ) : (
-        /*Otherwise redirect to root page (`/`)*/
-        <Redirect from="/auth" to="/" />
-      )}
+      {/* BackOffice OTP Authentication Routes */}
+      <Route path="/auth/otp-request" component={OTPRequest} />
+      <Route path="/auth/otp-verify" component={OTPVerify} />
+      <Route path="/auth/login" component={OTPRequest} />
+      <Route path="/auth" component={OTPRequest} />
 
+      {/* Utility routes */}
       <Route path="/error" component={ErrorPage1} />
-      <Route path="/logout" component={Logout} />
-      <Route path="/int-logout" component={LogoutInterimaire} />
       <Route path="/backoffice-logout" component={LogoutBackOffice} />
-      <Route path="/auth/login" component={AuthPage} />
-      <Route path="/auth/backoffice-login" component={AuthBackOffice} />
-      <Route path="/auth/int-login" component={AuthInterimaire} />
-      <Route path="/auth/reset-password" component={ResetPassword} />
-      <Route path="/auth/register-confirm" component={RegisterConfirm} />
+      <Route path="/logout" component={LogoutBackOffice} />
+
+      {/* Document display */}
       <Route
         path="/document/display/:documentUrl"
         component={DocumentDisplay}
       />
-      <Route
-        path="/auth/int-register-confirm"
-        component={RegisterConfirmInterimaire}
-      />
+
+      {/* BackOffice Main Application */}
       {!isAuthorized ? (
-        isInterimaire ? (
-          /*Redirect to `/auth` when user is not authorized*/
-          /*<Redirect to="/auth/int-login" />*/
-          <Redirect to="/auth/int-register-confirm-code" />
-        ) : (
-          <Redirect to="/auth/login" />
-        )
-      ) : isInterimaire ? (
-        <div style={{ overflow: (step === 0 || step === 3) && "hidden" }}>
-          <Layout>
-            <BaseInterimairePage />
-          </Layout>
-        </div>
+        /* Redirect to login if not authorized */
+        <Redirect to="/auth/login" />
       ) : isBackOffice ? (
+        /* BackOffice Layout */
         <Layout>
           <BaseBackOfficePage />
         </Layout>
-      ) : isCustomer ? (
-        <Layout>
-          <BasePage />
-        </Layout>
       ) : (
-        <Layout />
+        /* Invalid user type - redirect to login */
+        <Redirect to="/auth/login" />
       )}
     </Switch>
   );

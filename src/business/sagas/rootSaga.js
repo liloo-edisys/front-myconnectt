@@ -1,5 +1,6 @@
 import { all, call, fork, spawn } from "redux-saga/effects";
 import AuthSaga from "./shared/AuthSagas";
+import OTPAuthSagas from "./shared/OTPAuthSagas";
 
 import CompaniesSagas from "./client/CompaniesSagas";
 import ContactsSagas from "./client/ContactsSagas";
@@ -22,6 +23,7 @@ import ApplicantsBackofficeSagas from "./backoffice/ApplicantsSagas";
 export function* startWatchers() {
   yield all([
     spawn(AuthSaga),
+    spawn(OTPAuthSagas), // OTP Authentication Sagas
     spawn(CompaniesSagas),
     spawn(ContactsSagas),
     spawn(DashboardSagas),

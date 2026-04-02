@@ -133,3 +133,53 @@
 .react-datepicker-popper {
   transform: none !important;
 }
+
+// OTP Authentication animations and styles
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-5px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+// Enhanced button hover effects for OTP pages
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(25, 148, 218, 0.4) !important;
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-light-primary:hover:not(:disabled) {
+  background-color: #e1f0ff !important;
+  transform: translateY(-1px);
+}
+
+// OTP input focus effects
+input[type="text"]:focus,
+input[type="email"]:focus {
+  border-color: #1994da !important;
+  box-shadow: 0 0 0 3px rgba(25, 148, 218, 0.1) !important;
+}
+
+// Smooth transitions
+.btn,
+input,
+.alert {
+  transition: all 0.3s ease;
+}

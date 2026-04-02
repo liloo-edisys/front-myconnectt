@@ -1,11 +1,23 @@
 import axios from "axios";
 import { toastr } from "react-redux-toastr";
 
-export const TENANTID = +process.env.REACT_APP_TENANT_ID;
+// Updated default tenant ID to 1
+export const TENANTID = 1;
+
 export const LOGIN_URL =
   process.env.REACT_APP_WEBAPI_URL + "api/User/Authenticate";
 export const REGISTER_ACCOUNT_URL =
   process.env.REACT_APP_WEBAPI_URL + "api/Account/Subscribe";
+
+// OTP Authentication Endpoints
+export const SEND_OTP_URL =
+  process.env.REACT_APP_WEBAPI_URL + "api/user/SendOtp";
+export const AUTHENTICATE_OTP_URL =
+  process.env.REACT_APP_WEBAPI_URL + "api/User/Authenticate/NoS";
+export const REFRESH_TOKEN_URL =
+  process.env.REACT_APP_WEBAPI_URL + "api/user/RefreshToken";
+export const REVOKE_TOKEN_URL =
+  process.env.REACT_APP_WEBAPI_URL + "api/user/RevokeToken";
 
 // OLD URL WITH EMAIL
 /*export const REGISTER_INTERIMAIRE_URL =
@@ -169,4 +181,31 @@ export function resetPassword(token, NewPassword) {
 export function registerConfirm(token) {
   const tenantID = TENANTID;
   return axios.put(REGISTER_CONFIRM_URL, { tenantID, token });
+}
+
+// ============================================
+// OTP Authentication Functions
+// ============================================
+
+/**
+ * Send OTP code to user's email
+ * @param {string} email - User's email address
+ * @returns {Promise} API response
+ */
+export function sendOtp(email) {
+  const tenantID = TENANTID;
+  return axios.post(SEND_OTP_URL, { tenantID, email });
+}
+
+/**
+ * Authenticate user with OTP code
+ * @param {Object} data - Authentication data
+ * @param {string} data.email - User's email
+ * @param {string} data.otp - OTP code received by email
+ * @returns {Promise} API response with user data (UserID, UserName, TenantID, UserRole, UserType, AccountID, ApplicantID, AccessToken)
+ */
+export function authenticateWithOtp(data) {
+  const tenantID = TENANTID;
+  const { email, otp } = data;
+  return axios.post(AUTHENTICATE_OTP_URL, { tenantID, email, otp });
 }
